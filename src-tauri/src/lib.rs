@@ -159,10 +159,12 @@ fn init_panel(window: tauri::WebviewWindow) {
     // Set panel to screen saver level to appear above fullscreen apps
     panel.set_level(NSScreenSaverWindowLevel);
 
-    // Style mask for non-activating panel
+    // Style mask for non-activating panel + resizable
+    #[allow(non_upper_case_globals)]
+    const NSWindowStyleMaskResizable: i32 = 1 << 3;
     #[allow(non_upper_case_globals)]
     const NSWindowStyleMaskNonActivatingPanel: i32 = 1 << 7;
-    panel.set_style_mask(NSWindowStyleMaskNonActivatingPanel);
+    panel.set_style_mask(NSWindowStyleMaskNonActivatingPanel | NSWindowStyleMaskResizable);
 
     // Collection behavior for:
     // - Display on same space as fullscreen window

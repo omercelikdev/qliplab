@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { DragBar } from './components/layout/DragBar';
-import { TabBar } from './components/layout/TabBar';
+import { Sidebar } from './components/layout/Sidebar';
+import { SearchBar } from './components/layout/DragBar';
 import { HintBar } from './components/layout/HintBar';
 import { Splitter } from './components/layout/Splitter';
+import { ResizeBorder } from './components/layout/ResizeBorder';
 import { HistoryList } from './components/history/HistoryList';
 import { SnippetList } from './components/snippets/SnippetList';
 import { VaultList } from './components/vault/VaultList';
@@ -98,30 +99,36 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className={cn('h-screen w-screen flex flex-col overflow-hidden', 'glass rounded-lg border border-border')}>
-        <DragBar />
-        <TabBar />
-        <div className="flex flex-1 overflow-hidden">
-          <div
-            className="overflow-hidden"
-            style={{ width: showSidePanel ? listWidth : '100%' }}
-          >
-            {activeTab === 'history' && <HistoryList />}
-            {activeTab === 'snippets' && <SnippetList />}
-            {activeTab === 'vault' && <VaultList />}
+      <ResizeBorder />
+      <div className={cn('h-screen w-screen flex overflow-hidden', 'glass rounded-lg border border-border')}>
+        {/* Left Sidebar with Brand */}
+        <Sidebar />
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <SearchBar />
+          <div className="flex flex-1 overflow-hidden">
+            <div
+              className="overflow-hidden"
+              style={{ width: showSidePanel ? listWidth : '100%' }}
+            >
+              {activeTab === 'history' && <HistoryList />}
+              {activeTab === 'snippets' && <SnippetList />}
+              {activeTab === 'vault' && <VaultList />}
+            </div>
+            {showSidePanel && (
+              <Splitter
+                onResize={handleSplitterResize}
+                minListWidth={MIN_LIST_WIDTH}
+                maxListWidth={MAX_LIST_WIDTH}
+              />
+            )}
+            <AnimatePresence mode="wait">
+              {showSidePanel && <PreviewPanel />}
+            </AnimatePresence>
           </div>
-          {showSidePanel && (
-            <Splitter
-              onResize={handleSplitterResize}
-              minListWidth={MIN_LIST_WIDTH}
-              maxListWidth={MAX_LIST_WIDTH}
-            />
-          )}
-          <AnimatePresence mode="wait">
-            {showSidePanel && <PreviewPanel />}
-          </AnimatePresence>
+          <HintBar />
         </div>
-        <HintBar />
       </div>
 
       <ErrorReportingOptIn isOpen={showOptIn} onClose={() => setShowOptIn(false)} />

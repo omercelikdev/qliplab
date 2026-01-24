@@ -1,8 +1,6 @@
-import { useState } from 'react';
-import { GitCompareArrows, ArrowUp, ArrowDown, CornerDownLeft, Settings } from 'lucide-react';
+import { GitCompareArrows, ArrowUp, ArrowDown, CornerDownLeft } from 'lucide-react';
 import { useAppStore } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
-import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { cn } from '@/lib/utils';
 
 function Kbd({ children }: { children: React.ReactNode }) {
@@ -14,7 +12,6 @@ function Kbd({ children }: { children: React.ReactNode }) {
 }
 
 export function HintBar() {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isDiffMode = useAppStore((state) => state.isDiffMode);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const setDiffMode = useAppStore((state) => state.setDiffMode);
@@ -60,46 +57,32 @@ export function HintBar() {
   }
 
   return (
-    <>
-      <div className={cn('h-9 flex items-center justify-between px-3', 'border-t border-border/50 text-xs text-muted-foreground')}>
-        {/* Left: Navigation hints */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <Kbd><ArrowUp className="w-2.5 h-2.5" /></Kbd>
-            <Kbd><ArrowDown className="w-2.5 h-2.5" /></Kbd>
-            <span className="ml-1">navigate</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Kbd><CornerDownLeft className="w-2.5 h-2.5" /></Kbd>
-            <span className="ml-1">paste</span>
-          </div>
-        </div>
-
-        {/* Right: Actions */}
+    <div className={cn('h-9 flex items-center justify-between px-3', 'border-t border-border/50 text-xs text-muted-foreground')}>
+      {/* Left: Navigation hints */}
+      <div className="flex items-center gap-3">
         <div className="flex items-center gap-1">
-          <button
-            onClick={handleDiffClick}
-            className={cn(
-              'flex items-center gap-1.5 px-2 py-1 rounded-md',
-              'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
-            )}
-          >
-            <GitCompareArrows className="w-3.5 h-3.5" />
-            <span>Diff</span>
-            <Kbd>⌥D</Kbd>
-          </button>
-          <button
-            onClick={() => setIsSettingsOpen(true)}
-            className={cn(
-              'p-1.5 rounded-md',
-              'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
-            )}
-          >
-            <Settings className="w-3.5 h-3.5" />
-          </button>
+          <Kbd><ArrowUp className="w-2.5 h-2.5" /></Kbd>
+          <Kbd><ArrowDown className="w-2.5 h-2.5" /></Kbd>
+          <span className="ml-1">navigate</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Kbd><CornerDownLeft className="w-2.5 h-2.5" /></Kbd>
+          <span className="ml-1">paste</span>
         </div>
       </div>
-      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-    </>
+
+      {/* Right: Diff action */}
+      <button
+        onClick={handleDiffClick}
+        className={cn(
+          'flex items-center gap-1.5 px-2 py-1 rounded-md',
+          'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
+        )}
+      >
+        <GitCompareArrows className="w-3.5 h-3.5" />
+        <span>Diff</span>
+        <Kbd>⌥D</Kbd>
+      </button>
+    </div>
   );
 }

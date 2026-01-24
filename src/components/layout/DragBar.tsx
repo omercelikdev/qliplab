@@ -1,8 +1,6 @@
 import { useRef, useEffect } from 'react';
-import { Clipboard, Search, X } from 'lucide-react';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { Search, X } from 'lucide-react';
 import { useAppStore, Tab } from '@/stores/appStore';
-import { cn } from '@/lib/utils';
 
 const PLACEHOLDERS: Record<Tab, string> = {
   history: 'Search clips...',
@@ -10,7 +8,7 @@ const PLACEHOLDERS: Record<Tab, string> = {
   vault: 'Search vault...',
 };
 
-export function DragBar() {
+export function SearchBar() {
   const { searchQuery, setSearchQuery, activeTab } = useAppStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,7 +31,6 @@ export function DragBar() {
       // If it's a printable character, focus search and let the character be typed
       if (e.key.length === 1) {
         inputRef.current?.focus();
-        // Don't prevent default - let the character be typed
       }
     };
 
@@ -41,36 +38,10 @@ export function DragBar() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleMouseDown = async (e: React.MouseEvent) => {
-    // Only drag on left mouse button and not on interactive elements
-    if (e.button !== 0 || (e.target as HTMLElement).closest('button, input')) {
-      return;
-    }
-
-    try {
-      const window = getCurrentWindow();
-      await window.startDragging();
-    } catch (error) {
-      console.error('Failed to start dragging:', error);
-    }
-  };
-
   return (
-    <div
-      className={cn('h-11 flex items-center gap-3 px-3 cursor-move', 'border-b border-border/50')}
-      onMouseDown={handleMouseDown}
-    >
-      {/* Branding */}
-      <div className="flex items-center gap-2 shrink-0">
-        <div className="w-5 h-5 rounded bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center">
-          <Clipboard className="w-3 h-3 text-accent-foreground" />
-        </div>
-        <span className="text-sm font-semibold text-foreground tracking-tight">qliplab</span>
-      </div>
-
-      {/* Search */}
+    <div data-tauri-drag-region className="h-12 flex items-start px-3 pt-2 cursor-move drag-region">
       <div
-        className="flex-1 flex items-center gap-2 h-7 px-2.5 bg-surface rounded-md cursor-text"
+        className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag"
         onClick={() => inputRef.current?.focus()}
       >
         <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
@@ -94,3 +65,6 @@ export function DragBar() {
     </div>
   );
 }
+
+// Keep old export for compatibility during transition
+export const DragBar = SearchBar;

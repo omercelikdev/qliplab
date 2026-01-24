@@ -31,7 +31,7 @@ export function ErrorReportingOptIn({ isOpen, onClose }: ErrorReportingOptInProp
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 rounded-lg overflow-hidden"
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
