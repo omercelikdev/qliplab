@@ -1,20 +1,25 @@
-import { getCurrentWindow, LogicalSize, LogicalPosition } from '@tauri-apps/api/window';
+import { getCurrentWindow, LogicalSize, LogicalPosition, currentMonitor } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 
 const DEFAULT_WIDTH = 420;
 const DEFAULT_HEIGHT = 450;
-const PREVIEW_WIDTH = 920;
-const PREVIEW_HEIGHT = 520;
+const PREVIEW_WIDTH = 1300;
+const PREVIEW_HEIGHT = 700;
 
 export async function expandWindowForPreview() {
   try {
     const window = getCurrentWindow();
-    const position = await window.outerPosition();
+    const monitor = await currentMonitor();
 
-    // Expand both width and height for better editor experience
+    const scaleFactor = monitor?.scaleFactor || 2;
+    const screenWidth = (monitor?.size?.width || 1920) / scaleFactor;
+    const screenHeight = (monitor?.size?.height || 1080) / scaleFactor;
+
+    const centerX = Math.round((screenWidth - PREVIEW_WIDTH) / 2);
+    const centerY = Math.round((screenHeight - PREVIEW_HEIGHT) / 2);
+
     await window.setSize(new LogicalSize(PREVIEW_WIDTH, PREVIEW_HEIGHT));
-    // Restore position immediately to prevent jumping
-    await window.setPosition(new LogicalPosition(position.x, position.y));
+    await window.setPosition(new LogicalPosition(Math.max(0, centerX), Math.max(0, centerY)));
   } catch (error) {
     console.error('Failed to expand window:', error);
   }
@@ -23,12 +28,18 @@ export async function expandWindowForPreview() {
 export async function shrinkWindowFromPreview() {
   try {
     const window = getCurrentWindow();
-    const position = await window.outerPosition();
+    const monitor = await currentMonitor();
 
-    // Shrink back to default size
+    const scaleFactor = monitor?.scaleFactor || 2;
+    const screenWidth = (monitor?.size?.width || 1920) / scaleFactor;
+    const screenHeight = (monitor?.size?.height || 1080) / scaleFactor;
+
+    // Center the shrunk window
+    const centerX = Math.round((screenWidth - DEFAULT_WIDTH) / 2);
+    const centerY = Math.round((screenHeight - DEFAULT_HEIGHT) / 2);
+
     await window.setSize(new LogicalSize(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-    // Restore position immediately to prevent jumping
-    await window.setPosition(new LogicalPosition(position.x, position.y));
+    await window.setPosition(new LogicalPosition(Math.max(0, centerX), Math.max(0, centerY)));
   } catch (error) {
     console.error('Failed to shrink window:', error);
   }
@@ -45,7 +56,6 @@ export async function hideWindow() {
 
 export async function showWindow() {
   try {
-    // Save the frontmost app BEFORE showing our window
     await invoke('save_frontmost_app');
     const window = getCurrentWindow();
     await window.show();
@@ -62,7 +72,6 @@ export async function toggleWindow() {
     if (visible) {
       await window.hide();
     } else {
-      // Save the frontmost app BEFORE showing our window
       await invoke('save_frontmost_app');
       await window.show();
       await window.setFocus();
@@ -75,9 +84,7 @@ export async function toggleWindow() {
 export async function hideAndPaste() {
   try {
     const window = getCurrentWindow();
-    // First hide our window
     await window.hide();
-    // Then invoke paste simulation (it activates the previous app and pastes)
     await invoke('simulate_paste');
   } catch (error) {
     console.error('Failed to hide and paste:', error);

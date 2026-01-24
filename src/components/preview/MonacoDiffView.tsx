@@ -7,7 +7,8 @@ const MonacoDiffEditor = lazy(() =>
 );
 
 export function MonacoDiffView() {
-  const { diffItems } = usePreviewStore();
+  const diffItems = usePreviewStore((state) => state.diffItems);
+  const diffViewMode = usePreviewStore((state) => state.diffViewMode);
   const { settings } = useSettingsStore();
   const [left, right] = diffItems;
 
@@ -30,20 +31,16 @@ export function MonacoDiffView() {
     automaticLayout: true,
     padding: { top: 8, bottom: 8 },
     lineNumbersMinChars: 3,
-    renderSideBySide: true,
+    renderSideBySide: diffViewMode === 'side-by-side',
     glyphMargin: false,
     scrollbar: {
       verticalScrollbarSize: 8,
       horizontalScrollbarSize: 8,
     },
-  }), []);
+  }), [diffViewMode]);
 
-  // Create a unique key to force remount when items change
-  const diffKey = useMemo(() => {
-    const leftId = left?.id || 'none';
-    const rightId = right?.id || 'none';
-    return `diff-${leftId}-${rightId}`;
-  }, [left?.id, right?.id]);
+  // Create a unique key to force remount when items or view mode change
+  const diffKey = `diff-${left?.id || 'none'}-${right?.id || 'none'}-${diffViewMode}`;
 
   if (!left || !right) {
     return (

@@ -20,14 +20,23 @@ export function useDiffMode() {
       // macOS: Option+D produces '∂', so check both key and code
       if (e.altKey && (e.key === 'd' || e.key === '∂' || e.code === 'KeyD')) {
         e.preventDefault();
-        // Get current state directly from store to avoid closure issues
         const currentIsDiffMode = useAppStore.getState().isDiffMode;
+        const { isOpen, close } = usePreviewStore.getState();
+
+        // If any panel is open, close it and enter diff selection mode
+        if (isOpen) {
+          close();
+          if (!currentIsDiffMode) {
+            setDiffMode(true);
+          }
+          return;
+        }
+
+        // No panel open - toggle diff selection mode
         if (currentIsDiffMode) {
-          // Turning off - clear selection
           clearDiffSelection();
           setDiffMode(false);
         } else {
-          // Turning on
           setDiffMode(true);
         }
       }

@@ -28,6 +28,7 @@ function App() {
   const { loadItems } = useHistoryStore();
   const { loadSettings } = useSettingsStore();
   const { isOpen: previewOpen } = usePreviewStore();
+  const showSidePanel = previewOpen;
   const { hasSeenOptIn, loadSettings: loadFeedbackSettings } = useFeedbackStore();
   const [isInitialized, setIsInitialized] = useState(false);
   const [showOptIn, setShowOptIn] = useState(false);
@@ -73,13 +74,16 @@ function App() {
         <SearchBar />
         <TabBar />
         <div className="flex flex-1 overflow-hidden">
-          <div className={cn('flex-1 overflow-hidden transition-all', previewOpen ? 'w-1/2' : 'w-full')}>
+          <div className={cn(
+            'overflow-hidden transition-all',
+            showSidePanel ? 'w-[300px] min-w-[300px]' : 'flex-1'
+          )}>
             {activeTab === 'history' && <HistoryList />}
             {activeTab === 'snippets' && <SnippetList />}
             {activeTab === 'vault' && <VaultList />}
           </div>
           <AnimatePresence mode="wait">
-            {previewOpen && <PreviewPanel />}
+            {showSidePanel && <PreviewPanel />}
           </AnimatePresence>
         </div>
         <HintBar />

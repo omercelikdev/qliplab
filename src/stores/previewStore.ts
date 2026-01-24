@@ -4,6 +4,7 @@ import type { ClipboardItem } from '@/types/clipboard';
 import type { DetectedFormat } from '@/types/clipboard';
 
 export type PreviewMode = 'transform' | 'diff' | 'view';
+export type DiffViewMode = 'side-by-side' | 'inline';
 
 interface PreviewState {
   isOpen: boolean;
@@ -13,11 +14,13 @@ interface PreviewState {
   editedContent: string;
   transformType: string;
   diffItems: [ClipboardItem | null, ClipboardItem | null];
+  diffViewMode: DiffViewMode;
 
   openTransform: (item: ClipboardItem, type: string, content: string) => void;
   openDiff: (items: [ClipboardItem, ClipboardItem]) => void;
   openView: (item: ClipboardItem) => void;
   setEditedContent: (content: string) => void;
+  setDiffViewMode: (mode: DiffViewMode) => void;
   close: () => void;
 }
 
@@ -49,6 +52,7 @@ export const usePreviewStore = create<PreviewState>((set, get) => ({
   editedContent: '',
   transformType: '',
   diffItems: [null, null],
+  diffViewMode: 'side-by-side',
 
   openTransform: (item, type, content) => {
     const wasOpen = get().isOpen;
@@ -91,14 +95,12 @@ export const usePreviewStore = create<PreviewState>((set, get) => ({
     set({ editedContent: content });
   },
 
+  setDiffViewMode: (mode) => {
+    set({ diffViewMode: mode });
+  },
+
   close: () => {
-    set({
-      isOpen: false,
-      sourceItem: null,
-      transformedContent: '',
-      editedContent: '',
-      diffItems: [null, null],
-    });
+    set({ isOpen: false });
     shrinkWindowFromPreview();
   },
 }));

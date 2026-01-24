@@ -1,5 +1,6 @@
 import { GitCompareArrows } from 'lucide-react';
 import { useAppStore } from '@/stores/appStore';
+import { usePreviewStore } from '@/stores/previewStore';
 import { cn } from '@/lib/utils';
 
 export function HintBar() {
@@ -7,8 +8,19 @@ export function HintBar() {
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const setDiffMode = useAppStore((state) => state.setDiffMode);
   const clearDiffSelection = useAppStore((state) => state.clearDiffSelection);
+  const { isOpen: previewOpen, close: closePreview } = usePreviewStore();
 
   const handleDiffClick = () => {
+    // If any panel is open, close it and enter diff selection mode
+    if (previewOpen) {
+      closePreview();
+      if (!isDiffMode) {
+        setDiffMode(true);
+      }
+      return;
+    }
+
+    // No panel open - toggle diff selection mode
     if (isDiffMode) {
       setDiffMode(false);
       clearDiffSelection();
