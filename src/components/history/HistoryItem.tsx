@@ -1,73 +1,15 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
-import { MoreVertical, Pin, Eye, Image as ImageIcon } from 'lucide-react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { MoreVertical, Pin, Eye, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { FormatIcon } from './FormatIcon';
 import { ItemMenu } from './ItemMenu';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64 } from 'tauri-plugin-clipboard-api';
-import { hideAndPaste } from '@/lib/window';
+import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
+import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
-
-// Cache for parsed image data to avoid re-parsing on every render
-const imageCache = new Map<string, { dataUrl: string; base64: string } | null>();
-
-// Parse image data and create a displayable URL (with caching)
-function parseImageData(content: string): { dataUrl: string; base64: string } | null {
-  // Check cache first
-  if (imageCache.has(content)) {
-    return imageCache.get(content) || null;
-  }
-
-  try {
-    const data = JSON.parse(content);
-
-    // New format: PNG base64 from CrossCopy plugin
-    if (data.type === 'png_base64' && data.data) {
-      const result = {
-        dataUrl: `data:image/png;base64,${data.data}`,
-        base64: data.data
-      };
-      imageCache.set(content, result);
-      return result;
-    }
-
-    // Legacy format: RGBA data - convert to PNG
-    if (data.type === 'rgba' && data.data && data.width && data.height) {
-      const binary = atob(data.data);
-      const rgba = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) {
-        rgba[i] = binary.charCodeAt(i);
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = data.width;
-      canvas.height = data.height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        imageCache.set(content, null);
-        return null;
-      }
-
-      const imageData = ctx.createImageData(data.width, data.height);
-      imageData.data.set(rgba);
-      ctx.putImageData(imageData, 0, 0);
-
-      const dataUrl = canvas.toDataURL('image/png');
-      const base64 = dataUrl.split(',')[1];
-
-      const result = { dataUrl, base64 };
-      imageCache.set(content, result);
-      return result;
-    }
-  } catch {
-    // Not a valid image data
-  }
-
-  imageCache.set(content, null);
-  return null;
-}
 
 function formatRelativeTime(date: Date): string {
   const diff = Date.now() - date.getTime();
@@ -83,13 +25,17 @@ function formatRelativeTime(date: Date): string {
 interface HistoryItemProps {
   item: ClipboardItem;
   isSelected?: boolean;
+  isPastingFromKeyboard?: boolean;
 }
 
-export function HistoryItem({ item, isSelected = false }: HistoryItemProps) {
+export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = false }: HistoryItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMenuButtonHovered, setIsMenuButtonHovered] = useState(false);
+  const [showFlash, setShowFlash] = useState(false);
+  const [isPasting, setIsPasting] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const itemRef = useRef<HTMLDivElement>(null);
 
   const isDiffMode = useAppStore((state) => state.isDiffMode);
   const addToDiffSelection = useAppStore((state) => state.addToDiffSelection);
@@ -110,25 +56,41 @@ export function HistoryItem({ item, isSelected = false }: HistoryItemProps) {
     openView(item);
   }, [item, openView]);
 
+  // Combined pasting state from click or keyboard
+  const isCurrentlyPasting = isPasting || isPastingFromKeyboard;
+
   const handleClick = async () => {
-    if (isMenuOpen) return;
+    if (isMenuOpen || isCurrentlyPasting) return;
 
     if (isDiffMode) {
       addToDiffSelection(item.id);
-    } else {
-      if (item.contentType === 'image' && imageData) {
-        // Write image to clipboard using CrossCopy plugin
-        try {
-          await writeImageBase64(imageData.base64);
-        } catch (e) {
-          console.error('Failed to write image:', e);
-        }
-      } else {
-        await writeText(item.content);
+    } else if (item.contentType === 'image' && imageData) {
+      // For images: show loading, write to clipboard, then hide and paste
+      setIsPasting(true);
+      try {
+        // Write image to clipboard while showing loading
+        await writeImageBase64(imageData.base64);
+        // Then hide and paste
+        await hideAndSimulatePaste();
+      } finally {
+        setIsPasting(false);
       }
-      await hideAndPaste();
+    } else {
+      // For text: fast path - hide immediately
+      setShowFlash(true);
+      await hideWriteAndPaste(async () => {
+        await writeText(item.content);
+      });
     }
   };
+
+  // Reset flash effect after animation
+  useEffect(() => {
+    if (showFlash) {
+      const timer = setTimeout(() => setShowFlash(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [showFlash]);
 
   const handleMenuButtonEnter = () => {
     setIsMenuButtonHovered(true);
@@ -146,13 +108,15 @@ export function HistoryItem({ item, isSelected = false }: HistoryItemProps) {
 
   return (
     <div
+      ref={itemRef}
       className={cn(
-        'relative flex items-center gap-2 h-8 px-2.5 rounded-md cursor-pointer transition-colors',
+        'relative flex items-center gap-2 h-8 px-1.5 rounded-md cursor-pointer transition-colors',
         'active:scale-[0.98] active:transition-transform',
         isHovered || isMenuOpen ? 'bg-surface-hover' : 'bg-transparent',
         isDiffMode && 'cursor-crosshair',
         isSelectedForDiff && 'ring-2 ring-accent',
-        isSelected && !isDiffMode && 'bg-accent/20 ring-1 ring-accent'
+        isSelected && !isDiffMode && 'bg-accent/20 ring-1 ring-accent',
+        showFlash && 'copy-flash'
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
@@ -164,7 +128,11 @@ export function HistoryItem({ item, isSelected = false }: HistoryItemProps) {
       onClick={handleClick}
     >
       {item.contentType === 'image' ? (
-        <ImageIcon className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+        isCurrentlyPasting ? (
+          <Loader2 className="w-3.5 h-3.5 text-blue-500 shrink-0 animate-spin" />
+        ) : (
+          <ImageIcon className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+        )
       ) : (
         <FormatIcon format={item.detectedFormat} />
       )}
@@ -174,10 +142,13 @@ export function HistoryItem({ item, isSelected = false }: HistoryItemProps) {
           <img
             src={imageData.dataUrl}
             alt="Clipboard image"
-            className="h-5 w-auto max-w-[60px] rounded object-cover"
+            className={cn(
+              "h-5 w-auto max-w-[60px] rounded object-cover transition-opacity",
+              isCurrentlyPasting && "opacity-50"
+            )}
           />
           <span className="text-xs text-muted-foreground truncate">
-            Image
+            {isCurrentlyPasting ? 'Pasting...' : 'Image'}
           </span>
         </div>
       ) : (

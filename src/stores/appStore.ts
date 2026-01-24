@@ -11,6 +11,7 @@ interface AppState {
   isTransformMode: boolean;
   isDiffMode: boolean;
   diffSelectedIds: string[];
+  windowOpenCount: number; // Incremented each time window opens to trigger resets
 
   setActiveTab: (tab: Tab) => void;
   setPreviewOpen: (open: boolean) => void;
@@ -20,6 +21,7 @@ interface AppState {
   setDiffMode: (active: boolean) => void;
   addToDiffSelection: (id: string) => void;
   clearDiffSelection: () => void;
+  signalWindowOpen: () => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -30,6 +32,7 @@ export const useAppStore = create<AppState>((set) => ({
   isTransformMode: false,
   isDiffMode: false,
   diffSelectedIds: [],
+  windowOpenCount: 0,
 
   setActiveTab: (tab) => set({ activeTab: tab, searchQuery: '' }),
   setPreviewOpen: (open) => set({ previewOpen: open }),
@@ -47,4 +50,12 @@ export const useAppStore = create<AppState>((set) => ({
     };
   }),
   clearDiffSelection: () => set({ diffSelectedIds: [] }),
+  // Signal window opened - reset selection/modes but KEEP search query (like Ditto)
+  signalWindowOpen: () => set((state) => ({
+    isDiffMode: false,
+    diffSelectedIds: [],
+    isTransformMode: false,
+    windowOpenCount: state.windowOpenCount + 1,
+    // NOTE: searchQuery is intentionally NOT reset - user can continue searching
+  })),
 }));

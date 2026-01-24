@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { DragBar } from './components/layout/DragBar';
-import { SearchBar } from './components/layout/SearchBar';
 import { TabBar } from './components/layout/TabBar';
 import { HintBar } from './components/layout/HintBar';
 import { Splitter } from './components/layout/Splitter';
@@ -63,6 +63,25 @@ function App() {
     }
   }, [isInitialized, hasSeenOptIn]);
 
+  // Blur search field when window gains focus (so arrow keys work)
+  useEffect(() => {
+    const window = getCurrentWindow();
+    const unlisten = window.onFocusChanged(({ payload: focused }) => {
+      if (focused) {
+        // Small delay to let focus settle, then blur any input
+        setTimeout(() => {
+          if (document.activeElement instanceof HTMLInputElement) {
+            document.activeElement.blur();
+          }
+        }, 10);
+      }
+    });
+
+    return () => {
+      unlisten.then(fn => fn());
+    };
+  }, []);
+
   useClipboardListener();
   useGlobalShortcut();
   useAutostart();
@@ -71,7 +90,7 @@ function App() {
 
   if (!isInitialized) {
     return (
-      <div className={cn('h-screen w-screen flex items-center justify-center', 'glass rounded-xl border border-border')}>
+      <div className={cn('h-screen w-screen flex items-center justify-center', 'glass rounded-lg border border-border')}>
         <span className="text-muted-foreground">Loading...</span>
       </div>
     );
@@ -79,9 +98,8 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className={cn('h-screen w-screen flex flex-col overflow-hidden', 'glass rounded-xl border border-border')}>
+      <div className={cn('h-screen w-screen flex flex-col overflow-hidden', 'glass rounded-lg border border-border')}>
         <DragBar />
-        <SearchBar />
         <TabBar />
         <div className="flex flex-1 overflow-hidden">
           <div

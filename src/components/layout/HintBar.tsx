@@ -1,9 +1,20 @@
-import { GitCompareArrows } from 'lucide-react';
+import { useState } from 'react';
+import { GitCompareArrows, ArrowUp, ArrowDown, CornerDownLeft, Settings } from 'lucide-react';
 import { useAppStore } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
+import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { cn } from '@/lib/utils';
 
+function Kbd({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-surface border border-border/50 rounded text-[10px] font-medium text-muted-foreground">
+      {children}
+    </kbd>
+  );
+}
+
 export function HintBar() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isDiffMode = useAppStore((state) => state.isDiffMode);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const setDiffMode = useAppStore((state) => state.setDiffMode);
@@ -31,7 +42,7 @@ export function HintBar() {
 
   if (isDiffMode) {
     return (
-      <div className={cn('h-8 flex items-center justify-center gap-4 px-3', 'border-t border-border/50 text-xs bg-accent/10')}>
+      <div className={cn('h-9 flex items-center justify-center gap-4 px-3', 'border-t border-border/50 text-xs bg-accent/10')}>
         <span className="text-accent font-medium">Diff Mode</span>
         <span className="text-muted-foreground">
           {diffSelectedIds.length === 0 && 'Select first item'}
@@ -39,28 +50,56 @@ export function HintBar() {
         </span>
         <button
           onClick={handleDiffClick}
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
-          ESC: cancel
+          <Kbd>ESC</Kbd>
+          <span>cancel</span>
         </button>
       </div>
     );
   }
 
   return (
-    <div className={cn('h-8 flex items-center justify-between px-3', 'border-t border-border/50 text-xs text-muted-foreground')}>
-      <span>Click: paste</span>
-      <button
-        onClick={handleDiffClick}
-        className={cn(
-          'flex items-center gap-1.5 px-2 py-1 rounded',
-          'hover:bg-surface-hover hover:text-foreground transition-colors'
-        )}
-      >
-        <GitCompareArrows className="w-3.5 h-3.5" />
-        <span>Diff</span>
-        <kbd className="ml-1 px-1 py-0.5 bg-surface rounded text-[10px]">⌥D</kbd>
-      </button>
-    </div>
+    <>
+      <div className={cn('h-9 flex items-center justify-between px-3', 'border-t border-border/50 text-xs text-muted-foreground')}>
+        {/* Left: Navigation hints */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <Kbd><ArrowUp className="w-2.5 h-2.5" /></Kbd>
+            <Kbd><ArrowDown className="w-2.5 h-2.5" /></Kbd>
+            <span className="ml-1">navigate</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Kbd><CornerDownLeft className="w-2.5 h-2.5" /></Kbd>
+            <span className="ml-1">paste</span>
+          </div>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleDiffClick}
+            className={cn(
+              'flex items-center gap-1.5 px-2 py-1 rounded-md',
+              'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
+            )}
+          >
+            <GitCompareArrows className="w-3.5 h-3.5" />
+            <span>Diff</span>
+            <Kbd>⌥D</Kbd>
+          </button>
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className={cn(
+              'p-1.5 rounded-md',
+              'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
+            )}
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+    </>
   );
 }

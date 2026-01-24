@@ -9,7 +9,7 @@ import { FormatIcon } from '@/components/history/FormatIcon';
 import { getFormatDisplayName } from '@/lib/formatDetector';
 import { writeText, writeImage } from '@tauri-apps/plugin-clipboard-manager';
 import { Image } from '@tauri-apps/api/image';
-import { hideAndPaste } from '@/lib/window';
+import { hideWriteAndPaste } from '@/lib/window';
 import { cn } from '@/lib/utils';
 
 const MonacoDiffEditor = lazy(() =>
@@ -49,26 +49,27 @@ export function PreviewPanel() {
   }, [editedContent, sourceItem]);
 
   const handlePaste = useCallback(async () => {
-    if (sourceItem?.contentType === 'image') {
-      try {
-        const data = JSON.parse(sourceItem.content);
-        if (data.type === 'rgba' && data.data && data.width && data.height) {
-          const binary = atob(data.data);
-          const rgba = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) {
-            rgba[i] = binary.charCodeAt(i);
-          }
-          const img = await Image.new(rgba, data.width, data.height);
-          await writeImage(img);
-        }
-      } catch (e) {
-        console.error('Failed to copy image:', e);
-      }
-    } else {
-      await writeText(editedContent);
-    }
     close();
-    await hideAndPaste();
+    await hideWriteAndPaste(async () => {
+      if (sourceItem?.contentType === 'image') {
+        try {
+          const data = JSON.parse(sourceItem.content);
+          if (data.type === 'rgba' && data.data && data.width && data.height) {
+            const binary = atob(data.data);
+            const rgba = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+              rgba[i] = binary.charCodeAt(i);
+            }
+            const img = await Image.new(rgba, data.width, data.height);
+            await writeImage(img);
+          }
+        } catch (e) {
+          console.error('Failed to copy image:', e);
+        }
+      } else {
+        await writeText(editedContent);
+      }
+    });
   }, [editedContent, sourceItem, close]);
 
   const theme = settings.theme === 'dark' ? 'vs-dark' : 'light';

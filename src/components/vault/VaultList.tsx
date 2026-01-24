@@ -7,7 +7,7 @@ import { VaultLock } from './VaultLock';
 import { NewVaultItemDialog } from './NewVaultItemDialog';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { hideAndPaste } from '@/lib/window';
+import { hideWriteAndPaste } from '@/lib/window';
 import { cn } from '@/lib/utils';
 
 export function VaultList() {
@@ -44,8 +44,9 @@ export function VaultList() {
   const handleSelect = useCallback(async (index: number) => {
     const item = filteredItems[index];
     if (item) {
-      await writeText(getMainValue(item));
-      await hideAndPaste();
+      await hideWriteAndPaste(async () => {
+        await writeText(getMainValue(item));
+      });
     }
   }, [filteredItems]);
 
@@ -77,7 +78,7 @@ export function VaultList() {
       </div>
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="p-1.5 space-y-0.5">
+        <div className="px-1.5 py-1 space-y-0.5">
           {filteredItems.map((item, index) => (
             <div
               key={item.id}
@@ -102,7 +103,7 @@ export function VaultList() {
         </div>
       </div>
 
-      <div className="p-1.5 border-t border-border/50">
+      <div className="px-1.5 py-1 border-t border-border/50">
         <button
           onClick={() => setIsDialogOpen(true)}
           className={cn(

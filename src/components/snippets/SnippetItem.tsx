@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Code, Star, Trash2 } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { hideAndPaste } from '@/lib/window';
+import { hideWriteAndPaste } from '@/lib/window';
 import { useSnippetStore } from '@/stores/snippetStore';
 import type { Snippet } from '@/types/snippet';
 import { cn } from '@/lib/utils';
@@ -18,8 +18,9 @@ export function SnippetItem({ snippet, isSelected = false }: SnippetItemProps) {
   const deleteSnippet = useSnippetStore((state) => state.deleteSnippet);
 
   const handleClick = async () => {
-    await writeText(snippet.content);
-    await hideAndPaste();
+    await hideWriteAndPaste(async () => {
+      await writeText(snippet.content);
+    });
   };
 
   const toggleFavorite = (e: React.MouseEvent) => {
@@ -35,7 +36,7 @@ export function SnippetItem({ snippet, isSelected = false }: SnippetItemProps) {
   return (
     <motion.div
       className={cn(
-        'relative flex items-center gap-2 h-9 px-2.5 rounded-md cursor-pointer transition-colors',
+        'relative flex items-center gap-2 h-9 px-1.5 rounded-md cursor-pointer transition-colors',
         isHovered ? 'bg-surface-hover' : 'bg-transparent',
         isSelected && 'bg-accent/20 ring-1 ring-accent'
       )}

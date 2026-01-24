@@ -54,7 +54,7 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
   return (
     <motion.div
       className={cn(
-        'relative flex items-center gap-2 h-9 px-2.5 rounded-md cursor-pointer transition-colors',
+        'relative flex items-center gap-2 h-9 px-1.5 rounded-md cursor-pointer transition-colors',
         isHovered ? 'bg-surface-hover' : 'bg-transparent',
         isSelected && 'bg-accent/20 ring-1 ring-accent'
       )}

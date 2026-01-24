@@ -73,6 +73,10 @@ export async function toggleWindow() {
     const window = getCurrentWindow();
     const visible = await window.isVisible();
     if (visible) {
+      // Blur before hiding so focus won't be restored on reopen
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
       await invoke('hide_panel');
       await window.hide();
     } else {
@@ -90,6 +94,41 @@ export async function hideAndPaste() {
   try {
     await invoke('hide_panel');
     const window = getCurrentWindow();
+    await window.hide();
+    await invoke('simulate_paste');
+  } catch (error) {
+    console.error('Failed to hide and paste:', error);
+  }
+}
+
+// Optimized version: clipboard write and window hide happen in parallel
+export async function hideWriteAndPaste(writeToClipboard: () => Promise<void>) {
+  try {
+    // 1. Start clipboard write immediately (don't wait)
+    const clipboardPromise = writeToClipboard();
+
+    // 2. Hide window in parallel
+    const window = getCurrentWindow();
+    await Promise.all([
+      invoke('hide_panel'),
+      window.hide(),
+    ]);
+
+    // 3. Wait for clipboard write to complete (if not already)
+    await clipboardPromise;
+
+    // 4. Simulate paste
+    await invoke('simulate_paste');
+  } catch (error) {
+    console.error('Failed to hide, write and paste:', error);
+  }
+}
+
+// Hide window then paste (clipboard already written)
+export async function hideAndSimulatePaste() {
+  try {
+    const window = getCurrentWindow();
+    await invoke('hide_panel');
     await window.hide();
     await invoke('simulate_paste');
   } catch (error) {

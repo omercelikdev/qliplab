@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usePreviewStore } from '@/stores/previewStore';
+import { useAppStore } from '@/stores/appStore';
 
 interface UseKeyboardNavigationOptions {
   itemCount: number;
@@ -14,6 +15,7 @@ export function useKeyboardNavigation({
 }: UseKeyboardNavigationOptions) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const isPreviewOpen = usePreviewStore((state) => state.isOpen);
+  const windowOpenCount = useAppStore((state) => state.windowOpenCount);
 
   // Reset selection when item count changes
   useEffect(() => {
@@ -28,6 +30,11 @@ export function useKeyboardNavigation({
       setSelectedIndex(0);
     }
   }, [isActive]);
+
+  // Reset to first item when window reopens
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [windowOpenCount]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {

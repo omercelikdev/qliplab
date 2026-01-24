@@ -104,7 +104,8 @@ fn simulate_paste() -> Result<(), String> {
                     .arg(&activate_script)
                     .output();
 
-                thread::sleep(Duration::from_millis(100));
+                // Reduced delay - app activation is usually fast
+                thread::sleep(Duration::from_millis(30));
             }
 
             let paste_script = r#"

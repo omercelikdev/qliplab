@@ -1,28 +1,41 @@
 import { useAppStore, Tab } from '@/stores/appStore';
 import { cn } from '@/lib/utils';
+import { History, FileText, Lock } from 'lucide-react';
 
-const tabs: { id: Tab; label: string }[] = [
-  { id: 'history', label: 'History' },
-  { id: 'snippets', label: 'Snippets' },
-  { id: 'vault', label: 'Vault' },
+const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: 'history', label: 'History', icon: History },
+  { id: 'snippets', label: 'Snippets', icon: FileText },
+  { id: 'vault', label: 'Vault', icon: Lock },
 ];
 
 export function TabBar() {
   const { activeTab, setActiveTab } = useAppStore();
+
   return (
-    <div className="h-10 flex items-center gap-1 px-3 border-b border-border/50">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => setActiveTab(tab.id)}
-          className={cn(
-            'px-3 py-1.5 text-sm font-medium rounded-md transition-colors cursor-pointer',
-            activeTab === tab.id ? 'bg-surface text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-surface-hover'
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <div className="h-11 flex items-center px-3">
+      {/* Pill container */}
+      <div className="flex items-center bg-surface/80 rounded-lg p-0.5">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 cursor-pointer',
+                isActive
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
