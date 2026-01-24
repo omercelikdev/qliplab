@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { DragBar } from './components/layout/DragBar';
 import { SearchBar } from './components/layout/SearchBar';
 import { TabBar } from './components/layout/TabBar';
 import { HintBar } from './components/layout/HintBar';
+import { Splitter } from './components/layout/Splitter';
 import { HistoryList } from './components/history/HistoryList';
 import { SnippetList } from './components/snippets/SnippetList';
 import { VaultList } from './components/vault/VaultList';
@@ -23,6 +24,10 @@ import { useSettingsStore } from './stores/settingsStore';
 import { initDatabase } from './lib/database';
 import { cn } from './lib/utils';
 
+const DEFAULT_LIST_WIDTH = 300;
+const MIN_LIST_WIDTH = 200;
+const MAX_LIST_WIDTH = 500;
+
 function App() {
   const { activeTab } = useAppStore();
   const { loadItems } = useHistoryStore();
@@ -32,6 +37,11 @@ function App() {
   const { hasSeenOptIn, loadSettings: loadFeedbackSettings } = useFeedbackStore();
   const [isInitialized, setIsInitialized] = useState(false);
   const [showOptIn, setShowOptIn] = useState(false);
+  const [listWidth, setListWidth] = useState(DEFAULT_LIST_WIDTH);
+
+  const handleSplitterResize = useCallback((width: number) => {
+    setListWidth(width);
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -74,14 +84,21 @@ function App() {
         <SearchBar />
         <TabBar />
         <div className="flex flex-1 overflow-hidden">
-          <div className={cn(
-            'overflow-hidden transition-all',
-            showSidePanel ? 'w-[300px] min-w-[300px]' : 'flex-1'
-          )}>
+          <div
+            className="overflow-hidden"
+            style={{ width: showSidePanel ? listWidth : '100%' }}
+          >
             {activeTab === 'history' && <HistoryList />}
             {activeTab === 'snippets' && <SnippetList />}
             {activeTab === 'vault' && <VaultList />}
           </div>
+          {showSidePanel && (
+            <Splitter
+              onResize={handleSplitterResize}
+              minListWidth={MIN_LIST_WIDTH}
+              maxListWidth={MAX_LIST_WIDTH}
+            />
+          )}
           <AnimatePresence mode="wait">
             {showSidePanel && <PreviewPanel />}
           </AnimatePresence>

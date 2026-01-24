@@ -1,12 +1,14 @@
-import { useEffect, useRef, useCallback, Suspense, lazy, useMemo } from 'react';
+import { useRef, useCallback, Suspense, lazy, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare } from 'lucide-react';
+import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon } from 'lucide-react';
 import { usePreviewStore, getMonacoLanguage } from '@/stores/previewStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { EditorView } from './EditorView';
+import { ImageView } from './ImageView';
 import { FormatIcon } from '@/components/history/FormatIcon';
 import { getFormatDisplayName } from '@/lib/formatDetector';
-import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { writeText, writeImage } from '@tauri-apps/plugin-clipboard-manager';
+import { Image } from '@tauri-apps/api/image';
 import { hideAndPaste } from '@/lib/window';
 import { cn } from '@/lib/utils';
 
@@ -23,26 +25,51 @@ export function PreviewPanel() {
   const isDiffMode = mode === 'diff';
   const hasDiffItems = Boolean(left && right);
 
-  // All hooks must be called before any early return
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-      const target = e.target as HTMLElement;
-      if (target.closest('[data-menu]') || target.closest('button')) {
-        return;
-      }
-      close();
-    }
-  }, [close]);
+  // Panel closes only via X button, ESC, or Option+D - not by clicking outside
 
   const handleCopy = useCallback(async () => {
-    await writeText(editedContent);
-  }, [editedContent]);
+    if (sourceItem?.contentType === 'image') {
+      try {
+        const data = JSON.parse(sourceItem.content);
+        if (data.type === 'rgba' && data.data && data.width && data.height) {
+          const binary = atob(data.data);
+          const rgba = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            rgba[i] = binary.charCodeAt(i);
+          }
+          const img = await Image.new(rgba, data.width, data.height);
+          await writeImage(img);
+        }
+      } catch (e) {
+        console.error('Failed to copy image:', e);
+      }
+    } else {
+      await writeText(editedContent);
+    }
+  }, [editedContent, sourceItem]);
 
   const handlePaste = useCallback(async () => {
-    await writeText(editedContent);
+    if (sourceItem?.contentType === 'image') {
+      try {
+        const data = JSON.parse(sourceItem.content);
+        if (data.type === 'rgba' && data.data && data.width && data.height) {
+          const binary = atob(data.data);
+          const rgba = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            rgba[i] = binary.charCodeAt(i);
+          }
+          const img = await Image.new(rgba, data.width, data.height);
+          await writeImage(img);
+        }
+      } catch (e) {
+        console.error('Failed to copy image:', e);
+      }
+    } else {
+      await writeText(editedContent);
+    }
     close();
     await hideAndPaste();
-  }, [editedContent, close]);
+  }, [editedContent, sourceItem, close]);
 
   const theme = settings.theme === 'dark' ? 'vs-dark' : 'light';
 
@@ -71,18 +98,6 @@ export function PreviewPanel() {
     },
   }), [diffViewMode]);
 
-  useEffect(() => {
-    if (isOpen && !isDiffMode) {
-      const timer = setTimeout(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-      }, 100);
-      return () => {
-        clearTimeout(timer);
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [isOpen, isDiffMode, handleClickOutside]);
-
   // Early return AFTER all hooks
   if (!isOpen) return null;
 
@@ -96,10 +111,15 @@ export function PreviewPanel() {
       return 'Compare';
     }
     if (mode === 'view') {
+      if (sourceItem?.contentType === 'image') {
+        return 'Image';
+      }
       return sourceItem ? getFormatDisplayName(sourceItem.detectedFormat) : 'View';
     }
     return transformType;
   };
+
+  const isImageMode = sourceItem?.contentType === 'image';
 
   const getModeLabel = () => {
     if (mode === 'diff') return 'Diff';
@@ -125,6 +145,8 @@ export function PreviewPanel() {
         <div className="flex items-center gap-2">
           {isDiffMode ? (
             <GitCompare className="w-4 h-4 text-muted-foreground" />
+          ) : isImageMode ? (
+            <ImageIcon className="w-4 h-4 text-blue-500" />
           ) : sourceItem && (
             <FormatIcon format={sourceItem.detectedFormat} size={14} />
           )}
@@ -195,6 +217,8 @@ export function PreviewPanel() {
               Select two items to compare
             </div>
           )
+        ) : sourceItem?.contentType === 'image' ? (
+          <ImageView />
         ) : (
           <EditorView />
         )}
@@ -204,26 +228,26 @@ export function PreviewPanel() {
       {!isDiffMode && (
         <div className="h-10 flex items-center justify-between px-3 border-t border-border/50 bg-surface/30">
           <span className="text-[10px] text-muted-foreground">
-            Editable
+            {sourceItem?.contentType === 'image' ? 'Image' : 'Editable'}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={handleCopy}
               className={cn(
-                'flex items-center gap-1.5 px-2.5 py-1.5 text-xs cursor-pointer',
+                'flex items-center gap-1.5 px-2 py-1 text-xs cursor-pointer',
                 'bg-surface hover:bg-surface-hover rounded-md transition-colors'
               )}
             >
-              <Copy className="w-3 h-3" /> Copy
+              <Copy className="w-3.5 h-3.5" /> Copy
             </button>
             <button
               onClick={handlePaste}
               className={cn(
-                'flex items-center gap-1.5 px-2.5 py-1.5 text-xs cursor-pointer',
+                'flex items-center gap-1.5 px-2 py-1 text-xs cursor-pointer',
                 'bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors'
               )}
             >
-              <ClipboardPaste className="w-3 h-3" /> Paste
+              <ClipboardPaste className="w-3.5 h-3.5" /> Paste
             </button>
           </div>
         </div>

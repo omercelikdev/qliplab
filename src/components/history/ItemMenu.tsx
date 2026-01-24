@@ -174,7 +174,7 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
             maxHeight: 'calc(100vh - 8px)',
             overflowY: 'auto',
           }}
-          className="w-40 py-1 rounded-lg bg-background border border-border shadow-xl"
+          className="w-36 py-1 rounded-lg bg-surface border border-border shadow-lg"
           onMouseLeave={onClose}
         >
           <MenuButton icon={Copy} label="Copy" onClick={handleCopy} />
@@ -198,10 +198,10 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
 function MenuButton({ icon: Icon, label, onClick, destructive }: { icon: React.ElementType; label: string; onClick: () => void; destructive?: boolean }) {
   return (
     <button
-      className={cn('w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-surface-hover transition-colors cursor-pointer', destructive && 'text-destructive')}
+      className={cn('w-full flex items-center gap-1.5 px-2.5 py-1 text-xs text-left hover:bg-surface-hover transition-colors cursor-pointer', destructive && 'text-destructive')}
       onClick={onClick}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-3.5 h-3.5" />
       {label}
     </button>
   );

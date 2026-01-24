@@ -38,7 +38,7 @@ export function HistoryList() {
   useEffect(() => {
     const itemEl = itemRefs.current.get(selectedIndex);
     if (itemEl) {
-      itemEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      itemEl.scrollIntoView({ block: 'nearest', behavior: 'auto' });
     }
   }, [selectedIndex]);
 

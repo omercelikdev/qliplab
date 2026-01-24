@@ -45,7 +45,7 @@ html, body, #root {
   overflow: hidden;
 }
 
-.glass { @apply bg-background/80 backdrop-blur-xl; }
+.glass { @apply bg-background/90 backdrop-blur-md; }
 .drag-region { -webkit-app-region: drag; }
 .no-drag { -webkit-app-region: no-drag; }
 

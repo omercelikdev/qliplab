@@ -1,12 +1,17 @@
 use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
-#[cfg(debug_assertions)]
 use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
 
 #[cfg(target_os = "macos")]
 use std::process::Command;
+
+#[cfg(target_os = "macos")]
+use tauri_nspanel::{
+    ManagerExt, WebviewWindowExt,
+    cocoa::appkit::NSWindowCollectionBehavior,
+};
 
 #[cfg(not(target_os = "macos"))]
 use enigo::{Enigo, Keyboard, Settings, Key, Direction};
@@ -18,7 +23,6 @@ static PREVIOUS_APP: Mutex<Option<String>> = Mutex::new(None);
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn save_frontmost_app() -> Result<(), String> {
-    // Get the frontmost application before our window appears
     let script = r#"
         tell application "System Events"
             set frontApp to name of first application process whose frontmost is true
@@ -50,16 +54,46 @@ fn save_frontmost_app() -> Result<(), String> {
     Ok(())
 }
 
+/// Show panel on current space (macOS)
+#[cfg(target_os = "macos")]
+#[tauri::command]
+fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
+    if let Ok(panel) = app.get_webview_panel("main") {
+        panel.show();
+    }
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+fn show_panel(_app: tauri::AppHandle) -> Result<(), String> {
+    Ok(())
+}
+
+/// Hide panel (macOS)
+#[cfg(target_os = "macos")]
+#[tauri::command]
+fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
+    if let Ok(panel) = app.get_webview_panel("main") {
+        panel.order_out(None);
+    }
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+fn hide_panel(_app: tauri::AppHandle) -> Result<(), String> {
+    Ok(())
+}
+
 #[tauri::command]
 fn simulate_paste() -> Result<(), String> {
     thread::spawn(|| {
         #[cfg(target_os = "macos")]
         {
-            // Get the previously saved app
             let prev_app = PREVIOUS_APP.lock().ok().and_then(|guard| guard.clone());
 
             if let Some(app_name) = prev_app {
-                // Activate the previous application
                 let activate_script = format!(
                     r#"tell application "{}" to activate"#,
                     app_name
@@ -70,11 +104,9 @@ fn simulate_paste() -> Result<(), String> {
                     .arg(&activate_script)
                     .output();
 
-                // Wait for app to become active
                 thread::sleep(Duration::from_millis(100));
             }
 
-            // Now paste
             let paste_script = r#"
                 tell application "System Events"
                     keystroke "v" using command down
@@ -99,7 +131,6 @@ fn simulate_paste() -> Result<(), String> {
 
         #[cfg(not(target_os = "macos"))]
         {
-            // Use enigo for Windows/Linux
             thread::sleep(Duration::from_millis(100));
             if let Ok(mut enigo) = Enigo::new(&Settings::default()) {
                 let _ = enigo.key(Key::Control, Direction::Press);
@@ -114,26 +145,99 @@ fn simulate_paste() -> Result<(), String> {
     Ok(())
 }
 
+/// Initialize panel with proper settings for Spotlight-like behavior
+#[cfg(target_os = "macos")]
+fn init_panel(window: tauri::WebviewWindow) {
+    // Convert window to panel
+    let panel = window.to_panel().unwrap();
+
+    // Window levels
+    #[allow(non_upper_case_globals)]
+    const NSScreenSaverWindowLevel: i32 = 1000;
+
+    // Set panel to screen saver level to appear above fullscreen apps
+    panel.set_level(NSScreenSaverWindowLevel);
+
+    // Style mask for non-activating panel
+    #[allow(non_upper_case_globals)]
+    const NSWindowStyleMaskNonActivatingPanel: i32 = 1 << 7;
+    panel.set_style_mask(NSWindowStyleMaskNonActivatingPanel);
+
+    // Collection behavior for:
+    // - Display on same space as fullscreen window
+    // - Join all spaces (appear on every desktop/space)
+    // - Transient (don't persist when app quits)
+    // - Move to active space
+    panel.set_collection_behaviour(
+        NSWindowCollectionBehavior::NSWindowCollectionBehaviorCanJoinAllSpaces
+            | NSWindowCollectionBehavior::NSWindowCollectionBehaviorTransient
+            | NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenAuxiliary
+            | NSWindowCollectionBehavior::NSWindowCollectionBehaviorIgnoresCycle,
+    );
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    #[allow(unused_mut)]
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_clipboard::init())
         .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_store::Builder::new().build())
-        .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--hidden"])))
-        .invoke_handler(tauri::generate_handler![simulate_paste, save_frontmost_app])
-        .setup(|_app| {
-            // Show window on first launch for development
-            // In production, window starts hidden and is shown via shortcut
-            #[cfg(debug_assertions)]
+        .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--hidden"])));
+
+    // Add nspanel plugin on macOS
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder.plugin(tauri_nspanel::init());
+    }
+
+    builder
+        .invoke_handler(tauri::generate_handler![
+            simulate_paste,
+            save_frontmost_app,
+            show_panel,
+            hide_panel
+        ])
+        .setup(|app| {
+            // macOS: Hide dock icon
+            #[cfg(target_os = "macos")]
             {
-                if let Some(window) = _app.get_webview_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
+                app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+            }
+
+            // macOS: Convert window to panel for Spotlight-like behavior
+            #[cfg(target_os = "macos")]
+            {
+                if let Some(window) = app.get_webview_window("main") {
+                    init_panel(window);
+
+                    // Show panel on first launch for development
+                    #[cfg(debug_assertions)]
+                    {
+                        if let Ok(panel) = app.get_webview_panel("main") {
+                            panel.show();
+                        }
+                    }
                 }
             }
+
+            // Non-macOS: Regular window handling
+            #[cfg(not(target_os = "macos"))]
+            {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.set_visible_on_all_workspaces(true);
+
+                    #[cfg(debug_assertions)]
+                    {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                }
+            }
+
             Ok(())
         })
         .run(tauri::generate_context!())

@@ -23,6 +23,7 @@
       "transparent": true,
       "alwaysOnTop": true,
       "skipTaskbar": true,
+      "visibleOnAllWorkspaces": true,
       "center": true,
       "visible": false
     }],

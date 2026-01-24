@@ -9,6 +9,9 @@ export default defineConfig({
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
   },
+  optimizeDeps: {
+    include: ['tauri-plugin-clipboard-api'],
+  },
   clearScreen: false,
   server: {
     port: 5173,

@@ -47,6 +47,7 @@ export async function shrinkWindowFromPreview() {
 
 export async function hideWindow() {
   try {
+    await invoke('hide_panel');
     const window = getCurrentWindow();
     await window.hide();
   } catch (error) {
@@ -57,6 +58,8 @@ export async function hideWindow() {
 export async function showWindow() {
   try {
     await invoke('save_frontmost_app');
+    // Use panel on macOS for Spotlight-like behavior
+    await invoke('show_panel');
     const window = getCurrentWindow();
     await window.show();
     await window.setFocus();
@@ -70,9 +73,11 @@ export async function toggleWindow() {
     const window = getCurrentWindow();
     const visible = await window.isVisible();
     if (visible) {
+      await invoke('hide_panel');
       await window.hide();
     } else {
       await invoke('save_frontmost_app');
+      await invoke('show_panel');
       await window.show();
       await window.setFocus();
     }
@@ -83,6 +88,7 @@ export async function toggleWindow() {
 
 export async function hideAndPaste() {
   try {
+    await invoke('hide_panel');
     const window = getCurrentWindow();
     await window.hide();
     await invoke('simulate_paste');
