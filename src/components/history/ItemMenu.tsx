@@ -1,7 +1,7 @@
 import { useState, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock } from 'lucide-react';
+import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Eye } from 'lucide-react';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import * as transforms from '@/lib/transforms';
@@ -17,7 +17,7 @@ interface ItemMenuProps {
 }
 
 export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
-  const { openTransform } = usePreviewStore();
+  const { openTransform, openView } = usePreviewStore();
   const { deleteItem, togglePin } = useHistoryStore();
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
@@ -72,6 +72,7 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
         return [
           { icon: Sparkles, label: 'Beautify', action: () => openTransform(item, 'Beautify JSON', transforms.beautifyJson(item.content)) },
           { icon: Minimize2, label: 'Minify', action: () => openTransform(item, 'Minify JSON', transforms.minifyJson(item.content)) },
+          { icon: ArrowRightLeft, label: 'To YAML', action: () => openTransform(item, 'JSON → YAML', transforms.jsonToYaml(item.content)) },
         ];
       case 'jwt':
         return [
@@ -100,6 +101,52 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
       case 'timestamp':
         return [
           { icon: Sparkles, label: 'To Date', action: () => openTransform(item, 'Timestamp to Date', transforms.timestampToDate(item.content)) },
+        ];
+      case 'yaml':
+        return [
+          { icon: Sparkles, label: 'Beautify', action: () => openTransform(item, 'Beautify YAML', transforms.beautifyYaml(item.content)) },
+          { icon: ArrowRightLeft, label: 'To JSON', action: () => openTransform(item, 'YAML → JSON', transforms.yamlToJson(item.content)) },
+          { icon: Info, label: 'Validate', action: () => {
+            const result = transforms.validateYaml(item.content);
+            openTransform(item, 'Validate YAML', result.valid ? '✓ Valid YAML' : `✗ Invalid: ${result.error}`);
+          }},
+        ];
+      case 'color':
+        return [
+          { icon: Palette, label: 'To HEX', action: () => openTransform(item, 'Color → HEX', transforms.colorToHex(item.content)) },
+          { icon: Palette, label: 'To RGB', action: () => openTransform(item, 'Color → RGB', transforms.colorToRgb(item.content)) },
+          { icon: Palette, label: 'To HSL', action: () => openTransform(item, 'Color → HSL', transforms.colorToHsl(item.content)) },
+          { icon: Info, label: 'Color Info', action: () => openTransform(item, 'Color Info', transforms.colorInfo(item.content)) },
+        ];
+      case 'csv':
+        return [
+          { icon: ArrowRightLeft, label: 'To JSON', action: () => openTransform(item, 'CSV → JSON', transforms.csvToJson(item.content)) },
+          { icon: Info, label: 'CSV Info', action: () => openTransform(item, 'CSV Info', transforms.csvInfo(item.content)) },
+        ];
+      case 'regex':
+        return [
+          { icon: Info, label: 'Regex Info', action: () => openTransform(item, 'Regex Info', transforms.regexInfo(item.content)) },
+          { icon: Lock, label: 'Escape', action: () => openTransform(item, 'Escape Regex', transforms.escapeRegex(item.content)) },
+        ];
+      case 'hex':
+        return [
+          { icon: Hash, label: 'To Text', action: () => openTransform(item, 'Hex → Text', transforms.hexToText(item.content)) },
+          { icon: Binary, label: 'To Decimal', action: () => openTransform(item, 'Hex → Decimal', transforms.hexToDecimal(item.content)) },
+          { icon: Binary, label: 'To Binary', action: () => openTransform(item, 'Hex → Binary', transforms.hexToBinary(item.content)) },
+        ];
+      case 'code_js':
+        return [
+          { icon: Sparkles, label: 'Beautify', action: async () => {
+            const formatted = await transforms.beautifyJavaScript(item.content);
+            openTransform(item, 'Beautify JavaScript', formatted);
+          }},
+        ];
+      case 'code_ts':
+        return [
+          { icon: Sparkles, label: 'Beautify', action: async () => {
+            const formatted = await transforms.beautifyTypeScript(item.content);
+            openTransform(item, 'Beautify TypeScript', formatted);
+          }},
         ];
       default:
         return [];
@@ -131,6 +178,7 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
           onMouseLeave={onClose}
         >
           <MenuButton icon={Copy} label="Copy" onClick={handleCopy} />
+          <MenuButton icon={Eye} label="View" onClick={() => { openView(item); onClose(); }} />
 
           {transformItems.length > 0 && <div className="h-px bg-border my-1" />}
           {transformItems.map((transformItem, i) => (

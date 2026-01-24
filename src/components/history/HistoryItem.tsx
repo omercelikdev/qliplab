@@ -1,11 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { MoreVertical, Pin } from 'lucide-react';
+import { MoreVertical, Pin, Eye } from 'lucide-react';
 import { FormatIcon } from './FormatIcon';
 import { ItemMenu } from './ItemMenu';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideAndPaste } from '@/lib/window';
 import { useAppStore } from '@/stores/appStore';
+import { usePreviewStore } from '@/stores/previewStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -35,6 +36,12 @@ export function HistoryItem({ item, isSelected = false }: HistoryItemProps) {
   const addToDiffSelection = useAppStore((state) => state.addToDiffSelection);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const isSelectedForDiff = diffSelectedIds.includes(item.id);
+  const { openView } = usePreviewStore();
+
+  const handleQuickView = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    openView(item);
+  }, [item, openView]);
 
   const handleClick = async () => {
     if (isMenuOpen) return;
@@ -85,18 +92,26 @@ export function HistoryItem({ item, isSelected = false }: HistoryItemProps) {
       <span className="flex-1 min-w-0 truncate text-xs">{item.content}</span>
       <span className="text-[10px] text-muted-foreground shrink-0 w-7 text-right">{formatRelativeTime(item.createdAt)}</span>
       {!isDiffMode && (
-        <button
-          ref={menuButtonRef}
-          className={cn(
-            'p-0.5 rounded hover:bg-surface transition-colors shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer',
-            (isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0'
-          )}
-          onMouseEnter={handleMenuButtonEnter}
-          onMouseLeave={handleMenuButtonLeave}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
+        <div className={cn('flex items-center gap-0.5', (isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0')}>
+          {/* Quick View Button */}
+          <button
+            className="p-0.5 rounded hover:bg-surface transition-colors shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+            onClick={handleQuickView}
+            title="Quick View"
+          >
+            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+          {/* Menu Button */}
+          <button
+            ref={menuButtonRef}
+            className="p-0.5 rounded hover:bg-surface transition-colors shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+            onMouseEnter={handleMenuButtonEnter}
+            onMouseLeave={handleMenuButtonLeave}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+        </div>
       )}
       <ItemMenu
         item={item}

@@ -32,12 +32,21 @@ export function useDiffMode() {
         }
       }
 
-      // Escape to exit diff mode
+      // Escape to close preview or exit diff mode
       if (e.key === 'Escape') {
-        const currentIsDiffMode = useAppStore.getState().isDiffMode;
-        if (currentIsDiffMode) {
-          setDiffMode(false);
-          clearDiffSelection();
+        const previewOpen = usePreviewStore.getState().isOpen;
+        const closePreview = usePreviewStore.getState().close;
+
+        if (previewOpen) {
+          // Close preview first
+          closePreview();
+        } else {
+          // Then check diff mode
+          const currentIsDiffMode = useAppStore.getState().isDiffMode;
+          if (currentIsDiffMode) {
+            setDiffMode(false);
+            clearDiffSelection();
+          }
         }
       }
     };

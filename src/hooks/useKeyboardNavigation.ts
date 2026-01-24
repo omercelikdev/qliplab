@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { usePreviewStore } from '@/stores/previewStore';
 
 interface UseKeyboardNavigationOptions {
   itemCount: number;
@@ -12,6 +13,7 @@ export function useKeyboardNavigation({
   isActive,
 }: UseKeyboardNavigationOptions) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const isPreviewOpen = usePreviewStore((state) => state.isOpen);
 
   // Reset selection when item count changes
   useEffect(() => {
@@ -29,7 +31,14 @@ export function useKeyboardNavigation({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!isActive || itemCount === 0) return;
+      // Don't handle keyboard navigation when preview/editor is open
+      if (!isActive || itemCount === 0 || isPreviewOpen) return;
+
+      // Don't handle if focus is in an input or editor
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
 
       switch (e.key) {
         case 'ArrowDown':
@@ -46,7 +55,7 @@ export function useKeyboardNavigation({
           break;
       }
     },
-    [isActive, itemCount, selectedIndex, onSelect]
+    [isActive, itemCount, selectedIndex, onSelect, isPreviewOpen]
   );
 
   useEffect(() => {

@@ -78,7 +78,7 @@ function App() {
             {activeTab === 'snippets' && <SnippetList />}
             {activeTab === 'vault' && <VaultList />}
           </div>
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {previewOpen && <PreviewPanel />}
           </AnimatePresence>
         </div>

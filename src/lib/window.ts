@@ -2,16 +2,17 @@ import { getCurrentWindow, LogicalSize, LogicalPosition } from '@tauri-apps/api/
 import { invoke } from '@tauri-apps/api/core';
 
 const DEFAULT_WIDTH = 420;
-const PREVIEW_WIDTH = 840;
 const DEFAULT_HEIGHT = 450;
+const PREVIEW_WIDTH = 920;
+const PREVIEW_HEIGHT = 520;
 
 export async function expandWindowForPreview() {
   try {
     const window = getCurrentWindow();
     const position = await window.outerPosition();
 
-    // Keep height fixed, only expand width
-    await window.setSize(new LogicalSize(PREVIEW_WIDTH, DEFAULT_HEIGHT));
+    // Expand both width and height for better editor experience
+    await window.setSize(new LogicalSize(PREVIEW_WIDTH, PREVIEW_HEIGHT));
     // Restore position immediately to prevent jumping
     await window.setPosition(new LogicalPosition(position.x, position.y));
   } catch (error) {
@@ -24,7 +25,7 @@ export async function shrinkWindowFromPreview() {
     const window = getCurrentWindow();
     const position = await window.outerPosition();
 
-    // Keep height fixed, only shrink width
+    // Shrink back to default size
     await window.setSize(new LogicalSize(DEFAULT_WIDTH, DEFAULT_HEIGHT));
     // Restore position immediately to prevent jumping
     await window.setPosition(new LogicalPosition(position.x, position.y));

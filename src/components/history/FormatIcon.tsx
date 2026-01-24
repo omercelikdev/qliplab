@@ -1,4 +1,4 @@
-import { Braces, Key, Database, Binary, Link, Code, Type, Hash, Clock, FileCode } from 'lucide-react';
+import { Braces, Key, Database, Binary, Link, Code, Type, Hash, Clock, FileCode, FileCode2, FileText, Palette, Table, Regex } from 'lucide-react';
 import type { DetectedFormat } from '@/types/clipboard';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,20 @@ const iconMap: Record<DetectedFormat, { icon: React.ElementType; color: string }
   html: { icon: FileCode, color: 'text-red-500' },
   uuid: { icon: Hash, color: 'text-pink-500' },
   timestamp: { icon: Clock, color: 'text-indigo-500' },
+  // New formats
+  yaml: { icon: FileText, color: 'text-amber-500' },
+  color: { icon: Palette, color: 'text-rose-500' },
+  csv: { icon: Table, color: 'text-emerald-500' },
+  regex: { icon: Regex, color: 'text-violet-500' },
+  hex: { icon: Binary, color: 'text-lime-500' },
+  // Programming languages
+  code_js: { icon: FileCode2, color: 'text-yellow-400' },
+  code_ts: { icon: FileCode2, color: 'text-blue-400' },
+  code_python: { icon: FileCode2, color: 'text-green-400' },
+  code_go: { icon: FileCode2, color: 'text-cyan-400' },
+  code_rust: { icon: FileCode2, color: 'text-orange-400' },
+  code_java: { icon: FileCode2, color: 'text-red-400' },
+  code_csharp: { icon: FileCode2, color: 'text-purple-400' },
   plain: { icon: Type, color: 'text-muted-foreground' },
 };
 
