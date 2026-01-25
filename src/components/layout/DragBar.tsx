@@ -50,7 +50,8 @@ export function SearchBar() {
           type="text"
           placeholder={PLACEHOLDERS[activeTab]}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => setSearchQuery(e.target.value.slice(0, 200))}
+          maxLength={200}
           className="flex-1 bg-transparent outline-none text-xs placeholder:text-muted-foreground cursor-text"
         />
         {searchQuery && (

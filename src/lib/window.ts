@@ -62,7 +62,8 @@ export async function showWindow() {
     await invoke('show_panel');
     const window = getCurrentWindow();
     await window.show();
-    await window.setFocus();
+    // Focus may fail if OS denies it - window is still visible
+    try { await window.setFocus(); } catch { /* User can click to focus */ }
   } catch (error) {
     console.error('Failed to show window:', error);
   }
@@ -83,7 +84,8 @@ export async function toggleWindow() {
       await invoke('save_frontmost_app');
       await invoke('show_panel');
       await window.show();
-      await window.setFocus();
+      // Focus may fail if OS denies it - window is still visible
+      try { await window.setFocus(); } catch { /* User can click to focus */ }
     }
   } catch (error) {
     console.error('Failed to toggle window:', error);

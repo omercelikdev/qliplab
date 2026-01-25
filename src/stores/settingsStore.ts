@@ -48,9 +48,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   },
 
   updateSetting: async (key, value) => {
-    if (!store) return;
-    await store.set(key, value);
-    await store.save();
-    set((state) => ({ settings: { ...state.settings, [key]: value } }));
+    try {
+      if (!store) return;
+      await store.set(key, value);
+      await store.save();
+      set((state) => ({ settings: { ...state.settings, [key]: value } }));
+    } catch (error) {
+      console.error('Failed to update setting:', error);
+    }
   },
 }));

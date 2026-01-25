@@ -43,35 +43,40 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   items: [],
 
   unlock: async (password) => {
-    const db = getDatabase();
-    const result = await db.select<any[]>(
-      "SELECT value FROM vault_settings WHERE key = 'master_password_hash'"
-    );
-
-    if (result.length === 0) {
-      // First time - set password
-      const hash = await hashPassword(password);
-      await db.execute(
-        "INSERT INTO vault_settings (key, value) VALUES ('master_password_hash', ?)",
-        [hash]
+    try {
+      const db = getDatabase();
+      const result = await db.select<any[]>(
+        "SELECT value FROM vault_settings WHERE key = 'master_password_hash'"
       );
-      sessionPassword = password;
-      resetAutoLockTimer(() => get().lock());
-      set({ isLocked: false });
-      return true;
-    }
 
-    const storedHash = result[0].value;
-    const inputHash = await hashPassword(password);
+      if (result.length === 0) {
+        // First time - set password
+        const hash = await hashPassword(password);
+        await db.execute(
+          "INSERT INTO vault_settings (key, value) VALUES ('master_password_hash', ?)",
+          [hash]
+        );
+        sessionPassword = password;
+        resetAutoLockTimer(() => get().lock());
+        set({ isLocked: false });
+        return true;
+      }
 
-    if (storedHash === inputHash) {
-      sessionPassword = password;
-      resetAutoLockTimer(() => get().lock());
-      await get().loadItems(password);
-      set({ isLocked: false });
-      return true;
+      const storedHash = result[0].value;
+      const inputHash = await hashPassword(password);
+
+      if (storedHash === inputHash) {
+        sessionPassword = password;
+        resetAutoLockTimer(() => get().lock());
+        await get().loadItems(password);
+        set({ isLocked: false });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to unlock vault:', error);
+      return false;
     }
-    return false;
   },
 
   lock: () => {
@@ -80,45 +85,57 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
 
   loadItems: async (password) => {
-    const db = getDatabase();
-    const result = await db.select<any[]>('SELECT * FROM vault_items ORDER BY sort_order');
+    try {
+      const db = getDatabase();
+      const result = await db.select<any[]>('SELECT * FROM vault_items ORDER BY sort_order');
 
-    const items: VaultItem[] = await Promise.all(
-      result.map(async (row) => ({
-        id: row.id,
-        type: row.type,
-        title: row.title,
-        data: JSON.parse(await decrypt(row.encrypted_data, password)),
-        icon: row.icon,
-        isFavorite: row.is_favorite === 1,
-        sortOrder: row.sort_order,
-        createdAt: new Date(row.created_at),
-        updatedAt: new Date(row.updated_at),
-      }))
-    );
-    set({ items });
+      const items: VaultItem[] = await Promise.all(
+        result.map(async (row) => ({
+          id: row.id,
+          type: row.type,
+          title: row.title,
+          data: JSON.parse(await decrypt(row.encrypted_data, password)),
+          icon: row.icon,
+          isFavorite: row.is_favorite === 1,
+          sortOrder: row.sort_order,
+          createdAt: new Date(row.created_at),
+          updatedAt: new Date(row.updated_at),
+        }))
+      );
+      set({ items });
+    } catch (error) {
+      console.error('Failed to load vault items:', error);
+    }
   },
 
   createItem: async (type, title, data) => {
-    if (!sessionPassword) return;
-    // Reset auto-lock timer on activity
-    resetAutoLockTimer(() => get().lock());
+    try {
+      if (!sessionPassword) return;
+      // Reset auto-lock timer on activity
+      resetAutoLockTimer(() => get().lock());
 
-    const db = getDatabase();
-    const id = crypto.randomUUID();
-    const now = new Date().toISOString();
-    const encryptedData = await encrypt(JSON.stringify(data), sessionPassword);
+      const db = getDatabase();
+      const id = crypto.randomUUID();
+      const now = new Date().toISOString();
+      const encryptedData = await encrypt(JSON.stringify(data), sessionPassword);
 
-    await db.execute(
-      `INSERT INTO vault_items (id, type, title, encrypted_data, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, type, title, encryptedData, 0, now, now]
-    );
-    await get().loadItems(sessionPassword);
+      await db.execute(
+        `INSERT INTO vault_items (id, type, title, encrypted_data, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [id, type, title, encryptedData, 0, now, now]
+      );
+      await get().loadItems(sessionPassword);
+    } catch (error) {
+      console.error('Failed to create vault item:', error);
+    }
   },
 
   deleteItem: async (id) => {
-    const db = getDatabase();
-    await db.execute('DELETE FROM vault_items WHERE id = ?', [id]);
-    set((state) => ({ items: state.items.filter((i) => i.id !== id) }));
+    try {
+      const db = getDatabase();
+      await db.execute('DELETE FROM vault_items WHERE id = ?', [id]);
+      set((state) => ({ items: state.items.filter((i) => i.id !== id) }));
+    } catch (error) {
+      console.error('Failed to delete vault item:', error);
+    }
   },
 }));
