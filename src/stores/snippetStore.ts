@@ -24,76 +24,101 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   isLoading: true,
 
   loadSnippets: async () => {
-    const db = getDatabase();
-    const result = await db.select<any[]>('SELECT * FROM snippets ORDER BY sort_order');
-    const snippets: Snippet[] = result.map(row => ({
-      id: row.id,
-      title: row.title,
-      content: row.content,
-      categoryId: row.category_id,
-      syntax: row.syntax || 'plain',
-      isFavorite: row.is_favorite === 1,
-      sortOrder: row.sort_order,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
-    }));
-    set({ snippets, isLoading: false });
+    try {
+      const db = getDatabase();
+      const result = await db.select<any[]>('SELECT * FROM snippets ORDER BY sort_order');
+      const snippets: Snippet[] = result.map(row => ({
+        id: row.id,
+        title: row.title,
+        content: row.content,
+        categoryId: row.category_id,
+        syntax: row.syntax || 'plain',
+        isFavorite: row.is_favorite === 1,
+        sortOrder: row.sort_order,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+      }));
+      set({ snippets, isLoading: false });
+    } catch (error) {
+      console.error('Failed to load snippets:', error);
+      set({ isLoading: false });
+    }
   },
 
   loadCategories: async () => {
-    const db = getDatabase();
-    const result = await db.select<any[]>('SELECT * FROM snippet_categories ORDER BY sort_order');
-    const categories: SnippetCategory[] = result.map(row => ({
-      id: row.id,
-      name: row.name,
-      icon: row.icon,
-      sortOrder: row.sort_order,
-      createdAt: new Date(row.created_at),
-    }));
-    set({ categories });
+    try {
+      const db = getDatabase();
+      const result = await db.select<any[]>('SELECT * FROM snippet_categories ORDER BY sort_order');
+      const categories: SnippetCategory[] = result.map(row => ({
+        id: row.id,
+        name: row.name,
+        icon: row.icon,
+        sortOrder: row.sort_order,
+        createdAt: new Date(row.created_at),
+      }));
+      set({ categories });
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
   },
 
   createSnippet: async (snippet) => {
-    const db = getDatabase();
-    const id = crypto.randomUUID();
-    const now = new Date().toISOString();
-    await db.execute(
-      `INSERT INTO snippets (id, title, content, category_id, syntax, is_favorite, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, snippet.title, snippet.content, snippet.categoryId || null, snippet.syntax, snippet.isFavorite ? 1 : 0, 0, now, now]
-    );
-    await get().loadSnippets();
+    try {
+      const db = getDatabase();
+      const id = crypto.randomUUID();
+      const now = new Date().toISOString();
+      await db.execute(
+        `INSERT INTO snippets (id, title, content, category_id, syntax, is_favorite, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, snippet.title, snippet.content, snippet.categoryId || null, snippet.syntax, snippet.isFavorite ? 1 : 0, 0, now, now]
+      );
+      await get().loadSnippets();
+    } catch (error) {
+      console.error('Failed to create snippet:', error);
+    }
   },
 
   updateSnippet: async (id, updates) => {
-    const db = getDatabase();
-    const now = new Date().toISOString();
-    const fields: string[] = ['updated_at = ?'];
-    const values: any[] = [now];
+    try {
+      const db = getDatabase();
+      const now = new Date().toISOString();
+      const fields: string[] = ['updated_at = ?'];
+      const values: any[] = [now];
 
-    if (updates.title !== undefined) { fields.push('title = ?'); values.push(updates.title); }
-    if (updates.content !== undefined) { fields.push('content = ?'); values.push(updates.content); }
-    if (updates.isFavorite !== undefined) { fields.push('is_favorite = ?'); values.push(updates.isFavorite ? 1 : 0); }
-    values.push(id);
+      if (updates.title !== undefined) { fields.push('title = ?'); values.push(updates.title); }
+      if (updates.content !== undefined) { fields.push('content = ?'); values.push(updates.content); }
+      if (updates.isFavorite !== undefined) { fields.push('is_favorite = ?'); values.push(updates.isFavorite ? 1 : 0); }
+      values.push(id);
 
-    await db.execute(`UPDATE snippets SET ${fields.join(', ')} WHERE id = ?`, values);
-    await get().loadSnippets();
+      await db.execute(`UPDATE snippets SET ${fields.join(', ')} WHERE id = ?`, values);
+      await get().loadSnippets();
+    } catch (error) {
+      console.error('Failed to update snippet:', error);
+    }
   },
 
   deleteSnippet: async (id) => {
-    const db = getDatabase();
-    await db.execute('DELETE FROM snippets WHERE id = ?', [id]);
-    set(state => ({ snippets: state.snippets.filter(s => s.id !== id) }));
+    try {
+      const db = getDatabase();
+      await db.execute('DELETE FROM snippets WHERE id = ?', [id]);
+      set(state => ({ snippets: state.snippets.filter(s => s.id !== id) }));
+    } catch (error) {
+      console.error('Failed to delete snippet:', error);
+    }
   },
 
   createCategory: async (name, icon) => {
-    const db = getDatabase();
-    const id = crypto.randomUUID();
-    const now = new Date().toISOString();
-    await db.execute(
-      `INSERT INTO snippet_categories (id, name, icon, sort_order, created_at) VALUES (?, ?, ?, ?, ?)`,
-      [id, name, icon || null, 0, now]
-    );
-    await get().loadCategories();
+    try {
+      const db = getDatabase();
+      const id = crypto.randomUUID();
+      const now = new Date().toISOString();
+      await db.execute(
+        `INSERT INTO snippet_categories (id, name, icon, sort_order, created_at) VALUES (?, ?, ?, ?, ?)`,
+        [id, name, icon || null, 0, now]
+      );
+      await get().loadCategories();
+    } catch (error) {
+      console.error('Failed to create category:', error);
+    }
   },
 
   setSelectedCategory: (id) => set({ selectedCategoryId: id }),

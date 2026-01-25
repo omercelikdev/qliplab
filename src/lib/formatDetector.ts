@@ -52,9 +52,15 @@ export function detectFormat(content: string): DetectedFormat {
   // URL Encoded
   if (/^[a-zA-Z0-9-_.~]+(%[0-9A-Fa-f]{2})+/.test(trimmed)) return 'url_encoded';
 
-  // Base64
-  if (/^[A-Za-z0-9+/]+=*$/.test(trimmed) && trimmed.length > 20) {
-    try { atob(trimmed); return 'base64'; } catch {}
+  // Base64 (stricter validation to avoid false positives)
+  if (/^[A-Za-z0-9+/]+=*$/.test(trimmed) && trimmed.length >= 24) {
+    // Check valid base64 padding (length should be divisible by 4 or have valid padding)
+    const withoutPadding = trimmed.replace(/=+$/, '');
+    const paddingNeeded = (4 - (withoutPadding.length % 4)) % 4;
+    const actualPadding = trimmed.length - withoutPadding.length;
+    if (paddingNeeded === actualPadding || actualPadding === 0) {
+      try { atob(trimmed); return 'base64'; } catch {}
+    }
   }
 
   // SQL

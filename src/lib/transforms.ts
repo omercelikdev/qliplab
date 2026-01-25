@@ -11,9 +11,22 @@ export function validateJson(content: string): { valid: boolean; error?: string 
   try { JSON.parse(content); return { valid: true }; } catch (e) { return { valid: false, error: (e as Error).message }; }
 }
 
-// Base64
-export function encodeBase64(content: string): string { return btoa(content); }
-export function decodeBase64(content: string): string { try { return atob(content); } catch { return content; } }
+// Base64 (with Unicode support)
+export function encodeBase64(content: string): string {
+  try {
+    // Handle Unicode characters properly
+    return btoa(encodeURIComponent(content).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))));
+  } catch { return content; }
+}
+export function decodeBase64(content: string): string {
+  try {
+    // Handle Unicode characters properly
+    return decodeURIComponent(Array.from(atob(content), c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join(''));
+  } catch {
+    // Fallback to simple decode for ASCII
+    try { return atob(content); } catch { return content; }
+  }
+}
 
 // URL
 export function encodeUrl(content: string): string { return encodeURIComponent(content); }
@@ -55,7 +68,10 @@ export async function hashSha256(content: string): Promise<string> {
 // Timestamp
 export function timestampToDate(content: string): string {
   const ts = parseInt(content);
-  return new Date(content.length === 13 ? ts : ts * 1000).toISOString();
+  if (isNaN(ts)) return content;
+  const date = new Date(content.length === 13 ? ts : ts * 1000);
+  if (isNaN(date.getTime())) return content;
+  return date.toISOString();
 }
 
 // HTML
