@@ -20,6 +20,17 @@ use enigo::{Enigo, Keyboard, Settings, Key, Direction};
 #[cfg(target_os = "macos")]
 static PREVIOUS_APP: Mutex<Option<String>> = Mutex::new(None);
 
+/// Sanitize a string for safe use in AppleScript
+/// Removes dangerous characters to prevent injection attacks
+#[cfg(target_os = "macos")]
+fn sanitize_applescript_string(s: &str) -> String {
+    // Remove characters that could break out of AppleScript string context
+    // Normal app names never contain these characters
+    s.chars()
+     .filter(|c| *c != '"' && *c != '\\' && *c != '\n' && *c != '\r')
+     .collect()
+}
+
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn save_frontmost_app() -> Result<(), String> {
@@ -59,6 +70,8 @@ fn save_frontmost_app() -> Result<(), String> {
 #[tauri::command]
 fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
     if let Ok(panel) = app.get_webview_panel("main") {
+        // Re-enable mouse events before showing
+        panel.set_ignore_mouse_events(false);
         panel.show();
     }
     Ok(())
@@ -75,6 +88,8 @@ fn show_panel(_app: tauri::AppHandle) -> Result<(), String> {
 #[tauri::command]
 fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
     if let Ok(panel) = app.get_webview_panel("main") {
+        // Disable mouse events BEFORE hiding to prevent input capture
+        panel.set_ignore_mouse_events(true);
         panel.order_out(None);
     }
     Ok(())
@@ -94,9 +109,11 @@ fn simulate_paste() -> Result<(), String> {
             let prev_app = PREVIOUS_APP.lock().ok().and_then(|guard| guard.clone());
 
             if let Some(app_name) = prev_app {
+                // SECURITY: Sanitize app name to prevent AppleScript injection
+                let safe_app_name = sanitize_applescript_string(&app_name);
                 let activate_script = format!(
                     r#"tell application "{}" to activate"#,
-                    app_name
+                    safe_app_name
                 );
 
                 let _ = Command::new("osascript")
@@ -148,9 +165,15 @@ fn simulate_paste() -> Result<(), String> {
 
 /// Initialize panel with proper settings for Spotlight-like behavior
 #[cfg(target_os = "macos")]
-fn init_panel(window: tauri::WebviewWindow) {
-    // Convert window to panel
-    let panel = window.to_panel().unwrap();
+fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
+    // Convert window to panel with proper error handling
+    let panel = match window.to_panel() {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("Failed to convert window to panel: {:?}", e);
+            return Err(format!("Panel initialization failed: {:?}", e));
+        }
+    };
 
     // Window levels
     #[allow(non_upper_case_globals)]
@@ -177,6 +200,12 @@ fn init_panel(window: tauri::WebviewWindow) {
             | NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenAuxiliary
             | NSWindowCollectionBehavior::NSWindowCollectionBehaviorIgnoresCycle,
     );
+
+    // CRITICAL: Ignore mouse events when panel starts hidden
+    // This prevents the invisible panel from capturing trackpad input
+    panel.set_ignore_mouse_events(true);
+
+    Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -215,12 +244,15 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             {
                 if let Some(window) = app.get_webview_window("main") {
-                    init_panel(window);
+                    if let Err(e) = init_panel(window) {
+                        eprintln!("Warning: Panel initialization failed: {}. App will continue with limited functionality.", e);
+                    }
 
                     // Show panel on first launch for development
                     #[cfg(debug_assertions)]
                     {
                         if let Ok(panel) = app.get_webview_panel("main") {
+                            panel.set_ignore_mouse_events(false);
                             panel.show();
                         }
                     }

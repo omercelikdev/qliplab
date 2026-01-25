@@ -3,7 +3,29 @@ import { getDatabase } from '@/lib/database';
 import { encrypt, decrypt, hashPassword } from '@/lib/encryption';
 import type { VaultItem, VaultItemType } from '@/types/vault';
 
+// SECURITY: Session password with auto-clear timeout
 let sessionPassword: string | null = null;
+let autoLockTimer: ReturnType<typeof setTimeout> | null = null;
+const AUTO_LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
+
+// Reset auto-lock timer on activity
+function resetAutoLockTimer(lockFn: () => void) {
+  if (autoLockTimer) {
+    clearTimeout(autoLockTimer);
+  }
+  autoLockTimer = setTimeout(() => {
+    lockFn();
+  }, AUTO_LOCK_TIMEOUT);
+}
+
+// Clear session password securely (as much as JS allows)
+function clearSessionPassword() {
+  if (autoLockTimer) {
+    clearTimeout(autoLockTimer);
+    autoLockTimer = null;
+  }
+  sessionPassword = null;
+}
 
 interface VaultState {
   isLocked: boolean;
@@ -34,6 +56,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         [hash]
       );
       sessionPassword = password;
+      resetAutoLockTimer(() => get().lock());
       set({ isLocked: false });
       return true;
     }
@@ -43,6 +66,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
 
     if (storedHash === inputHash) {
       sessionPassword = password;
+      resetAutoLockTimer(() => get().lock());
       await get().loadItems(password);
       set({ isLocked: false });
       return true;
@@ -51,7 +75,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
 
   lock: () => {
-    sessionPassword = null;
+    clearSessionPassword();
     set({ isLocked: true, items: [] });
   },
 
@@ -77,6 +101,9 @@ export const useVaultStore = create<VaultState>((set, get) => ({
 
   createItem: async (type, title, data) => {
     if (!sessionPassword) return;
+    // Reset auto-lock timer on activity
+    resetAutoLockTimer(() => get().lock());
+
     const db = getDatabase();
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
