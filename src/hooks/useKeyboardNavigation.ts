@@ -58,7 +58,10 @@ export function useKeyboardNavigation({
           break;
         case 'Enter':
           e.preventDefault();
-          onSelect(selectedIndex);
+          // Handle async onSelect with error catching
+          Promise.resolve(onSelect(selectedIndex)).catch((err) => {
+            console.error('Selection failed:', err);
+          });
           break;
       }
     },
