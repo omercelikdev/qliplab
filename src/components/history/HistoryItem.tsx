@@ -110,7 +110,7 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
     <div
       ref={itemRef}
       className={cn(
-        'relative flex items-center gap-2 h-8 px-1.5 rounded-md cursor-pointer transition-colors',
+        'relative flex items-center gap-2 h-8 px-2.5 rounded-md cursor-pointer transition-colors',
         'active:scale-[0.98] active:transition-transform',
         isHovered || isMenuOpen ? 'bg-surface-hover' : 'bg-transparent',
         isDiffMode && 'cursor-crosshair',

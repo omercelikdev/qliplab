@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-surface border border-border/50 rounded text-[10px] font-medium text-muted-foreground">
+    <kbd className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-surface border border-border/50 rounded text-[10px] font-medium text-foreground/70">
       {children}
     </kbd>
   );
@@ -39,7 +39,7 @@ export function HintBar() {
 
   if (isDiffMode) {
     return (
-      <div className={cn('h-9 flex items-center justify-center gap-4 px-3', 'border-t border-border/50 text-xs bg-accent/10')}>
+      <div className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
         <span className="text-accent font-medium">Diff Mode</span>
         <span className="text-muted-foreground">
           {diffSelectedIds.length === 0 && 'Select first item'}
@@ -57,7 +57,7 @@ export function HintBar() {
   }
 
   return (
-    <div className={cn('h-9 flex items-center justify-between px-3', 'border-t border-border/50 text-xs text-muted-foreground')}>
+    <div className={cn('h-9 flex items-center justify-between px-3', 'elevation-top text-xs text-foreground/70')}>
       {/* Left: Navigation hints */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1">

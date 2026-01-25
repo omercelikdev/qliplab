@@ -1,33 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(224 71% 4%);
-  --color-surface: hsl(220 14% 96%);
-  --color-surface-hover: hsl(220 13% 91%);
-  --color-border: hsl(220 13% 91%);
-  --color-muted-foreground: hsl(220 9% 46%);
-  --color-accent: hsl(221 83% 53%);
+  --color-background: hsl(40 33% 98%);
+  --color-foreground: hsl(20 14% 10%);
+  --color-surface: hsl(40 20% 94%);
+  --color-surface-hover: hsl(40 15% 90%);
+  --color-border: hsl(40 10% 88%);
+  --color-muted-foreground: hsl(20 5% 45%);
+  --color-accent: hsl(24 95% 55%);
   --color-accent-foreground: hsl(0 0% 100%);
   --color-destructive: hsl(0 84% 60%);
-  --color-input: hsl(220 14% 96%);
-  --color-ring: hsl(221 83% 53%);
+  --color-input: hsl(40 20% 94%);
+  --color-ring: hsl(24 95% 55%);
   --font-sans: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
 .dark {
-  --color-background: hsl(224 71% 4%);
-  --color-foreground: hsl(210 40% 98%);
-  --color-surface: hsl(224 71% 8%);
-  --color-surface-hover: hsl(224 71% 12%);
-  --color-border: hsl(217 33% 17%);
-  --color-muted-foreground: hsl(215 20% 65%);
-  --color-accent: hsl(217 91% 60%);
+  --color-background: hsl(20 14% 8%);
+  --color-foreground: hsl(40 20% 95%);
+  --color-surface: hsl(20 10% 12%);
+  --color-surface-hover: hsl(20 10% 16%);
+  --color-border: hsl(20 8% 20%);
+  --color-muted-foreground: hsl(30 10% 55%);
+  --color-accent: hsl(24 95% 58%);
   --color-accent-foreground: hsl(0 0% 100%);
   --color-destructive: hsl(0 62% 50%);
-  --color-input: hsl(217 33% 17%);
-  --color-ring: hsl(224 76% 48%);
+  --color-input: hsl(20 10% 15%);
+  --color-ring: hsl(24 95% 50%);
 }
 
 *,
@@ -76,6 +76,20 @@ input::placeholder, textarea::placeholder {
 select option {
   background-color: var(--color-background);
   color: var(--color-foreground);
+}
+
+/* Subtle elevation shadows */
+.elevation-right {
+  box-shadow: 2px 0 12px -2px rgba(0,0,0,0.05);
+}
+.elevation-top {
+  box-shadow: 0 -2px 8px -2px rgba(0,0,0,0.08);
+}
+.dark .elevation-right {
+  box-shadow: 1px 0 0 0 rgba(255,255,255,0.06), 3px 0 12px -2px rgba(0,0,0,0.3);
+}
+.dark .elevation-top {
+  box-shadow: 0 -1px 0 0 rgba(255,255,255,0.06), 0 -2px 8px -2px rgba(0,0,0,0.4);
 }
 
 /* Custom scrollbar - consistent across all scroll areas */

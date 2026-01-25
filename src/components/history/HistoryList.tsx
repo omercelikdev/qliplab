@@ -113,7 +113,7 @@ export function HistoryList() {
 
   return (
     <div ref={listRef} className="h-full overflow-y-auto overflow-x-hidden">
-      <div className="px-1.5 py-1 space-y-0.5">
+      <div className="pl-3 pr-1.5 py-1 space-y-0.5">
         {filteredItems.map((item, index) => (
           <div
             key={item.id}

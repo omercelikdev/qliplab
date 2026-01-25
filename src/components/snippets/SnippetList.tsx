@@ -60,7 +60,7 @@ export function SnippetList() {
   return (
     <div className="h-full flex flex-col">
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="px-1.5 py-1 space-y-0.5">
+        <div className="pl-3 pr-1.5 py-1 space-y-0.5">
           {filteredSnippets.map((snippet, index) => (
             <div
               key={snippet.id}
@@ -85,7 +85,7 @@ export function SnippetList() {
         </div>
       </div>
 
-      <div className="px-1.5 py-1 border-t border-border/50">
+      <div className="px-3 py-1 border-t border-border/50">
         <button
           onClick={() => setIsDialogOpen(true)}
           className={cn(

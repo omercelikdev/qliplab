@@ -18,7 +18,7 @@ export function Sidebar() {
     <>
       <div
         data-tauri-drag-region
-        className="w-11 h-full flex flex-col items-center pt-2 pb-[6px] border-r border-border/50 cursor-move shrink-0 drag-region"
+        className="w-11 h-full flex flex-col items-center pt-2 pb-[6px] elevation-right cursor-move shrink-0 drag-region"
       >
         {/* Brand Logo - aligns with search field */}
         <div
@@ -41,7 +41,7 @@ export function Sidebar() {
                   'group relative w-8 h-8 flex items-center justify-center rounded-md transition-all cursor-pointer no-drag',
                   isActive
                     ? 'bg-accent/15 text-accent'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-surface-hover'
+                    : 'text-foreground/70 hover:text-foreground hover:bg-surface-hover'
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -60,7 +60,7 @@ export function Sidebar() {
         {/* Settings at bottom */}
         <button
           onClick={() => setShowSettings(true)}
-          className="group relative w-8 h-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-all cursor-pointer no-drag"
+          className="group relative w-8 h-8 flex items-center justify-center rounded-md text-foreground/70 hover:text-foreground hover:bg-surface-hover transition-all cursor-pointer no-drag"
         >
           <Settings className="w-4 h-4" />
           {/* Tooltip */}
