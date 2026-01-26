@@ -175,12 +175,14 @@ fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
         }
     };
 
-    // Window levels
+    // Window levels - use popup menu level (101) instead of screen saver level (1000)
+    // Screen saver level appears above lock screen and can capture input when Mac is locked
+    // Popup menu level is high enough for Spotlight-like behavior but stays below lock screen
     #[allow(non_upper_case_globals)]
-    const NSScreenSaverWindowLevel: i32 = 1000;
+    const NSPopUpMenuWindowLevel: i32 = 101;
 
-    // Set panel to screen saver level to appear above fullscreen apps
-    panel.set_level(NSScreenSaverWindowLevel);
+    // Set panel to popup menu level - appears above most apps but below lock screen
+    panel.set_level(NSPopUpMenuWindowLevel);
 
     // Style mask for non-activating panel + resizable
     #[allow(non_upper_case_globals)]
@@ -204,6 +206,10 @@ fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
     // CRITICAL: Ignore mouse events when panel starts hidden
     // This prevents the invisible panel from capturing trackpad input
     panel.set_ignore_mouse_events(true);
+
+    // Also hide the panel immediately to ensure it doesn't capture events on startup
+    // This is especially important for autostart scenarios
+    panel.order_out(None);
 
     Ok(())
 }
