@@ -47,8 +47,10 @@ export async function shrinkWindowFromPreview() {
 
 export async function hideWindow() {
   try {
-    await invoke('hide_panel');
     const window = getCurrentWindow();
+    // Move offscreen first to prevent any input capture
+    await window.setPosition(new LogicalPosition(-10000, -10000));
+    await invoke('hide_panel');
     await window.hide();
   } catch (error) {
     console.error('Failed to hide window:', error);
@@ -58,9 +60,19 @@ export async function hideWindow() {
 export async function showWindow() {
   try {
     await invoke('save_frontmost_app');
+    const window = getCurrentWindow();
+    const monitor = await currentMonitor();
+
+    // Center window on screen before showing
+    const scaleFactor = monitor?.scaleFactor || 2;
+    const screenWidth = (monitor?.size?.width || 1920) / scaleFactor;
+    const screenHeight = (monitor?.size?.height || 1080) / scaleFactor;
+    const centerX = Math.round((screenWidth - DEFAULT_WIDTH) / 2);
+    const centerY = Math.round((screenHeight - DEFAULT_HEIGHT) / 2);
+    await window.setPosition(new LogicalPosition(Math.max(0, centerX), Math.max(0, centerY)));
+
     // Use panel on macOS for Spotlight-like behavior
     await invoke('show_panel');
-    const window = getCurrentWindow();
     await window.show();
     // Focus may fail if OS denies it - window is still visible
     try { await window.setFocus(); } catch { /* User can click to focus */ }
@@ -78,10 +90,22 @@ export async function toggleWindow() {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
+      // Move offscreen first to prevent any input capture
+      await window.setPosition(new LogicalPosition(-10000, -10000));
       await invoke('hide_panel');
       await window.hide();
     } else {
       await invoke('save_frontmost_app');
+      const monitor = await currentMonitor();
+
+      // Center window on screen before showing
+      const scaleFactor = monitor?.scaleFactor || 2;
+      const screenWidth = (monitor?.size?.width || 1920) / scaleFactor;
+      const screenHeight = (monitor?.size?.height || 1080) / scaleFactor;
+      const centerX = Math.round((screenWidth - DEFAULT_WIDTH) / 2);
+      const centerY = Math.round((screenHeight - DEFAULT_HEIGHT) / 2);
+      await window.setPosition(new LogicalPosition(Math.max(0, centerX), Math.max(0, centerY)));
+
       await invoke('show_panel');
       await window.show();
       // Focus may fail if OS denies it - window is still visible
@@ -94,8 +118,10 @@ export async function toggleWindow() {
 
 export async function hideAndPaste() {
   try {
-    await invoke('hide_panel');
     const window = getCurrentWindow();
+    // Move offscreen first to prevent any input capture
+    await window.setPosition(new LogicalPosition(-10000, -10000));
+    await invoke('hide_panel');
     await window.hide();
     await invoke('simulate_paste');
   } catch (error) {
@@ -111,6 +137,8 @@ export async function hideWriteAndPaste(writeToClipboard: () => Promise<void>) {
 
     // 2. Hide window in parallel
     const window = getCurrentWindow();
+    // Move offscreen first to prevent any input capture
+    await window.setPosition(new LogicalPosition(-10000, -10000));
     await Promise.all([
       invoke('hide_panel'),
       window.hide(),
@@ -130,6 +158,8 @@ export async function hideWriteAndPaste(writeToClipboard: () => Promise<void>) {
 export async function hideAndSimulatePaste() {
   try {
     const window = getCurrentWindow();
+    // Move offscreen first to prevent any input capture
+    await window.setPosition(new LogicalPosition(-10000, -10000));
     await invoke('hide_panel');
     await window.hide();
     await invoke('simulate_paste');

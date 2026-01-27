@@ -106,6 +106,9 @@ fn simulate_paste() -> Result<(), String> {
     thread::spawn(|| {
         #[cfg(target_os = "macos")]
         {
+            use core_graphics::event::{CGEvent, CGEventFlags, CGKeyCode, CGEventTapLocation};
+            use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
+
             let prev_app = PREVIOUS_APP.lock().ok().and_then(|guard| guard.clone());
 
             if let Some(app_name) = prev_app {
@@ -121,29 +124,39 @@ fn simulate_paste() -> Result<(), String> {
                     .arg(&activate_script)
                     .output();
 
-                // Reduced delay - app activation is usually fast
-                thread::sleep(Duration::from_millis(30));
+                // Small delay for app activation
+                thread::sleep(Duration::from_millis(50));
             }
 
-            let paste_script = r#"
-                tell application "System Events"
-                    keystroke "v" using command down
-                end tell
-            "#;
+            // Use CGEvent for better compatibility with Electron apps like Teams
+            // Key code 9 = V key on macOS
+            const V_KEY: CGKeyCode = 9;
 
-            match Command::new("osascript")
-                .arg("-e")
-                .arg(paste_script)
-                .output()
-            {
-                Ok(output) => {
-                    if !output.status.success() {
-                        eprintln!("AppleScript paste failed: {:?}", String::from_utf8_lossy(&output.stderr));
-                    }
+            if let Ok(source) = CGEventSource::new(CGEventSourceStateID::HIDSystemState) {
+                // Key down with Command modifier
+                if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
+                    key_down.set_flags(CGEventFlags::CGEventFlagCommand);
+                    key_down.post(CGEventTapLocation::HID);
                 }
-                Err(e) => {
-                    eprintln!("Failed to execute AppleScript: {:?}", e);
+
+                thread::sleep(Duration::from_millis(10));
+
+                // Key up with Command modifier
+                if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
+                    key_up.set_flags(CGEventFlags::CGEventFlagCommand);
+                    key_up.post(CGEventTapLocation::HID);
                 }
+            } else {
+                // Fallback to AppleScript if CGEvent fails
+                let paste_script = r#"
+                    tell application "System Events"
+                        key code 9 using command down
+                    end tell
+                "#;
+                let _ = Command::new("osascript")
+                    .arg("-e")
+                    .arg(paste_script)
+                    .output();
             }
         }
 

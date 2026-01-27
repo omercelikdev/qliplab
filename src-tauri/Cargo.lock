@@ -3723,6 +3723,7 @@ name = "qliplab"
 version = "0.1.0"
 dependencies = [
  "cocoa",
+ "core-graphics 0.24.0",
  "enigo",
  "objc",
  "serde",

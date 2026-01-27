@@ -33,6 +33,7 @@ tauri-plugin-autostart = "2.5.1"
 cocoa = "0.26"
 objc = "0.2"
 tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel", branch = "v2" }
+core-graphics = "0.24"
 
 [target.'cfg(not(target_os = "macos"))'.dependencies]
 enigo = "0.2"

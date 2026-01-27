@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { getCurrentWindow, LogicalPosition } from '@tauri-apps/api/window';
 import { Sidebar } from './components/layout/Sidebar';
 import { SearchBar } from './components/layout/DragBar';
 import { HintBar } from './components/layout/HintBar';
@@ -63,6 +63,19 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [isInitialized, hasSeenOptIn]);
+
+  // On startup, if window is not visible, move it offscreen to prevent input capture
+  // This is critical for autostart scenarios
+  useEffect(() => {
+    const ensureOffscreenWhenHidden = async () => {
+      const window = getCurrentWindow();
+      const visible = await window.isVisible();
+      if (!visible) {
+        await window.setPosition(new LogicalPosition(-10000, -10000));
+      }
+    };
+    ensureOffscreenWhenHidden();
+  }, []);
 
   // Blur search field when window gains focus (so arrow keys work)
   useEffect(() => {
