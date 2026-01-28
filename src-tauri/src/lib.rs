@@ -267,14 +267,8 @@ pub fn run() {
                         eprintln!("Warning: Panel initialization failed: {}. App will continue with limited functionality.", e);
                     }
 
-                    // Show panel on first launch for development
-                    #[cfg(debug_assertions)]
-                    {
-                        if let Ok(panel) = app.get_webview_panel("main") {
-                            panel.set_ignore_mouse_events(false);
-                            panel.show();
-                        }
-                    }
+                    // In debug mode, don't auto-show panel to prevent input capture
+                    // Use Cmd+Shift+V to show the panel when needed
                 }
             }
 
