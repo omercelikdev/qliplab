@@ -3,8 +3,12 @@ import {
   startListening,
   onTextUpdate,
   onImageUpdate,
+  hasHTML,
+  readHtml,
 } from 'tauri-plugin-clipboard-api';
+import { invoke } from '@tauri-apps/api/core';
 import { useHistoryStore } from '@/stores/historyStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { detectFormat, isSensitive } from '@/lib/formatDetector';
 
 export function useClipboardListener() {
@@ -13,46 +17,80 @@ export function useClipboardListener() {
   const lastImageHashRef = useRef<string>('');
 
   useEffect(() => {
-    console.log('[Clipboard] Starting event-based listener');
-
     let unlistenText: (() => void) | undefined;
     let unlistenImage: (() => void) | undefined;
     let stopListening: (() => Promise<void>) | undefined;
 
     const setup = async () => {
       try {
-        // Start native clipboard monitor (event-based on Windows, optimized polling on macOS)
         stopListening = await startListening();
-        console.log('[Clipboard] Native monitor started');
 
-        // Listen for text changes - only fires when clipboard actually changes
         unlistenText = await onTextUpdate(async (text) => {
-          // Skip if same as last text (safety check)
           if (text === lastTextRef.current) return;
           lastTextRef.current = text;
           lastImageHashRef.current = '';
 
-          console.log('[Clipboard] Text changed, length:', text.length);
+          const settings = useSettingsStore.getState().settings;
+
+          // Get source app and check ignore list
+          let sourceApp: string | undefined;
+          try {
+            sourceApp = await invoke<string>('get_frontmost_app');
+            if (sourceApp && settings.ignoredApps.some(
+              (app) => sourceApp!.toLowerCase().includes(app.toLowerCase())
+            )) {
+              return;
+            }
+          } catch {
+            // Ignore errors getting frontmost app
+          }
+
+          // Check if HTML content is also available (rich text copy)
+          let htmlContent: string | undefined;
+          try {
+            if (await hasHTML()) {
+              const html = await readHtml();
+              if (html && html.trim().length > 0) {
+                htmlContent = html;
+              }
+            }
+          } catch {
+            // Ignore errors reading HTML
+          }
 
           await addItem({
             content: text,
+            htmlContent,
             contentType: 'text',
             detectedFormat: detectFormat(text),
-            isSensitive: isSensitive(text),
+            isSensitive: settings.sensitiveDetectionEnabled ? isSensitive(text) : false,
+            sourceApp,
           });
         });
 
-        // Listen for image changes - receives base64 directly
         unlistenImage = await onImageUpdate(async (base64Image) => {
-          // Simple hash for dedup (first 100 chars + length)
+          const settings = useSettingsStore.getState().settings;
+
+          // Respect storeImages setting
+          if (!settings.storeImages) return;
+
+          // Check ignore list
+          try {
+            const sourceApp = await invoke<string>('get_frontmost_app');
+            if (sourceApp && settings.ignoredApps.some(
+              (app) => sourceApp.toLowerCase().includes(app.toLowerCase())
+            )) {
+              return;
+            }
+          } catch {
+            // Ignore errors getting frontmost app
+          }
+
           const imageHash = `img_${base64Image.slice(0, 100)}_${base64Image.length}`;
           if (imageHash === lastImageHashRef.current) return;
           lastImageHashRef.current = imageHash;
           lastTextRef.current = '';
 
-          console.log('[Clipboard] Image changed, size:', base64Image.length);
-
-          // Store as PNG base64 (CrossCopy plugin returns PNG)
           const imageData = JSON.stringify({
             type: 'png_base64',
             data: base64Image,
@@ -65,8 +103,6 @@ export function useClipboardListener() {
             isSensitive: false,
           });
         });
-
-        console.log('[Clipboard] Event listeners registered');
       } catch (error) {
         console.error('[Clipboard] Failed to start listener:', error);
       }
@@ -74,9 +110,7 @@ export function useClipboardListener() {
 
     setup();
 
-    // Cleanup on unmount
     return () => {
-      console.log('[Clipboard] Cleaning up listeners');
       unlistenText?.();
       unlistenImage?.();
       stopListening?.();

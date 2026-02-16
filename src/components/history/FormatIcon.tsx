@@ -19,6 +19,7 @@ const iconMap: Record<DetectedFormat, { icon: React.ElementType; color: string }
   csv: { icon: Table, color: 'text-emerald-500' },
   regex: { icon: Regex, color: 'text-violet-500' },
   hex: { icon: Binary, color: 'text-lime-500' },
+  markdown: { icon: FileText, color: 'text-sky-400' },
   // Programming languages
   code_js: { icon: FileCode2, color: 'text-yellow-400' },
   code_ts: { icon: FileCode2, color: 'text-blue-400' },

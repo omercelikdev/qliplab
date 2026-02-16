@@ -18,6 +18,7 @@ const formatDisplayNames: Record<DetectedFormat, string> = {
   csv: 'CSV',
   regex: 'Regex',
   hex: 'Hexadecimal',
+  markdown: 'Markdown',
   code_js: 'JavaScript',
   code_ts: 'TypeScript',
   code_python: 'Python',
@@ -93,6 +94,9 @@ export function detectFormat(content: string): DetectedFormat {
   // Hex string (0x prefix or pure hex)
   if (isHex(trimmed)) return 'hex';
 
+  // Markdown (check before code — markdown may contain code fences)
+  if (isMarkdown(trimmed)) return 'markdown';
+
   // Programming Languages (check TypeScript before JavaScript)
   const codeFormat = detectCodeFormat(trimmed);
   if (codeFormat) return codeFormat;
@@ -159,6 +163,30 @@ function isHex(content: string): boolean {
   return false;
 }
 
+function isMarkdown(content: string): boolean {
+  // Need at least 2 markdown markers to avoid false positives
+  let score = 0;
+  // Headers: # Title, ## Subtitle
+  if (/^#{1,6}\s+\S/m.test(content)) score += 2;
+  // Bold/italic: **text**, *text*, __text__, _text_
+  if (/(\*\*|__).+(\*\*|__)/.test(content)) score++;
+  // Links: [text](url)
+  if (/\[.+?\]\(.+?\)/.test(content)) score++;
+  // Images: ![alt](url)
+  if (/!\[.*?\]\(.+?\)/.test(content)) score++;
+  // Code fences: ```
+  if (/^```/m.test(content)) score += 2;
+  // Bullet/numbered lists: - item, * item, 1. item
+  if (/^[\s]*[-*+]\s+\S/m.test(content) && /^[\s]*[-*+]\s+\S/m.test(content)) score++;
+  if (/^\d+\.\s+\S/m.test(content)) score++;
+  // Blockquotes: > text
+  if (/^>\s+\S/m.test(content)) score++;
+  // Horizontal rules: ---, ***, ___
+  if (/^(---|\*\*\*|___)$/m.test(content)) score++;
+
+  return score >= 2;
+}
+
 function detectCodeFormat(content: string): DetectedFormat | null {
   // TypeScript (check before JS - more specific patterns)
   if (/\b(interface|type|enum)\s+\w+/.test(content)) return 'code_ts';
@@ -198,12 +226,33 @@ function detectCodeFormat(content: string): DetectedFormat | null {
 
 export function isSensitive(content: string): boolean {
   const patterns = [
+    // Credentials
     /password\s*[:=]/i,
     /secret\s*[:=]/i,
     /api[_-]?key\s*[:=]/i,
     /token\s*[:=]/i,
+    /auth[_-]?token/i,
+    /access[_-]?token/i,
+    /private[_-]?key/i,
+    /client[_-]?secret/i,
+
+    // Financial
     /\b[A-Z]{2,4}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}\b/, // IBAN
     /\b[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}\b/, // Credit card
+    /\b(CVV|CVC|CVV2)\s*[:=]?\s*[0-9]{3,4}\b/i, // CVV
+    /\bPIN\s*[:=]?\s*[0-9]{4,6}\b/i, // PIN code
+
+    // Identity
+    /\b[0-9]{3}[- ]?[0-9]{2}[- ]?[0-9]{4}\b/, // SSN (US)
+    /\b[0-9]{11}\b/, // TR TC Kimlik No (11 digits)
+
+    // Crypto keys & secrets
+    /-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY-----/, // PEM private key
+    /-----BEGIN\s+PGP\s+PRIVATE/, // PGP private key
+    /\b(sk-[a-zA-Z0-9]{20,})\b/, // OpenAI API key
+    /\b(sk-ant-[a-zA-Z0-9]{20,})\b/, // Anthropic API key
+    /\b(ghp_[a-zA-Z0-9]{36,})\b/, // GitHub personal access token
+    /\b(AKIA[0-9A-Z]{16})\b/, // AWS access key
   ];
   return patterns.some(pattern => pattern.test(content));
 }

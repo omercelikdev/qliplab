@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { getDatabase } from '@/lib/database';
+import { useSettingsStore } from '@/stores/settingsStore';
 import type { ClipboardItem, ContentType, DetectedFormat } from '@/types/clipboard';
+import type { ClipboardHistoryRow } from '@/types/database';
 
 interface HistoryState {
   items: ClipboardItem[];
@@ -10,6 +12,8 @@ interface HistoryState {
   deleteItem: (id: string) => Promise<void>;
   togglePin: (id: string) => Promise<void>;
   clearAll: () => Promise<void>;
+  clearUnpinned: () => Promise<void>;
+  cleanupExpired: (days: number) => Promise<void>;
 }
 
 export const useHistoryStore = create<HistoryState>((set, get) => ({
@@ -19,13 +23,15 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   loadItems: async () => {
     try {
       const db = getDatabase();
-      const result = await db.select<any[]>('SELECT * FROM clipboard_history ORDER BY is_pinned DESC, created_at DESC LIMIT 100');
+      const limit = useSettingsStore.getState().settings.historyLimit;
+      const result = await db.select<ClipboardHistoryRow[]>('SELECT * FROM clipboard_history ORDER BY is_pinned DESC, created_at DESC LIMIT ?', [limit]);
       const items: ClipboardItem[] = result.map(row => ({
         id: row.id,
         content: row.content,
+        htmlContent: row.html_content ?? undefined,
         contentType: row.content_type as ContentType,
         detectedFormat: row.detected_format as DetectedFormat,
-        sourceApp: row.source_app,
+        sourceApp: row.source_app ?? undefined,
         isPinned: row.is_pinned === 1,
         isSensitive: row.is_sensitive === 1,
         createdAt: new Date(row.created_at),
@@ -53,8 +59,8 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       }
 
       await db.execute(
-        `INSERT INTO clipboard_history (id, content, content_type, detected_format, is_sensitive, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [id, item.content, item.contentType, item.detectedFormat, item.isSensitive ? 1 : 0, now, now]
+        `INSERT INTO clipboard_history (id, content, html_content, content_type, detected_format, source_app, is_sensitive, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, item.content, item.htmlContent ?? null, item.contentType, item.detectedFormat, item.sourceApp ?? null, item.isSensitive ? 1 : 0, now, now]
       );
       await get().loadItems();
     } catch (error) {
@@ -92,6 +98,30 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       await get().loadItems();
     } catch (error) {
       console.error('Failed to clear history:', error);
+    }
+  },
+
+  clearUnpinned: async () => {
+    try {
+      const db = getDatabase();
+      await db.execute('DELETE FROM clipboard_history WHERE is_pinned = 0');
+    } catch (error) {
+      console.error('Failed to clear unpinned history:', error);
+    }
+  },
+
+  cleanupExpired: async (days) => {
+    if (days <= 0) return;
+    try {
+      const db = getDatabase();
+      const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+      await db.execute(
+        'DELETE FROM clipboard_history WHERE is_pinned = 0 AND created_at < ?',
+        [cutoff]
+      );
+      await get().loadItems();
+    } catch (error) {
+      console.error('Failed to cleanup expired items:', error);
     }
   },
 }));

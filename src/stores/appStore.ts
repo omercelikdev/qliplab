@@ -1,13 +1,27 @@
 import { create } from 'zustand';
+import type { DetectedFormat } from '@/types/clipboard';
 
 export type Tab = 'history' | 'snippets' | 'vault';
 export type Theme = 'light' | 'dark' | 'system';
+
+// Format filter groups for smart collections
+export type FormatFilterGroup = 'all' | 'code' | 'data' | 'web' | 'encoded' | 'other';
+
+export const FORMAT_FILTER_GROUPS: Record<FormatFilterGroup, { label: string; formats: DetectedFormat[] | null }> = {
+  all:     { label: 'All',     formats: null }, // null = no filter
+  code:    { label: 'Code',    formats: ['code_js', 'code_ts', 'code_python', 'code_go', 'code_rust', 'code_java', 'code_csharp', 'sql'] },
+  data:    { label: 'Data',    formats: ['json', 'yaml', 'csv', 'xml'] },
+  web:     { label: 'Web',     formats: ['url', 'url_encoded', 'html', 'markdown'] },
+  encoded: { label: 'Encoded', formats: ['jwt', 'base64', 'hex'] },
+  other:   { label: 'Other',   formats: ['uuid', 'timestamp', 'color', 'regex'] },
+};
 
 interface AppState {
   activeTab: Tab;
   previewOpen: boolean;
   theme: Theme;
   searchQuery: string;
+  formatFilter: FormatFilterGroup;
   isTransformMode: boolean;
   isDiffMode: boolean;
   diffSelectedIds: string[];
@@ -17,6 +31,7 @@ interface AppState {
   setPreviewOpen: (open: boolean) => void;
   setTheme: (theme: Theme) => void;
   setSearchQuery: (query: string) => void;
+  setFormatFilter: (filter: FormatFilterGroup) => void;
   setTransformMode: (active: boolean) => void;
   setDiffMode: (active: boolean) => void;
   addToDiffSelection: (id: string) => void;
@@ -29,15 +44,17 @@ export const useAppStore = create<AppState>((set) => ({
   previewOpen: false,
   theme: 'system',
   searchQuery: '',
+  formatFilter: 'all',
   isTransformMode: false,
   isDiffMode: false,
   diffSelectedIds: [],
   windowOpenCount: 0,
 
-  setActiveTab: (tab) => set({ activeTab: tab, searchQuery: '' }),
+  setActiveTab: (tab) => set({ activeTab: tab, searchQuery: '', formatFilter: 'all' }),
   setPreviewOpen: (open) => set({ previewOpen: open }),
   setTheme: (theme) => set({ theme }),
   setSearchQuery: (query) => set({ searchQuery: query }),
+  setFormatFilter: (filter) => set({ formatFilter: filter }),
   setTransformMode: (active) => set({ isTransformMode: active }),
   setDiffMode: (active) => set({ isDiffMode: active, diffSelectedIds: active ? [] : [] }),
   addToDiffSelection: (id) => set((state) => {

@@ -21,6 +21,13 @@ export async function initDatabase() {
 
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_created_at ON clipboard_history(created_at DESC)`);
 
+  // Migration: add html_content column for rich text support
+  try {
+    await db.execute(`ALTER TABLE clipboard_history ADD COLUMN html_content TEXT`);
+  } catch {
+    // Column already exists
+  }
+
   await db.execute(`
     CREATE TABLE IF NOT EXISTS snippets (
       id TEXT PRIMARY KEY,

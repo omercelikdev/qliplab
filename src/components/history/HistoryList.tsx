@@ -1,27 +1,39 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { Clipboard, Search } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
-import { useAppStore } from '@/stores/appStore';
+import { useAppStore, FORMAT_FILTER_GROUPS } from '@/stores/appStore';
+import type { FormatFilterGroup } from '@/stores/appStore';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { writeImageBase64 } from 'tauri-plugin-clipboard-api';
+import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { getImageBase64ForClipboard } from '@/lib/imageUtils';
+import { fuzzyFilter } from '@/lib/fuzzySearch';
+import { cn } from '@/lib/utils';
 
 export function HistoryList() {
   const { items, isLoading } = useHistoryStore();
-  const { searchQuery, activeTab, isDiffMode } = useAppStore();
+  const { searchQuery, activeTab, isDiffMode, formatFilter, setFormatFilter } = useAppStore();
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [pastingItemId, setPastingItemId] = useState<string | null>(null);
 
-  // Filter items by search query
-  const filteredItems = searchQuery
-    ? items.filter((item) =>
-        item.content.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : items;
+  // Apply format filter then fuzzy search
+  const filteredItems = useMemo(() => {
+    let result = items;
+
+    // Format filter
+    if (formatFilter !== 'all') {
+      const allowedFormats = FORMAT_FILTER_GROUPS[formatFilter].formats;
+      if (allowedFormats) {
+        result = result.filter((item) => allowedFormats.includes(item.detectedFormat));
+      }
+    }
+
+    // Fuzzy search
+    return fuzzyFilter(result, searchQuery, (item) => item.content);
+  }, [items, searchQuery, formatFilter]);
 
   const handleSelect = useCallback(async (index: number) => {
     if (isDiffMode || pastingItemId) return;
@@ -39,6 +51,11 @@ export function HistoryList() {
             setPastingItemId(null);
           }
         }
+      } else if (item.htmlContent) {
+        // For rich text: write both HTML and plain text
+        await hideWriteAndPaste(async () => {
+          await writeHtmlAndText(item.htmlContent!, item.content);
+        });
       } else {
         // For text: fast path - hide immediately
         await hideWriteAndPaste(async () => {
@@ -111,8 +128,29 @@ export function HistoryList() {
     );
   }
 
+  const filterGroups = Object.entries(FORMAT_FILTER_GROUPS) as [FormatFilterGroup, typeof FORMAT_FILTER_GROUPS[FormatFilterGroup]][];
+
   return (
-    <div ref={listRef} className="h-full overflow-y-auto overflow-x-hidden">
+    <div className="h-full flex flex-col">
+      {/* Format filter bar */}
+      <div className="flex items-center gap-1 px-3 py-1 border-b border-border/50 shrink-0 overflow-x-auto">
+        {filterGroups.map(([key, { label }]) => (
+          <button
+            key={key}
+            onClick={() => setFormatFilter(key)}
+            className={cn(
+              'px-2 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer',
+              formatFilter === key
+                ? 'bg-accent text-accent-foreground'
+                : 'text-muted-foreground hover:bg-surface-hover'
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden">
       <div className="pl-3 pr-1.5 py-1 space-y-0.5">
         {filteredItems.map((item, index) => (
           <div
@@ -125,6 +163,7 @@ export function HistoryList() {
             <HistoryItem item={item} isSelected={index === selectedIndex && !isDiffMode} isPastingFromKeyboard={item.id === pastingItemId} />
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

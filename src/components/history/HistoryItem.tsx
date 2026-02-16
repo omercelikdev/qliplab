@@ -3,7 +3,7 @@ import { MoreVertical, Pin, Eye, Image as ImageIcon, Loader2 } from 'lucide-reac
 import { FormatIcon } from './FormatIcon';
 import { ItemMenu } from './ItemMenu';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { writeImageBase64 } from 'tauri-plugin-clipboard-api';
+import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
@@ -75,6 +75,12 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
       } finally {
         setIsPasting(false);
       }
+    } else if (item.htmlContent) {
+      // For rich text: write both HTML and plain text
+      setShowFlash(true);
+      await hideWriteAndPaste(async () => {
+        await writeHtmlAndText(item.htmlContent!, item.content);
+      });
     } else {
       // For text: fast path - hide immediately
       setShowFlash(true);
@@ -136,6 +142,11 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
       ) : (
         <FormatIcon format={item.detectedFormat} />
       )}
+      {item.htmlContent && (
+        <span className="text-[8px] font-medium text-orange-400 bg-orange-400/10 px-1 rounded shrink-0">
+          HTML
+        </span>
+      )}
       {item.isPinned && <Pin className="w-3 h-3 text-accent shrink-0" />}
       {item.contentType === 'image' && imageData ? (
         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -152,7 +163,15 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
           </span>
         </div>
       ) : (
-        <span className="flex-1 min-w-0 truncate text-xs">{item.content}</span>
+        <span className="flex-1 min-w-0 truncate text-xs flex items-center gap-1.5">
+          {item.detectedFormat === 'color' && (
+            <span
+              className="inline-block w-3 h-3 rounded-sm border border-border/50 shrink-0"
+              style={{ backgroundColor: item.content.trim() }}
+            />
+          )}
+          {item.content}
+        </span>
       )}
       <span className="text-[10px] text-muted-foreground shrink-0 w-7 text-right">{formatRelativeTime(item.createdAt)}</span>
       {!isDiffMode && (

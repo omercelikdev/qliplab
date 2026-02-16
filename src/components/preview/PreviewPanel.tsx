@@ -1,15 +1,19 @@
-import { useRef, useCallback, Suspense, lazy, useMemo } from 'react';
+import { useRef, useCallback, Suspense, lazy, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon } from 'lucide-react';
+import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon, Code, Eye, Plus, ChevronRight } from 'lucide-react';
 import { usePreviewStore, getMonacoLanguage } from '@/stores/previewStore';
+import type { PipelineStep } from '@/stores/previewStore';
+import { TRANSFORM_REGISTRY, getTransformById, getTransformCategories } from '@/lib/transformRegistry';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { EditorView } from './EditorView';
 import { ImageView } from './ImageView';
 import { FormatIcon } from '@/components/history/FormatIcon';
 import { getFormatDisplayName } from '@/lib/formatDetector';
 import { writeText, writeImage } from '@tauri-apps/plugin-clipboard-manager';
+import { writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { Image } from '@tauri-apps/api/image';
 import { hideWriteAndPaste } from '@/lib/window';
+import { renderMarkdown } from '@/lib/markdownRenderer';
 import { cn } from '@/lib/utils';
 
 const MonacoDiffEditor = lazy(() =>
@@ -17,13 +21,18 @@ const MonacoDiffEditor = lazy(() =>
 );
 
 export function PreviewPanel() {
-  const { isOpen, mode, editedContent, transformType, sourceItem, diffItems, diffViewMode, setDiffViewMode, close } = usePreviewStore();
+  const { isOpen, mode, editedContent, transformType, sourceItem, diffItems, diffViewMode, setDiffViewMode, pipelineSteps, addPipelineStep, removePipelineStep, close } = usePreviewStore();
   const { settings } = useSettingsStore();
   const panelRef = useRef<HTMLDivElement>(null);
+  const [showHtmlPreview, setShowHtmlPreview] = useState(false);
+  const [showTransformPicker, setShowTransformPicker] = useState(false);
 
   const [left, right] = diffItems;
   const isDiffMode = mode === 'diff';
   const hasDiffItems = Boolean(left && right);
+  const hasHtmlContent = sourceItem?.htmlContent && !isDiffMode;
+  const isMarkdown = sourceItem?.detectedFormat === 'markdown' && !isDiffMode;
+  const canRenderPreview = (hasHtmlContent || isMarkdown) && mode === 'view';
 
   // Panel closes only via X button, ESC, or Option+D - not by clicking outside
 
@@ -43,6 +52,8 @@ export function PreviewPanel() {
       } catch (e) {
         console.error('Failed to copy image:', e);
       }
+    } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
+      await writeHtmlAndText(sourceItem.htmlContent, editedContent);
     } else {
       await writeText(editedContent);
     }
@@ -66,6 +77,8 @@ export function PreviewPanel() {
         } catch (e) {
           console.error('Failed to copy image:', e);
         }
+      } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
+        await writeHtmlAndText(sourceItem.htmlContent, editedContent);
       } else {
         await writeText(editedContent);
       }
@@ -158,6 +171,36 @@ export function PreviewPanel() {
         </div>
 
         <div className="flex items-center gap-1.5">
+          {/* Rendered Preview Toggle (HTML / Markdown) */}
+          {canRenderPreview && (
+            <div className="flex items-center bg-surface rounded-md p-0.5">
+              <button
+                onClick={() => setShowHtmlPreview(false)}
+                className={cn(
+                  'px-1.5 py-0.5 rounded text-[10px] transition-colors cursor-pointer flex items-center gap-1',
+                  !showHtmlPreview
+                    ? 'bg-accent text-accent-foreground'
+                    : 'hover:bg-surface-hover text-muted-foreground'
+                )}
+              >
+                <Code className="w-3 h-3" />
+                Source
+              </button>
+              <button
+                onClick={() => setShowHtmlPreview(true)}
+                className={cn(
+                  'px-1.5 py-0.5 rounded text-[10px] transition-colors cursor-pointer flex items-center gap-1',
+                  showHtmlPreview
+                    ? 'bg-accent text-accent-foreground'
+                    : 'hover:bg-surface-hover text-muted-foreground'
+                )}
+              >
+                <Eye className="w-3 h-3" />
+                Render
+              </button>
+            </div>
+          )}
+
           {/* Diff View Mode Toggle */}
           {isDiffMode && (
             <div className="flex items-center bg-surface rounded-md p-0.5">
@@ -197,6 +240,23 @@ export function PreviewPanel() {
         </div>
       </div>
 
+      {/* Pipeline Bar */}
+      {!isDiffMode && (mode === 'transform' || mode === 'view') && sourceItem?.contentType !== 'image' && (
+        <PipelineBar
+          steps={pipelineSteps}
+          onRemoveStep={removePipelineStep}
+          onAddStep={async (transformId) => {
+            const def = getTransformById(transformId);
+            if (!def) return;
+            const input = editedContent;
+            const output = await def.apply(input);
+            addPipelineStep(transformId, def.label, output);
+          }}
+          showPicker={showTransformPicker}
+          onTogglePicker={() => setShowTransformPicker(v => !v)}
+        />
+      )}
+
       {/* Content Area */}
       <div className="flex-1 overflow-hidden">
         {isDiffMode ? (
@@ -218,6 +278,10 @@ export function PreviewPanel() {
               Select two items to compare
             </div>
           )
+        ) : showHtmlPreview && isMarkdown && sourceItem ? (
+          <HtmlPreview html={renderMarkdown(sourceItem.content)} />
+        ) : showHtmlPreview && sourceItem?.htmlContent ? (
+          <HtmlPreview html={sourceItem.htmlContent} />
         ) : sourceItem?.contentType === 'image' ? (
           <ImageView />
         ) : (
@@ -228,9 +292,7 @@ export function PreviewPanel() {
       {/* Footer - only for view/transform mode */}
       {!isDiffMode && (
         <div className="h-10 flex items-center justify-between px-3 border-t border-border/50 bg-surface/30">
-          <span className="text-[10px] text-muted-foreground">
-            {sourceItem?.contentType === 'image' ? 'Image' : 'Editable'}
-          </span>
+          <EditorStats content={editedContent} isImage={sourceItem?.contentType === 'image'} />
           <div className="flex items-center gap-1.5">
             <button
               onClick={handleCopy}
@@ -254,6 +316,197 @@ export function PreviewPanel() {
         </div>
       )}
     </motion.div>
+  );
+}
+
+function EditorStats({ content, isImage }: { content: string; isImage?: boolean }) {
+  if (isImage) {
+    return <span className="text-[10px] text-muted-foreground">Image</span>;
+  }
+
+  const lines = content.split('\n').length;
+  const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+  const chars = content.length;
+
+  return (
+    <span className="text-[10px] text-muted-foreground">
+      {lines} {lines === 1 ? 'line' : 'lines'} · {words} {words === 1 ? 'word' : 'words'} · {chars} {chars === 1 ? 'char' : 'chars'}
+    </span>
+  );
+}
+
+function PipelineBar({
+  steps,
+  onRemoveStep,
+  onAddStep,
+  showPicker,
+  onTogglePicker,
+}: {
+  steps: PipelineStep[];
+  onRemoveStep: (index: number) => void;
+  onAddStep: (transformId: string) => void;
+  showPicker: boolean;
+  onTogglePicker: () => void;
+}) {
+  return (
+    <div className="relative border-b border-border/50 bg-surface/20">
+      <div className="flex items-center gap-1 px-3 py-1.5 overflow-x-auto">
+        {steps.length > 0 && (
+          <>
+            {steps.map((step, i) => (
+              <div key={i} className="flex items-center gap-1 shrink-0">
+                {i > 0 && <ChevronRight className="w-3 h-3 text-muted-foreground" />}
+                <span className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] bg-accent/15 text-accent rounded">
+                  {step.label}
+                  <button
+                    onClick={() => onRemoveStep(i)}
+                    className="hover:text-destructive transition-colors cursor-pointer"
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                </span>
+              </div>
+            ))}
+            <ChevronRight className="w-3 h-3 text-muted-foreground shrink-0" />
+          </>
+        )}
+        <button
+          onClick={onTogglePicker}
+          className={cn(
+            'flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded transition-colors cursor-pointer shrink-0',
+            showPicker
+              ? 'bg-accent text-accent-foreground'
+              : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
+          )}
+        >
+          <Plus className="w-3 h-3" />
+          Transform
+        </button>
+      </div>
+
+      {showPicker && (
+        <TransformPicker
+          onSelect={(id) => {
+            onAddStep(id);
+            onTogglePicker();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function TransformPicker({
+  onSelect,
+}: {
+  onSelect: (transformId: string) => void;
+}) {
+  const [filter, setFilter] = useState('');
+  const categories = useMemo(() => getTransformCategories(), []);
+
+  const filteredTransforms = useMemo(() => {
+    if (!filter) return TRANSFORM_REGISTRY;
+    const q = filter.toLowerCase();
+    return TRANSFORM_REGISTRY.filter(
+      t => t.label.toLowerCase().includes(q) || t.category.toLowerCase().includes(q)
+    );
+  }, [filter]);
+
+  const groupedTransforms = useMemo(() => {
+    const grouped: Record<string, typeof TRANSFORM_REGISTRY> = {};
+    for (const cat of categories) {
+      const items = filteredTransforms.filter(t => t.category === cat);
+      if (items.length > 0) grouped[cat] = items;
+    }
+    return grouped;
+  }, [filteredTransforms, categories]);
+
+  return (
+    <div className="absolute top-full left-0 right-0 z-50 bg-surface border border-border rounded-b-lg shadow-lg max-h-[250px] overflow-y-auto">
+      <div className="sticky top-0 bg-surface p-2 border-b border-border/50">
+        <input
+          type="text"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Search transforms..."
+          className="w-full px-2 py-1 text-xs bg-background border border-border rounded outline-none focus:ring-1 focus:ring-accent"
+          autoFocus
+        />
+      </div>
+      <div className="p-1">
+        {Object.entries(groupedTransforms).map(([category, items]) => (
+          <div key={category}>
+            <div className="px-2 py-1 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+              {category}
+            </div>
+            {items.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => onSelect(t.id)}
+                className="w-full text-left px-2 py-1 text-xs hover:bg-surface-hover rounded transition-colors cursor-pointer"
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        ))}
+        {Object.keys(groupedTransforms).length === 0 && (
+          <div className="p-3 text-center text-xs text-muted-foreground">
+            No transforms match "{filter}"
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HtmlPreview({ html }: { html: string }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const handleLoad = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentDocument) return;
+
+    const doc = iframe.contentDocument;
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body {
+            margin: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #e0e0e0;
+            background: transparent;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+          }
+          img { max-width: 100%; height: auto; }
+          table { border-collapse: collapse; max-width: 100%; }
+          td, th { border: 1px solid #444; padding: 4px 8px; }
+          a { color: #7eb8ff; }
+          pre, code { background: rgba(255,255,255,0.05); padding: 2px 4px; border-radius: 3px; font-size: 12px; }
+          pre { padding: 8px; overflow-x: auto; }
+        </style>
+      </head>
+      <body>${html}</body>
+      </html>
+    `);
+    doc.close();
+  }, [html]);
+
+  return (
+    <iframe
+      ref={iframeRef}
+      onLoad={handleLoad}
+      sandbox="allow-same-origin"
+      className="w-full h-full border-0 bg-transparent"
+      srcDoc="<html></html>"
+      title="HTML Preview"
+    />
   );
 }
 
