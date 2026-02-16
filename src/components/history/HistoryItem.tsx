@@ -30,18 +30,20 @@ interface HistoryItemProps {
 
 export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = false }: HistoryItemProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMenuButtonHovered, setIsMenuButtonHovered] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [isPasting, setIsPasting] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const itemRef = useRef<HTMLDivElement>(null);
+  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isDiffMode = useAppStore((state) => state.isDiffMode);
   const addToDiffSelection = useAppStore((state) => state.addToDiffSelection);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
+  const openMenuItemId = useAppStore((state) => state.openMenuItemId);
+  const setOpenMenuItemId = useAppStore((state) => state.setOpenMenuItemId);
   const isSelectedForDiff = diffSelectedIds.includes(item.id);
   const { openView } = usePreviewStore();
+
+  const isMenuOpen = openMenuItemId === item.id;
 
   // Parse image data if this is an image item
   const imageData = useMemo(() => {
@@ -65,24 +67,19 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
     if (isDiffMode) {
       addToDiffSelection(item.id);
     } else if (item.contentType === 'image' && imageData) {
-      // For images: show loading, write to clipboard, then hide and paste
       setIsPasting(true);
       try {
-        // Write image to clipboard while showing loading
         await writeImageBase64(imageData.base64);
-        // Then hide and paste
         await hideAndSimulatePaste();
       } finally {
         setIsPasting(false);
       }
     } else if (item.htmlContent) {
-      // For rich text: write both HTML and plain text
       setShowFlash(true);
       await hideWriteAndPaste(async () => {
         await writeHtmlAndText(item.htmlContent!, item.content);
       });
     } else {
-      // For text: fast path - hide immediately
       setShowFlash(true);
       await hideWriteAndPaste(async () => {
         await writeText(item.content);
@@ -98,23 +95,49 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
     }
   }, [showFlash]);
 
-  const handleMenuButtonEnter = () => {
-    setIsMenuButtonHovered(true);
-    setIsMenuOpen(true);
-  };
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (menuCloseTimer.current) clearTimeout(menuCloseTimer.current);
+    };
+  }, []);
 
-  const handleMenuButtonLeave = () => {
-    setIsMenuButtonHovered(false);
-  };
+  const openMenu = useCallback(() => {
+    // Cancel any pending close
+    if (menuCloseTimer.current) {
+      clearTimeout(menuCloseTimer.current);
+      menuCloseTimer.current = null;
+    }
+    setOpenMenuItemId(item.id);
+  }, [item.id, setOpenMenuItemId]);
 
-  const handleMenuClose = () => {
-    setIsMenuOpen(false);
-    setIsMenuButtonHovered(false);
-  };
+  const scheduleCloseMenu = useCallback(() => {
+    // Small delay so mouse can travel from button to menu without closing
+    menuCloseTimer.current = setTimeout(() => {
+      // Only close if this item's menu is still the open one
+      if (useAppStore.getState().openMenuItemId === item.id) {
+        setOpenMenuItemId(null);
+      }
+    }, 150);
+  }, [item.id, setOpenMenuItemId]);
+
+  const cancelCloseMenu = useCallback(() => {
+    if (menuCloseTimer.current) {
+      clearTimeout(menuCloseTimer.current);
+      menuCloseTimer.current = null;
+    }
+  }, []);
+
+  const handleMenuClose = useCallback(() => {
+    if (menuCloseTimer.current) {
+      clearTimeout(menuCloseTimer.current);
+      menuCloseTimer.current = null;
+    }
+    setOpenMenuItemId(null);
+  }, [setOpenMenuItemId]);
 
   return (
     <div
-      ref={itemRef}
       className={cn(
         'relative flex items-center gap-2 h-8 px-2.5 rounded-md cursor-pointer transition-colors',
         'active:scale-[0.98] active:transition-transform',
@@ -125,12 +148,7 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
         showFlash && 'copy-flash'
       )}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        if (!isMenuButtonHovered) {
-          setIsMenuOpen(false);
-        }
-      }}
+      onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
     >
       {item.contentType === 'image' ? (
@@ -176,7 +194,6 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
       <span className="text-[10px] text-muted-foreground shrink-0 w-7 text-right">{formatRelativeTime(item.createdAt)}</span>
       {!isDiffMode && (
         <div className={cn('flex items-center gap-0.5', (isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0')}>
-          {/* Quick View Button */}
           <button
             className="p-0.5 rounded hover:bg-surface transition-colors shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
             onClick={handleQuickView}
@@ -184,12 +201,11 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
           >
             <Eye className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
-          {/* Menu Button */}
           <button
             ref={menuButtonRef}
             className="p-0.5 rounded hover:bg-surface transition-colors shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-            onMouseEnter={handleMenuButtonEnter}
-            onMouseLeave={handleMenuButtonLeave}
+            onMouseEnter={openMenu}
+            onMouseLeave={scheduleCloseMenu}
             onClick={(e) => e.stopPropagation()}
           >
             <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
@@ -200,6 +216,8 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
         item={item}
         isOpen={isMenuOpen && !isDiffMode}
         onClose={handleMenuClose}
+        onMouseEnter={cancelCloseMenu}
+        onMouseLeave={scheduleCloseMenu}
         anchorRef={menuButtonRef}
       />
     </div>

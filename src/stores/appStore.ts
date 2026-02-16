@@ -26,6 +26,7 @@ interface AppState {
   isDiffMode: boolean;
   diffSelectedIds: string[];
   windowOpenCount: number; // Incremented each time window opens to trigger resets
+  openMenuItemId: string | null; // Only one item menu open at a time
 
   setActiveTab: (tab: Tab) => void;
   setPreviewOpen: (open: boolean) => void;
@@ -36,6 +37,7 @@ interface AppState {
   setDiffMode: (active: boolean) => void;
   addToDiffSelection: (id: string) => void;
   clearDiffSelection: () => void;
+  setOpenMenuItemId: (id: string | null) => void;
   signalWindowOpen: () => void;
 }
 
@@ -49,6 +51,7 @@ export const useAppStore = create<AppState>((set) => ({
   isDiffMode: false,
   diffSelectedIds: [],
   windowOpenCount: 0,
+  openMenuItemId: null,
 
   setActiveTab: (tab) => set({ activeTab: tab, searchQuery: '', formatFilter: 'all' }),
   setPreviewOpen: (open) => set({ previewOpen: open }),
@@ -67,6 +70,7 @@ export const useAppStore = create<AppState>((set) => ({
     };
   }),
   clearDiffSelection: () => set({ diffSelectedIds: [] }),
+  setOpenMenuItemId: (id) => set({ openMenuItemId: id }),
   // Signal window opened - reset selection/modes but KEEP search query (like Ditto)
   signalWindowOpen: () => set((state) => ({
     isDiffMode: false,

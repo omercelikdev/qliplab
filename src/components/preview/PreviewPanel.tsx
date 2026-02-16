@@ -62,7 +62,8 @@ export function PreviewPanel() {
   }, [editedContent, sourceItem]);
 
   const handlePaste = useCallback(async () => {
-    close();
+    // No close() here — hideWindowCore's resetUIState() already sets isOpen:false.
+    // Calling close() would trigger shrinkWindowFromPreview() racing with hideWindowCore().
     await hideWriteAndPaste(async () => {
       if (sourceItem?.contentType === 'image') {
         try {
@@ -85,7 +86,7 @@ export function PreviewPanel() {
         await writeText(editedContent);
       }
     });
-  }, [editedContent, sourceItem, close]);
+  }, [editedContent, sourceItem]);
 
   const theme = settings.theme === 'dark' ? 'vs-dark' : 'light';
 

@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Eye, FileText, ClipboardPaste, ScanText, Bot } from 'lucide-react';
@@ -21,10 +21,12 @@ interface ItemMenuProps {
   item: ClipboardItem;
   isOpen: boolean;
   onClose: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   anchorRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
+export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, anchorRef }: ItemMenuProps) {
   const { openTransform, openView } = usePreviewStore();
   const { deleteItem, togglePin } = useHistoryStore();
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -37,40 +39,46 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
       const button = anchorRef.current;
       const rect = button.getBoundingClientRect();
 
-      // Wait for menu to render to get actual height
-      requestAnimationFrame(() => {
-        const menuEl = menuRef.current;
-        const menuHeight = menuEl?.offsetHeight || 180;
-        const menuWidth = 160;
+      const menuEl = menuRef.current;
+      const menuHeight = menuEl?.offsetHeight || 180;
+      const menuWidth = menuEl?.offsetWidth || 144;
 
-        const windowHeight = window.innerHeight;
-        const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const windowWidth = window.innerWidth;
 
-        // Calculate left position - align to right edge of button
-        let left = rect.right - menuWidth;
-        if (left < 4) left = 4;
-        if (left + menuWidth > windowWidth - 4) left = windowWidth - menuWidth - 4;
+      // Menu's right edge aligns with button's right edge — stable anchor
+      let left = rect.right - menuWidth;
+      if (left < 4) left = 4;
+      if (left + menuWidth > windowWidth - 4) left = windowWidth - menuWidth - 4;
 
-        // Calculate top position
-        let top: number;
-        const spaceBelow = windowHeight - rect.bottom;
-        const spaceAbove = rect.top;
+      let top: number;
+      const spaceBelow = windowHeight - rect.bottom;
+      const spaceAbove = rect.top;
 
-        if (spaceBelow >= menuHeight + 4) {
-          // Enough space below - show below
-          top = rect.bottom + 2;
-        } else if (spaceAbove >= menuHeight + 4) {
-          // Enough space above - show above
-          top = rect.top - menuHeight - 2;
-        } else {
-          // Not enough space either way - show in the middle, clamped to viewport
-          top = Math.max(4, Math.min(windowHeight - menuHeight - 4, rect.bottom + 2));
-        }
+      if (spaceBelow >= menuHeight + 4) {
+        top = rect.bottom + 2;
+      } else if (spaceAbove >= menuHeight + 4) {
+        top = rect.top - menuHeight - 2;
+      } else {
+        top = Math.max(4, Math.min(windowHeight - menuHeight - 4, rect.bottom + 2));
+      }
 
-        setPosition({ top, left });
-      });
+      setPosition({ top, left });
     }
   }, [isOpen, anchorRef]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   const handleCopy = async () => { await writeText(item.content); onClose(); };
   const handleCopyHtml = async () => {
@@ -115,14 +123,12 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
   const handleAi = (action: AiAction) => {
     onClose();
 
-    // SECURITY: First-time consent required — show full consent dialog
     if (!isAiConsentGiven()) {
       setPendingAiAction(action);
       setShowAiConsent(true);
       return;
     }
 
-    // SECURITY: Per-action confirmation
     const provider = useSettingsStore.getState().settings.aiProvider === 'anthropic' ? 'Anthropic' : 'OpenAI';
     const confirmed = window.confirm(
       `Send this content to ${provider} for processing?\n\n` +
@@ -143,7 +149,6 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
   const handleDelete = () => { deleteItem(item.id); onClose(); };
   const handlePin = () => { togglePin(item.id); onClose(); };
 
-  // SECURITY: Never show AI actions for sensitive items (passwords, bank info, API keys)
   const aiAvailable = isAiConfigured() && item.contentType === 'text' && !item.isSensitive;
 
   const getTransformItems = () => {
@@ -250,61 +255,62 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
       />
     )}
     {isOpen && createPortal(
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          ref={menuRef}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.1 }}
-          style={{
-            position: 'fixed',
-            top: position.top,
-            left: position.left,
-            zIndex: 9999,
-            maxHeight: 'calc(100vh - 8px)',
-            overflowY: 'auto',
-          }}
-          className="w-36 py-1 rounded-lg bg-surface border border-border shadow-lg"
-          onMouseLeave={onClose}
-        >
-          <MenuButton icon={Copy} label="Copy" onClick={handleCopy} />
-          {item.htmlContent && (
-            <>
-              <MenuButton icon={FileText} label="Copy HTML" onClick={handleCopyHtml} />
-              <MenuButton icon={ClipboardPaste} label="Paste Plain" onClick={handlePastePlainText} />
-            </>
-          )}
-          <MenuButton icon={Eye} label="View" onClick={() => { openView(item); onClose(); }} />
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            ref={menuRef}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.1 }}
+            style={{
+              position: 'fixed',
+              top: position.top,
+              left: position.left,
+              zIndex: 9999,
+              maxHeight: 'calc(100vh - 8px)',
+              overflowY: 'auto',
+            }}
+            className="w-36 py-1 rounded-lg bg-surface border border-border shadow-lg"
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+          >
+            <MenuButton icon={Copy} label="Copy" onClick={handleCopy} />
+            {item.htmlContent && (
+              <>
+                <MenuButton icon={FileText} label="Copy HTML" onClick={handleCopyHtml} />
+                <MenuButton icon={ClipboardPaste} label="Paste Plain" onClick={handlePastePlainText} />
+              </>
+            )}
+            <MenuButton icon={Eye} label="View" onClick={() => { openView(item); onClose(); }} />
 
-          {item.contentType === 'image' && (
-            <>
-              <div className="h-px bg-border my-1" />
-              <MenuButton icon={ScanText} label="Extract Text" onClick={handleOcr} />
-            </>
-          )}
+            {item.contentType === 'image' && (
+              <>
+                <div className="h-px bg-border my-1" />
+                <MenuButton icon={ScanText} label="Extract Text" onClick={handleOcr} />
+              </>
+            )}
 
-          {transformItems.length > 0 && <div className="h-px bg-border my-1" />}
-          {transformItems.map((transformItem, i) => (
-            <MenuButton key={i} icon={transformItem.icon} label={transformItem.label} onClick={() => { transformItem.action(); onClose(); }} />
-          ))}
+            {transformItems.length > 0 && <div className="h-px bg-border my-1" />}
+            {transformItems.map((transformItem, i) => (
+              <MenuButton key={i} icon={transformItem.icon} label={transformItem.label} onClick={() => { transformItem.action(); onClose(); }} />
+            ))}
 
-          {aiAvailable && (
-            <>
-              <div className="h-px bg-border my-1" />
-              {AI_ACTIONS.map((action) => (
-                <MenuButton key={action.id} icon={Bot} label={action.label} onClick={() => handleAi(action.id)} />
-              ))}
-            </>
-          )}
+            {aiAvailable && (
+              <>
+                <div className="h-px bg-border my-1" />
+                {AI_ACTIONS.map((action) => (
+                  <MenuButton key={action.id} icon={Bot} label={action.label} onClick={() => handleAi(action.id)} />
+                ))}
+              </>
+            )}
 
-          <div className="h-px bg-border my-1" />
-          <MenuButton icon={item.isPinned ? PinOff : Pin} label={item.isPinned ? 'Unpin' : 'Pin'} onClick={handlePin} />
-          <MenuButton icon={Trash2} label="Delete" onClick={handleDelete} destructive />
-        </motion.div>
-      )}
-    </AnimatePresence>,
+            <div className="h-px bg-border my-1" />
+            <MenuButton icon={item.isPinned ? PinOff : Pin} label={item.isPinned ? 'Unpin' : 'Pin'} onClick={handlePin} />
+            <MenuButton icon={Trash2} label="Delete" onClick={handleDelete} destructive />
+          </motion.div>
+        )}
+      </AnimatePresence>,
     document.body
   )}
   </>
