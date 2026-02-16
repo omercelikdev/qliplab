@@ -8,6 +8,12 @@ export interface AppSettings {
   sensitiveDetectionEnabled: boolean;
   storeImages: boolean;
   clearHistoryOnQuit: boolean;
+  ignoredApps: string[];
+  expirationDays: number; // 0 = never
+  aiApiKey: string;
+  aiProvider: 'anthropic' | 'openai';
+  aiConsentAccepted: boolean;
+  aiConsentDate: string; // ISO date when consent was given
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -17,6 +23,12 @@ const DEFAULT_SETTINGS: AppSettings = {
   sensitiveDetectionEnabled: true,
   storeImages: true,
   clearHistoryOnQuit: false,
+  ignoredApps: [],
+  expirationDays: 0,
+  aiApiKey: '',
+  aiProvider: 'anthropic',
+  aiConsentAccepted: false,
+  aiConsentDate: '',
 };
 
 let store: Store | null = null;
@@ -37,8 +49,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       store = await Store.load('settings.json');
       const savedSettings: Partial<AppSettings> = {};
       for (const key of Object.keys(DEFAULT_SETTINGS) as (keyof AppSettings)[]) {
-        const value = await store.get<any>(key);
-        if (value !== null && value !== undefined) savedSettings[key] = value;
+        const value = await store.get(key);
+        if (value !== null && value !== undefined) {
+          (savedSettings as Record<string, unknown>)[key] = value;
+        }
       }
       set({ settings: { ...DEFAULT_SETTINGS, ...savedSettings }, isLoading: false });
     } catch (error) {
