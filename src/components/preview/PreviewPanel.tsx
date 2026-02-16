@@ -14,6 +14,7 @@ import { writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { Image } from '@tauri-apps/api/image';
 import { hideWriteAndPaste } from '@/lib/window';
 import { renderMarkdown } from '@/lib/markdownRenderer';
+import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
 
 const MonacoDiffEditor = lazy(() =>
@@ -279,9 +280,9 @@ export function PreviewPanel() {
             </div>
           )
         ) : showHtmlPreview && isMarkdown && sourceItem ? (
-          <HtmlPreview html={renderMarkdown(sourceItem.content)} />
+          <RenderedPreview html={renderMarkdown(sourceItem.content)} />
         ) : showHtmlPreview && sourceItem?.htmlContent ? (
-          <HtmlPreview html={sourceItem.htmlContent} />
+          <RenderedPreview html={DOMPurify.sanitize(sourceItem.htmlContent)} />
         ) : sourceItem?.contentType === 'image' ? (
           <ImageView />
         ) : (
@@ -460,53 +461,14 @@ function TransformPicker({
   );
 }
 
-function HtmlPreview({ html }: { html: string }) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const handleLoad = useCallback(() => {
-    const iframe = iframeRef.current;
-    if (!iframe?.contentDocument) return;
-
-    const doc = iframe.contentDocument;
-    doc.open();
-    doc.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body {
-            margin: 8px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 13px;
-            line-height: 1.5;
-            color: #e0e0e0;
-            background: transparent;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-          }
-          img { max-width: 100%; height: auto; }
-          table { border-collapse: collapse; max-width: 100%; }
-          td, th { border: 1px solid #444; padding: 4px 8px; }
-          a { color: #7eb8ff; }
-          pre, code { background: rgba(255,255,255,0.05); padding: 2px 4px; border-radius: 3px; font-size: 12px; }
-          pre { padding: 8px; overflow-x: auto; }
-        </style>
-      </head>
-      <body>${html}</body>
-      </html>
-    `);
-    doc.close();
-  }, [html]);
-
+function RenderedPreview({ html }: { html: string }) {
   return (
-    <iframe
-      ref={iframeRef}
-      onLoad={handleLoad}
-      sandbox="allow-same-origin"
-      className="w-full h-full border-0 bg-transparent"
-      srcDoc="<html></html>"
-      title="HTML Preview"
-    />
+    <div className="h-full overflow-y-auto">
+      <div
+        className="markdown-body p-4"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    </div>
   );
 }
 

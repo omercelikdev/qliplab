@@ -23,8 +23,10 @@ export function EditorView() {
     return `${itemId}-${transformKey}`;
   }, [sourceItem?.id, mode, transformType]);
 
+  const isViewMode = mode === 'view';
+
   const editorOptions = useMemo(() => ({
-    readOnly: false, // Both view and transform are editable
+    readOnly: isViewMode,
     minimap: { enabled: false },
     fontSize: 12,
     lineNumbers: 'on' as const,
@@ -40,7 +42,7 @@ export function EditorView() {
       verticalScrollbarSize: 8,
       horizontalScrollbarSize: 8,
     },
-  }), [mode]);
+  }), [mode, isViewMode]);
 
   const theme = settings.theme === 'dark' ? 'vs-dark' : 'light';
 
