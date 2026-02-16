@@ -91,10 +91,16 @@ export function SettingsDialog({ isOpen, onClose }: Props) {
                     onChange={(e) => updateSetting('historyLimit', parseInt(e.target.value))}
                     className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent"
                   >
-                    <option value={50}>50 items</option>
                     <option value={100}>100 items</option>
                     <option value={200}>200 items</option>
                     <option value={500}>500 items</option>
+                    <option value={1000}>1,000 items</option>
+                    <option value={5000}>5,000 items</option>
+                    <option value={10000}>10,000 items</option>
+                    <option value={50000}>50,000 items</option>
+                    <option value={100000}>100,000 items</option>
+                    <option value={500000}>500,000 items</option>
+                    <option value={1000000}>1,000,000 items</option>
                   </select>
                 </div>
 

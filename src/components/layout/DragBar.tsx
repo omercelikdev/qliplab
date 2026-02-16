@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { Search, X } from 'lucide-react';
 import { useAppStore, Tab } from '@/stores/appStore';
 
@@ -8,27 +8,56 @@ const PLACEHOLDERS: Record<Tab, string> = {
   vault: 'Search vault...',
 };
 
+const DEBOUNCE_MS = 120;
+
 export function SearchBar() {
   const { searchQuery, setSearchQuery, activeTab } = useAppStore();
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Local input value for instant feedback — store updates after debounce
+  const [localValue, setLocalValue] = useState(searchQuery);
+
+  // Sync local value when store clears (e.g. tab switch)
+  useEffect(() => {
+    if (searchQuery === '') setLocalValue('');
+  }, [searchQuery]);
+
+  const handleChange = useCallback((value: string) => {
+    setLocalValue(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSearchQuery(value);
+    }, DEBOUNCE_MS);
+  }, [setSearchQuery]);
+
+  const handleClear = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setLocalValue('');
+    setSearchQuery('');
+  }, [setSearchQuery]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   // Auto-focus search when user starts typing (like Spotlight)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if already focused on an input
       if (document.activeElement instanceof HTMLInputElement ||
           document.activeElement instanceof HTMLTextAreaElement) {
         return;
       }
 
-      // Ignore modifier keys, function keys, and navigation keys
       if (e.metaKey || e.ctrlKey || e.altKey ||
           e.key.startsWith('F') || e.key.startsWith('Arrow') ||
           ['Escape', 'Tab', 'Enter', 'Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) {
         return;
       }
 
-      // If it's a printable character, focus search and let the character be typed
       if (e.key.length === 1) {
         inputRef.current?.focus();
       }
@@ -49,14 +78,14 @@ export function SearchBar() {
           ref={inputRef}
           type="text"
           placeholder={PLACEHOLDERS[activeTab]}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value.slice(0, 200))}
+          value={localValue}
+          onChange={(e) => handleChange(e.target.value.slice(0, 200))}
           maxLength={200}
           className="flex-1 bg-transparent outline-none text-xs placeholder:text-muted-foreground cursor-text"
         />
-        {searchQuery && (
+        {localValue && (
           <button
-            onClick={() => setSearchQuery('')}
+            onClick={handleClear}
             className="p-0.5 hover:bg-surface-hover rounded cursor-pointer"
           >
             <X className="w-3 h-3 text-muted-foreground" />

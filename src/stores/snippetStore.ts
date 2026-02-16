@@ -14,7 +14,7 @@ interface SnippetState {
   editorOpen: boolean;
   editingSnippet: Snippet | null;
 
-  loadSnippets: () => Promise<void>;
+  loadSnippets: (searchQuery?: string) => Promise<void>;
   loadCategories: () => Promise<void>;
   createSnippet: (snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt' | 'sortOrder'>) => Promise<void>;
   updateSnippet: (id: string, updates: Partial<Snippet>) => Promise<void>;
@@ -33,10 +33,17 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   editorOpen: false,
   editingSnippet: null,
 
-  loadSnippets: async () => {
+  loadSnippets: async (searchQuery = '') => {
     try {
       const db = getDatabase();
-      const result = await db.select<SnippetRow[]>('SELECT * FROM snippets ORDER BY sort_order');
+      const args: (string | number)[] = [];
+      let sql = 'SELECT * FROM snippets';
+      if (searchQuery) {
+        sql += ' WHERE (title LIKE ? OR content LIKE ?)';
+        args.push(`%${searchQuery}%`, `%${searchQuery}%`);
+      }
+      sql += ' ORDER BY sort_order';
+      const result = await db.select<SnippetRow[]>(sql, args);
       const snippets: Snippet[] = result.map(row => ({
         id: row.id,
         title: row.title,

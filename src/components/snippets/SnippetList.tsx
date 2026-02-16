@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore } from '@/stores/appStore';
@@ -6,7 +6,6 @@ import { SnippetItem } from './SnippetItem';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
-import { fuzzyFilter } from '@/lib/fuzzySearch';
 import { expandVariables } from '@/lib/snippetVariables';
 import { cn } from '@/lib/utils';
 
@@ -19,28 +18,23 @@ export function SnippetList() {
   const searchQuery = useAppStore((state) => state.searchQuery);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
+  // Reload from SQL when search changes
   useEffect(() => {
-    loadSnippets();
-  }, [loadSnippets]);
-
-  // Filter snippets by search query (fuzzy matching, sorted by relevance)
-  const filteredSnippets = useMemo(
-    () => fuzzyFilter(snippets, searchQuery, (s) => `${s.title} ${s.content}`),
-    [snippets, searchQuery]
-  );
+    loadSnippets(searchQuery);
+  }, [searchQuery, loadSnippets]);
 
   const handleSelect = useCallback(async (index: number) => {
-    const snippet = filteredSnippets[index];
+    const snippet = snippets[index];
     if (snippet) {
       const expanded = await expandVariables(snippet.content);
       await hideWriteAndPaste(async () => {
         await writeText(expanded);
       });
     }
-  }, [filteredSnippets]);
+  }, [snippets]);
 
   const { selectedIndex } = useKeyboardNavigation({
-    itemCount: filteredSnippets.length,
+    itemCount: snippets.length,
     onSelect: handleSelect,
     isActive: activeTab === 'snippets',
   });
@@ -61,7 +55,7 @@ export function SnippetList() {
     <div className="h-full flex flex-col">
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <div className="pl-3 pr-1.5 py-1 space-y-0.5">
-          {filteredSnippets.map((snippet, index) => (
+          {snippets.map((snippet, index) => (
             <div
               key={snippet.id}
               ref={(el) => {
@@ -72,14 +66,14 @@ export function SnippetList() {
               <SnippetItem snippet={snippet} isSelected={index === selectedIndex} onEdit={(s) => openEditor(s)} />
             </div>
           ))}
-          {snippets.length === 0 && (
+          {snippets.length === 0 && !searchQuery && (
             <div className="p-4 text-center text-muted-foreground text-sm">
               No snippets. Create one!
             </div>
           )}
-          {filteredSnippets.length === 0 && snippets.length > 0 && searchQuery && (
+          {snippets.length === 0 && searchQuery && (
             <div className="p-4 text-center text-muted-foreground text-sm">
-              No results for "{searchQuery}"
+              No results for &ldquo;{searchQuery}&rdquo;
             </div>
           )}
         </div>

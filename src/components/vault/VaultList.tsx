@@ -9,7 +9,6 @@ import { NewVaultItemDialog } from './NewVaultItemDialog';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
-import { fuzzyFilter } from '@/lib/fuzzySearch';
 import { cn } from '@/lib/utils';
 
 export function VaultList() {
@@ -36,9 +35,11 @@ export function VaultList() {
     }
   };
 
-  // Filter items by search query (search in title only for security, fuzzy matching)
+  // Filter items by search query (title only — content is encrypted)
   const filteredItems = useMemo(
-    () => fuzzyFilter(items, searchQuery, (item) => item.title),
+    () => searchQuery
+      ? items.filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+      : items,
     [items, searchQuery]
   );
 

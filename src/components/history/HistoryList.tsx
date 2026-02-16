@@ -2,55 +2,77 @@ import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { Clipboard, Search, Pin } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
-import { useAppStore, FORMAT_FILTER_GROUPS, CATEGORIZED_FORMATS } from '@/stores/appStore';
+import { useAppStore, FORMAT_FILTER_GROUPS } from '@/stores/appStore';
 import type { FormatFilterGroup } from '@/stores/appStore';
+import { usePreviewStore } from '@/stores/previewStore';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { getImageBase64ForClipboard } from '@/lib/imageUtils';
-import { fuzzyFilter } from '@/lib/fuzzySearch';
 import { cn } from '@/lib/utils';
+import type { ClipboardItem } from '@/types/clipboard';
 
 export function HistoryList() {
-  const { items, isLoading } = useHistoryStore();
-  const { searchQuery, activeTab, isDiffMode, formatFilter, setFormatFilter } = useAppStore();
+  const items = useHistoryStore((state) => state.items);
+  const totalCount = useHistoryStore((state) => state.totalCount);
+  const isLoading = useHistoryStore((state) => state.isLoading);
+  const loadItems = useHistoryStore((state) => state.loadItems);
+  const loadMore = useHistoryStore((state) => state.loadMore);
+  const searchQuery = useAppStore((state) => state.searchQuery);
+  const activeTab = useAppStore((state) => state.activeTab);
+  const isDiffMode = useAppStore((state) => state.isDiffMode);
+  const formatFilter = useAppStore((state) => state.formatFilter);
+  const setFormatFilter = useAppStore((state) => state.setFormatFilter);
+  const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
+  const openMenuItemId = useAppStore((state) => state.openMenuItemId);
+  const addToDiffSelection = useAppStore((state) => state.addToDiffSelection);
+  const setOpenMenuItemId = useAppStore((state) => state.setOpenMenuItemId);
+  const openView = usePreviewStore((state) => state.openView);
+
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [pastingItemId, setPastingItemId] = useState<string | null>(null);
 
-  // Apply format filter then fuzzy search
-  const filteredItems = useMemo(() => {
-    let result = items;
+  // Reload from SQL when filter/search changes
+  useEffect(() => {
+    loadItems(formatFilter, searchQuery);
+  }, [formatFilter, searchQuery, loadItems]);
 
-    // Format filter
-    if (formatFilter === 'other') {
-      // Catch-all: items NOT in any specific group (plain, images, uuid, color, etc.)
-      result = result.filter((item) => !CATEGORIZED_FORMATS.has(item.detectedFormat));
-    } else if (formatFilter !== 'all') {
-      const allowedFormats = FORMAT_FILTER_GROUPS[formatFilter].formats;
-      if (allowedFormats) {
-        result = result.filter((item) => allowedFormats.includes(item.detectedFormat));
-      }
-    }
+  // Stable callbacks for HistoryItem (never change reference)
+  const handleOpenMenu = useCallback((id: string) => {
+    setOpenMenuItemId(id);
+  }, [setOpenMenuItemId]);
 
-    // Fuzzy search
-    return fuzzyFilter(result, searchQuery, (item) => item.content);
-  }, [items, searchQuery, formatFilter]);
+  const handleCloseMenu = useCallback(() => {
+    setOpenMenuItemId(null);
+  }, [setOpenMenuItemId]);
 
-  // Reorder: pinned first, then unpinned — flat list for keyboard nav
+  const handleDiffSelect = useCallback((id: string) => {
+    addToDiffSelection(id);
+  }, [addToDiffSelection]);
+
+  const handleQuickView = useCallback((item: ClipboardItem) => {
+    openView(item);
+  }, [openView]);
+
+  // Reorder: pinned first, then unpinned
   const { orderedItems, pinnedCount } = useMemo(() => {
-    const pinned = filteredItems.filter((item) => item.isPinned);
-    const unpinned = filteredItems.filter((item) => !item.isPinned);
-    return { orderedItems: [...pinned, ...unpinned], pinnedCount: pinned.length };
-  }, [filteredItems]);
+    const pinned = items.filter((item) => item.isPinned);
+    const unpinned = items.filter((item) => !item.isPinned);
+    return {
+      orderedItems: [...pinned, ...unpinned],
+      pinnedCount: pinned.length,
+    };
+  }, [items]);
+
+  const remainingCount = totalCount - items.length;
 
   const handleSelect = useCallback(async (index: number) => {
     if (isDiffMode || pastingItemId) return;
     const item = orderedItems[index];
     if (item) {
       if (item.contentType === 'image') {
-        // For images: show loading, write to clipboard, then hide and paste
         const base64 = getImageBase64ForClipboard(item.content);
         if (base64) {
           setPastingItemId(item.id);
@@ -62,12 +84,10 @@ export function HistoryList() {
           }
         }
       } else if (item.htmlContent) {
-        // For rich text: write both HTML and plain text
         await hideWriteAndPaste(async () => {
           await writeHtmlAndText(item.htmlContent!, item.content);
         });
       } else {
-        // For text: fast path - hide immediately
         await hideWriteAndPaste(async () => {
           await writeText(item.content);
         });
@@ -81,7 +101,6 @@ export function HistoryList() {
     isActive: activeTab === 'history' && !isDiffMode,
   });
 
-  // Scroll selected item into view
   useEffect(() => {
     const itemEl = itemRefs.current.get(selectedIndex);
     if (itemEl) {
@@ -100,8 +119,7 @@ export function HistoryList() {
     );
   }
 
-  // Empty state - no items at all
-  if (items.length === 0) {
+  if (totalCount === 0 && !searchQuery && formatFilter === 'all') {
     return (
       <div className="h-full flex items-center justify-center p-6">
         <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
@@ -112,25 +130,6 @@ export function HistoryList() {
             <h3 className="text-sm font-medium text-foreground mb-1">No clips yet</h3>
             <p className="text-xs text-muted-foreground">
               Copy something to get started. Your clipboard history will appear here.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // No search results
-  if (filteredItems.length === 0 && searchQuery) {
-    return (
-      <div className="h-full flex items-center justify-center p-6">
-        <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
-          <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center">
-            <Search className="w-6 h-6 text-muted-foreground" />
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-foreground mb-1">No results</h3>
-            <p className="text-xs text-muted-foreground">
-              No items match "{searchQuery}"
             </p>
           </div>
         </div>
@@ -161,17 +160,30 @@ export function HistoryList() {
       </div>
 
       <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden">
+      {items.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
+            <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center">
+              <Search className="w-6 h-6 text-muted-foreground" />
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-foreground mb-1">No results</h3>
+              <p className="text-xs text-muted-foreground">
+                No items match your filters
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="pl-3 pr-1.5 py-1 space-y-0.5">
         {orderedItems.map((item, index) => (
           <div key={item.id}>
-            {/* Pinned section header */}
             {index === 0 && pinnedCount > 0 && (
               <div className="flex items-center gap-1.5 px-1 pt-0.5 pb-1">
                 <Pin className="w-2.5 h-2.5 text-muted-foreground" />
                 <span className="text-[10px] text-muted-foreground font-medium">Pinned</span>
               </div>
             )}
-            {/* Separator between pinned and unpinned */}
             {index === pinnedCount && pinnedCount > 0 && (
               <div className="h-px bg-border/50 my-1" />
             )}
@@ -181,11 +193,32 @@ export function HistoryList() {
                 else itemRefs.current.delete(index);
               }}
             >
-              <HistoryItem item={item} isSelected={index === selectedIndex && !isDiffMode} isPastingFromKeyboard={item.id === pastingItemId} />
+              <HistoryItem
+                item={item}
+                isSelected={index === selectedIndex && !isDiffMode}
+                isPastingFromKeyboard={item.id === pastingItemId}
+                isDiffMode={isDiffMode}
+                isSelectedForDiff={diffSelectedIds.includes(item.id)}
+                isMenuOpen={openMenuItemId === item.id}
+                searchQuery={searchQuery}
+                onOpenMenu={handleOpenMenu}
+                onCloseMenu={handleCloseMenu}
+                onDiffSelect={handleDiffSelect}
+                onQuickView={handleQuickView}
+              />
             </div>
           </div>
         ))}
+        {remainingCount > 0 && (
+          <button
+            onClick={loadMore}
+            className="w-full py-2 text-center text-[10px] text-muted-foreground hover:text-foreground hover:bg-surface-hover rounded-md transition-colors cursor-pointer"
+          >
+            Load more ({remainingCount})
+          </button>
+        )}
       </div>
+      )}
       </div>
     </div>
   );

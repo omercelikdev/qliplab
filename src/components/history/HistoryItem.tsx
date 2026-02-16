@@ -1,14 +1,12 @@
-import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect, memo } from 'react';
 import { MoreVertical, Pin, Eye, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { FormatIcon } from './FormatIcon';
 import { ItemMenu } from './ItemMenu';
-import { HighlightedText } from '@/components/ui/HighlightedText';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
-import { usePreviewStore } from '@/stores/previewStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem, DetectedFormat } from '@/types/clipboard';
 
@@ -31,29 +29,51 @@ function formatRelativeTime(date: Date): string {
   return 'now';
 }
 
+function highlightMatch(text: string, query: string): React.ReactNode {
+  if (!query || query.length < 2) return text;
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="bg-accent/30 text-inherit rounded-sm">{text.slice(idx, idx + query.length)}</mark>
+      {text.slice(idx + query.length)}
+    </>
+  );
+}
+
 interface HistoryItemProps {
   item: ClipboardItem;
   isSelected?: boolean;
   isPastingFromKeyboard?: boolean;
+  isDiffMode: boolean;
+  isSelectedForDiff: boolean;
+  isMenuOpen: boolean;
+  searchQuery?: string;
+  onOpenMenu: (id: string) => void;
+  onCloseMenu: () => void;
+  onDiffSelect: (id: string) => void;
+  onQuickView: (item: ClipboardItem) => void;
 }
 
-export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = false }: HistoryItemProps) {
+export const HistoryItem = memo(function HistoryItem({
+  item,
+  isSelected = false,
+  isPastingFromKeyboard = false,
+  isDiffMode,
+  isSelectedForDiff,
+  isMenuOpen,
+  searchQuery = '',
+  onOpenMenu,
+  onCloseMenu,
+  onDiffSelect,
+  onQuickView,
+}: HistoryItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [isPasting, setIsPasting] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const isDiffMode = useAppStore((state) => state.isDiffMode);
-  const addToDiffSelection = useAppStore((state) => state.addToDiffSelection);
-  const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
-  const openMenuItemId = useAppStore((state) => state.openMenuItemId);
-  const setOpenMenuItemId = useAppStore((state) => state.setOpenMenuItemId);
-  const searchQuery = useAppStore((state) => state.searchQuery);
-  const isSelectedForDiff = diffSelectedIds.includes(item.id);
-  const { openView } = usePreviewStore();
-
-  const isMenuOpen = openMenuItemId === item.id;
 
   // Parse image data if this is an image item
   const imageData = useMemo(() => {
@@ -65,8 +85,8 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
 
   const handleQuickView = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    openView(item);
-  }, [item, openView]);
+    onQuickView(item);
+  }, [item, onQuickView]);
 
   // Combined pasting state from click or keyboard
   const isCurrentlyPasting = isPasting || isPastingFromKeyboard;
@@ -75,7 +95,7 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
     if (isMenuOpen || isCurrentlyPasting) return;
 
     if (isDiffMode) {
-      addToDiffSelection(item.id);
+      onDiffSelect(item.id);
     } else if (item.contentType === 'image' && imageData) {
       setIsPasting(true);
       try {
@@ -113,23 +133,20 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
   }, []);
 
   const openMenu = useCallback(() => {
-    // Cancel any pending close
     if (menuCloseTimer.current) {
       clearTimeout(menuCloseTimer.current);
       menuCloseTimer.current = null;
     }
-    setOpenMenuItemId(item.id);
-  }, [item.id, setOpenMenuItemId]);
+    onOpenMenu(item.id);
+  }, [item.id, onOpenMenu]);
 
   const scheduleCloseMenu = useCallback(() => {
-    // Small delay so mouse can travel from button to menu without closing
     menuCloseTimer.current = setTimeout(() => {
-      // Only close if this item's menu is still the open one
       if (useAppStore.getState().openMenuItemId === item.id) {
-        setOpenMenuItemId(null);
+        onCloseMenu();
       }
     }, 150);
-  }, [item.id, setOpenMenuItemId]);
+  }, [item.id, onCloseMenu]);
 
   const cancelCloseMenu = useCallback(() => {
     if (menuCloseTimer.current) {
@@ -143,8 +160,8 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
       clearTimeout(menuCloseTimer.current);
       menuCloseTimer.current = null;
     }
-    setOpenMenuItemId(null);
-  }, [setOpenMenuItemId]);
+    onCloseMenu();
+  }, [onCloseMenu]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -210,7 +227,7 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
               style={{ backgroundColor: item.content.trim() }}
             />
           )}
-          <HighlightedText text={item.content} query={searchQuery} className="truncate" />
+          <span className="truncate">{highlightMatch(item.content.slice(0, 200).replace(/\n/g, ' '), searchQuery)}</span>
         </span>
       )}
       {item.sourceApp && !isHovered && !isMenuOpen && (
@@ -248,4 +265,4 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
       />
     </div>
   );
-}
+});
