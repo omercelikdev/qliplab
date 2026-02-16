@@ -1,14 +1,15 @@
-import { useRef, useCallback, Suspense, lazy, useMemo, useState } from 'react';
+import { useRef, useCallback, useEffect, Suspense, lazy, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon, Code, Eye, Plus, ChevronRight } from 'lucide-react';
 import { usePreviewStore, getMonacoLanguage } from '@/stores/previewStore';
 import type { PipelineStep } from '@/stores/previewStore';
-import { TRANSFORM_REGISTRY, getTransformById, getTransformCategories } from '@/lib/transformRegistry';
+import { getTransformById, getRecommendedTransforms } from '@/lib/transformRegistry';
+import type { TransformDef } from '@/lib/transformRegistry';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { EditorView } from './EditorView';
 import { ImageView } from './ImageView';
 import { FormatIcon } from '@/components/history/FormatIcon';
-import { getFormatDisplayName } from '@/lib/formatDetector';
+import { getFormatDisplayName, detectFormat } from '@/lib/formatDetector';
 import { writeText, writeImage } from '@tauri-apps/plugin-clipboard-manager';
 import { writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { Image } from '@tauri-apps/api/image';
@@ -245,6 +246,7 @@ export function PreviewPanel() {
       {!isDiffMode && (mode === 'transform' || mode === 'view') && sourceItem?.contentType !== 'image' && (
         <PipelineBar
           steps={pipelineSteps}
+          detectedFormat={pipelineSteps.length > 0 ? detectFormat(editedContent) : (sourceItem?.detectedFormat ?? 'plain')}
           onRemoveStep={removePipelineStep}
           onAddStep={async (transformId) => {
             const def = getTransformById(transformId);
@@ -255,6 +257,7 @@ export function PreviewPanel() {
           }}
           showPicker={showTransformPicker}
           onTogglePicker={() => setShowTransformPicker(v => !v)}
+          onClosePicker={() => setShowTransformPicker(false)}
         />
       )}
 
@@ -338,16 +341,20 @@ function EditorStats({ content, isImage }: { content: string; isImage?: boolean 
 
 function PipelineBar({
   steps,
+  detectedFormat,
   onRemoveStep,
   onAddStep,
   showPicker,
   onTogglePicker,
+  onClosePicker,
 }: {
   steps: PipelineStep[];
+  detectedFormat: string;
   onRemoveStep: (index: number) => void;
   onAddStep: (transformId: string) => void;
   showPicker: boolean;
   onTogglePicker: () => void;
+  onClosePicker: () => void;
 }) {
   return (
     <div className="relative border-b border-border/50 bg-surface/20">
@@ -387,10 +394,12 @@ function PipelineBar({
 
       {showPicker && (
         <TransformPicker
+          detectedFormat={detectedFormat}
           onSelect={(id) => {
             onAddStep(id);
-            onTogglePicker();
+            onClosePicker();
           }}
+          onClose={onClosePicker}
         />
       )}
     </div>
@@ -398,32 +407,53 @@ function PipelineBar({
 }
 
 function TransformPicker({
+  detectedFormat,
   onSelect,
+  onClose,
 }: {
+  detectedFormat: string;
   onSelect: (transformId: string) => void;
+  onClose: () => void;
 }) {
   const [filter, setFilter] = useState('');
-  const categories = useMemo(() => getTransformCategories(), []);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
-  const filteredTransforms = useMemo(() => {
-    if (!filter) return TRANSFORM_REGISTRY;
+  // Close on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    // Use setTimeout to avoid closing immediately from the same click that opened it
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
+
+  const { recommended, others } = useMemo(
+    () => getRecommendedTransforms(detectedFormat as import('@/types/clipboard').DetectedFormat),
+    [detectedFormat]
+  );
+
+  const filterList = (list: TransformDef[]) => {
+    if (!filter) return list;
     const q = filter.toLowerCase();
-    return TRANSFORM_REGISTRY.filter(
-      t => t.label.toLowerCase().includes(q) || t.category.toLowerCase().includes(q)
-    );
-  }, [filter]);
+    return list.filter(t => t.label.toLowerCase().includes(q) || t.category.toLowerCase().includes(q));
+  };
 
-  const groupedTransforms = useMemo(() => {
-    const grouped: Record<string, typeof TRANSFORM_REGISTRY> = {};
-    for (const cat of categories) {
-      const items = filteredTransforms.filter(t => t.category === cat);
-      if (items.length > 0) grouped[cat] = items;
-    }
-    return grouped;
-  }, [filteredTransforms, categories]);
+  const filteredRecommended = filterList(recommended);
+  const filteredOthers = filterList(others);
 
   return (
-    <div className="absolute top-full left-0 right-0 z-50 bg-surface border border-border rounded-b-lg shadow-lg max-h-[250px] overflow-y-auto">
+    <div
+      ref={pickerRef}
+      className="absolute top-full left-0 right-0 z-50 bg-surface border border-border rounded-b-lg shadow-lg max-h-[250px] overflow-y-auto"
+    >
       <div className="sticky top-0 bg-surface p-2 border-b border-border/50">
         <input
           type="text"
@@ -435,12 +465,13 @@ function TransformPicker({
         />
       </div>
       <div className="p-1">
-        {Object.entries(groupedTransforms).map(([category, items]) => (
-          <div key={category}>
+        {/* Recommended transforms for this format */}
+        {filteredRecommended.length > 0 && (
+          <div>
             <div className="px-2 py-1 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              {category}
+              Recommended
             </div>
-            {items.map((t) => (
+            {filteredRecommended.map((t) => (
               <button
                 key={t.id}
                 onClick={() => onSelect(t.id)}
@@ -450,8 +481,28 @@ function TransformPicker({
               </button>
             ))}
           </div>
-        ))}
-        {Object.keys(groupedTransforms).length === 0 && (
+        )}
+
+        {/* Other available transforms */}
+        {filteredOthers.length > 0 && (
+          <div>
+            {filteredRecommended.length > 0 && <div className="h-px bg-border/50 my-1" />}
+            <div className="px-2 py-1 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+              Other
+            </div>
+            {filteredOthers.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => onSelect(t.id)}
+                className="w-full text-left px-2 py-1 text-xs hover:bg-surface-hover rounded transition-colors cursor-pointer text-muted-foreground"
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {filteredRecommended.length === 0 && filteredOthers.length === 0 && (
           <div className="p-3 text-center text-xs text-muted-foreground">
             No transforms match "{filter}"
           </div>
