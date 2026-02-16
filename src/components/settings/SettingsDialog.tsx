@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
+import { PrivacyPolicyDialog } from '@/components/settings/PrivacyPolicyDialog';
+import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
+import { recordConsent } from '@/lib/consentLog';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -18,6 +21,8 @@ export function SettingsDialog({ isOpen, onClose }: Props) {
   const { autoErrorReporting, setAutoErrorReporting, loadSettings } = useFeedbackStore();
 
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isAiConsentOpen, setIsAiConsentOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -130,6 +135,113 @@ export function SettingsDialog({ isOpen, onClose }: Props) {
                   />
                 </div>
 
+                {/* Clip Expiration */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Auto-delete old clips</label>
+                  <select
+                    value={settings.expirationDays}
+                    onChange={(e) => updateSetting('expirationDays', parseInt(e.target.value))}
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent"
+                  >
+                    <option value={0}>Never</option>
+                    <option value={7}>After 7 days</option>
+                    <option value={14}>After 14 days</option>
+                    <option value={30}>After 30 days</option>
+                    <option value={90}>After 90 days</option>
+                  </select>
+                </div>
+
+                {/* Ignored Apps */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Ignored Apps</label>
+                  <p className="text-xs text-muted-foreground">Clipboard from these apps won't be captured (e.g. 1Password, KeePass)</p>
+                  <IgnoredAppsList
+                    apps={settings.ignoredApps}
+                    onChange={(apps) => updateSetting('ignoredApps', apps)}
+                  />
+                </div>
+
+                {/* AI Settings */}
+                <div className="pt-4 border-t border-border space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Bot className="w-4 h-4 text-muted-foreground" />
+                    <h3 className="text-sm font-medium">AI Features</h3>
+                  </div>
+
+                  {/* Consent Status */}
+                  <div className={cn(
+                    'flex items-center justify-between p-2.5 rounded-lg border text-xs',
+                    settings.aiConsentAccepted
+                      ? 'border-green-500/30 bg-green-500/5'
+                      : 'border-yellow-500/30 bg-yellow-500/5'
+                  )}>
+                    <div className="flex items-center gap-2">
+                      {settings.aiConsentAccepted ? (
+                        <ShieldCheck className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <ShieldX className="w-4 h-4 text-yellow-500" />
+                      )}
+                      <div>
+                        <span className="font-medium">
+                          {settings.aiConsentAccepted ? 'AI Consent Granted' : 'AI Consent Required'}
+                        </span>
+                        {settings.aiConsentAccepted && settings.aiConsentDate && (
+                          <span className="text-[10px] text-muted-foreground ml-1.5">
+                            ({new Date(settings.aiConsentDate).toLocaleDateString()})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {settings.aiConsentAccepted ? (
+                      <button
+                        onClick={async () => {
+                          await recordConsent('revoke', settings.aiProvider);
+                          updateSetting('aiConsentAccepted', false);
+                          updateSetting('aiConsentDate', '');
+                        }}
+                        className="px-2 py-1 text-[10px] text-destructive hover:bg-destructive/10 rounded transition-colors cursor-pointer"
+                      >
+                        Revoke
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setIsAiConsentOpen(true)}
+                        className="px-2 py-1 text-[10px] text-accent hover:bg-accent/10 rounded transition-colors cursor-pointer"
+                      >
+                        Review & Accept
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">Provider</label>
+                    <select
+                      value={settings.aiProvider}
+                      onChange={(e) => updateSetting('aiProvider', e.target.value as 'anthropic' | 'openai')}
+                      className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent"
+                    >
+                      <option value="anthropic">Anthropic (Claude)</option>
+                      <option value="openai">OpenAI (GPT)</option>
+                    </select>
+                  </div>
+
+                  <ApiKeyInput
+                    apiKey={settings.aiApiKey}
+                    onChange={(key) => updateSetting('aiApiKey', key)}
+                  />
+
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-muted-foreground">
+                      API key is stored locally and never sent anywhere except the provider.
+                    </p>
+                    <p className="text-[10px] text-yellow-500">
+                      AI actions are automatically blocked for items containing sensitive data
+                      (passwords, API keys, credit cards, etc.). A confirmation dialog is shown
+                      before any data is sent.
+                    </p>
+                  </div>
+                </div>
+
                 {/* Privacy & Reporting Section */}
                 <div className="pt-4 border-t border-border space-y-4">
                   <div className="flex items-center gap-2">
@@ -145,8 +257,8 @@ export function SettingsDialog({ isOpen, onClose }: Props) {
                   />
                 </div>
 
-                {/* Report Issue Button */}
-                <div className="pt-4 border-t border-border">
+                {/* Report Issue & Privacy */}
+                <div className="pt-4 border-t border-border space-y-2">
                   <button
                     onClick={() => setIsReportOpen(true)}
                     className={cn(
@@ -157,6 +269,16 @@ export function SettingsDialog({ isOpen, onClose }: Props) {
                     <MessageSquare className="w-4 h-4" />
                     Report Issue / Send Feedback
                   </button>
+                  <button
+                    onClick={() => setIsPrivacyOpen(true)}
+                    className={cn(
+                      'w-full flex items-center justify-center gap-2 py-2 text-xs rounded-lg transition-colors cursor-pointer',
+                      'text-muted-foreground hover:text-foreground hover:bg-surface-hover'
+                    )}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    Privacy Policy
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -165,6 +287,13 @@ export function SettingsDialog({ isOpen, onClose }: Props) {
       </AnimatePresence>
 
       <ReportIssueDialog isOpen={isReportOpen} onClose={() => setIsReportOpen(false)} />
+      <PrivacyPolicyDialog isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
+      <AiConsentDialog
+        isOpen={isAiConsentOpen}
+        onClose={() => setIsAiConsentOpen(false)}
+        onAccept={() => setIsAiConsentOpen(false)}
+        provider={settings.aiProvider === 'anthropic' ? 'Anthropic' : 'OpenAI'}
+      />
     </>
   );
 }
@@ -200,6 +329,126 @@ function ToggleSetting({
           )}
         />
       </button>
+    </div>
+  );
+}
+
+function ApiKeyInput({
+  apiKey,
+  onChange,
+}: {
+  apiKey: string;
+  onChange: (key: string) => void;
+}) {
+  const [showKey, setShowKey] = useState(false);
+  const [localKey, setLocalKey] = useState(apiKey);
+
+  useEffect(() => {
+    setLocalKey(apiKey);
+  }, [apiKey]);
+
+  const handleBlur = () => {
+    if (localKey !== apiKey) {
+      onChange(localKey);
+    }
+  };
+
+  return (
+    <div className="space-y-1">
+      <label className="text-xs font-medium">API Key</label>
+      <div className="relative">
+        <input
+          type={showKey ? 'text' : 'password'}
+          value={localKey}
+          onChange={(e) => setLocalKey(e.target.value)}
+          onBlur={handleBlur}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleBlur();
+          }}
+          placeholder="sk-ant-... or sk-..."
+          className={cn(
+            'w-full px-3 py-2 pr-10 bg-surface border border-border rounded-lg text-xs font-mono',
+            'outline-none focus:ring-2 focus:ring-accent'
+          )}
+        />
+        <button
+          type="button"
+          onClick={() => setShowKey(!showKey)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 cursor-pointer"
+        >
+          {showKey ? (
+            <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
+          ) : (
+            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function IgnoredAppsList({
+  apps,
+  onChange,
+}: {
+  apps: string[];
+  onChange: (apps: string[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleAdd = () => {
+    const value = inputRef.current?.value.trim();
+    if (value && !apps.includes(value)) {
+      onChange([...apps, value]);
+      if (inputRef.current) inputRef.current.value = '';
+    }
+  };
+
+  const handleRemove = (app: string) => {
+    onChange(apps.filter((a) => a !== app));
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-1.5">
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="App name..."
+          className="flex-1 px-2.5 py-1.5 bg-surface border border-border rounded-lg text-xs outline-none focus:ring-2 focus:ring-accent"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleAdd();
+            }
+          }}
+        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="px-2 py-1.5 bg-surface-hover hover:bg-border rounded-lg transition-colors cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      {apps.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {apps.map((app) => (
+            <span
+              key={app}
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-surface border border-border rounded-full text-xs"
+            >
+              {app}
+              <button
+                onClick={() => handleRemove(app)}
+                className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

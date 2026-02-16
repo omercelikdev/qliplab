@@ -1,11 +1,19 @@
 import { useState, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Eye } from 'lucide-react';
+import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Eye, FileText, ClipboardPaste, ScanText, Bot } from 'lucide-react';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import * as transforms from '@/lib/transforms';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { writeHtmlAndText } from 'tauri-plugin-clipboard-api';
+import { invoke } from '@tauri-apps/api/core';
+import { hideWriteAndPaste } from '@/lib/window';
+import { parseImageData } from '@/lib/imageUtils';
+import { useSettingsStore } from '@/stores/settingsStore';
+import { isAiConfigured, isAiConsentGiven, runAiAction, AI_ACTIONS } from '@/lib/ai';
+import type { AiAction } from '@/lib/ai';
+import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -21,6 +29,8 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
   const { deleteItem, togglePin } = useHistoryStore();
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
+  const [showAiConsent, setShowAiConsent] = useState(false);
+  const [pendingAiAction, setPendingAiAction] = useState<AiAction | null>(null);
 
   useLayoutEffect(() => {
     if (isOpen && anchorRef.current) {
@@ -63,8 +73,78 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
   }, [isOpen, anchorRef]);
 
   const handleCopy = async () => { await writeText(item.content); onClose(); };
+  const handleCopyHtml = async () => {
+    if (item.htmlContent) {
+      await writeHtmlAndText(item.htmlContent, item.content);
+    }
+    onClose();
+  };
+  const handlePastePlainText = async () => {
+    onClose();
+    await hideWriteAndPaste(async () => {
+      await writeText(item.content);
+    });
+  };
+  const handleOcr = async () => {
+    if (item.contentType !== 'image') return;
+    const imgData = parseImageData(item.content);
+    if (!imgData) return;
+    try {
+      const text = await invoke<string>('ocr_image', { base64Data: imgData.base64 });
+      if (text) {
+        openTransform(item, 'OCR Text', text);
+      } else {
+        openTransform(item, 'OCR Text', '(No text detected)');
+      }
+    } catch (e) {
+      openTransform(item, 'OCR Text', `OCR failed: ${e}`);
+    }
+    onClose();
+  };
+  const executeAiAction = async (action: AiAction) => {
+    const label = AI_ACTIONS.find(a => a.id === action)?.label ?? action;
+    openTransform(item, `AI: ${label}`, 'Processing...');
+    try {
+      const result = await runAiAction(action, item.content);
+      openTransform(item, `AI: ${label}`, result);
+    } catch (e) {
+      openTransform(item, `AI: Error`, `${e}`);
+    }
+  };
+
+  const handleAi = (action: AiAction) => {
+    onClose();
+
+    // SECURITY: First-time consent required — show full consent dialog
+    if (!isAiConsentGiven()) {
+      setPendingAiAction(action);
+      setShowAiConsent(true);
+      return;
+    }
+
+    // SECURITY: Per-action confirmation
+    const provider = useSettingsStore.getState().settings.aiProvider === 'anthropic' ? 'Anthropic' : 'OpenAI';
+    const confirmed = window.confirm(
+      `Send this content to ${provider} for processing?\n\n` +
+      `Do NOT proceed if this contains sensitive data.`
+    );
+    if (!confirmed) return;
+
+    executeAiAction(action);
+  };
+
+  const handleAiConsentAccepted = () => {
+    setShowAiConsent(false);
+    if (pendingAiAction) {
+      executeAiAction(pendingAiAction);
+      setPendingAiAction(null);
+    }
+  };
   const handleDelete = () => { deleteItem(item.id); onClose(); };
   const handlePin = () => { togglePin(item.id); onClose(); };
+
+  // SECURITY: Never show AI actions for sensitive items (passwords, bank info, API keys)
+  const aiAvailable = isAiConfigured() && item.contentType === 'text' && !item.isSensitive;
 
   const getTransformItems = () => {
     switch (item.detectedFormat) {
@@ -155,9 +235,21 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
 
   const transformItems = getTransformItems();
 
-  if (!isOpen) return null;
+  const aiProvider = useSettingsStore.getState().settings.aiProvider === 'anthropic' ? 'Anthropic' : 'OpenAI';
 
-  return createPortal(
+  if (!isOpen && !showAiConsent) return null;
+
+  return (
+    <>
+    {showAiConsent && (
+      <AiConsentDialog
+        isOpen={showAiConsent}
+        onClose={() => { setShowAiConsent(false); setPendingAiAction(null); }}
+        onAccept={handleAiConsentAccepted}
+        provider={aiProvider as 'Anthropic' | 'OpenAI'}
+      />
+    )}
+    {isOpen && createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -178,12 +270,34 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
           onMouseLeave={onClose}
         >
           <MenuButton icon={Copy} label="Copy" onClick={handleCopy} />
+          {item.htmlContent && (
+            <>
+              <MenuButton icon={FileText} label="Copy HTML" onClick={handleCopyHtml} />
+              <MenuButton icon={ClipboardPaste} label="Paste Plain" onClick={handlePastePlainText} />
+            </>
+          )}
           <MenuButton icon={Eye} label="View" onClick={() => { openView(item); onClose(); }} />
+
+          {item.contentType === 'image' && (
+            <>
+              <div className="h-px bg-border my-1" />
+              <MenuButton icon={ScanText} label="Extract Text" onClick={handleOcr} />
+            </>
+          )}
 
           {transformItems.length > 0 && <div className="h-px bg-border my-1" />}
           {transformItems.map((transformItem, i) => (
             <MenuButton key={i} icon={transformItem.icon} label={transformItem.label} onClick={() => { transformItem.action(); onClose(); }} />
           ))}
+
+          {aiAvailable && (
+            <>
+              <div className="h-px bg-border my-1" />
+              {AI_ACTIONS.map((action) => (
+                <MenuButton key={action.id} icon={Bot} label={action.label} onClick={() => handleAi(action.id)} />
+              ))}
+            </>
+          )}
 
           <div className="h-px bg-border my-1" />
           <MenuButton icon={item.isPinned ? PinOff : Pin} label={item.isPinned ? 'Unpin' : 'Pin'} onClick={handlePin} />
@@ -192,6 +306,8 @@ export function ItemMenu({ item, isOpen, onClose, anchorRef }: ItemMenuProps) {
       )}
     </AnimatePresence>,
     document.body
+  )}
+  </>
   );
 }
 
