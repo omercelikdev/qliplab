@@ -6,6 +6,12 @@ import type { DetectedFormat } from '@/types/clipboard';
 export type PreviewMode = 'transform' | 'diff' | 'view';
 export type DiffViewMode = 'side-by-side' | 'inline';
 
+export interface PipelineStep {
+  transformId: string;
+  label: string;
+  output: string;
+}
+
 interface PreviewState {
   isOpen: boolean;
   mode: PreviewMode;
@@ -15,12 +21,16 @@ interface PreviewState {
   transformType: string;
   diffItems: [ClipboardItem | null, ClipboardItem | null];
   diffViewMode: DiffViewMode;
+  pipelineSteps: PipelineStep[];
 
   openTransform: (item: ClipboardItem, type: string, content: string) => void;
   openDiff: (items: [ClipboardItem, ClipboardItem]) => void;
   openView: (item: ClipboardItem) => void;
   setEditedContent: (content: string) => void;
   setDiffViewMode: (mode: DiffViewMode) => void;
+  addPipelineStep: (transformId: string, label: string, output: string) => void;
+  removePipelineStep: (index: number) => void;
+  clearPipeline: () => void;
   close: () => void;
 }
 
@@ -31,6 +41,7 @@ export function getMonacoLanguage(format: DetectedFormat): string {
     yaml: 'yaml',
     xml: 'xml',
     html: 'html',
+    markdown: 'markdown',
     sql: 'sql',
     css: 'css',
     code_js: 'javascript',
@@ -53,6 +64,7 @@ export const usePreviewStore = create<PreviewState>((set, get) => ({
   transformType: '',
   diffItems: [null, null],
   diffViewMode: 'side-by-side',
+  pipelineSteps: [],
 
   openTransform: (item, type, content) => {
     const wasOpen = get().isOpen;
@@ -99,8 +111,53 @@ export const usePreviewStore = create<PreviewState>((set, get) => ({
     set({ diffViewMode: mode });
   },
 
+  addPipelineStep: (transformId, label, output) => {
+    const steps = [...get().pipelineSteps, { transformId, label, output }];
+    set({
+      pipelineSteps: steps,
+      editedContent: output,
+      transformedContent: output,
+      transformType: steps.map(s => s.label).join(' → '),
+    });
+  },
+
+  removePipelineStep: (index) => {
+    const steps = get().pipelineSteps.filter((_, i) => i !== index);
+    if (steps.length === 0) {
+      // No more steps — revert to source content
+      const source = get().sourceItem?.content ?? '';
+      set({
+        pipelineSteps: [],
+        editedContent: source,
+        transformedContent: source,
+        transformType: 'View',
+        mode: 'view',
+      });
+    } else {
+      // Use the last step's output
+      const lastOutput = steps[steps.length - 1].output;
+      set({
+        pipelineSteps: steps,
+        editedContent: lastOutput,
+        transformedContent: lastOutput,
+        transformType: steps.map(s => s.label).join(' → '),
+      });
+    }
+  },
+
+  clearPipeline: () => {
+    const source = get().sourceItem?.content ?? '';
+    set({
+      pipelineSteps: [],
+      editedContent: source,
+      transformedContent: source,
+      transformType: 'View',
+      mode: 'view',
+    });
+  },
+
   close: () => {
-    set({ isOpen: false });
+    set({ isOpen: false, pipelineSteps: [] });
     shrinkWindowFromPreview();
   },
 }));
