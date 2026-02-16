@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Lock } from 'lucide-react';
+import { Plus, Lock, Search } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
-import { useAppStore } from '@/stores/appStore';
+import { useAppStore, VAULT_TYPE_FILTERS } from '@/stores/appStore';
+import type { VaultTypeFilter } from '@/stores/appStore';
 import type { CardData, BankData, AddressData, CodeData } from '@/types/vault';
 import { VaultItem } from './VaultItem';
 import { VaultLock } from './VaultLock';
@@ -17,6 +18,8 @@ export function VaultList() {
   const lock = useVaultStore((state) => state.lock);
   const activeTab = useAppStore((state) => state.activeTab);
   const searchQuery = useAppStore((state) => state.searchQuery);
+  const vaultTypeFilter = useAppStore((state) => state.vaultTypeFilter);
+  const setVaultTypeFilter = useAppStore((state) => state.setVaultTypeFilter);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
@@ -35,13 +38,17 @@ export function VaultList() {
     }
   };
 
-  // Filter items by search query (title only — content is encrypted)
-  const filteredItems = useMemo(
-    () => searchQuery
-      ? items.filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase()))
-      : items,
-    [items, searchQuery]
-  );
+  // Filter items by type + search query (title only — content is encrypted)
+  const filteredItems = useMemo(() => {
+    let result = items;
+    if (vaultTypeFilter !== 'all') {
+      result = result.filter((item) => item.type === vaultTypeFilter);
+    }
+    if (searchQuery) {
+      result = result.filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    return result;
+  }, [items, vaultTypeFilter, searchQuery]);
 
   const handleSelect = useCallback(async (index: number) => {
     const item = filteredItems[index];
@@ -68,44 +75,70 @@ export function VaultList() {
 
   if (isLocked) return <VaultLock />;
 
+  const filterEntries = Object.entries(VAULT_TYPE_FILTERS) as [VaultTypeFilter, string][];
+
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-end px-1.5 py-0.5 border-b border-border/50">
+      {/* Filter bar + Lock — consistent with HistoryList */}
+      <div className="flex items-center gap-1 px-3 py-1.5 shrink-0 overflow-x-auto elevation-bottom">
+        {filterEntries.map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setVaultTypeFilter(key)}
+            className={cn(
+              'px-2 py-0.5 text-[10px] rounded-md whitespace-nowrap transition-colors cursor-pointer',
+              vaultTypeFilter === key
+                ? 'bg-accent text-accent-foreground'
+                : 'text-muted-foreground hover:bg-surface-hover'
+            )}
+          >
+            {label}
+          </button>
+        ))}
+        <div className="flex-1" />
         <button
           onClick={lock}
-          className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground rounded transition-colors cursor-pointer"
+          className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground rounded-md transition-colors cursor-pointer"
         >
           <Lock className="w-2.5 h-2.5" /> Lock
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="pl-3 pr-1.5 py-1 space-y-0.5">
-          {filteredItems.map((item, index) => (
-            <div
-              key={item.id}
-              ref={(el) => {
-                if (el) itemRefs.current.set(index, el);
-                else itemRefs.current.delete(index);
-              }}
-            >
-              <VaultItem item={item} isSelected={index === selectedIndex} />
+        {filteredItems.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
+              <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center">
+                <Search className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-1">
+                  {items.length === 0 ? 'No vault items' : 'No results'}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {items.length === 0 ? 'Add your first secure item' : 'No items match your filters'}
+                </p>
+              </div>
             </div>
-          ))}
-          {items.length === 0 && (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              No vault items. Add one!
-            </div>
-          )}
-          {filteredItems.length === 0 && items.length > 0 && searchQuery && (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              No results for "{searchQuery}"
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="pl-3 pr-1.5 py-1 space-y-0.5">
+            {filteredItems.map((item, index) => (
+              <div
+                key={item.id}
+                ref={(el) => {
+                  if (el) itemRefs.current.set(index, el);
+                  else itemRefs.current.delete(index);
+                }}
+              >
+                <VaultItem item={item} isSelected={index === selectedIndex} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="px-3 py-1 border-t border-border/50">
+      <div className="px-3 py-1 elevation-top">
         <button
           onClick={() => setIsDialogOpen(true)}
           className={cn(

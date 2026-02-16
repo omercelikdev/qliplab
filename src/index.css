@@ -53,6 +53,17 @@ html, body, #root {
 /* Consistent 8px border radius */
 .rounded-app { border-radius: 8px; }
 
+/* Spaced dotted separator — 1px dots with visible gaps */
+.dotted-separator {
+  height: 1px;
+  border: none;
+  background: repeating-linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-foreground) 15%, transparent) 0 1.5px,
+    transparent 1.5px 7px
+  );
+}
+
 /* Copy flash animation */
 @keyframes copy-flash {
   0% { background-color: var(--color-accent); opacity: 0.3; }
@@ -60,7 +71,7 @@ html, body, #root {
 }
 
 .copy-flash {
-  animation: copy-flash 0.4s ease-out;
+  animation: copy-flash 0.2s ease-out;
 }
 
 /* Form elements dark mode fix */

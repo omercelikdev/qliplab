@@ -11,6 +11,7 @@ import { HistoryList } from './components/history/HistoryList';
 import { SnippetList } from './components/snippets/SnippetList';
 import { VaultList } from './components/vault/VaultList';
 import { PreviewPanel } from './components/preview/PreviewPanel';
+import { SettingsPanel } from './components/settings/SettingsDialog';
 import { SnippetEditorPanel } from './components/snippets/SnippetEditorPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorReportingOptIn } from './components/feedback/ErrorReportingOptIn';
@@ -38,7 +39,7 @@ function App() {
   const { loadSettings } = useSettingsStore();
   const { isOpen: previewOpen } = usePreviewStore();
   const { editorOpen: snippetEditorOpen } = useSnippetStore();
-  const showSidePanel = previewOpen || snippetEditorOpen;
+  const showSidePanel = activeTab !== 'settings' && (previewOpen || snippetEditorOpen);
   const { hasSeenOptIn, loadSettings: loadFeedbackSettings } = useFeedbackStore();
   const [isInitialized, setIsInitialized] = useState(false);
   const [showOptIn, setShowOptIn] = useState(false);
@@ -129,7 +130,7 @@ function App() {
 
   if (!isInitialized) {
     return (
-      <div className={cn('h-screen w-screen flex items-center justify-center', 'glass rounded-lg border border-border')}>
+      <div className={cn('h-screen w-screen flex items-center justify-center', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}>
         <span className="text-muted-foreground">Loading...</span>
       </div>
     );
@@ -138,14 +139,14 @@ function App() {
   return (
     <ErrorBoundary>
       <ResizeBorder />
-      <div className={cn('h-screen w-screen flex overflow-hidden', 'glass rounded-lg border border-border')}>
+      <div className={cn('h-screen w-screen flex overflow-hidden', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}>
         {/* Left Sidebar with Brand */}
         <Sidebar />
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <SearchBar />
-          <OnboardingBanner />
+          {activeTab !== 'settings' && <SearchBar />}
+          {activeTab !== 'settings' && <OnboardingBanner />}
           <div className="flex flex-1 overflow-hidden">
             <div
               className="overflow-hidden"
@@ -154,6 +155,7 @@ function App() {
               {activeTab === 'history' && <HistoryList />}
               {activeTab === 'snippets' && <SnippetList />}
               {activeTab === 'vault' && <VaultList />}
+              {activeTab === 'settings' && <SettingsPanel />}
             </div>
             {showSidePanel && (
               <Splitter

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Search, Clipboard } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
-import { useAppStore } from '@/stores/appStore';
+import { useAppStore, SNIPPET_SYNTAX_FILTERS } from '@/stores/appStore';
+import type { SnippetSyntaxFilter } from '@/stores/appStore';
 import { SnippetItem } from './SnippetItem';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
@@ -16,12 +17,15 @@ export function SnippetList() {
   const openEditor = useSnippetStore((state) => state.openEditor);
   const activeTab = useAppStore((state) => state.activeTab);
   const searchQuery = useAppStore((state) => state.searchQuery);
+  const snippetSyntaxFilter = useAppStore((state) => state.snippetSyntaxFilter);
+  const setSnippetSyntaxFilter = useAppStore((state) => state.setSnippetSyntaxFilter);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
-  // Reload from SQL when search changes
+  // Reload from SQL when search/filter changes
   useEffect(() => {
-    loadSnippets(searchQuery);
-  }, [searchQuery, loadSnippets]);
+    const group = SNIPPET_SYNTAX_FILTERS[snippetSyntaxFilter];
+    loadSnippets(searchQuery, group.syntaxes ?? undefined);
+  }, [searchQuery, snippetSyntaxFilter, loadSnippets]);
 
   const handleSelect = useCallback(async (index: number) => {
     const snippet = snippets[index];
@@ -48,38 +52,77 @@ export function SnippetList() {
   }, [selectedIndex]);
 
   if (isLoading) {
-    return <div className="p-4 text-center text-muted-foreground">Loading...</div>;
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <div className="w-6 h-6 border-2 border-muted-foreground/30 border-t-accent rounded-full animate-spin" />
+          <span className="text-sm">Loading...</span>
+        </div>
+      </div>
+    );
   }
+
+  const filterEntries = Object.entries(SNIPPET_SYNTAX_FILTERS) as [SnippetSyntaxFilter, typeof SNIPPET_SYNTAX_FILTERS[SnippetSyntaxFilter]][];
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="pl-3 pr-1.5 py-1 space-y-0.5">
-          {snippets.map((snippet, index) => (
-            <div
-              key={snippet.id}
-              ref={(el) => {
-                if (el) itemRefs.current.set(index, el);
-                else itemRefs.current.delete(index);
-              }}
-            >
-              <SnippetItem snippet={snippet} isSelected={index === selectedIndex} onEdit={(s) => openEditor(s)} />
-            </div>
-          ))}
-          {snippets.length === 0 && !searchQuery && (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              No snippets. Create one!
-            </div>
-          )}
-          {snippets.length === 0 && searchQuery && (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              No results for &ldquo;{searchQuery}&rdquo;
-            </div>
-          )}
-        </div>
+      {/* Syntax filter bar — consistent with HistoryList/VaultList */}
+      <div className="flex items-center gap-1 px-3 py-1.5 shrink-0 overflow-x-auto elevation-bottom">
+        {filterEntries.map(([key, { label }]) => (
+          <button
+            key={key}
+            onClick={() => setSnippetSyntaxFilter(key)}
+            className={cn(
+              'px-2 py-0.5 text-[10px] rounded-md whitespace-nowrap transition-colors cursor-pointer',
+              snippetSyntaxFilter === key
+                ? 'bg-accent text-accent-foreground'
+                : 'text-muted-foreground hover:bg-surface-hover'
+            )}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      <div className="px-3 py-1 border-t border-border/50">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        {snippets.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
+              <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center">
+                {searchQuery ? (
+                  <Search className="w-6 h-6 text-muted-foreground" />
+                ) : (
+                  <Clipboard className="w-6 h-6 text-muted-foreground" />
+                )}
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-1">
+                  {searchQuery ? 'No results' : 'No snippets yet'}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {searchQuery ? 'No snippets match your search' : 'Create your first snippet to get started'}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="pl-3 pr-1.5 py-1 space-y-0.5">
+            {snippets.map((snippet, index) => (
+              <div
+                key={snippet.id}
+                ref={(el) => {
+                  if (el) itemRefs.current.set(index, el);
+                  else itemRefs.current.delete(index);
+                }}
+              >
+                <SnippetItem snippet={snippet} isSelected={index === selectedIndex} onEdit={(s) => openEditor(s)} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="px-3 py-1 elevation-top">
         <button
           onClick={() => openEditor()}
           className={cn(

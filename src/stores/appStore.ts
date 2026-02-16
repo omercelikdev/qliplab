@@ -1,11 +1,29 @@
 import { create } from 'zustand';
 import type { DetectedFormat } from '@/types/clipboard';
 
-export type Tab = 'history' | 'snippets' | 'vault';
+export type Tab = 'history' | 'snippets' | 'vault' | 'settings';
 export type Theme = 'light' | 'dark' | 'system';
 
 // Format filter groups for smart collections
 export type FormatFilterGroup = 'all' | 'code' | 'data' | 'web' | 'encoded' | 'other';
+export type VaultTypeFilter = 'all' | 'card' | 'bank' | 'address' | 'code';
+export type SnippetSyntaxFilter = 'all' | 'code' | 'data' | 'web' | 'plain';
+
+export const SNIPPET_SYNTAX_FILTERS: Record<SnippetSyntaxFilter, { label: string; syntaxes: string[] | null }> = {
+  all:   { label: 'All',   syntaxes: null },
+  code:  { label: 'Code',  syntaxes: ['javascript', 'typescript', 'python', 'go', 'rust', 'java', 'sql', 'shell'] },
+  data:  { label: 'Data',  syntaxes: ['json', 'yaml', 'xml', 'csv'] },
+  web:   { label: 'Web',   syntaxes: ['html', 'css', 'markdown'] },
+  plain: { label: 'Plain', syntaxes: ['plain'] },
+};
+
+export const VAULT_TYPE_FILTERS: Record<VaultTypeFilter, string> = {
+  all: 'All',
+  card: 'Card',
+  bank: 'Bank',
+  address: 'Address',
+  code: 'Code',
+};
 
 export const FORMAT_FILTER_GROUPS: Record<FormatFilterGroup, { label: string; formats: DetectedFormat[] | null }> = {
   all:     { label: 'All',     formats: null }, // null = no filter
@@ -29,6 +47,8 @@ interface AppState {
   theme: Theme;
   searchQuery: string;
   formatFilter: FormatFilterGroup;
+  vaultTypeFilter: VaultTypeFilter;
+  snippetSyntaxFilter: SnippetSyntaxFilter;
   isTransformMode: boolean;
   isDiffMode: boolean;
   diffSelectedIds: string[];
@@ -40,6 +60,8 @@ interface AppState {
   setTheme: (theme: Theme) => void;
   setSearchQuery: (query: string) => void;
   setFormatFilter: (filter: FormatFilterGroup) => void;
+  setVaultTypeFilter: (filter: VaultTypeFilter) => void;
+  setSnippetSyntaxFilter: (filter: SnippetSyntaxFilter) => void;
   setTransformMode: (active: boolean) => void;
   setDiffMode: (active: boolean) => void;
   addToDiffSelection: (id: string) => void;
@@ -54,17 +76,21 @@ export const useAppStore = create<AppState>((set) => ({
   theme: 'system',
   searchQuery: '',
   formatFilter: 'all',
+  vaultTypeFilter: 'all',
+  snippetSyntaxFilter: 'all',
   isTransformMode: false,
   isDiffMode: false,
   diffSelectedIds: [],
   windowOpenCount: 0,
   openMenuItemId: null,
 
-  setActiveTab: (tab) => set({ activeTab: tab, searchQuery: '', formatFilter: 'all' }),
+  setActiveTab: (tab) => set({ activeTab: tab, searchQuery: '', formatFilter: 'all', vaultTypeFilter: 'all', snippetSyntaxFilter: 'all' }),
   setPreviewOpen: (open) => set({ previewOpen: open }),
   setTheme: (theme) => set({ theme }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setFormatFilter: (filter) => set({ formatFilter: filter }),
+  setVaultTypeFilter: (filter) => set({ vaultTypeFilter: filter }),
+  setSnippetSyntaxFilter: (filter) => set({ snippetSyntaxFilter: filter }),
   setTransformMode: (active) => set({ isTransformMode: active }),
   setDiffMode: (active) => set({ isDiffMode: active, diffSelectedIds: active ? [] : [] }),
   addToDiffSelection: (id) => set((state) => {

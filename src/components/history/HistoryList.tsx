@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
-import { Clipboard, Search, Pin } from 'lucide-react';
+import { Clipboard, Search } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useAppStore, FORMAT_FILTER_GROUPS } from '@/stores/appStore';
@@ -179,13 +179,16 @@ export function HistoryList() {
         {orderedItems.map((item, index) => (
           <div key={item.id}>
             {index === 0 && pinnedCount > 0 && (
-              <div className="flex items-center gap-1.5 px-1 pt-0.5 pb-1">
-                <Pin className="w-2.5 h-2.5 text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground font-medium">Pinned</span>
+              <div className="flex items-center gap-2 px-1 pt-1 pb-1.5">
+                <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Pinned</span>
+                <div className="flex-1 dotted-separator" />
               </div>
             )}
             {index === pinnedCount && pinnedCount > 0 && (
-              <div className="h-px bg-border/50 my-1" />
+              <div className="flex items-center gap-2 px-1 pt-1.5 pb-1.5">
+                <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Recent</span>
+                <div className="flex-1 dotted-separator" />
+              </div>
             )}
             <div
               ref={(el) => {

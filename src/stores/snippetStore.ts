@@ -14,7 +14,7 @@ interface SnippetState {
   editorOpen: boolean;
   editingSnippet: Snippet | null;
 
-  loadSnippets: (searchQuery?: string) => Promise<void>;
+  loadSnippets: (searchQuery?: string, syntaxFilter?: string[]) => Promise<void>;
   loadCategories: () => Promise<void>;
   createSnippet: (snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt' | 'sortOrder'>) => Promise<void>;
   updateSnippet: (id: string, updates: Partial<Snippet>) => Promise<void>;
@@ -33,14 +33,22 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   editorOpen: false,
   editingSnippet: null,
 
-  loadSnippets: async (searchQuery = '') => {
+  loadSnippets: async (searchQuery = '', syntaxFilter?: string[]) => {
     try {
       const db = getDatabase();
       const args: (string | number)[] = [];
       let sql = 'SELECT * FROM snippets';
+      const conditions: string[] = [];
       if (searchQuery) {
-        sql += ' WHERE (title LIKE ? OR content LIKE ?)';
+        conditions.push('(title LIKE ? OR content LIKE ?)');
         args.push(`%${searchQuery}%`, `%${searchQuery}%`);
+      }
+      if (syntaxFilter && syntaxFilter.length > 0) {
+        conditions.push(`syntax IN (${syntaxFilter.map(() => '?').join(',')})`);
+        args.push(...syntaxFilter);
+      }
+      if (conditions.length > 0) {
+        sql += ' WHERE ' + conditions.join(' AND ');
       }
       sql += ' ORDER BY sort_order';
       const result = await db.select<SnippetRow[]>(sql, args);

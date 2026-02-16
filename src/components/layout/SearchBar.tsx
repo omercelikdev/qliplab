@@ -6,6 +6,7 @@ const PLACEHOLDERS: Record<Tab, string> = {
   history: 'Search clips...',
   snippets: 'Search snippets...',
   vault: 'Search vault...',
+  settings: 'Search settings...',
 };
 
 export function SearchBar() {

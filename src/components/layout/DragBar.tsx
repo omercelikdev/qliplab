@@ -6,6 +6,7 @@ const PLACEHOLDERS: Record<Tab, string> = {
   history: 'Search clips...',
   snippets: 'Search snippets...',
   vault: 'Search vault...',
+  settings: 'Search settings...',
 };
 
 const DEBOUNCE_MS = 120;
@@ -70,7 +71,7 @@ export function SearchBar() {
   return (
     <div data-tauri-drag-region className="h-12 flex items-start px-3 pt-2 cursor-move drag-region">
       <div
-        className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag"
+        className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag transition-shadow duration-150 ease-out focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent/40"
         onClick={() => inputRef.current?.focus()}
       >
         <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
@@ -81,7 +82,7 @@ export function SearchBar() {
           value={localValue}
           onChange={(e) => handleChange(e.target.value.slice(0, 200))}
           maxLength={200}
-          className="flex-1 bg-transparent outline-none text-xs placeholder:text-muted-foreground cursor-text"
+          className="flex-1 bg-transparent outline-none text-xs placeholder:text-foreground/25 cursor-text"
         />
         {localValue && (
           <button
