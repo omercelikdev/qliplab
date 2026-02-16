@@ -8,6 +8,9 @@ use tauri_plugin_autostart::MacosLauncher;
 use std::process::Command;
 
 #[cfg(target_os = "macos")]
+use std::io::Write;
+
+#[cfg(target_os = "macos")]
 use tauri_nspanel::{
     ManagerExt, WebviewWindowExt,
     cocoa::appkit::NSWindowCollectionBehavior,
@@ -63,6 +66,39 @@ fn save_frontmost_app() -> Result<(), String> {
 #[tauri::command]
 fn save_frontmost_app() -> Result<(), String> {
     Ok(())
+}
+
+/// Get current frontmost app name (for source tracking and ignore list)
+#[cfg(target_os = "macos")]
+#[tauri::command]
+fn get_frontmost_app() -> Result<String, String> {
+    let script = r#"
+        tell application "System Events"
+            set frontApp to name of first application process whose frontmost is true
+            return frontApp
+        end tell
+    "#;
+
+    match Command::new("osascript")
+        .arg("-e")
+        .arg(script)
+        .output()
+    {
+        Ok(output) => {
+            if output.status.success() {
+                Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+            } else {
+                Err("Failed to get frontmost app".to_string())
+            }
+        }
+        Err(e) => Err(format!("Failed to get frontmost app: {:?}", e))
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+fn get_frontmost_app() -> Result<String, String> {
+    Ok(String::new())
 }
 
 /// Show panel on current space (macOS)
@@ -176,6 +212,82 @@ fn simulate_paste() -> Result<(), String> {
     Ok(())
 }
 
+/// OCR: Extract text from image using macOS Vision framework
+#[cfg(target_os = "macos")]
+#[tauri::command]
+async fn ocr_image(base64_data: String) -> Result<String, String> {
+    use base64::{Engine as _, engine::general_purpose::STANDARD};
+
+    // Decode base64 to image bytes
+    let image_bytes = STANDARD.decode(&base64_data)
+        .map_err(|e| format!("Failed to decode base64: {}", e))?;
+
+    // Write to temp file
+    let temp_path = std::env::temp_dir().join("qliplab_ocr_input.png");
+    let mut file = std::fs::File::create(&temp_path)
+        .map_err(|e| format!("Failed to create temp file: {}", e))?;
+    file.write_all(&image_bytes)
+        .map_err(|e| format!("Failed to write temp file: {}", e))?;
+    drop(file);
+
+    let temp_path_str = temp_path.to_string_lossy().to_string();
+
+    // Run Swift script for Vision OCR
+    let swift_script = format!(r#"
+import Vision
+import AppKit
+import Foundation
+
+guard let image = NSImage(contentsOfFile: "{}"),
+      let tiffData = image.tiffRepresentation,
+      let bitmap = NSBitmapImageRep(data: tiffData),
+      let cgImage = bitmap.cgImage else {{
+    print("")
+    exit(0)
+}}
+
+let request = VNRecognizeTextRequest()
+request.recognitionLevel = .accurate
+request.usesLanguageCorrection = true
+
+let handler = VNImageRequestHandler(cgImage: cgImage)
+do {{
+    try handler.perform([request])
+}} catch {{
+    print("")
+    exit(0)
+}}
+
+let text = request.results?
+    .compactMap {{ ($0 as? VNRecognizedTextObservation)?.topCandidates(1).first?.string }}
+    .joined(separator: "\n") ?? ""
+print(text)
+"#, temp_path_str.replace("\"", "\\\""));
+
+    let output = Command::new("swift")
+        .arg("-e")
+        .arg(&swift_script)
+        .output()
+        .map_err(|e| format!("Failed to run OCR (Swift not found): {}", e))?;
+
+    // Cleanup temp file
+    let _ = std::fs::remove_file(&temp_path);
+
+    if output.status.success() {
+        let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        Ok(text)
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        Err(format!("OCR failed: {}", stderr))
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+async fn ocr_image(_base64_data: String) -> Result<String, String> {
+    Err("OCR is only available on macOS".to_string())
+}
+
 /// Initialize panel with proper settings for Spotlight-like behavior
 #[cfg(target_os = "macos")]
 fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
@@ -249,8 +361,10 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             simulate_paste,
             save_frontmost_app,
+            get_frontmost_app,
             show_panel,
-            hide_panel
+            hide_panel,
+            ocr_image
         ])
         .setup(|app| {
             // macOS: Hide dock icon
