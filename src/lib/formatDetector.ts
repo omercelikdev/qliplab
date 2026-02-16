@@ -249,8 +249,8 @@ export function isSensitive(content: string): boolean {
     // Crypto keys & secrets
     /-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY-----/, // PEM private key
     /-----BEGIN\s+PGP\s+PRIVATE/, // PGP private key
-    /\b(sk-[a-zA-Z0-9]{20,})\b/, // OpenAI API key
-    /\b(sk-ant-[a-zA-Z0-9]{20,})\b/, // Anthropic API key
+    /\b(sk-[a-zA-Z0-9_-]{20,})\b/, // OpenAI API key
+    /\b(sk-ant-[a-zA-Z0-9_-]{20,})\b/, // Anthropic API key
     /\b(ghp_[a-zA-Z0-9]{36,})\b/, // GitHub personal access token
     /\b(AKIA[0-9A-Z]{16})\b/, // AWS access key
   ];
