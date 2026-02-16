@@ -1,6 +1,15 @@
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
+// Convert Uint8Array to base64 without spread operator (avoids stack overflow on large data)
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 export async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -33,7 +42,7 @@ export async function encrypt(plaintext: string, password: string): Promise<stri
   combined.set(iv, salt.length);
   combined.set(new Uint8Array(encrypted), salt.length + iv.length);
 
-  return btoa(String.fromCharCode(...combined));
+  return uint8ArrayToBase64(combined);
 }
 
 export async function decrypt(ciphertext: string, password: string): Promise<string> {
@@ -47,7 +56,30 @@ export async function decrypt(ciphertext: string, password: string): Promise<str
   return decoder.decode(decrypted);
 }
 
-export async function hashPassword(password: string): Promise<string> {
+// Hash password with salt for secure storage. Format: base64(salt):base64(hash)
+// If salt is provided, uses it (for verification). Otherwise generates a new one.
+export async function hashPassword(password: string, existingSalt?: Uint8Array): Promise<string> {
+  const salt = existingSalt ?? crypto.getRandomValues(new Uint8Array(16));
+  const saltedInput = new Uint8Array(salt.length + encoder.encode(password).length);
+  saltedInput.set(salt, 0);
+  saltedInput.set(encoder.encode(password), salt.length);
+
+  const hash = await crypto.subtle.digest('SHA-256', saltedInput);
+  return `${uint8ArrayToBase64(salt)}:${uint8ArrayToBase64(new Uint8Array(hash))}`;
+}
+
+// Verify a password against a stored hash (supports both salted and legacy unsalted format)
+export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
+  if (storedHash.includes(':')) {
+    // Salted format: base64(salt):base64(hash)
+    const [saltB64] = storedHash.split(':');
+    const salt = Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0));
+    const computedHash = await hashPassword(password, salt);
+    return computedHash === storedHash;
+  }
+
+  // Legacy unsalted format: base64(SHA-256(password))
   const hash = await crypto.subtle.digest('SHA-256', encoder.encode(password));
-  return btoa(String.fromCharCode(...new Uint8Array(hash)));
+  const legacyHash = uint8ArrayToBase64(new Uint8Array(hash));
+  return legacyHash === storedHash;
 }

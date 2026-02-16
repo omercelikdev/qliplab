@@ -8,7 +8,7 @@ export function useAutostart() {
         const enabled = await isEnabled();
         if (!enabled) {
           await enable();
-          console.log('Autostart enabled');
+          // Autostart enabled successfully
         }
       } catch (error) {
         console.error('Failed to setup autostart:', error);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, Building, MapPin, Key } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
-import type { VaultItemType } from '@/types/vault';
+import type { VaultItemType, VaultItemData } from '@/types/vault';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -27,7 +27,7 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
     e.preventDefault();
     if (!title.trim()) return;
 
-    await createItem(selectedType, title, formData);
+    await createItem(selectedType, title, formData as unknown as VaultItemData);
     setTitle('');
     setFormData({});
     onClose();

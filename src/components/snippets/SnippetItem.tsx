@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Code, Star, Trash2 } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
+import { expandVariables } from '@/lib/snippetVariables';
 import { useSnippetStore } from '@/stores/snippetStore';
 import type { Snippet } from '@/types/snippet';
 import { cn } from '@/lib/utils';
@@ -18,8 +19,9 @@ export function SnippetItem({ snippet, isSelected = false }: SnippetItemProps) {
   const deleteSnippet = useSnippetStore((state) => state.deleteSnippet);
 
   const handleClick = async () => {
+    const expanded = await expandVariables(snippet.content);
     await hideWriteAndPaste(async () => {
-      await writeText(snippet.content);
+      await writeText(expanded);
     });
   };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { getCurrentWindow, LogicalPosition } from '@tauri-apps/api/window';
+import { getCurrentWindow, LogicalPosition, type CloseRequestedEvent } from '@tauri-apps/api/window';
 import { Sidebar } from './components/layout/Sidebar';
 import { SearchBar } from './components/layout/DragBar';
 import { HintBar } from './components/layout/HintBar';
@@ -49,6 +49,13 @@ function App() {
       await initDatabase();
       await loadSettings();
       await loadFeedbackSettings();
+
+      // Cleanup expired clips before loading
+      const { expirationDays } = useSettingsStore.getState().settings;
+      if (expirationDays > 0) {
+        await useHistoryStore.getState().cleanupExpired(expirationDays);
+      }
+
       await loadItems();
       setIsInitialized(true);
     };
@@ -63,6 +70,20 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [isInitialized, hasSeenOptIn]);
+
+  // Clear unpinned history on quit if setting is enabled
+  useEffect(() => {
+    const window = getCurrentWindow();
+    const unlisten = window.onCloseRequested(async (_event: CloseRequestedEvent) => {
+      const clearOnQuit = useSettingsStore.getState().settings.clearHistoryOnQuit;
+      if (clearOnQuit) {
+        await useHistoryStore.getState().clearUnpinned();
+      }
+    });
+    return () => {
+      unlisten.then(fn => fn());
+    };
+  }, []);
 
   // On startup, if window is not visible, move it offscreen to prevent input capture
   // This is critical for autostart scenarios

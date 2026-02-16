@@ -123,7 +123,7 @@ export async function reportError(
 
   // Prevent duplicate spam
   if (lastReported && Date.now() - lastReported < DUPLICATE_WINDOW_MS) {
-    console.log('Duplicate error suppressed');
+    // Duplicate error suppressed
     return;
   }
   recentErrors.set(errorKey, Date.now());
@@ -131,13 +131,13 @@ export async function reportError(
   // Check if user opted-in to auto error reporting
   const autoReportingEnabled = await getAutoReportingEnabled();
   if (!autoReportingEnabled) {
-    console.log('Auto error reporting disabled');
+    // Auto error reporting disabled
     return;
   }
 
   // Check rate limits
   if (!checkRateLimit()) {
-    console.log('Rate limit exceeded for error reporting');
+    // Rate limit exceeded
     return;
   }
 
@@ -174,7 +174,7 @@ export async function reportError(
 
     if (response.ok && result.success) {
       incrementRateLimit();
-      console.log(`Auto-reported error: ${result.issueUrl}`);
+      // Successfully auto-reported
     } else {
       console.error('Failed to auto-report error:', result.error);
     }

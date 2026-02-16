@@ -12,11 +12,6 @@ function maintainCacheSize() {
   }
 }
 
-// Clear cache (call on app reset or memory pressure)
-export function clearImageCache() {
-  imageCache.clear();
-}
-
 // Parse image data and create a displayable URL (with caching)
 export function parseImageData(content: string): { dataUrl: string; base64: string } | null {
   // Check cache first

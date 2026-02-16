@@ -33,7 +33,7 @@ export function encodeUrl(content: string): string { return encodeURIComponent(c
 export function decodeUrl(content: string): string { try { return decodeURIComponent(content); } catch { return content; } }
 
 // JWT
-export function decodeJwt(content: string): { header: any; payload: any } | null {
+export function decodeJwt(content: string): { header: Record<string, unknown>; payload: Record<string, unknown> } | null {
   const parts = content.split('.');
   if (parts.length !== 3) return null;
   try {

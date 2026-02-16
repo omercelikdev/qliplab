@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
+import { AVAILABLE_VARIABLES } from '@/lib/snippetVariables';
 import { cn } from '@/lib/utils';
 
 interface NewSnippetDialogProps {
@@ -72,6 +73,24 @@ export function NewSnippetDialog({ isOpen, onClose }: NewSnippetDialogProps) {
                   'outline-none focus:ring-2 focus:ring-accent font-mono resize-none'
                 )}
               />
+              {/* Variable hints */}
+              <div className="space-y-1">
+                <p className="text-[10px] text-muted-foreground">Variables (expanded on paste):</p>
+                <div className="flex flex-wrap gap-1">
+                  {AVAILABLE_VARIABLES.map((v) => (
+                    <button
+                      key={v.name}
+                      type="button"
+                      title={v.description}
+                      onClick={() => setContent((c) => c + v.name)}
+                      className="px-1.5 py-0.5 text-[10px] font-mono bg-surface border border-border rounded hover:bg-surface-hover transition-colors cursor-pointer"
+                    >
+                      {v.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <button
                 type="submit"
                 className={cn(

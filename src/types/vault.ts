@@ -1,10 +1,12 @@
 export type VaultItemType = 'address' | 'card' | 'bank' | 'personal' | 'company' | 'code';
 
+export type VaultItemData = CardData | BankData | AddressData | PersonalData | CompanyData | CodeData;
+
 export interface VaultItem {
   id: string;
   type: VaultItemType;
   title: string;
-  data: any;
+  data: VaultItemData;
   icon?: string;
   isFavorite: boolean;
   sortOrder: number;
@@ -32,6 +34,21 @@ export interface AddressData {
   city: string;
   postalCode: string;
   country: string;
+}
+
+export interface PersonalData {
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  dateOfBirth?: string;
+}
+
+export interface CompanyData {
+  companyName: string;
+  taxId?: string;
+  registrationNumber?: string;
+  website?: string;
 }
 
 export interface CodeData {

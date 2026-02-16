@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Trash2, CreditCard, Building, MapPin, Key } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useVaultStore } from '@/stores/vaultStore';
-import type { VaultItem as VaultItemType } from '@/types/vault';
+import type { VaultItem as VaultItemType, CardData, BankData, AddressData, CodeData } from '@/types/vault';
 import { cn } from '@/lib/utils';
 
 const typeIcons: Record<string, typeof CreditCard> = {
@@ -28,13 +28,13 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
   const getMainValue = () => {
     switch (item.type) {
       case 'card':
-        return item.data.cardNumber;
+        return (item.data as CardData).cardNumber;
       case 'bank':
-        return item.data.iban;
+        return (item.data as BankData).iban;
       case 'address':
-        return item.data.street;
+        return (item.data as AddressData).street;
       case 'code':
-        return item.data.code;
+        return (item.data as CodeData).code;
       default:
         return JSON.stringify(item.data);
     }

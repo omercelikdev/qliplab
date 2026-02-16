@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getDatabase } from '@/lib/database';
 import type { Snippet, SnippetCategory } from '@/types/snippet';
+import type { SnippetRow, SnippetCategoryRow } from '@/types/database';
 
 interface SnippetState {
   snippets: Snippet[];
@@ -26,12 +27,12 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   loadSnippets: async () => {
     try {
       const db = getDatabase();
-      const result = await db.select<any[]>('SELECT * FROM snippets ORDER BY sort_order');
+      const result = await db.select<SnippetRow[]>('SELECT * FROM snippets ORDER BY sort_order');
       const snippets: Snippet[] = result.map(row => ({
         id: row.id,
         title: row.title,
         content: row.content,
-        categoryId: row.category_id,
+        categoryId: row.category_id ?? undefined,
         syntax: row.syntax || 'plain',
         isFavorite: row.is_favorite === 1,
         sortOrder: row.sort_order,
@@ -48,11 +49,11 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   loadCategories: async () => {
     try {
       const db = getDatabase();
-      const result = await db.select<any[]>('SELECT * FROM snippet_categories ORDER BY sort_order');
+      const result = await db.select<SnippetCategoryRow[]>('SELECT * FROM snippet_categories ORDER BY sort_order');
       const categories: SnippetCategory[] = result.map(row => ({
         id: row.id,
         name: row.name,
-        icon: row.icon,
+        icon: row.icon ?? undefined,
         sortOrder: row.sort_order,
         createdAt: new Date(row.created_at),
       }));
@@ -82,7 +83,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       const db = getDatabase();
       const now = new Date().toISOString();
       const fields: string[] = ['updated_at = ?'];
-      const values: any[] = [now];
+      const values: (string | number | boolean | null)[] = [now];
 
       if (updates.title !== undefined) { fields.push('title = ?'); values.push(updates.title); }
       if (updates.content !== undefined) { fields.push('content = ?'); values.push(updates.content); }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore } from '@/stores/appStore';
@@ -7,6 +7,8 @@ import { NewSnippetDialog } from './NewSnippetDialog';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
+import { fuzzyFilter } from '@/lib/fuzzySearch';
+import { expandVariables } from '@/lib/snippetVariables';
 import { cn } from '@/lib/utils';
 
 export function SnippetList() {
@@ -22,19 +24,18 @@ export function SnippetList() {
     loadSnippets();
   }, [loadSnippets]);
 
-  // Filter snippets by search query
-  const filteredSnippets = searchQuery
-    ? snippets.filter((snippet) =>
-        snippet.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        snippet.content.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : snippets;
+  // Filter snippets by search query (fuzzy matching, sorted by relevance)
+  const filteredSnippets = useMemo(
+    () => fuzzyFilter(snippets, searchQuery, (s) => `${s.title} ${s.content}`),
+    [snippets, searchQuery]
+  );
 
   const handleSelect = useCallback(async (index: number) => {
     const snippet = filteredSnippets[index];
     if (snippet) {
+      const expanded = await expandVariables(snippet.content);
       await hideWriteAndPaste(async () => {
-        await writeText(snippet.content);
+        await writeText(expanded);
       });
     }
   }, [filteredSnippets]);

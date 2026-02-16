@@ -1,13 +1,15 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Plus, Lock } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { useAppStore } from '@/stores/appStore';
+import type { CardData, BankData, AddressData, CodeData } from '@/types/vault';
 import { VaultItem } from './VaultItem';
 import { VaultLock } from './VaultLock';
 import { NewVaultItemDialog } from './NewVaultItemDialog';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
+import { fuzzyFilter } from '@/lib/fuzzySearch';
 import { cn } from '@/lib/utils';
 
 export function VaultList() {
@@ -22,24 +24,23 @@ export function VaultList() {
   const getMainValue = (item: typeof items[0]) => {
     switch (item.type) {
       case 'card':
-        return item.data.cardNumber;
+        return (item.data as CardData).cardNumber;
       case 'bank':
-        return item.data.iban;
+        return (item.data as BankData).iban;
       case 'address':
-        return item.data.street;
+        return (item.data as AddressData).street;
       case 'code':
-        return item.data.code;
+        return (item.data as CodeData).code;
       default:
         return JSON.stringify(item.data);
     }
   };
 
-  // Filter items by search query (search in title only for security)
-  const filteredItems = searchQuery
-    ? items.filter((item) =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : items;
+  // Filter items by search query (search in title only for security, fuzzy matching)
+  const filteredItems = useMemo(
+    () => fuzzyFilter(items, searchQuery, (item) => item.title),
+    [items, searchQuery]
+  );
 
   const handleSelect = useCallback(async (index: number) => {
     const item = filteredItems[index];
