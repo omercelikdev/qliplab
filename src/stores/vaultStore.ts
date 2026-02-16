@@ -1,21 +1,39 @@
 import { create } from 'zustand';
 import { getDatabase } from '@/lib/database';
-import { encrypt, decrypt, hashPassword } from '@/lib/encryption';
-import type { VaultItem, VaultItemType } from '@/types/vault';
+import { useSettingsStore } from '@/stores/settingsStore';
+import { encrypt, decrypt, hashPassword, verifyPassword } from '@/lib/encryption';
+import type { VaultItem, VaultItemType, VaultItemData } from '@/types/vault';
+import type { VaultItemRow, VaultSettingsRow } from '@/types/database';
 
 // SECURITY: Session password with auto-clear timeout
 let sessionPassword: string | null = null;
 let autoLockTimer: ReturnType<typeof setTimeout> | null = null;
-const AUTO_LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
 
-// Reset auto-lock timer on activity
+// Brute-force protection: exponential backoff on failed attempts
+let failedAttempts = 0;
+let lockedUntil = 0;
+
+function getLockoutDuration(attempts: number): number {
+  if (attempts < 3) return 0;
+  if (attempts < 5) return 3_000;      // 3s
+  if (attempts < 7) return 10_000;     // 10s
+  if (attempts < 10) return 30_000;    // 30s
+  return 60_000;                        // 60s
+}
+
+function getRemainingLockout(): number {
+  return Math.max(0, lockedUntil - Date.now());
+}
+
+// Reset auto-lock timer on activity (reads autoLockMinutes from settings)
 function resetAutoLockTimer(lockFn: () => void) {
   if (autoLockTimer) {
     clearTimeout(autoLockTimer);
   }
+  const minutes = useSettingsStore.getState().settings.autoLockMinutes;
   autoLockTimer = setTimeout(() => {
     lockFn();
-  }, AUTO_LOCK_TIMEOUT);
+  }, minutes * 60 * 1000);
 }
 
 // Clear session password securely (as much as JS allows)
@@ -30,22 +48,33 @@ function clearSessionPassword() {
 interface VaultState {
   isLocked: boolean;
   items: VaultItem[];
+  lockoutRemaining: number;
+  failedCount: number;
 
-  unlock: (password: string) => Promise<boolean>;
+  unlock: (password: string) => Promise<boolean | 'locked_out'>;
   lock: () => void;
   loadItems: (password: string) => Promise<void>;
-  createItem: (type: VaultItemType, title: string, data: any) => Promise<void>;
+  createItem: (type: VaultItemType, title: string, data: VaultItemData) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
 }
 
 export const useVaultStore = create<VaultState>((set, get) => ({
   isLocked: true,
   items: [],
+  lockoutRemaining: 0,
+  failedCount: 0,
 
   unlock: async (password) => {
+    // Check if currently locked out
+    const remaining = getRemainingLockout();
+    if (remaining > 0) {
+      set({ lockoutRemaining: remaining, failedCount: failedAttempts });
+      return 'locked_out';
+    }
+
     try {
       const db = getDatabase();
-      const result = await db.select<any[]>(
+      const result = await db.select<VaultSettingsRow[]>(
         "SELECT value FROM vault_settings WHERE key = 'master_password_hash'"
       );
 
@@ -56,22 +85,43 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           "INSERT INTO vault_settings (key, value) VALUES ('master_password_hash', ?)",
           [hash]
         );
+        failedAttempts = 0;
         sessionPassword = password;
         resetAutoLockTimer(() => get().lock());
-        set({ isLocked: false });
+        set({ isLocked: false, lockoutRemaining: 0, failedCount: 0 });
         return true;
       }
 
       const storedHash = result[0].value;
-      const inputHash = await hashPassword(password);
+      const isValid = await verifyPassword(password, storedHash);
 
-      if (storedHash === inputHash) {
+      if (isValid) {
+        // Migrate legacy unsalted hash to salted format
+        if (!storedHash.includes(':')) {
+          const saltedHash = await hashPassword(password);
+          await db.execute(
+            "UPDATE vault_settings SET value = ? WHERE key = 'master_password_hash'",
+            [saltedHash]
+          );
+        }
+
+        failedAttempts = 0;
         sessionPassword = password;
         resetAutoLockTimer(() => get().lock());
         await get().loadItems(password);
-        set({ isLocked: false });
+        set({ isLocked: false, lockoutRemaining: 0, failedCount: 0 });
         return true;
       }
+
+      // Failed attempt — apply brute-force protection
+      failedAttempts++;
+      const lockoutMs = getLockoutDuration(failedAttempts);
+      if (lockoutMs > 0) {
+        lockedUntil = Date.now() + lockoutMs;
+        set({ lockoutRemaining: lockoutMs, failedCount: failedAttempts });
+        return 'locked_out';
+      }
+      set({ failedCount: failedAttempts });
       return false;
     } catch (error) {
       console.error('Failed to unlock vault:', error);
@@ -87,15 +137,15 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   loadItems: async (password) => {
     try {
       const db = getDatabase();
-      const result = await db.select<any[]>('SELECT * FROM vault_items ORDER BY sort_order');
+      const result = await db.select<VaultItemRow[]>('SELECT * FROM vault_items ORDER BY sort_order');
 
       const items: VaultItem[] = await Promise.all(
         result.map(async (row) => ({
           id: row.id,
-          type: row.type,
+          type: row.type as VaultItemType,
           title: row.title,
           data: JSON.parse(await decrypt(row.encrypted_data, password)),
-          icon: row.icon,
+          icon: row.icon ?? undefined,
           isFavorite: row.is_favorite === 1,
           sortOrder: row.sort_order,
           createdAt: new Date(row.created_at),
