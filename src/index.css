@@ -82,11 +82,17 @@ select option {
 .elevation-right {
   box-shadow: 2px 0 12px -2px rgba(0,0,0,0.05);
 }
+.elevation-bottom {
+  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.08);
+}
 .elevation-top {
   box-shadow: 0 -2px 8px -2px rgba(0,0,0,0.08);
 }
 .dark .elevation-right {
   box-shadow: 1px 0 0 0 rgba(255,255,255,0.06), 3px 0 12px -2px rgba(0,0,0,0.3);
+}
+.dark .elevation-bottom {
+  box-shadow: 0 1px 0 0 rgba(255,255,255,0.06), 0 2px 8px -2px rgba(0,0,0,0.4);
 }
 .dark .elevation-top {
   box-shadow: 0 -1px 0 0 rgba(255,255,255,0.06), 0 -2px 8px -2px rgba(0,0,0,0.4);

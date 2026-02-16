@@ -6,15 +6,18 @@ import { SearchBar } from './components/layout/DragBar';
 import { HintBar } from './components/layout/HintBar';
 import { Splitter } from './components/layout/Splitter';
 import { ResizeBorder } from './components/layout/ResizeBorder';
+import { OnboardingBanner } from './components/layout/OnboardingBanner';
 import { HistoryList } from './components/history/HistoryList';
 import { SnippetList } from './components/snippets/SnippetList';
 import { VaultList } from './components/vault/VaultList';
 import { PreviewPanel } from './components/preview/PreviewPanel';
+import { SnippetEditorPanel } from './components/snippets/SnippetEditorPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorReportingOptIn } from './components/feedback/ErrorReportingOptIn';
 import { useAppStore } from './stores/appStore';
 import { useHistoryStore } from './stores/historyStore';
 import { usePreviewStore } from './stores/previewStore';
+import { useSnippetStore } from './stores/snippetStore';
 import { useFeedbackStore } from './stores/feedbackStore';
 import { useClipboardListener } from './hooks/useClipboardListener';
 import { useGlobalShortcut } from './hooks/useGlobalShortcut';
@@ -34,7 +37,8 @@ function App() {
   const { loadItems } = useHistoryStore();
   const { loadSettings } = useSettingsStore();
   const { isOpen: previewOpen } = usePreviewStore();
-  const showSidePanel = previewOpen;
+  const { editorOpen: snippetEditorOpen } = useSnippetStore();
+  const showSidePanel = previewOpen || snippetEditorOpen;
   const { hasSeenOptIn, loadSettings: loadFeedbackSettings } = useFeedbackStore();
   const [isInitialized, setIsInitialized] = useState(false);
   const [showOptIn, setShowOptIn] = useState(false);
@@ -141,6 +145,7 @@ function App() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <SearchBar />
+          <OnboardingBanner />
           <div className="flex flex-1 overflow-hidden">
             <div
               className="overflow-hidden"
@@ -158,7 +163,8 @@ function App() {
               />
             )}
             <AnimatePresence mode="wait">
-              {showSidePanel && <PreviewPanel />}
+              {previewOpen && <PreviewPanel />}
+              {snippetEditorOpen && !previewOpen && <SnippetEditorPanel />}
             </AnimatePresence>
           </div>
           <HintBar />

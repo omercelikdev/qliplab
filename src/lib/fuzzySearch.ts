@@ -50,6 +50,30 @@ export function fuzzyScore(query: string, target: string): number {
   return score;
 }
 
+// Returns indices of matched characters in target for highlighting.
+export function fuzzyMatchPositions(query: string, target: string): number[] {
+  if (!query) return [];
+  const q = query.toLowerCase();
+  const t = target.toLowerCase();
+
+  // Exact substring → highlight contiguous range
+  const substringIndex = t.indexOf(q);
+  if (substringIndex !== -1) {
+    return Array.from({ length: q.length }, (_, i) => substringIndex + i);
+  }
+
+  // Fuzzy: first character-in-order match
+  const positions: number[] = [];
+  let qi = 0;
+  for (let ti = 0; ti < t.length && qi < q.length; ti++) {
+    if (t[ti] === q[qi]) {
+      positions.push(ti);
+      qi++;
+    }
+  }
+  return qi === q.length ? positions : [];
+}
+
 // Filter and sort items by fuzzy match. Returns items sorted by relevance.
 export function fuzzyFilter<T>(
   items: T[],

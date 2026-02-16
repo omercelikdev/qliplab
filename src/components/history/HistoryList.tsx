@@ -1,8 +1,8 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
-import { Clipboard, Search } from 'lucide-react';
+import { Clipboard, Search, Pin } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
-import { useAppStore, FORMAT_FILTER_GROUPS } from '@/stores/appStore';
+import { useAppStore, FORMAT_FILTER_GROUPS, CATEGORIZED_FORMATS } from '@/stores/appStore';
 import type { FormatFilterGroup } from '@/stores/appStore';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
@@ -24,7 +24,10 @@ export function HistoryList() {
     let result = items;
 
     // Format filter
-    if (formatFilter !== 'all') {
+    if (formatFilter === 'other') {
+      // Catch-all: items NOT in any specific group (plain, images, uuid, color, etc.)
+      result = result.filter((item) => !CATEGORIZED_FORMATS.has(item.detectedFormat));
+    } else if (formatFilter !== 'all') {
       const allowedFormats = FORMAT_FILTER_GROUPS[formatFilter].formats;
       if (allowedFormats) {
         result = result.filter((item) => allowedFormats.includes(item.detectedFormat));
@@ -35,9 +38,16 @@ export function HistoryList() {
     return fuzzyFilter(result, searchQuery, (item) => item.content);
   }, [items, searchQuery, formatFilter]);
 
+  // Reorder: pinned first, then unpinned — flat list for keyboard nav
+  const { orderedItems, pinnedCount } = useMemo(() => {
+    const pinned = filteredItems.filter((item) => item.isPinned);
+    const unpinned = filteredItems.filter((item) => !item.isPinned);
+    return { orderedItems: [...pinned, ...unpinned], pinnedCount: pinned.length };
+  }, [filteredItems]);
+
   const handleSelect = useCallback(async (index: number) => {
     if (isDiffMode || pastingItemId) return;
-    const item = filteredItems[index];
+    const item = orderedItems[index];
     if (item) {
       if (item.contentType === 'image') {
         // For images: show loading, write to clipboard, then hide and paste
@@ -63,10 +73,10 @@ export function HistoryList() {
         });
       }
     }
-  }, [filteredItems, isDiffMode, pastingItemId]);
+  }, [orderedItems, isDiffMode, pastingItemId]);
 
   const { selectedIndex } = useKeyboardNavigation({
-    itemCount: filteredItems.length,
+    itemCount: orderedItems.length,
     onSelect: handleSelect,
     isActive: activeTab === 'history' && !isDiffMode,
   });
@@ -133,13 +143,13 @@ export function HistoryList() {
   return (
     <div className="h-full flex flex-col">
       {/* Format filter bar */}
-      <div className="flex items-center gap-1 px-3 py-1 border-b border-border/50 shrink-0 overflow-x-auto">
+      <div className="flex items-center gap-1 px-3 py-1.5 shrink-0 overflow-x-auto elevation-bottom">
         {filterGroups.map(([key, { label }]) => (
           <button
             key={key}
             onClick={() => setFormatFilter(key)}
             className={cn(
-              'px-2 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer',
+              'px-2 py-0.5 text-[10px] rounded-md whitespace-nowrap transition-colors cursor-pointer',
               formatFilter === key
                 ? 'bg-accent text-accent-foreground'
                 : 'text-muted-foreground hover:bg-surface-hover'
@@ -152,15 +162,27 @@ export function HistoryList() {
 
       <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden">
       <div className="pl-3 pr-1.5 py-1 space-y-0.5">
-        {filteredItems.map((item, index) => (
-          <div
-            key={item.id}
-            ref={(el) => {
-              if (el) itemRefs.current.set(index, el);
-              else itemRefs.current.delete(index);
-            }}
-          >
-            <HistoryItem item={item} isSelected={index === selectedIndex && !isDiffMode} isPastingFromKeyboard={item.id === pastingItemId} />
+        {orderedItems.map((item, index) => (
+          <div key={item.id}>
+            {/* Pinned section header */}
+            {index === 0 && pinnedCount > 0 && (
+              <div className="flex items-center gap-1.5 px-1 pt-0.5 pb-1">
+                <Pin className="w-2.5 h-2.5 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground font-medium">Pinned</span>
+              </div>
+            )}
+            {/* Separator between pinned and unpinned */}
+            {index === pinnedCount && pinnedCount > 0 && (
+              <div className="h-px bg-border/50 my-1" />
+            )}
+            <div
+              ref={(el) => {
+                if (el) itemRefs.current.set(index, el);
+                else itemRefs.current.delete(index);
+              }}
+            >
+              <HistoryItem item={item} isSelected={index === selectedIndex && !isDiffMode} isPastingFromKeyboard={item.id === pastingItemId} />
+            </div>
           </div>
         ))}
       </div>

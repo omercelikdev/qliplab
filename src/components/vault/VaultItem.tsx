@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Trash2, CreditCard, Building, MapPin, Key } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useVaultStore } from '@/stores/vaultStore';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { VaultItem as VaultItemType, CardData, BankData, AddressData, CodeData } from '@/types/vault';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +22,7 @@ interface VaultItemProps {
 export function VaultItem({ item, isSelected = false }: VaultItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const deleteItem = useVaultStore((state) => state.deleteItem);
 
   const Icon = typeIcons[item.type] || Key;
@@ -92,7 +94,7 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              deleteItem(item.id);
+              setShowDeleteConfirm(true);
             }}
             className="p-0.5 hover:bg-surface rounded transition-colors text-destructive cursor-pointer"
           >
@@ -100,6 +102,14 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Vault Item"
+        message={`"${item.title}" will be permanently deleted. This cannot be undone.`}
+        onConfirm={() => { setShowDeleteConfirm(false); deleteItem(item.id); }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </motion.div>
   );
 }

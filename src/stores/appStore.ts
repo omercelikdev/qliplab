@@ -13,8 +13,15 @@ export const FORMAT_FILTER_GROUPS: Record<FormatFilterGroup, { label: string; fo
   data:    { label: 'Data',    formats: ['json', 'yaml', 'csv', 'xml'] },
   web:     { label: 'Web',     formats: ['url', 'url_encoded', 'html', 'markdown'] },
   encoded: { label: 'Encoded', formats: ['jwt', 'base64', 'hex'] },
-  other:   { label: 'Other',   formats: ['uuid', 'timestamp', 'color', 'regex'] },
+  other:   { label: 'Other',   formats: null }, // catch-all: items not in any other group
 };
+
+// All formats that belong to a specific group (used by "Other" filter)
+export const CATEGORIZED_FORMATS: Set<DetectedFormat> = new Set(
+  Object.entries(FORMAT_FILTER_GROUPS)
+    .filter(([key]) => key !== 'all' && key !== 'other')
+    .flatMap(([, group]) => group.formats ?? [])
+);
 
 interface AppState {
   activeTab: Tab;

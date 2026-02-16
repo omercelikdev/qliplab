@@ -1,9 +1,8 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore } from '@/stores/appStore';
 import { SnippetItem } from './SnippetItem';
-import { NewSnippetDialog } from './NewSnippetDialog';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
@@ -15,9 +14,9 @@ export function SnippetList() {
   const snippets = useSnippetStore((state) => state.snippets);
   const isLoading = useSnippetStore((state) => state.isLoading);
   const loadSnippets = useSnippetStore((state) => state.loadSnippets);
+  const openEditor = useSnippetStore((state) => state.openEditor);
   const activeTab = useAppStore((state) => state.activeTab);
   const searchQuery = useAppStore((state) => state.searchQuery);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   useEffect(() => {
@@ -70,7 +69,7 @@ export function SnippetList() {
                 else itemRefs.current.delete(index);
               }}
             >
-              <SnippetItem snippet={snippet} isSelected={index === selectedIndex} />
+              <SnippetItem snippet={snippet} isSelected={index === selectedIndex} onEdit={(s) => openEditor(s)} />
             </div>
           ))}
           {snippets.length === 0 && (
@@ -88,7 +87,7 @@ export function SnippetList() {
 
       <div className="px-3 py-1 border-t border-border/50">
         <button
-          onClick={() => setIsDialogOpen(true)}
+          onClick={() => openEditor()}
           className={cn(
             'w-full flex items-center justify-center gap-1.5 py-1.5 cursor-pointer',
             'text-xs text-muted-foreground',
@@ -98,8 +97,6 @@ export function SnippetList() {
           <Plus className="w-3.5 h-3.5" /> New Snippet
         </button>
       </div>
-
-      <NewSnippetDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
     </div>
   );
 }

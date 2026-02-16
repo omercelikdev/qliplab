@@ -237,6 +237,7 @@ export function PreviewPanel() {
           <button
             onClick={close}
             className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"
+            title="Close (Esc)"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -305,6 +306,7 @@ export function PreviewPanel() {
                 'flex items-center gap-1.5 px-2 py-1 text-xs cursor-pointer',
                 'bg-surface hover:bg-surface-hover rounded-md transition-colors'
               )}
+              title="Copy to clipboard"
             >
               <Copy className="w-3.5 h-3.5" /> Copy
             </button>
@@ -314,6 +316,7 @@ export function PreviewPanel() {
                 'flex items-center gap-1.5 px-2 py-1 text-xs cursor-pointer',
                 'bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors'
               )}
+              title="Paste to previous app"
             >
               <ClipboardPaste className="w-3.5 h-3.5" /> Paste
             </button>

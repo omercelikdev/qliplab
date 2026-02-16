@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getDatabase } from '@/lib/database';
+import { expandWindowForPreview, shrinkWindowFromPreview } from '@/lib/window';
 import type { Snippet, SnippetCategory } from '@/types/snippet';
 import type { SnippetRow, SnippetCategoryRow } from '@/types/database';
 
@@ -9,6 +10,10 @@ interface SnippetState {
   selectedCategoryId: string | null;
   isLoading: boolean;
 
+  // Editor panel state
+  editorOpen: boolean;
+  editingSnippet: Snippet | null;
+
   loadSnippets: () => Promise<void>;
   loadCategories: () => Promise<void>;
   createSnippet: (snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt' | 'sortOrder'>) => Promise<void>;
@@ -16,6 +21,8 @@ interface SnippetState {
   deleteSnippet: (id: string) => Promise<void>;
   createCategory: (name: string, icon?: string) => Promise<void>;
   setSelectedCategory: (id: string | null) => void;
+  openEditor: (snippet?: Snippet) => void;
+  closeEditor: () => void;
 }
 
 export const useSnippetStore = create<SnippetState>((set, get) => ({
@@ -23,6 +30,8 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   categories: [],
   selectedCategoryId: null,
   isLoading: true,
+  editorOpen: false,
+  editingSnippet: null,
 
   loadSnippets: async () => {
     try {
@@ -87,6 +96,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
 
       if (updates.title !== undefined) { fields.push('title = ?'); values.push(updates.title); }
       if (updates.content !== undefined) { fields.push('content = ?'); values.push(updates.content); }
+      if (updates.syntax !== undefined) { fields.push('syntax = ?'); values.push(updates.syntax); }
       if (updates.isFavorite !== undefined) { fields.push('is_favorite = ?'); values.push(updates.isFavorite ? 1 : 0); }
       values.push(id);
 
@@ -123,4 +133,15 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   },
 
   setSelectedCategory: (id) => set({ selectedCategoryId: id }),
+
+  openEditor: (snippet) => {
+    const wasOpen = get().editorOpen;
+    set({ editorOpen: true, editingSnippet: snippet ?? null });
+    if (!wasOpen) expandWindowForPreview();
+  },
+
+  closeEditor: () => {
+    set({ editorOpen: false, editingSnippet: null });
+    shrinkWindowFromPreview();
+  },
 }));

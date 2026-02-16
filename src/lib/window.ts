@@ -1,10 +1,11 @@
 import { getCurrentWindow, LogicalSize, LogicalPosition } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 import { usePreviewStore } from '@/stores/previewStore';
+import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore } from '@/stores/appStore';
 
-const DEFAULT_WIDTH = 420;
-const DEFAULT_HEIGHT = 450;
+const DEFAULT_WIDTH = 480;
+const DEFAULT_HEIGHT = 460;
 const PREVIEW_WIDTH = 1300;
 const PREVIEW_HEIGHT = 700;
 
@@ -26,6 +27,7 @@ function centerOf(width: number, height: number) {
 /** Reset UI state when hiding — no window resize, just state cleanup */
 function resetUIState() {
   usePreviewStore.setState({ isOpen: false, pipelineSteps: [] });
+  useSnippetStore.setState({ editorOpen: false, editingSnippet: null });
   useAppStore.getState().setOpenMenuItemId(null);
 }
 

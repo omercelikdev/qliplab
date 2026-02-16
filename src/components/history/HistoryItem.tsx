@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { MoreVertical, Pin, Eye, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { FormatIcon } from './FormatIcon';
 import { ItemMenu } from './ItemMenu';
+import { HighlightedText } from '@/components/ui/HighlightedText';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
@@ -9,7 +10,15 @@ import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
 import { cn } from '@/lib/utils';
-import type { ClipboardItem } from '@/types/clipboard';
+import type { ClipboardItem, DetectedFormat } from '@/types/clipboard';
+
+// Short labels for format badges — only show for notable formats
+const FORMAT_BADGE: Partial<Record<DetectedFormat, string>> = {
+  json: 'JSON', jwt: 'JWT', base64: 'B64', sql: 'SQL', yaml: 'YAML',
+  csv: 'CSV', xml: 'XML', regex: 'RegEx', hex: 'Hex', markdown: 'MD',
+  code_js: 'JS', code_ts: 'TS', code_python: 'PY', code_go: 'Go',
+  code_rust: 'RS', code_java: 'Java', code_csharp: 'C#',
+};
 
 function formatRelativeTime(date: Date): string {
   const diff = Date.now() - date.getTime();
@@ -40,6 +49,7 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const openMenuItemId = useAppStore((state) => state.openMenuItemId);
   const setOpenMenuItemId = useAppStore((state) => state.setOpenMenuItemId);
+  const searchQuery = useAppStore((state) => state.searchQuery);
   const isSelectedForDiff = diffSelectedIds.includes(item.id);
   const { openView } = usePreviewStore();
 
@@ -136,6 +146,12 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
     setOpenMenuItemId(null);
   }, [setOpenMenuItemId]);
 
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openMenu();
+  }, [openMenu]);
+
   return (
     <div
       className={cn(
@@ -150,6 +166,7 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
+      onContextMenu={handleContextMenu}
     >
       {item.contentType === 'image' ? (
         isCurrentlyPasting ? (
@@ -163,6 +180,11 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
       {item.htmlContent && (
         <span className="text-[8px] font-medium text-orange-400 bg-orange-400/10 px-1 rounded shrink-0">
           HTML
+        </span>
+      )}
+      {FORMAT_BADGE[item.detectedFormat] && (
+        <span className="text-[8px] font-medium text-accent bg-accent/10 px-1 rounded shrink-0">
+          {FORMAT_BADGE[item.detectedFormat]}
         </span>
       )}
       {item.isPinned && <Pin className="w-3 h-3 text-accent shrink-0" />}
@@ -188,8 +210,11 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
               style={{ backgroundColor: item.content.trim() }}
             />
           )}
-          {item.content}
+          <HighlightedText text={item.content} query={searchQuery} className="truncate" />
         </span>
+      )}
+      {item.sourceApp && !isHovered && !isMenuOpen && (
+        <span className="text-[9px] text-muted-foreground/60 shrink-0 max-w-[50px] truncate">{item.sourceApp}</span>
       )}
       <span className="text-[10px] text-muted-foreground shrink-0 w-7 text-right">{formatRelativeTime(item.createdAt)}</span>
       {!isDiffMode && (
@@ -207,6 +232,7 @@ export function HistoryItem({ item, isSelected = false, isPastingFromKeyboard = 
             onMouseEnter={openMenu}
             onMouseLeave={scheduleCloseMenu}
             onClick={(e) => e.stopPropagation()}
+            title="Actions (right-click)"
           >
             <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
           </button>

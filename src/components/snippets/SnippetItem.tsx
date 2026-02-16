@@ -1,22 +1,28 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Code, Star, Trash2 } from 'lucide-react';
+import { Code, Star, Trash2, Pencil } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
 import { expandVariables } from '@/lib/snippetVariables';
 import { useSnippetStore } from '@/stores/snippetStore';
+import { useAppStore } from '@/stores/appStore';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { HighlightedText } from '@/components/ui/HighlightedText';
 import type { Snippet } from '@/types/snippet';
 import { cn } from '@/lib/utils';
 
 interface SnippetItemProps {
   snippet: Snippet;
   isSelected?: boolean;
+  onEdit?: (snippet: Snippet) => void;
 }
 
-export function SnippetItem({ snippet, isSelected = false }: SnippetItemProps) {
+export function SnippetItem({ snippet, isSelected = false, onEdit }: SnippetItemProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const updateSnippet = useSnippetStore((state) => state.updateSnippet);
   const deleteSnippet = useSnippetStore((state) => state.deleteSnippet);
+  const searchQuery = useAppStore((state) => state.searchQuery);
 
   const handleClick = async () => {
     const expanded = await expandVariables(snippet.content);
@@ -32,7 +38,12 @@ export function SnippetItem({ snippet, isSelected = false }: SnippetItemProps) {
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    deleteSnippet(snippet.id);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(snippet);
   };
 
   return (
@@ -50,8 +61,8 @@ export function SnippetItem({ snippet, isSelected = false }: SnippetItemProps) {
       <Code className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
 
       <div className="flex-1 min-w-0 leading-tight">
-        <div className="text-xs font-medium truncate">{snippet.title}</div>
-        <div className="text-[10px] text-muted-foreground truncate">{snippet.content}</div>
+        <HighlightedText text={snippet.title} query={searchQuery} className="text-xs font-medium truncate block" />
+        <HighlightedText text={snippet.content} query={searchQuery} className="text-[10px] text-muted-foreground truncate block" />
       </div>
 
       {snippet.isFavorite && !isHovered && (
@@ -70,6 +81,12 @@ export function SnippetItem({ snippet, isSelected = false }: SnippetItemProps) {
             )} />
           </button>
           <button
+            onClick={handleEdit}
+            className="p-0.5 hover:bg-surface rounded transition-colors cursor-pointer"
+          >
+            <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+          <button
             onClick={handleDelete}
             className="p-0.5 hover:bg-surface rounded transition-colors text-destructive cursor-pointer"
           >
@@ -77,6 +94,14 @@ export function SnippetItem({ snippet, isSelected = false }: SnippetItemProps) {
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Snippet"
+        message={`"${snippet.title}" will be permanently deleted.`}
+        onConfirm={() => { setShowDeleteConfirm(false); deleteSnippet(snippet.id); }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </motion.div>
   );
 }
