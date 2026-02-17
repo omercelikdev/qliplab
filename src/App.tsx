@@ -24,6 +24,7 @@ import { useClipboardListener } from './hooks/useClipboardListener';
 import { useGlobalShortcut } from './hooks/useGlobalShortcut';
 import { useAutostart } from './hooks/useAutostart';
 import { useDiffMode } from './hooks/useDiffMode';
+import { useTriggerEngine } from './hooks/useTriggerEngine';
 import { useTheme } from './hooks/useTheme';
 import { useSettingsStore } from './stores/settingsStore';
 import { initDatabase } from './lib/database';
@@ -126,6 +127,7 @@ function App() {
   useGlobalShortcut();
   useAutostart();
   useDiffMode();
+  useTriggerEngine();
   useTheme();
 
   if (!isInitialized) {

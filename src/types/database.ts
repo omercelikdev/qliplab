@@ -18,6 +18,7 @@ export interface SnippetRow {
   id: string;
   title: string;
   content: string;
+  trigger: string | null;
   category_id: string | null;
   syntax: string | null;
   is_pinned: number;
@@ -39,6 +40,7 @@ export interface VaultItemRow {
   type: string;
   title: string;
   encrypted_data: string;
+  trigger: string | null;
   icon: string | null;
   is_pinned: number;
   sort_order: number;

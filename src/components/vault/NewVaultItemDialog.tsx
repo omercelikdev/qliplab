@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, Building, MapPin, Key } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
+import { isValidTrigger, TRIGGER_PREFIXES } from '@/lib/triggerEngine';
 import type { VaultItemType, VaultItemData } from '@/types/vault';
 import { cn } from '@/lib/utils';
 
@@ -20,15 +21,22 @@ const itemTypes: { type: VaultItemType; label: string; icon: typeof CreditCard }
 export function NewVaultItemDialog({ isOpen, onClose }: Props) {
   const [selectedType, setSelectedType] = useState<VaultItemType>('card');
   const [title, setTitle] = useState('');
+  const [trigger, setTrigger] = useState('');
   const [formData, setFormData] = useState<Record<string, string>>({});
   const createItem = useVaultStore((state) => state.createItem);
+
+  const triggerError = trigger.length > 0 && !isValidTrigger(trigger)
+    ? `Must start with ${TRIGGER_PREFIXES.join(' ')} and be at least 2 chars`
+    : '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
+    if (trigger && !isValidTrigger(trigger)) return;
 
-    await createItem(selectedType, title, formData as unknown as VaultItemData);
+    await createItem(selectedType, title, formData as unknown as VaultItemData, trigger || undefined);
     setTitle('');
+    setTrigger('');
     setFormData({});
     onClose();
   };
@@ -128,6 +136,7 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
                     onClick={() => {
                       setSelectedType(type);
                       setFormData({});
+                      setTrigger('');
                     }}
                     className={cn(
                       'flex-1 flex flex-col items-center gap-1 py-2 rounded-lg border transition-colors cursor-pointer',
@@ -144,6 +153,24 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
 
               {/* Title */}
               <Input label="Title" value={title} onChange={setTitle} placeholder="e.g. My Visa Card" />
+
+              {/* Trigger */}
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Trigger (optional)</label>
+                <input
+                  type="text"
+                  value={trigger}
+                  onChange={(e) => setTrigger(e.target.value)}
+                  placeholder=";card"
+                  className={cn(
+                    'w-full px-3 py-2 bg-surface border rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-accent',
+                    triggerError ? 'border-destructive' : 'border-border'
+                  )}
+                />
+                {triggerError && (
+                  <p className="text-[10px] text-destructive">{triggerError}</p>
+                )}
+              </div>
 
               {/* Type-specific fields */}
               {renderFields()}

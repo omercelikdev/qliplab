@@ -53,6 +53,13 @@ export async function initDatabase() {
     // Column already exists
   }
 
+  // Migration: add trigger column for snippet auto-expand
+  try {
+    await db.execute(`ALTER TABLE snippets ADD COLUMN trigger TEXT`);
+  } catch {
+    // Column already exists
+  }
+
   await db.execute(`
     CREATE TABLE IF NOT EXISTS snippet_categories (
       id TEXT PRIMARY KEY,
@@ -81,6 +88,13 @@ export async function initDatabase() {
   try {
     await db.execute(`ALTER TABLE vault_items ADD COLUMN is_pinned INTEGER DEFAULT 0`);
     await db.execute(`UPDATE vault_items SET is_pinned = is_favorite`);
+  } catch {
+    // Column already exists
+  }
+
+  // Migration: add trigger column for vault auto-expand
+  try {
+    await db.execute(`ALTER TABLE vault_items ADD COLUMN trigger TEXT`);
   } catch {
     // Column already exists
   }

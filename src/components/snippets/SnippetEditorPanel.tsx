@@ -4,6 +4,7 @@ import { X, FileText } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { AVAILABLE_VARIABLES } from '@/lib/snippetVariables';
+import { isValidTrigger, TRIGGER_PREFIXES } from '@/lib/triggerEngine';
 import { cn } from '@/lib/utils';
 
 const MonacoEditor = lazy(() => import('@monaco-editor/react'));
@@ -31,6 +32,7 @@ export function SnippetEditorPanel() {
   const { settings } = useSettingsStore();
 
   const [title, setTitle] = useState('');
+  const [trigger, setTrigger] = useState('');
   const [content, setContent] = useState('');
   const [syntax, setSyntax] = useState('plain');
 
@@ -39,22 +41,29 @@ export function SnippetEditorPanel() {
   useEffect(() => {
     if (editingSnippet) {
       setTitle(editingSnippet.title);
+      setTrigger(editingSnippet.trigger || '');
       setContent(editingSnippet.content);
       setSyntax(editingSnippet.syntax || 'plain');
     } else {
       setTitle('');
+      setTrigger('');
       setContent('');
       setSyntax('plain');
     }
   }, [editingSnippet, editorOpen]);
 
+  const triggerError = trigger.length > 0 && !isValidTrigger(trigger)
+    ? `Must start with ${TRIGGER_PREFIXES.join(' ')} and be at least 2 chars`
+    : '';
+
   const handleSave = async () => {
     if (!title.trim()) return;
+    if (trigger && !isValidTrigger(trigger)) return;
 
     if (isEditMode && editingSnippet) {
-      await updateSnippet(editingSnippet.id, { title, content, syntax });
+      await updateSnippet(editingSnippet.id, { title, trigger: trigger || undefined, content, syntax });
     } else {
-      await createSnippet({ title, content, syntax, isPinned: false });
+      await createSnippet({ title, trigger: trigger || undefined, content, syntax, isPinned: false });
     }
     closeEditor();
   };
@@ -115,7 +124,7 @@ export function SnippetEditorPanel() {
         </button>
       </div>
 
-      {/* Title + Syntax row */}
+      {/* Title + Trigger + Syntax row */}
       <div className="flex gap-2 px-3 py-2 border-b border-border/50 shrink-0">
         <input
           type="text"
@@ -127,6 +136,21 @@ export function SnippetEditorPanel() {
             'outline-none focus:ring-1 focus:ring-accent'
           )}
           autoFocus
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') closeEditor();
+          }}
+        />
+        <input
+          type="text"
+          placeholder=";trigger"
+          value={trigger}
+          onChange={(e) => setTrigger(e.target.value)}
+          title={triggerError || 'Auto-expand trigger'}
+          className={cn(
+            'w-[120px] px-2.5 py-1.5 bg-surface border rounded-md text-xs font-mono',
+            'outline-none focus:ring-1 focus:ring-accent',
+            triggerError ? 'border-destructive' : trigger ? 'border-accent/50' : 'border-border'
+          )}
           onKeyDown={(e) => {
             if (e.key === 'Escape') closeEditor();
           }}

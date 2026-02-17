@@ -7,6 +7,7 @@ export interface VaultItem {
   type: VaultItemType;
   title: string;
   data: VaultItemData;
+  trigger?: string;
   icon?: string;
   isPinned: boolean;
   sortOrder: number;

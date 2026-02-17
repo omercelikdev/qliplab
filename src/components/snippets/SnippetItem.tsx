@@ -97,6 +97,13 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         <Type className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
       )}
 
+      {/* Trigger badge */}
+      {snippet.trigger && (
+        <span className="text-[9px] font-mono font-semibold text-violet-500 bg-violet-500/10 px-[5px] py-[1px] rounded shrink-0 leading-4">
+          {snippet.trigger}
+        </span>
+      )}
+
       {/* Title + content preview */}
       <span className={cn(
         'flex-1 min-w-0 truncate text-xs',

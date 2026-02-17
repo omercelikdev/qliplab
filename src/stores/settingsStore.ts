@@ -14,6 +14,7 @@ export interface AppSettings {
   aiProvider: 'anthropic' | 'openai';
   aiConsentAccepted: boolean;
   aiConsentDate: string; // ISO date when consent was given
+  snippetAutoExpand: boolean;
   onboardingSeen: boolean;
 }
 
@@ -30,6 +31,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   aiProvider: 'anthropic',
   aiConsentAccepted: false,
   aiConsentDate: '',
+  snippetAutoExpand: false,
   onboardingSeen: false,
 };
 

@@ -107,6 +107,12 @@ export function SettingsPanel() {
                 checked={settings.clearHistoryOnQuit}
                 onChange={(v) => updateSetting('clearHistoryOnQuit', v)}
               />
+              <ToggleSetting
+                label="Snippet auto-expand"
+                description="Type a trigger anywhere to auto-paste snippet"
+                checked={settings.snippetAutoExpand}
+                onChange={(v) => updateSetting('snippetAutoExpand', v)}
+              />
             </div>
 
             {/* Clip Expiration */}

@@ -85,6 +85,13 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
         <Key className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
       )}
 
+      {/* Trigger badge */}
+      {item.trigger && (
+        <span className="text-[9px] font-mono font-semibold text-violet-500 bg-violet-500/10 px-[5px] py-[1px] rounded shrink-0 leading-4">
+          {item.trigger}
+        </span>
+      )}
+
       {/* Title + masked value */}
       <span className="flex-1 min-w-0 truncate text-xs">
         <span className="font-medium">{item.title}</span>

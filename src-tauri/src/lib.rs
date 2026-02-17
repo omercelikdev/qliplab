@@ -1,10 +1,11 @@
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 use tauri::Manager;
 use tauri::menu::{MenuBuilder, MenuItemBuilder};
 use tauri::tray::TrayIconBuilder;
 use tauri_plugin_autostart::MacosLauncher;
+use tauri::Emitter;
 
 #[cfg(target_os = "macos")]
 use std::process::Command;
@@ -214,6 +215,373 @@ fn simulate_paste() -> Result<(), String> {
     Ok(())
 }
 
+/// Simulate Cmd+V (or Ctrl+V) in the CURRENT frontmost app — no app switching.
+/// Used by snippet auto-expand where the user is already typing in the target app.
+#[tauri::command]
+fn simulate_paste_in_place() -> Result<(), String> {
+    thread::spawn(|| {
+        #[cfg(target_os = "macos")]
+        {
+            use core_graphics::event::{CGEvent, CGEventFlags, CGKeyCode, CGEventTapLocation};
+            use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
+
+            const V_KEY: CGKeyCode = 9;
+
+            if let Ok(source) = CGEventSource::new(CGEventSourceStateID::HIDSystemState) {
+                if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
+                    key_down.set_flags(CGEventFlags::CGEventFlagCommand);
+                    key_down.post(CGEventTapLocation::HID);
+                }
+                thread::sleep(Duration::from_millis(10));
+                if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
+                    key_up.set_flags(CGEventFlags::CGEventFlagCommand);
+                    key_up.post(CGEventTapLocation::HID);
+                }
+            }
+        }
+
+        #[cfg(not(target_os = "macos"))]
+        {
+            if let Ok(mut enigo) = Enigo::new(&Settings::default()) {
+                let _ = enigo.key(Key::Control, Direction::Press);
+                thread::sleep(Duration::from_millis(20));
+                let _ = enigo.key(Key::Unicode('v'), Direction::Click);
+                thread::sleep(Duration::from_millis(20));
+                let _ = enigo.key(Key::Control, Direction::Release);
+            }
+        }
+    });
+
+    Ok(())
+}
+
+// --- Trigger Engine: Keystroke monitoring ---
+
+/// Shared state for the trigger engine (source-agnostic: snippets, vault, etc.)
+struct TriggerEngineState {
+    /// Map of trigger_text → source_id (e.g. "snippet:uuid" or "vault:uuid:field")
+    triggers: Vec<(String, String)>,
+    /// Whether we're currently expanding (suppress capture)
+    expanding: bool,
+}
+
+/// Send N backspace key events to delete the trigger text
+#[tauri::command]
+fn simulate_backspace(count: u32) -> Result<(), String> {
+    thread::spawn(move || {
+        #[cfg(target_os = "macos")]
+        {
+            use core_graphics::event::{CGEvent, CGKeyCode, CGEventTapLocation};
+            use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
+
+            const BACKSPACE_KEY: CGKeyCode = 51;
+
+            for _ in 0..count {
+                if let Ok(source) = CGEventSource::new(CGEventSourceStateID::HIDSystemState) {
+                    if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), BACKSPACE_KEY, true) {
+                        key_down.post(CGEventTapLocation::HID);
+                    }
+                    thread::sleep(Duration::from_millis(5));
+                    if let Ok(key_up) = CGEvent::new_keyboard_event(source, BACKSPACE_KEY, false) {
+                        key_up.post(CGEventTapLocation::HID);
+                    }
+                    thread::sleep(Duration::from_millis(10));
+                }
+            }
+        }
+
+        #[cfg(not(target_os = "macos"))]
+        {
+            if let Ok(mut enigo) = Enigo::new(&Settings::default()) {
+                for _ in 0..count {
+                    let _ = enigo.key(Key::Backspace, Direction::Click);
+                    thread::sleep(Duration::from_millis(10));
+                }
+            }
+        }
+    });
+
+    Ok(())
+}
+
+/// Update the trigger map used by the keystroke watcher
+#[tauri::command]
+fn update_triggers(
+    state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
+    triggers: Vec<(String, String)>,
+) -> Result<(), String> {
+    if let Ok(mut s) = state.lock() {
+        s.triggers = triggers;
+    }
+    Ok(())
+}
+
+/// Set expanding flag — pauses keystroke capture during trigger expansion
+#[tauri::command]
+fn set_trigger_expanding(
+    state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
+    expanding: bool,
+) -> Result<(), String> {
+    if let Ok(mut s) = state.lock() {
+        s.expanding = expanding;
+    }
+    Ok(())
+}
+
+/// Start the keystroke watcher using CGEventTap (macOS) or enigo (Windows).
+///
+/// Uses CGEventKeyboardGetUnicodeString to read typed characters — this is
+/// thread-safe and does NOT call TSMGetInputSourceProperty (which requires main
+/// thread and caused crashes with the rdev crate).
+#[cfg(target_os = "macos")]
+#[tauri::command]
+fn start_trigger_engine(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
+) -> Result<(), String> {
+    // Raw C FFI declarations for CGEventTap (core-graphics 0.24 doesn't expose these)
+    #[allow(non_upper_case_globals)]
+    mod cg {
+        use std::ffi::c_void;
+        pub type CGEventRef = *mut c_void;
+        pub type CGEventTapProxy = *mut c_void;
+        pub type CFMachPortRef = *mut c_void;
+
+        pub const kCGSessionEventTap: u32 = 1;
+        pub const kCGHeadInsertEventTap: u32 = 0;
+        pub const kCGEventTapOptionListenOnly: u32 = 1;
+        pub const kCGEventMaskForKeyDown: u64 = 1 << 10; // CGEventType::KeyDown = 10
+        pub const kCGKeyboardEventKeycode: u32 = 9;
+
+        pub type CGEventTapCallBack = unsafe extern "C" fn(
+            proxy: CGEventTapProxy,
+            event_type: u32,
+            event: CGEventRef,
+            user_info: *mut c_void,
+        ) -> CGEventRef;
+
+        extern "C" {
+            pub fn CGEventTapCreate(
+                tap: u32,
+                place: u32,
+                options: u32,
+                events_of_interest: u64,
+                callback: CGEventTapCallBack,
+                user_info: *mut c_void,
+            ) -> CFMachPortRef;
+
+            pub fn CGEventGetIntegerValueField(event: CGEventRef, field: u32) -> i64;
+
+            pub fn CGEventKeyboardGetUnicodeString(
+                event: CGEventRef,
+                max_len: u64,
+                actual_len: *mut u64,
+                buf: *mut u16,
+            );
+
+            pub fn CGEventTapEnable(tap: CFMachPortRef, enable: bool);
+
+            pub fn CFMachPortCreateRunLoopSource(
+                allocator: *const c_void,
+                port: CFMachPortRef,
+                order: i64,
+            ) -> *mut c_void;
+
+            pub fn CFRunLoopAddSource(
+                rl: *mut c_void,
+                source: *mut c_void,
+                mode: *const c_void,
+            );
+
+            pub fn CFRunLoopGetCurrent() -> *mut c_void;
+            pub fn CFRunLoopRun();
+
+            pub static kCFRunLoopCommonModes: *const c_void;
+        }
+    }
+
+    // Shared context passed to the C callback via user_info pointer
+    struct WatcherContext {
+        buffer: String,
+        state: Arc<Mutex<TriggerEngineState>>,
+        app: tauri::AppHandle,
+        tap: cg::CFMachPortRef, // needed to re-enable on timeout
+    }
+
+    // Event types we care about
+    const CG_EVENT_KEY_DOWN: u32 = 10;
+    const CG_EVENT_TAP_DISABLED_BY_TIMEOUT: u32 = 0xFFFFFFFE;
+
+    // Inner callback logic — separated so we can catch panics
+    unsafe fn tap_callback_inner(ctx: &mut WatcherContext, event: cg::CGEventRef) {
+        const MAX_BUFFER: usize = 100;
+
+        // macOS key codes
+        const KEY_RETURN: i64 = 36;
+        const KEY_TAB: i64 = 48;
+        const KEY_ESCAPE: i64 = 53;
+        const KEY_BACKSPACE: i64 = 51;
+        const KEY_UP: i64 = 126;
+        const KEY_DOWN: i64 = 125;
+        const KEY_LEFT: i64 = 123;
+        const KEY_RIGHT: i64 = 124;
+
+        // Check if expanding — skip capture
+        if let Ok(s) = ctx.state.lock() {
+            if s.expanding {
+                return;
+            }
+        }
+
+        let keycode = cg::CGEventGetIntegerValueField(event, cg::kCGKeyboardEventKeycode);
+
+        match keycode {
+            KEY_RETURN | KEY_TAB | KEY_ESCAPE |
+            KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT => {
+                ctx.buffer.clear();
+                return;
+            }
+            KEY_BACKSPACE => {
+                ctx.buffer.pop();
+                return;
+            }
+            _ => {}
+        }
+
+        // Get Unicode string from event (thread-safe, no TSM calls)
+        let mut buf = [0u16; 4];
+        let mut len: u64 = 0;
+        cg::CGEventKeyboardGetUnicodeString(event, buf.len() as u64, &mut len, buf.as_mut_ptr());
+
+        // Clamp len to buffer size (safety)
+        let len = (len as usize).min(buf.len());
+        if len == 0 {
+            return;
+        }
+
+        if let Ok(ch) = String::from_utf16(&buf[..len]) {
+            // Skip control characters (Cmd+C, Ctrl+A, etc.)
+            if ch.chars().all(|c| c.is_control()) {
+                return;
+            }
+
+            ctx.buffer.push_str(&ch);
+
+            if ctx.buffer.len() > MAX_BUFFER {
+                let drain = ctx.buffer.len() - MAX_BUFFER;
+                ctx.buffer.drain(..drain);
+            }
+
+            if let Ok(s) = ctx.state.lock() {
+                for (trigger, source_id) in &s.triggers {
+                    if ctx.buffer.ends_with(trigger) {
+                        let _ = ctx.app.emit("trigger-matched", serde_json::json!({
+                            "trigger": trigger,
+                            "sourceId": source_id,
+                            "triggerLen": trigger.len()
+                        }));
+                        ctx.buffer.clear();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // C callback for CGEventTap — must never panic (extern "C" can't unwind)
+    unsafe extern "C" fn tap_callback(
+        _proxy: cg::CGEventTapProxy,
+        event_type: u32,
+        event: cg::CGEventRef,
+        user_info: *mut std::ffi::c_void,
+    ) -> cg::CGEventRef {
+        if user_info.is_null() {
+            return event;
+        }
+        let ctx = &mut *(user_info as *mut WatcherContext);
+
+        // Handle tap disabled by timeout — re-enable and return
+        if event_type == CG_EVENT_TAP_DISABLED_BY_TIMEOUT {
+            if !ctx.tap.is_null() {
+                cg::CGEventTapEnable(ctx.tap, true);
+            }
+            return event;
+        }
+
+        // Only process KeyDown events; ignore everything else
+        if event_type != CG_EVENT_KEY_DOWN || event.is_null() {
+            return event;
+        }
+
+        // Catch any panic to prevent abort in extern "C"
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            tap_callback_inner(ctx, event);
+        }));
+
+        event // pass through (ListenOnly)
+    }
+
+    let state = Arc::clone(&state);
+
+    thread::spawn(move || {
+        // Create context first with null tap — we'll set the tap after creation
+        let mut ctx = Box::new(WatcherContext {
+            buffer: String::new(),
+            state,
+            app,
+            tap: std::ptr::null_mut(),
+        });
+
+        unsafe {
+            let tap = cg::CGEventTapCreate(
+                cg::kCGSessionEventTap,
+                cg::kCGHeadInsertEventTap,
+                cg::kCGEventTapOptionListenOnly,
+                cg::kCGEventMaskForKeyDown,
+                tap_callback,
+                &mut *ctx as *mut WatcherContext as *mut std::ffi::c_void,
+            );
+
+            if tap.is_null() {
+                eprintln!("[TriggerEngine] Failed to create CGEventTap — check Accessibility permissions");
+                return;
+            }
+
+            // Store tap reference so callback can re-enable on timeout
+            ctx.tap = tap;
+
+            cg::CGEventTapEnable(tap, true);
+
+            let source = cg::CFMachPortCreateRunLoopSource(
+                std::ptr::null(),
+                tap,
+                0,
+            );
+
+            let rl = cg::CFRunLoopGetCurrent();
+            cg::CFRunLoopAddSource(rl, source, cg::kCFRunLoopCommonModes);
+
+            // Block this thread on the run loop
+            cg::CFRunLoopRun();
+        }
+
+        // ctx lives until thread ends (run loop blocks forever)
+        drop(ctx);
+    });
+
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+fn start_trigger_engine(
+    _app: tauri::AppHandle,
+    _state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
+) -> Result<(), String> {
+    // Windows/Linux: trigger engine not yet supported
+    Ok(())
+}
+
 /// OCR: Extract text from image using macOS Vision framework
 #[cfg(target_os = "macos")]
 #[tauri::command]
@@ -360,13 +728,22 @@ pub fn run() {
     }
 
     builder
+        .manage(Arc::new(Mutex::new(TriggerEngineState {
+            triggers: Vec::new(),
+            expanding: false,
+        })))
         .invoke_handler(tauri::generate_handler![
             simulate_paste,
+            simulate_paste_in_place,
             save_frontmost_app,
             get_frontmost_app,
             show_panel,
             hide_panel,
-            ocr_image
+            ocr_image,
+            simulate_backspace,
+            update_triggers,
+            set_trigger_expanding,
+            start_trigger_engine
         ])
         .setup(|app| {
             // macOS: Hide dock icon

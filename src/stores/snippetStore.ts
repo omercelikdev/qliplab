@@ -59,6 +59,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
         id: row.id,
         title: row.title,
         content: row.content,
+        trigger: row.trigger ?? undefined,
         categoryId: row.category_id ?? undefined,
         syntax: row.syntax || 'plain',
         isPinned: row.is_pinned === 1,
@@ -96,8 +97,8 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
       await db.execute(
-        `INSERT INTO snippets (id, title, content, category_id, syntax, is_pinned, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, snippet.title, snippet.content, snippet.categoryId || null, snippet.syntax, snippet.isPinned ? 1 : 0, 0, now, now]
+        `INSERT INTO snippets (id, title, content, trigger, category_id, syntax, is_pinned, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, snippet.title, snippet.content, snippet.trigger || null, snippet.categoryId || null, snippet.syntax, snippet.isPinned ? 1 : 0, 0, now, now]
       );
       await get().loadSnippets();
     } catch (error) {
@@ -114,6 +115,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
 
       if (updates.title !== undefined) { fields.push('title = ?'); values.push(updates.title); }
       if (updates.content !== undefined) { fields.push('content = ?'); values.push(updates.content); }
+      if (updates.trigger !== undefined) { fields.push('trigger = ?'); values.push(updates.trigger || null); }
       if (updates.syntax !== undefined) { fields.push('syntax = ?'); values.push(updates.syntax); }
       if (updates.isPinned !== undefined) { fields.push('is_pinned = ?'); values.push(updates.isPinned ? 1 : 0); }
       values.push(id);

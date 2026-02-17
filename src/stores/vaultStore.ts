@@ -55,7 +55,8 @@ interface VaultState {
   lock: () => void;
   loadItems: (password: string) => Promise<void>;
   togglePin: (id: string) => Promise<void>;
-  createItem: (type: VaultItemType, title: string, data: VaultItemData) => Promise<void>;
+  createItem: (type: VaultItemType, title: string, data: VaultItemData, trigger?: string) => Promise<void>;
+  updateTrigger: (id: string, trigger: string | null) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
 }
 
@@ -146,6 +147,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           type: row.type as VaultItemType,
           title: row.title,
           data: JSON.parse(await decrypt(row.encrypted_data, password)),
+          trigger: row.trigger ?? undefined,
           icon: row.icon ?? undefined,
           isPinned: row.is_pinned === 1,
           sortOrder: row.sort_order,
@@ -172,7 +174,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     }
   },
 
-  createItem: async (type, title, data) => {
+  createItem: async (type, title, data, trigger) => {
     try {
       if (!sessionPassword) return;
       // Reset auto-lock timer on activity
@@ -184,12 +186,24 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const encryptedData = await encrypt(JSON.stringify(data), sessionPassword);
 
       await db.execute(
-        `INSERT INTO vault_items (id, type, title, encrypted_data, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [id, type, title, encryptedData, 0, now, now]
+        `INSERT INTO vault_items (id, type, title, encrypted_data, trigger, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, type, title, encryptedData, trigger || null, 0, now, now]
       );
       await get().loadItems(sessionPassword);
     } catch (error) {
       console.error('Failed to create vault item:', error);
+    }
+  },
+
+  updateTrigger: async (id, trigger) => {
+    try {
+      const db = getDatabase();
+      await db.execute('UPDATE vault_items SET trigger = ? WHERE id = ?', [trigger, id]);
+      set((state) => ({
+        items: state.items.map((i) => i.id === id ? { ...i, trigger: trigger ?? undefined } : i),
+      }));
+    } catch (error) {
+      console.error('Failed to update trigger:', error);
     }
   },
 

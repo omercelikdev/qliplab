@@ -2,6 +2,7 @@ export interface Snippet {
   id: string;
   title: string;
   content: string;
+  trigger?: string;
   categoryId?: string;
   syntax: string;
   isPinned: boolean;
