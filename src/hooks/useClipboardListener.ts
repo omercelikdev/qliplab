@@ -10,6 +10,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { detectFormat, isSensitive } from '@/lib/formatDetector';
+import { isQueuePasting } from '@/lib/window';
 
 export function useClipboardListener() {
   const { addItem } = useHistoryStore();
@@ -26,6 +27,7 @@ export function useClipboardListener() {
         stopListening = await startListening();
 
         unlistenText = await onTextUpdate(async (text) => {
+          if (isQueuePasting()) return; // Skip clipboard changes during queue paste
           if (text === lastTextRef.current) return;
           lastTextRef.current = text;
           lastImageHashRef.current = '';
@@ -69,6 +71,7 @@ export function useClipboardListener() {
         });
 
         unlistenImage = await onImageUpdate(async (base64Image) => {
+          if (isQueuePasting()) return; // Skip clipboard changes during queue paste
           const settings = useSettingsStore.getState().settings;
 
           // Respect storeImages setting

@@ -86,11 +86,14 @@ interface HistoryItemProps {
   isPastingFromKeyboard?: boolean;
   isDiffMode: boolean;
   isSelectedForDiff: boolean;
+  isQueueMode: boolean;
+  queuePosition: number | null;
   isMenuOpen: boolean;
   searchQuery?: string;
   onOpenMenu: (id: string) => void;
   onCloseMenu: () => void;
   onDiffSelect: (id: string) => void;
+  onQueueToggle: (item: ClipboardItem) => void;
   onQuickView: (item: ClipboardItem) => void;
 }
 
@@ -100,11 +103,14 @@ export const HistoryItem = memo(function HistoryItem({
   isPastingFromKeyboard = false,
   isDiffMode,
   isSelectedForDiff,
+  isQueueMode,
+  queuePosition,
   isMenuOpen,
   searchQuery = '',
   onOpenMenu,
   onCloseMenu,
   onDiffSelect,
+  onQueueToggle,
   onQuickView,
 }: HistoryItemProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -131,6 +137,11 @@ export const HistoryItem = memo(function HistoryItem({
 
   const handleClick = async () => {
     if (isMenuOpen || isCurrentlyPasting) return;
+
+    if (isQueueMode) {
+      onQueueToggle(item);
+      return;
+    }
 
     if (isDiffMode) {
       onDiffSelect(item.id);
@@ -223,8 +234,9 @@ export const HistoryItem = memo(function HistoryItem({
         isHovered || isMenuOpen
           ? 'bg-foreground/[0.03] dark:bg-white/[0.03]'
           : 'bg-transparent',
-        isDiffMode && 'cursor-crosshair',
+        (isDiffMode || isQueueMode) && 'cursor-crosshair',
         isSelectedForDiff && 'ring-2 ring-accent',
+        isQueueMode && queuePosition !== null && 'bg-accent/[0.07]',
         isSelected && !isDiffMode && 'bg-accent/[0.07]',
         showFlash && 'copy-flash'
       )}
@@ -262,7 +274,12 @@ export const HistoryItem = memo(function HistoryItem({
           HTML
         </span>
       )}
-      {item.isPinned && <Pin className="w-3 h-3 text-accent shrink-0" />}
+      {item.isPinned && !isQueueMode && <Pin className="w-3 h-3 text-accent shrink-0" />}
+      {isQueueMode && queuePosition !== null && (
+        <span className="w-5 h-5 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center shrink-0">
+          {queuePosition}
+        </span>
+      )}
       {item.contentType === 'image' && imageData ? (
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <img
@@ -297,7 +314,7 @@ export const HistoryItem = memo(function HistoryItem({
       )}
       {/* Timestamp — dimmest */}
       <span className="text-[10px] text-foreground/25 shrink-0 w-7 text-right">{formatRelativeTime(item.createdAt)}</span>
-      {!isDiffMode && (
+      {!isDiffMode && !isQueueMode && (
         <div className={cn(
           'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
           (isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0'

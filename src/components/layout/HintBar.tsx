@@ -1,6 +1,7 @@
-import { GitCompareArrows, ArrowUp, ArrowDown, CornerDownLeft } from 'lucide-react';
+import { GitCompareArrows, ListOrdered, ArrowUp, ArrowDown, CornerDownLeft } from 'lucide-react';
 import { useAppStore } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
+import { startPasteQueue } from '@/lib/window';
 import { cn } from '@/lib/utils';
 
 function Kbd({ children }: { children: React.ReactNode }) {
@@ -12,14 +13,18 @@ function Kbd({ children }: { children: React.ReactNode }) {
 }
 
 export function HintBar() {
+  const activeTab = useAppStore((state) => state.activeTab);
   const isDiffMode = useAppStore((state) => state.isDiffMode);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const setDiffMode = useAppStore((state) => state.setDiffMode);
   const clearDiffSelection = useAppStore((state) => state.clearDiffSelection);
+  const isQueueMode = useAppStore((state) => state.isQueueMode);
+  const pasteQueue = useAppStore((state) => state.pasteQueue);
+  const setQueueMode = useAppStore((state) => state.setQueueMode);
+  const cancelQueue = useAppStore((state) => state.cancelQueue);
   const { isOpen: previewOpen, close: closePreview } = usePreviewStore();
 
   const handleDiffClick = () => {
-    // If any panel is open, close it and enter diff selection mode
     if (previewOpen) {
       closePreview();
       if (!isDiffMode) {
@@ -27,8 +32,6 @@ export function HintBar() {
       }
       return;
     }
-
-    // No panel open - toggle diff selection mode
     if (isDiffMode) {
       setDiffMode(false);
       clearDiffSelection();
@@ -37,6 +40,46 @@ export function HintBar() {
     }
   };
 
+  const handleQueueClick = () => {
+    if (previewOpen) closePreview();
+    if (isQueueMode) {
+      cancelQueue();
+    } else {
+      setQueueMode(true);
+    }
+  };
+
+  // Queue selection mode
+  if (isQueueMode) {
+    return (
+      <div className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
+        <span className="text-accent font-medium">Queue Mode</span>
+        <span className="text-muted-foreground">
+          {pasteQueue.length === 0
+            ? 'Click items to add to queue'
+            : `${pasteQueue.length} item${pasteQueue.length > 1 ? 's' : ''} selected`}
+        </span>
+        {pasteQueue.length > 0 && (
+          <button
+            onClick={() => startPasteQueue()}
+            className="flex items-center gap-1 px-2 py-0.5 bg-accent text-accent-foreground rounded transition-colors cursor-pointer"
+          >
+            <CornerDownLeft className="w-2.5 h-2.5" />
+            <span>Start</span>
+          </button>
+        )}
+        <button
+          onClick={() => cancelQueue()}
+          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        >
+          <Kbd>ESC</Kbd>
+          <span>cancel</span>
+        </button>
+      </div>
+    );
+  }
+
+  // Diff selection mode
   if (isDiffMode) {
     return (
       <div className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
@@ -71,18 +114,32 @@ export function HintBar() {
         </div>
       </div>
 
-      {/* Right: Diff action */}
-      <button
-        onClick={handleDiffClick}
-        className={cn(
-          'flex items-center gap-1.5 px-2 py-1 rounded-md',
-          'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
+      {/* Right: Actions */}
+      <div className="flex items-center gap-1">
+        {activeTab === 'history' && (
+          <button
+            onClick={handleQueueClick}
+            className={cn(
+              'flex items-center gap-1.5 px-2 py-1 rounded-md',
+              'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
+            )}
+          >
+            <ListOrdered className="w-3.5 h-3.5" />
+            <span>Queue</span>
+          </button>
         )}
-      >
-        <GitCompareArrows className="w-3.5 h-3.5" />
-        <span>Diff</span>
-        <Kbd>⌥D</Kbd>
-      </button>
+        <button
+          onClick={handleDiffClick}
+          className={cn(
+            'flex items-center gap-1.5 px-2 py-1 rounded-md',
+            'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
+          )}
+        >
+          <GitCompareArrows className="w-3.5 h-3.5" />
+          <span>Diff</span>
+          <Kbd>⌥D</Kbd>
+        </button>
+      </div>
     </div>
   );
 }

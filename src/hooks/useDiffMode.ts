@@ -41,16 +41,16 @@ export function useDiffMode() {
         }
       }
 
-      // Escape to close preview or exit diff mode
+      // Escape to close preview, exit queue mode, or exit diff mode
       if (e.key === 'Escape') {
         const previewOpen = usePreviewStore.getState().isOpen;
         const closePreview = usePreviewStore.getState().close;
 
         if (previewOpen) {
-          // Close preview first
           closePreview();
+        } else if (useAppStore.getState().isQueueMode) {
+          useAppStore.getState().cancelQueue();
         } else {
-          // Then check diff mode
           const currentIsDiffMode = useAppStore.getState().isDiffMode;
           if (currentIsDiffMode) {
             setDiffMode(false);

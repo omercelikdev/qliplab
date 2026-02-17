@@ -25,6 +25,9 @@ export function HistoryList() {
   const formatFilter = useAppStore((state) => state.formatFilter);
   const setFormatFilter = useAppStore((state) => state.setFormatFilter);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
+  const isQueueMode = useAppStore((state) => state.isQueueMode);
+  const pasteQueue = useAppStore((state) => state.pasteQueue);
+  const toggleQueueItem = useAppStore((state) => state.toggleQueueItem);
   const openMenuItemId = useAppStore((state) => state.openMenuItemId);
   const addToDiffSelection = useAppStore((state) => state.addToDiffSelection);
   const setOpenMenuItemId = useAppStore((state) => state.setOpenMenuItemId);
@@ -52,6 +55,10 @@ export function HistoryList() {
     addToDiffSelection(id);
   }, [addToDiffSelection]);
 
+  const handleQueueToggle = useCallback((item: ClipboardItem) => {
+    toggleQueueItem(item);
+  }, [toggleQueueItem]);
+
   const handleQuickView = useCallback((item: ClipboardItem) => {
     openView(item);
   }, [openView]);
@@ -69,7 +76,7 @@ export function HistoryList() {
   const remainingCount = totalCount - items.length;
 
   const handleSelect = useCallback(async (index: number) => {
-    if (isDiffMode || pastingItemId) return;
+    if (isDiffMode || isQueueMode || pastingItemId) return;
     const item = orderedItems[index];
     if (item) {
       if (item.contentType === 'image') {
@@ -93,7 +100,7 @@ export function HistoryList() {
         });
       }
     }
-  }, [orderedItems, isDiffMode, pastingItemId]);
+  }, [orderedItems, isDiffMode, isQueueMode, pastingItemId]);
 
   const { selectedIndex } = useKeyboardNavigation({
     itemCount: orderedItems.length,
@@ -198,15 +205,18 @@ export function HistoryList() {
             >
               <HistoryItem
                 item={item}
-                isSelected={index === selectedIndex && !isDiffMode}
+                isSelected={index === selectedIndex && !isDiffMode && !isQueueMode}
                 isPastingFromKeyboard={item.id === pastingItemId}
                 isDiffMode={isDiffMode}
                 isSelectedForDiff={diffSelectedIds.includes(item.id)}
+                isQueueMode={isQueueMode}
+                queuePosition={isQueueMode ? (() => { const idx = pasteQueue.findIndex(q => q.id === item.id); return idx >= 0 ? idx + 1 : null; })() : null}
                 isMenuOpen={openMenuItemId === item.id}
                 searchQuery={searchQuery}
                 onOpenMenu={handleOpenMenu}
                 onCloseMenu={handleCloseMenu}
                 onDiffSelect={handleDiffSelect}
+                onQueueToggle={handleQueueToggle}
                 onQuickView={handleQuickView}
               />
             </div>

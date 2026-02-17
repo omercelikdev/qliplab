@@ -4,6 +4,14 @@ import type { DetectedFormat } from '@/types/clipboard';
 export type Tab = 'history' | 'snippets' | 'vault' | 'settings';
 export type Theme = 'light' | 'dark' | 'system';
 
+/** Lightweight queue item — stores content so window.ts doesn't need historyStore */
+export interface PasteQueueItem {
+  id: string;
+  content: string;
+  htmlContent?: string;
+  contentType: string;
+}
+
 // Format filter groups for smart collections
 export type FormatFilterGroup = 'all' | 'pinned' | 'code' | 'data' | 'web' | 'encoded' | 'other';
 export type VaultTypeFilter = 'all' | 'favorites' | 'card' | 'bank' | 'address' | 'code';
@@ -55,6 +63,8 @@ interface AppState {
   isTransformMode: boolean;
   isDiffMode: boolean;
   diffSelectedIds: string[];
+  isQueueMode: boolean;
+  pasteQueue: PasteQueueItem[];
   windowOpenCount: number; // Incremented each time window opens to trigger resets
   openMenuItemId: string | null; // Only one item menu open at a time
 
@@ -69,6 +79,9 @@ interface AppState {
   setDiffMode: (active: boolean) => void;
   addToDiffSelection: (id: string) => void;
   clearDiffSelection: () => void;
+  setQueueMode: (active: boolean) => void;
+  toggleQueueItem: (item: PasteQueueItem) => void;
+  cancelQueue: () => void;
   setOpenMenuItemId: (id: string | null) => void;
   signalWindowOpen: () => void;
 }
@@ -84,6 +97,8 @@ export const useAppStore = create<AppState>((set) => ({
   isTransformMode: false,
   isDiffMode: false,
   diffSelectedIds: [],
+  isQueueMode: false,
+  pasteQueue: [],
   windowOpenCount: 0,
   openMenuItemId: null,
 
@@ -106,12 +121,25 @@ export const useAppStore = create<AppState>((set) => ({
     };
   }),
   clearDiffSelection: () => set({ diffSelectedIds: [] }),
+  setQueueMode: (active) => set(active
+    ? { isQueueMode: true, pasteQueue: [], isDiffMode: false, diffSelectedIds: [] }
+    : { isQueueMode: false, pasteQueue: [] }),
+  toggleQueueItem: (item) => set((state) => {
+    const idx = state.pasteQueue.findIndex(q => q.id === item.id);
+    if (idx >= 0) {
+      return { pasteQueue: state.pasteQueue.filter(q => q.id !== item.id) };
+    }
+    return { pasteQueue: [...state.pasteQueue, { id: item.id, content: item.content, htmlContent: item.htmlContent, contentType: item.contentType }] };
+  }),
+  cancelQueue: () => set({ isQueueMode: false, pasteQueue: [] }),
   setOpenMenuItemId: (id) => set({ openMenuItemId: id }),
   // Signal window opened - reset selection/modes but KEEP search query (like Ditto)
   signalWindowOpen: () => set((state) => ({
     isDiffMode: false,
     diffSelectedIds: [],
     isTransformMode: false,
+    isQueueMode: false,
+    pasteQueue: [],
     windowOpenCount: state.windowOpenCount + 1,
     // NOTE: searchQuery is intentionally NOT reset - user can continue searching
   })),

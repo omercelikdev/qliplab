@@ -1,8 +1,12 @@
 import { getCurrentWindow, LogicalSize, LogicalPosition } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { writeHtmlAndText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore } from '@/stores/appStore';
+import { getImageBase64ForClipboard } from '@/lib/imageUtils';
+import type { PasteQueueItem } from '@/stores/appStore';
 
 const DEFAULT_WIDTH = 480;
 const DEFAULT_HEIGHT = 460;
@@ -11,6 +15,23 @@ const PREVIEW_HEIGHT = 700;
 
 /** Guard against concurrent toggle operations (rapid double-tap). */
 let toggleInFlight = false;
+
+/** Queue paste guards — clipboard listener checks isQueuePasting to skip writes */
+let _queuePasting = false;
+let _queueInProgress = false;
+export function isQueuePasting() { return _queuePasting; }
+
+/** Write a single queue item to the system clipboard (text, HTML, or image). */
+async function writeQueueItem(item: PasteQueueItem) {
+  if (item.contentType === 'image') {
+    const base64 = getImageBase64ForClipboard(item.content);
+    if (base64) await writeImageBase64(base64);
+  } else if (item.htmlContent) {
+    await writeHtmlAndText(item.htmlContent, item.content);
+  } else {
+    await writeText(item.content);
+  }
+}
 
 /** Use JS screen API — always returns correct logical dimensions regardless of window position. */
 function centerOf(width: number, height: number) {
@@ -114,6 +135,50 @@ export async function showWindow() {
     await showWindowCore();
   } catch (error) {
     console.error('Failed to show window:', error);
+  }
+}
+
+/**
+ * Start consuming the paste queue — pastes ALL items sequentially.
+ *
+ * Flow:
+ * 1. Save queue locally, clear UI mode
+ * 2. Suppress clipboard listener (_queuePasting flag)
+ * 3. Hide window + paste first item via hideWriteAndPaste
+ * 4. Paste remaining items with 500ms delays (simulate_paste is async in Rust)
+ * 5. Cleanup flags
+ *
+ * Handles text, HTML, and image content types.
+ */
+export async function startPasteQueue() {
+  if (_queueInProgress) return;
+  const { pasteQueue } = useAppStore.getState();
+  if (pasteQueue.length === 0) return;
+
+  _queueInProgress = true;
+  _queuePasting = true;
+
+  // Save queue locally and clear queue mode immediately
+  const items = [...pasteQueue];
+  useAppStore.getState().cancelQueue();
+
+  try {
+    // First item: write to clipboard + hide window + simulate paste
+    await hideWriteAndPaste(() => writeQueueItem(items[0]));
+
+    // Remaining items: write to clipboard + simulate paste (with delays)
+    for (let i = 1; i < items.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      try {
+        await writeQueueItem(items[i]);
+        await invoke('simulate_paste');
+      } catch (error) {
+        console.error('Failed to paste queue item:', error);
+      }
+    }
+  } finally {
+    _queuePasting = false;
+    _queueInProgress = false;
   }
 }
 
