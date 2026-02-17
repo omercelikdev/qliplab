@@ -8,7 +8,7 @@ export interface VaultItem {
   title: string;
   data: VaultItemData;
   icon?: string;
-  isFavorite: boolean;
+  isPinned: boolean;
   sortOrder: number;
   createdAt: Date;
   updatedAt: Date;

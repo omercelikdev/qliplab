@@ -14,7 +14,7 @@ interface SnippetState {
   editorOpen: boolean;
   editingSnippet: Snippet | null;
 
-  loadSnippets: (searchQuery?: string, syntaxFilter?: string[]) => Promise<void>;
+  loadSnippets: (searchQuery?: string, syntaxFilter?: string[], favoritesOnly?: boolean) => Promise<void>;
   loadCategories: () => Promise<void>;
   createSnippet: (snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt' | 'sortOrder'>) => Promise<void>;
   updateSnippet: (id: string, updates: Partial<Snippet>) => Promise<void>;
@@ -33,12 +33,15 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   editorOpen: false,
   editingSnippet: null,
 
-  loadSnippets: async (searchQuery = '', syntaxFilter?: string[]) => {
+  loadSnippets: async (searchQuery = '', syntaxFilter?: string[], favoritesOnly = false) => {
     try {
       const db = getDatabase();
       const args: (string | number)[] = [];
       let sql = 'SELECT * FROM snippets';
       const conditions: string[] = [];
+      if (favoritesOnly) {
+        conditions.push('is_pinned = 1');
+      }
       if (searchQuery) {
         conditions.push('(title LIKE ? OR content LIKE ?)');
         args.push(`%${searchQuery}%`, `%${searchQuery}%`);
@@ -50,7 +53,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       if (conditions.length > 0) {
         sql += ' WHERE ' + conditions.join(' AND ');
       }
-      sql += ' ORDER BY sort_order';
+      sql += ' ORDER BY is_pinned DESC, sort_order';
       const result = await db.select<SnippetRow[]>(sql, args);
       const snippets: Snippet[] = result.map(row => ({
         id: row.id,
@@ -58,7 +61,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
         content: row.content,
         categoryId: row.category_id ?? undefined,
         syntax: row.syntax || 'plain',
-        isFavorite: row.is_favorite === 1,
+        isPinned: row.is_pinned === 1,
         sortOrder: row.sort_order,
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
@@ -93,8 +96,8 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
       await db.execute(
-        `INSERT INTO snippets (id, title, content, category_id, syntax, is_favorite, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, snippet.title, snippet.content, snippet.categoryId || null, snippet.syntax, snippet.isFavorite ? 1 : 0, 0, now, now]
+        `INSERT INTO snippets (id, title, content, category_id, syntax, is_pinned, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, snippet.title, snippet.content, snippet.categoryId || null, snippet.syntax, snippet.isPinned ? 1 : 0, 0, now, now]
       );
       await get().loadSnippets();
     } catch (error) {
@@ -112,7 +115,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       if (updates.title !== undefined) { fields.push('title = ?'); values.push(updates.title); }
       if (updates.content !== undefined) { fields.push('content = ?'); values.push(updates.content); }
       if (updates.syntax !== undefined) { fields.push('syntax = ?'); values.push(updates.syntax); }
-      if (updates.isFavorite !== undefined) { fields.push('is_favorite = ?'); values.push(updates.isFavorite ? 1 : 0); }
+      if (updates.isPinned !== undefined) { fields.push('is_pinned = ?'); values.push(updates.isPinned ? 1 : 0); }
       values.push(id);
 
       await db.execute(`UPDATE snippets SET ${fields.join(', ')} WHERE id = ?`, values);

@@ -54,6 +54,7 @@ interface VaultState {
   unlock: (password: string) => Promise<boolean | 'locked_out'>;
   lock: () => void;
   loadItems: (password: string) => Promise<void>;
+  togglePin: (id: string) => Promise<void>;
   createItem: (type: VaultItemType, title: string, data: VaultItemData) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
 }
@@ -146,7 +147,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           title: row.title,
           data: JSON.parse(await decrypt(row.encrypted_data, password)),
           icon: row.icon ?? undefined,
-          isFavorite: row.is_favorite === 1,
+          isPinned: row.is_pinned === 1,
           sortOrder: row.sort_order,
           createdAt: new Date(row.created_at),
           updatedAt: new Date(row.updated_at),
@@ -155,6 +156,19 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       set({ items });
     } catch (error) {
       console.error('Failed to load vault items:', error);
+    }
+  },
+
+  togglePin: async (id) => {
+    try {
+      const db = getDatabase();
+      const item = get().items.find(i => i.id === id);
+      if (!item) return;
+      const newPinned = !item.isPinned;
+      await db.execute('UPDATE vault_items SET is_pinned = ? WHERE id = ?', [newPinned ? 1 : 0, id]);
+      set(state => ({ items: state.items.map(i => i.id === id ? { ...i, isPinned: newPinned } : i) }));
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
     }
   },
 

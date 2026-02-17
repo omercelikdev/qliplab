@@ -54,7 +54,7 @@ export function SnippetEditorPanel() {
     if (isEditMode && editingSnippet) {
       await updateSnippet(editingSnippet.id, { title, content, syntax });
     } else {
-      await createSnippet({ title, content, syntax, isFavorite: false });
+      await createSnippet({ title, content, syntax, isPinned: false });
     }
     closeEditor();
   };

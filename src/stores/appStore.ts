@@ -5,13 +5,14 @@ export type Tab = 'history' | 'snippets' | 'vault' | 'settings';
 export type Theme = 'light' | 'dark' | 'system';
 
 // Format filter groups for smart collections
-export type FormatFilterGroup = 'all' | 'code' | 'data' | 'web' | 'encoded' | 'other';
-export type VaultTypeFilter = 'all' | 'card' | 'bank' | 'address' | 'code';
-export type SnippetSyntaxFilter = 'all' | 'code' | 'data' | 'web' | 'plain';
+export type FormatFilterGroup = 'all' | 'pinned' | 'code' | 'data' | 'web' | 'encoded' | 'other';
+export type VaultTypeFilter = 'all' | 'favorites' | 'card' | 'bank' | 'address' | 'code';
+export type SnippetSyntaxFilter = 'all' | 'favorites' | 'code' | 'data' | 'web' | 'plain';
 
 export const SNIPPET_SYNTAX_FILTERS: Record<SnippetSyntaxFilter, { label: string; syntaxes: string[] | null }> = {
-  all:   { label: 'All',   syntaxes: null },
-  code:  { label: 'Code',  syntaxes: ['javascript', 'typescript', 'python', 'go', 'rust', 'java', 'sql', 'shell'] },
+  all:       { label: 'All',       syntaxes: null },
+  favorites: { label: 'Pinned',    syntaxes: null }, // special: filters by is_pinned = 1
+  code:      { label: 'Code',      syntaxes: ['javascript', 'typescript', 'python', 'go', 'rust', 'java', 'sql', 'shell'] },
   data:  { label: 'Data',  syntaxes: ['json', 'yaml', 'xml', 'csv'] },
   web:   { label: 'Web',   syntaxes: ['html', 'css', 'markdown'] },
   plain: { label: 'Plain', syntaxes: ['plain'] },
@@ -19,6 +20,7 @@ export const SNIPPET_SYNTAX_FILTERS: Record<SnippetSyntaxFilter, { label: string
 
 export const VAULT_TYPE_FILTERS: Record<VaultTypeFilter, string> = {
   all: 'All',
+  favorites: 'Pinned',
   card: 'Card',
   bank: 'Bank',
   address: 'Address',
@@ -27,6 +29,7 @@ export const VAULT_TYPE_FILTERS: Record<VaultTypeFilter, string> = {
 
 export const FORMAT_FILTER_GROUPS: Record<FormatFilterGroup, { label: string; formats: DetectedFormat[] | null }> = {
   all:     { label: 'All',     formats: null }, // null = no filter
+  pinned:  { label: 'Pinned',  formats: null }, // special: filters by is_pinned = 1
   code:    { label: 'Code',    formats: ['code_js', 'code_ts', 'code_python', 'code_go', 'code_rust', 'code_java', 'code_csharp', 'sql'] },
   data:    { label: 'Data',    formats: ['json', 'yaml', 'csv', 'xml'] },
   web:     { label: 'Web',     formats: ['url', 'url_encoded', 'html', 'markdown'] },
@@ -37,7 +40,7 @@ export const FORMAT_FILTER_GROUPS: Record<FormatFilterGroup, { label: string; fo
 // All formats that belong to a specific group (used by "Other" filter)
 export const CATEGORIZED_FORMATS: Set<DetectedFormat> = new Set(
   Object.entries(FORMAT_FILTER_GROUPS)
-    .filter(([key]) => key !== 'all' && key !== 'other')
+    .filter(([key]) => key !== 'all' && key !== 'pinned' && key !== 'other')
     .flatMap(([, group]) => group.formats ?? [])
 );
 

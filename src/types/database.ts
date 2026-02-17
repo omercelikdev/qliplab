@@ -20,7 +20,7 @@ export interface SnippetRow {
   content: string;
   category_id: string | null;
   syntax: string | null;
-  is_favorite: number;
+  is_pinned: number;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -40,7 +40,7 @@ export interface VaultItemRow {
   title: string;
   encrypted_data: string;
   icon: string | null;
-  is_favorite: number;
+  is_pinned: number;
   sort_order: number;
   created_at: string;
   updated_at: string;

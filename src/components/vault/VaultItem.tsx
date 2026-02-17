@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Trash2, CreditCard, Building, MapPin, Key } from 'lucide-react';
+import { Eye, EyeOff, Trash2, Pin, CreditCard, Building, MapPin, Key } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useVaultStore } from '@/stores/vaultStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -24,6 +24,7 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
   const [isRevealed, setIsRevealed] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const deleteItem = useVaultStore((state) => state.deleteItem);
+  const togglePin = useVaultStore((state) => state.togglePin);
 
   const badge = TYPE_BADGE[item.type];
 
@@ -92,11 +93,28 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
         </span>
       </span>
 
+      {/* Pin indicator when not hovered */}
+      {item.isPinned && !isHovered && (
+        <Pin className="w-3 h-3 text-accent shrink-0" />
+      )}
+
       {/* Action buttons — fade in/out */}
       <div className={cn(
         'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
         isHovered ? 'opacity-100' : 'opacity-0'
       )}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            togglePin(item.id);
+          }}
+          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+        >
+          <Pin className={cn(
+            'w-3.5 h-3.5',
+            item.isPinned ? 'text-accent' : 'text-muted-foreground'
+          )} />
+        </button>
         <button
           onClick={(e) => {
             e.stopPropagation();

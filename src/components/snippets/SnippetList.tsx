@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { Plus, Search, Clipboard } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore, SNIPPET_SYNTAX_FILTERS } from '@/stores/appStore';
@@ -24,8 +24,11 @@ export function SnippetList() {
   // Reload from SQL when search/filter changes
   useEffect(() => {
     const group = SNIPPET_SYNTAX_FILTERS[snippetSyntaxFilter];
-    loadSnippets(searchQuery, group.syntaxes ?? undefined);
+    const favoritesOnly = snippetSyntaxFilter === 'favorites';
+    loadSnippets(searchQuery, group.syntaxes ?? undefined, favoritesOnly);
   }, [searchQuery, snippetSyntaxFilter, loadSnippets]);
+
+  const pinnedCount = useMemo(() => snippets.filter(s => s.isPinned).length, [snippets]);
 
   const handleSelect = useCallback(async (index: number) => {
     const snippet = snippets[index];
@@ -108,14 +111,27 @@ export function SnippetList() {
         ) : (
           <div className="pl-3 pr-1.5 py-1 space-y-0.5">
             {snippets.map((snippet, index) => (
-              <div
-                key={snippet.id}
-                ref={(el) => {
-                  if (el) itemRefs.current.set(index, el);
-                  else itemRefs.current.delete(index);
-                }}
-              >
-                <SnippetItem snippet={snippet} isSelected={index === selectedIndex} onEdit={(s) => openEditor(s)} />
+              <div key={snippet.id}>
+                {index === 0 && pinnedCount > 0 && (
+                  <div className="flex items-center gap-2 px-1 pt-1 pb-1.5">
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Pinned</span>
+                    <div className="flex-1 dotted-separator" />
+                  </div>
+                )}
+                {index === pinnedCount && pinnedCount > 0 && (
+                  <div className="flex items-center gap-2 px-1 pt-1.5 pb-1.5">
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Recent</span>
+                    <div className="flex-1 dotted-separator" />
+                  </div>
+                )}
+                <div
+                  ref={(el) => {
+                    if (el) itemRefs.current.set(index, el);
+                    else itemRefs.current.delete(index);
+                  }}
+                >
+                  <SnippetItem snippet={snippet} isSelected={index === selectedIndex} onEdit={(s) => openEditor(s)} />
+                </div>
               </div>
             ))}
           </div>

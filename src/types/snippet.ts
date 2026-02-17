@@ -4,7 +4,7 @@ export interface Snippet {
   content: string;
   categoryId?: string;
   syntax: string;
-  isFavorite: boolean;
+  isPinned: boolean;
   sortOrder: number;
   createdAt: Date;
   updatedAt: Date;

@@ -1,5 +1,5 @@
 import { useState, memo } from 'react';
-import { Code, Braces, Globe, Star, Trash2, Pencil, FileText, Terminal, Type } from 'lucide-react';
+import { Code, Braces, Globe, Pin, Trash2, Pencil, FileText, Terminal, Type } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
 import { expandVariables } from '@/lib/snippetVariables';
@@ -51,9 +51,9 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
     });
   };
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const togglePin = (e: React.MouseEvent) => {
     e.stopPropagation();
-    updateSnippet(snippet.id, { isFavorite: !snippet.isFavorite });
+    updateSnippet(snippet.id, { isPinned: !snippet.isPinned });
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -106,8 +106,8 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         <span className="text-foreground/35 ml-1.5">{snippet.content.slice(0, 100).replace(/\n/g, ' ')}</span>
       </span>
 
-      {snippet.isFavorite && !isHovered && (
-        <Star className="w-2.5 h-2.5 text-yellow-500 fill-yellow-500 shrink-0" />
+      {snippet.isPinned && !isHovered && (
+        <Pin className="w-3 h-3 text-accent shrink-0" />
       )}
 
       {/* Action buttons — fade in/out */}
@@ -116,12 +116,12 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         isHovered ? 'opacity-100' : 'opacity-0'
       )}>
         <button
-          onClick={toggleFavorite}
+          onClick={togglePin}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
         >
-          <Star className={cn(
+          <Pin className={cn(
             'w-3.5 h-3.5',
-            snippet.isFavorite ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'
+            snippet.isPinned ? 'text-accent' : 'text-muted-foreground'
           )} />
         </button>
         <button

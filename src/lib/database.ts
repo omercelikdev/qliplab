@@ -38,12 +38,20 @@ export async function initDatabase() {
       content TEXT NOT NULL,
       category_id TEXT,
       syntax TEXT,
-      is_favorite INTEGER DEFAULT 0,
+      is_pinned INTEGER DEFAULT 0,
       sort_order INTEGER DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )
   `);
+
+  // Migration: rename is_favorite → is_pinned in snippets
+  try {
+    await db.execute(`ALTER TABLE snippets ADD COLUMN is_pinned INTEGER DEFAULT 0`);
+    await db.execute(`UPDATE snippets SET is_pinned = is_favorite`);
+  } catch {
+    // Column already exists
+  }
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS snippet_categories (
@@ -62,12 +70,20 @@ export async function initDatabase() {
       title TEXT NOT NULL,
       encrypted_data TEXT NOT NULL,
       icon TEXT,
-      is_favorite INTEGER DEFAULT 0,
+      is_pinned INTEGER DEFAULT 0,
       sort_order INTEGER DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )
   `);
+
+  // Migration: rename is_favorite → is_pinned in vault_items
+  try {
+    await db.execute(`ALTER TABLE vault_items ADD COLUMN is_pinned INTEGER DEFAULT 0`);
+    await db.execute(`UPDATE vault_items SET is_pinned = is_favorite`);
+  } catch {
+    // Column already exists
+  }
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS vault_settings (
@@ -98,6 +114,11 @@ export interface HistoryQueryParams {
 function buildWhereClause(params: HistoryQueryParams): { where: string; args: (string | number)[] } {
   const conditions: string[] = [];
   const args: (string | number)[] = [];
+
+  // Pinned filter (special case — not format-based)
+  if (params.formatFilter === 'pinned') {
+    conditions.push('is_pinned = 1');
+  }
 
   // Format filter
   if (params.formatFilter === 'other') {

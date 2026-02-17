@@ -38,17 +38,22 @@ export function VaultList() {
     }
   };
 
-  // Filter items by type + search query (title only — content is encrypted)
+  // Filter items by type/favorites + search query (title only — content is encrypted)
   const filteredItems = useMemo(() => {
     let result = items;
-    if (vaultTypeFilter !== 'all') {
+    if (vaultTypeFilter === 'favorites') {
+      result = result.filter((item) => item.isPinned);
+    } else if (vaultTypeFilter !== 'all') {
       result = result.filter((item) => item.type === vaultTypeFilter);
     }
     if (searchQuery) {
       result = result.filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
     }
-    return result;
+    // Pinned first, then by original order
+    return [...result].sort((a, b) => (a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1));
   }, [items, vaultTypeFilter, searchQuery]);
+
+  const pinnedCount = useMemo(() => filteredItems.filter(i => i.isPinned).length, [filteredItems]);
 
   const handleSelect = useCallback(async (index: number) => {
     const item = filteredItems[index];
@@ -124,14 +129,27 @@ export function VaultList() {
         ) : (
           <div className="pl-3 pr-1.5 py-1 space-y-0.5">
             {filteredItems.map((item, index) => (
-              <div
-                key={item.id}
-                ref={(el) => {
-                  if (el) itemRefs.current.set(index, el);
-                  else itemRefs.current.delete(index);
-                }}
-              >
-                <VaultItem item={item} isSelected={index === selectedIndex} />
+              <div key={item.id}>
+                {index === 0 && pinnedCount > 0 && (
+                  <div className="flex items-center gap-2 px-1 pt-1 pb-1.5">
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Pinned</span>
+                    <div className="flex-1 dotted-separator" />
+                  </div>
+                )}
+                {index === pinnedCount && pinnedCount > 0 && (
+                  <div className="flex items-center gap-2 px-1 pt-1.5 pb-1.5">
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Recent</span>
+                    <div className="flex-1 dotted-separator" />
+                  </div>
+                )}
+                <div
+                  ref={(el) => {
+                    if (el) itemRefs.current.set(index, el);
+                    else itemRefs.current.delete(index);
+                  }}
+                >
+                  <VaultItem item={item} isSelected={index === selectedIndex} />
+                </div>
               </div>
             ))}
           </div>
