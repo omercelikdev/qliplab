@@ -282,7 +282,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
                 <MenuButton icon={ClipboardPaste} label="Paste Plain" onClick={handlePastePlainText} />
               </>
             )}
-            <MenuButton icon={Eye} label="View" onClick={() => { openView(item); onClose(); }} />
+            <MenuButton icon={Eye} label="Edit" onClick={() => { openView(item); onClose(); }} />
 
             {item.contentType === 'image' && (
               <>

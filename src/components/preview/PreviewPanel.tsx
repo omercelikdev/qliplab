@@ -140,7 +140,7 @@ export function PreviewPanel() {
 
   const getModeLabel = () => {
     if (mode === 'diff') return 'Diff';
-    return mode === 'view' ? 'View' : 'Transform';
+    return mode === 'view' ? 'Edit' : 'Transform';
   };
 
   const panelKey = isDiffMode

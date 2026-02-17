@@ -305,7 +305,7 @@ export const HistoryItem = memo(function HistoryItem({
           <button
             className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
             onClick={handleQuickView}
-            title="Quick View"
+            title="Quick Edit"
           >
             <Eye className="w-3.5 h-3.5 text-muted-foreground" />
           </button>

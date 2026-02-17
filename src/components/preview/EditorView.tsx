@@ -26,7 +26,7 @@ export function EditorView() {
   const isViewMode = mode === 'view';
 
   const editorOptions = useMemo(() => ({
-    readOnly: isViewMode,
+    readOnly: false,
     minimap: { enabled: false },
     fontSize: 12,
     lineNumbers: 'on' as const,
