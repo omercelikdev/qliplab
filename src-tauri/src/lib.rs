@@ -997,8 +997,11 @@ pub fn run() {
                     .item(&quit_item)
                     .build()?;
 
-                let _tray = TrayIconBuilder::new()
-                    .icon(app.default_window_icon().cloned().unwrap())
+                let mut tray_builder = TrayIconBuilder::new();
+                if let Some(icon) = app.default_window_icon().cloned() {
+                    tray_builder = tray_builder.icon(icon);
+                }
+                let _tray = tray_builder
                     .icon_as_template(true)
                     .menu(&menu)
                     .on_menu_event(|app, event| {
