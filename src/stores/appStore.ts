@@ -102,7 +102,7 @@ export const useAppStore = create<AppState>((set) => ({
   windowOpenCount: 0,
   openMenuItemId: null,
 
-  setActiveTab: (tab) => set({ activeTab: tab, searchQuery: '', formatFilter: 'all', vaultTypeFilter: 'all', snippetSyntaxFilter: 'all' }),
+  setActiveTab: (tab) => set({ activeTab: tab }),
   setPreviewOpen: (open) => set({ previewOpen: open }),
   setTheme: (theme) => set({ theme }),
   setSearchQuery: (query) => set({ searchQuery: query }),
