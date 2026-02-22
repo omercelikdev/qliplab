@@ -73,7 +73,7 @@ export function useClipboardListener() {
 
           const format = detectFormat(text);
 
-          await addItem({
+          const itemId = await addItem({
             content: text,
             htmlContent,
             contentType: 'text',
@@ -95,24 +95,27 @@ export function useClipboardListener() {
             try {
               const result = await transform.apply(text);
               if (result && result !== text) {
-                // Update clipboard
+                // Update clipboard with safety timeout for skip flag
                 skipNextClipboardChange = true;
+                setTimeout(() => { skipNextClipboardChange = false; }, 2000);
                 lastTextRef.current = result;
                 await writeTextClipboard(result);
 
-                // Update stored item so future pastes from qliplab use transformed content
-                try {
-                  const db = getDatabase();
-                  const newFormat = detectFormat(result);
-                  await db.execute(
-                    'UPDATE clipboard_history SET content = ?, detected_format = ?, updated_at = ? WHERE content = ?',
-                    [result, newFormat, new Date().toISOString(), text]
-                  );
-                  // Reload the list to reflect updated content
-                  const { loadItems } = useHistoryStore.getState();
-                  await loadItems();
-                } catch {
-                  // DB update failed, clipboard still updated
+                // Update stored item by ID so future pastes from qliplab use transformed content
+                if (itemId) {
+                  try {
+                    const db = getDatabase();
+                    const newFormat = detectFormat(result);
+                    await db.execute(
+                      'UPDATE clipboard_history SET content = ?, detected_format = ?, updated_at = ? WHERE id = ?',
+                      [result, newFormat, new Date().toISOString(), itemId]
+                    );
+                    // Reload the list to reflect updated content
+                    const { loadItems } = useHistoryStore.getState();
+                    await loadItems();
+                  } catch {
+                    // DB update failed, clipboard still updated
+                  }
                 }
 
                 return; // Only apply first matching command

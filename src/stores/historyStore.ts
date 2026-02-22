@@ -33,7 +33,7 @@ interface HistoryState {
 
   loadItems: (formatFilter?: FormatFilterGroup, searchQuery?: string) => Promise<void>;
   loadMore: () => Promise<void>;
-  addItem: (item: Omit<ClipboardItem, 'id' | 'isPinned' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  addItem: (item: Omit<ClipboardItem, 'id' | 'isPinned' | 'createdAt' | 'updatedAt'>) => Promise<string | undefined>;
   deleteItem: (id: string) => Promise<void>;
   togglePin: (id: string) => Promise<void>;
   clearAll: () => Promise<void>;
@@ -101,9 +101,12 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         'SELECT id FROM clipboard_history WHERE content = ? LIMIT 1',
         [item.content]
       );
+      let itemId: string;
       if (existing.length > 0) {
-        await db.execute('UPDATE clipboard_history SET updated_at = ? WHERE id = ?', [now, existing[0].id]);
+        itemId = existing[0].id;
+        await db.execute('UPDATE clipboard_history SET updated_at = ? WHERE id = ?', [now, itemId]);
       } else {
+        itemId = id;
         await db.execute(
           `INSERT INTO clipboard_history (id, content, html_content, content_type, detected_format, source_app, is_sensitive, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [id, item.content, item.htmlContent ?? null, item.contentType, item.detectedFormat, item.sourceApp ?? null, item.isSensitive ? 1 : 0, now, now]
@@ -123,8 +126,10 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       // Reload current view
       const { currentFormatFilter, currentSearchQuery } = get();
       await get().loadItems(currentFormatFilter, currentSearchQuery);
+      return itemId;
     } catch (error) {
       console.error('Failed to add clipboard item:', error);
+      return undefined;
     }
   },
 
