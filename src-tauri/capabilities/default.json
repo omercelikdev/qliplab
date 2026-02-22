@@ -42,6 +42,7 @@
     "autostart:allow-is-enabled",
     "dialog:allow-save",
     "dialog:allow-open",
+    "drag:default",
     {
       "identifier": "fs:allow-write-text-file",
       "allow": [{ "path": "$DOWNLOAD/**" }, { "path": "$DESKTOP/**" }, { "path": "$HOME/**" }, { "path": "$DOCUMENT/**" }]

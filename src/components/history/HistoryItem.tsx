@@ -1,11 +1,13 @@
 import { useState, useRef, useCallback, useMemo, useEffect, memo } from 'react';
 import {
-  MoreVertical, Pin, Eye, Image as ImageIcon, Loader2,
+  MoreVertical, Pin, Eye, Image as ImageIcon, Loader2, GripVertical,
   Code, Braces, Globe, Key, Hash, Clock, Palette, Type,
 } from 'lucide-react';
 import { ItemMenu } from './ItemMenu';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
+import { startDrag } from '@crabnebula/tauri-plugin-drag';
+import { resolveResource } from '@tauri-apps/api/path';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
@@ -219,6 +221,27 @@ export const HistoryItem = memo(function HistoryItem({
     openMenu();
   }, [openMenu]);
 
+  const handleDragStart = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const iconPath = await resolveResource('icons/32x32.png');
+      await startDrag({
+        item: {
+          data: item.htmlContent
+            ? { 'public.html': item.htmlContent, 'public.utf8-plain-text': item.content }
+            : item.content,
+          types: item.htmlContent
+            ? ['public.html', 'public.utf8-plain-text']
+            : ['public.utf8-plain-text'],
+        },
+        icon: iconPath,
+      });
+    } catch (err) {
+      console.error('Drag failed:', err);
+    }
+  }, [item.content, item.htmlContent]);
+
   // Badge rendering
   const badgeGroup = FORMAT_GROUP[item.detectedFormat] ?? null;
   const badgeLabel = FORMAT_LABEL[item.detectedFormat];
@@ -339,6 +362,16 @@ export const HistoryItem = memo(function HistoryItem({
           'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
           (isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0'
         )}>
+          {item.contentType !== 'image' && (
+            <button
+              className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-grab active:cursor-grabbing"
+              onMouseDown={handleDragStart}
+              onClick={(e) => e.stopPropagation()}
+              title="Drag to another app"
+            >
+              <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          )}
           <button
             className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
             onClick={handleQuickView}
