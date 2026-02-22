@@ -62,11 +62,28 @@ export async function importData(): Promise<{ imported: ExportSection[]; counts:
   if (!filePath) return null;
 
   const content = await readTextFile(filePath as string);
+
+  // Size guard: reject files larger than 50MB
+  if (content.length > 50 * 1024 * 1024) {
+    throw new Error('Backup file too large (max 50MB)');
+  }
+
   const data: ExportData = JSON.parse(content);
 
-  if (!data.version) {
-    throw new Error('Invalid backup file: missing version field');
+  if (!data || typeof data !== 'object' || !data.version || typeof data.version !== 'string') {
+    throw new Error('Invalid backup file: missing or invalid version field');
   }
+
+  // Validate array sections
+  if (data.history && !Array.isArray(data.history)) throw new Error('Invalid backup: history must be an array');
+  if (data.snippets && !Array.isArray(data.snippets)) throw new Error('Invalid backup: snippets must be an array');
+  if (data.snippetCategories && !Array.isArray(data.snippetCategories)) throw new Error('Invalid backup: categories must be an array');
+  if (data.vault && !Array.isArray(data.vault)) throw new Error('Invalid backup: vault must be an array');
+
+  const MAX_IMPORT_ITEMS = 50000;
+  if ((data.history?.length ?? 0) > MAX_IMPORT_ITEMS) throw new Error(`Too many history items (max ${MAX_IMPORT_ITEMS})`);
+  if ((data.snippets?.length ?? 0) > MAX_IMPORT_ITEMS) throw new Error(`Too many snippets (max ${MAX_IMPORT_ITEMS})`);
+  if ((data.vault?.length ?? 0) > MAX_IMPORT_ITEMS) throw new Error(`Too many vault items (max ${MAX_IMPORT_ITEMS})`);
 
   const db = getDatabase();
   const imported: ExportSection[] = [];
@@ -75,6 +92,7 @@ export async function importData(): Promise<{ imported: ExportSection[]; counts:
   if (data.history && data.history.length > 0) {
     let count = 0;
     for (const row of data.history) {
+      if (!row.id || typeof row.id !== 'string' || !row.content) continue;
       try {
         await db.execute(
           `INSERT OR IGNORE INTO clipboard_history (id, content, html_content, content_type, detected_format, source_app, is_pinned, is_sensitive, created_at, updated_at)
@@ -92,6 +110,7 @@ export async function importData(): Promise<{ imported: ExportSection[]; counts:
 
   if (data.snippetCategories && data.snippetCategories.length > 0) {
     for (const row of data.snippetCategories) {
+      if (!row.id || typeof row.id !== 'string' || !row.name) continue;
       try {
         await db.execute(
           `INSERT OR IGNORE INTO snippet_categories (id, name, icon, sort_order, created_at)
@@ -107,6 +126,7 @@ export async function importData(): Promise<{ imported: ExportSection[]; counts:
   if (data.snippets && data.snippets.length > 0) {
     let count = 0;
     for (const row of data.snippets) {
+      if (!row.id || typeof row.id !== 'string' || !row.title || !row.content) continue;
       try {
         await db.execute(
           `INSERT OR IGNORE INTO snippets (id, title, content, trigger, category_id, syntax, is_pinned, sort_order, created_at, updated_at)
@@ -125,6 +145,7 @@ export async function importData(): Promise<{ imported: ExportSection[]; counts:
   if (data.vault && data.vault.length > 0) {
     let count = 0;
     for (const row of data.vault) {
+      if (!row.id || typeof row.id !== 'string' || !row.type || !row.title || !row.encrypted_data) continue;
       try {
         await db.execute(
           `INSERT OR IGNORE INTO vault_items (id, type, title, encrypted_data, trigger, icon, is_pinned, sort_order, created_at, updated_at)
