@@ -19,9 +19,13 @@ export function useTriggerEngine() {
   const snippetAutoExpand = useSettingsStore((s) => s.settings.snippetAutoExpand);
   const engineStarted = useRef(false);
 
-  // Start the Rust keystroke watcher once
+  // Start the Rust keystroke watcher once; reset flag when disabled
   useEffect(() => {
-    if (!snippetAutoExpand || engineStarted.current) return;
+    if (!snippetAutoExpand) {
+      engineStarted.current = false;
+      return;
+    }
+    if (engineStarted.current) return;
     engineStarted.current = true;
     invoke('start_trigger_engine').catch((err) => {
       console.error('[TriggerEngine] Failed to start:', err);

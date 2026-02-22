@@ -141,8 +141,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const db = getDatabase();
       const result = await db.select<VaultItemRow[]>('SELECT * FROM vault_items ORDER BY sort_order');
 
-      const items: VaultItem[] = await Promise.all(
-        result.map(async (row) => ({
+      const settled = await Promise.allSettled(
+        result.map(async (row): Promise<VaultItem> => ({
           id: row.id,
           type: row.type as VaultItemType,
           title: row.title,
@@ -155,6 +155,14 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           updatedAt: new Date(row.updated_at),
         }))
       );
+      const items: VaultItem[] = [];
+      for (const result of settled) {
+        if (result.status === 'fulfilled') {
+          items.push(result.value);
+        } else {
+          console.error('Failed to decrypt vault item:', result.reason);
+        }
+      }
       set({ items });
     } catch (error) {
       console.error('Failed to load vault items:', error);
