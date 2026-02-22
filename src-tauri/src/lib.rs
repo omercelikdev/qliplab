@@ -720,13 +720,19 @@ fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
 #[tauri::command]
 fn write_temp_image(base64_data: String) -> Result<String, String> {
     use base64::Engine;
-    let temp_dir = std::env::temp_dir().join("qliplab-drag");
-    std::fs::create_dir_all(&temp_dir).map_err(|e| format!("{}", e))?;
-    let file_path = temp_dir.join("clip.png");
+    let file_path = std::env::temp_dir().join(format!("qliplab_drag_{}.png", std::process::id()));
     let bytes = base64::engine::general_purpose::STANDARD
         .decode(&base64_data)
-        .map_err(|e| format!("Base64 decode failed: {}", e))?;
-    std::fs::write(&file_path, &bytes).map_err(|e| format!("{}", e))?;
+        .map_err(|_| "Base64 decode failed".to_string())?;
+    std::fs::write(&file_path, &bytes).map_err(|_| "Failed to write temp file".to_string())?;
+
+    // Set restrictive permissions
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let _ = std::fs::set_permissions(&file_path, std::fs::Permissions::from_mode(0o600));
+    }
+
     file_path.to_str().map(|s| s.to_string()).ok_or_else(|| "Invalid path".to_string())
 }
 
