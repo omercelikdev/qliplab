@@ -5,12 +5,17 @@ import {
   onImageUpdate,
   hasHTML,
   readHtml,
+  writeText as writeTextClipboard,
 } from 'tauri-plugin-clipboard-api';
 import { invoke } from '@tauri-apps/api/core';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { detectFormat, isSensitive } from '@/lib/formatDetector';
 import { isQueuePasting } from '@/lib/window';
+import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
+
+// Flag to prevent auto-command from re-triggering the listener
+let skipNextClipboardChange = false;
 
 export function useClipboardListener() {
   const { addItem } = useHistoryStore();
@@ -28,6 +33,11 @@ export function useClipboardListener() {
 
         unlistenText = await onTextUpdate(async (text) => {
           if (isQueuePasting()) return; // Skip clipboard changes during queue paste
+          if (skipNextClipboardChange) {
+            skipNextClipboardChange = false;
+            lastTextRef.current = text;
+            return;
+          }
           if (text === lastTextRef.current) return;
           lastTextRef.current = text;
           lastImageHashRef.current = '';
@@ -60,14 +70,36 @@ export function useClipboardListener() {
             // Ignore errors reading HTML
           }
 
+          const format = detectFormat(text);
+
           await addItem({
             content: text,
             htmlContent,
             contentType: 'text',
-            detectedFormat: detectFormat(text),
+            detectedFormat: format,
             isSensitive: settings.sensitiveDetectionEnabled ? isSensitive(text) : false,
             sourceApp,
           });
+
+          // Auto-commands: apply matching transform and update clipboard
+          const matchingCmd = settings.autoCommands.find(
+            (cmd) => cmd.enabled && cmd.format === format
+          );
+          if (matchingCmd) {
+            const transform = TRANSFORM_REGISTRY.find((t) => t.id === matchingCmd.transformId);
+            if (transform) {
+              try {
+                const result = await transform.apply(text);
+                if (result && result !== text) {
+                  skipNextClipboardChange = true;
+                  lastTextRef.current = result;
+                  await writeTextClipboard(result);
+                }
+              } catch {
+                // Silently ignore transform errors
+              }
+            }
+          }
         });
 
         unlistenImage = await onImageUpdate(async (base64Image) => {

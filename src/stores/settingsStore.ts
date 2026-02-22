@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { Store } from '@tauri-apps/plugin-store';
 
+export interface AutoCommand {
+  id: string;
+  format: string; // DetectedFormat value to match
+  transformId: string; // Transform from TRANSFORM_REGISTRY
+  enabled: boolean;
+}
+
 export interface AppSettings {
   theme: 'light' | 'dark' | 'system';
   historyLimit: number;
@@ -17,6 +24,7 @@ export interface AppSettings {
   snippetAutoExpand: boolean;
   onboardingSeen: boolean;
   globalShortcut: string; // e.g. 'CommandOrControl+Shift+V'
+  autoCommands: AutoCommand[];
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -35,6 +43,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   snippetAutoExpand: false,
   onboardingSeen: false,
   globalShortcut: 'CommandOrControl+Shift+V',
+  autoCommands: [],
 };
 
 let store: Store | null = null;

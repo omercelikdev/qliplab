@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard } from 'lucide-react';
-import { useSettingsStore } from '@/stores/settingsStore';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2 } from 'lucide-react';
+import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
 import { PrivacyPolicyDialog } from '@/components/settings/PrivacyPolicyDialog';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { recordConsent } from '@/lib/consentLog';
 import { exportData, importData, type ExportSection } from '@/lib/exportImport';
+import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { cn } from '@/lib/utils';
 
 export function SettingsPanel() {
@@ -115,6 +116,13 @@ export function SettingsPanel() {
                 onChange={(v) => updateSetting('snippetAutoExpand', v)}
               />
             </div>
+
+            {/* Auto-Commands */}
+            <div className="dotted-separator" />
+            <AutoCommandsSection
+              commands={settings.autoCommands}
+              onChange={(cmds) => updateSetting('autoCommands', cmds)}
+            />
 
             {/* Clip Expiration */}
             <div className="space-y-1.5">
@@ -543,6 +551,141 @@ function DataManagement() {
       <p className="text-[10px] text-muted-foreground">
         Vault items are exported encrypted. Import merges data without duplicates.
       </p>
+    </div>
+  );
+}
+
+const FORMAT_OPTIONS = [
+  { value: 'json', label: 'JSON' },
+  { value: 'yaml', label: 'YAML' },
+  { value: 'csv', label: 'CSV' },
+  { value: 'xml', label: 'XML' },
+  { value: 'sql', label: 'SQL' },
+  { value: 'base64', label: 'Base64' },
+  { value: 'jwt', label: 'JWT' },
+  { value: 'hex', label: 'Hex' },
+  { value: 'url', label: 'URL' },
+  { value: 'url_encoded', label: 'URL Encoded' },
+  { value: 'html', label: 'HTML' },
+  { value: 'markdown', label: 'Markdown' },
+  { value: 'code_js', label: 'JavaScript' },
+  { value: 'code_ts', label: 'TypeScript' },
+  { value: 'code_python', label: 'Python' },
+];
+
+function AutoCommandsSection({
+  commands,
+  onChange,
+}: {
+  commands: AutoCommand[];
+  onChange: (cmds: AutoCommand[]) => void;
+}) {
+  const addCommand = () => {
+    const id = `ac_${Date.now()}`;
+    onChange([...commands, { id, format: 'json', transformId: 'json_beautify', enabled: true }]);
+  };
+
+  const removeCommand = (id: string) => {
+    onChange(commands.filter(c => c.id !== id));
+  };
+
+  const updateCommand = (id: string, updates: Partial<AutoCommand>) => {
+    onChange(commands.map(c => c.id === id ? { ...c, ...updates } : c));
+  };
+
+  // Filter transforms relevant to a given format
+  const getTransformsForFormat = (format: string) => {
+    return TRANSFORM_REGISTRY.filter(t =>
+      t.relevantFormats.length === 0 || t.relevantFormats.includes(format as never)
+    );
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Zap className="w-3.5 h-3.5 text-muted-foreground" />
+          <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Auto-Commands</span>
+        </div>
+        <button
+          onClick={addCommand}
+          className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-accent hover:bg-accent/10 rounded transition-colors cursor-pointer"
+        >
+          <Plus className="w-3 h-3" />
+          Add Rule
+        </button>
+      </div>
+
+      <p className="text-[10px] text-muted-foreground">
+        Automatically transform clipboard content when a specific format is detected.
+      </p>
+
+      {commands.length === 0 ? (
+        <p className="text-[10px] text-muted-foreground/50 text-center py-2">
+          No auto-commands configured
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {commands.map(cmd => (
+            <div
+              key={cmd.id}
+              className={cn(
+                'flex items-center gap-2 p-2 rounded-md border text-[11px]',
+                cmd.enabled ? 'border-border bg-surface' : 'border-border/50 bg-surface/50 opacity-60'
+              )}
+            >
+              <button
+                onClick={() => updateCommand(cmd.id, { enabled: !cmd.enabled })}
+                className={cn(
+                  'w-7 h-4 rounded-full transition-colors relative cursor-pointer shrink-0',
+                  cmd.enabled ? 'bg-accent' : 'bg-border'
+                )}
+              >
+                <div className={cn(
+                  'absolute top-0.5 w-3 h-3 rounded-full bg-background shadow-sm transition-all',
+                  cmd.enabled ? 'left-[14px]' : 'left-0.5'
+                )} />
+              </button>
+
+              <select
+                value={cmd.format}
+                onChange={(e) => {
+                  const newFormat = e.target.value;
+                  const available = getTransformsForFormat(newFormat);
+                  updateCommand(cmd.id, {
+                    format: newFormat,
+                    transformId: available[0]?.id || cmd.transformId,
+                  });
+                }}
+                className="flex-1 px-1.5 py-0.5 bg-surface border border-border rounded text-[10px] outline-none"
+              >
+                {FORMAT_OPTIONS.map(f => (
+                  <option key={f.value} value={f.value}>{f.label}</option>
+                ))}
+              </select>
+
+              <span className="text-muted-foreground shrink-0">→</span>
+
+              <select
+                value={cmd.transformId}
+                onChange={(e) => updateCommand(cmd.id, { transformId: e.target.value })}
+                className="flex-1 px-1.5 py-0.5 bg-surface border border-border rounded text-[10px] outline-none"
+              >
+                {getTransformsForFormat(cmd.format).map(t => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </select>
+
+              <button
+                onClick={() => removeCommand(cmd.id)}
+                className="p-0.5 text-muted-foreground hover:text-destructive cursor-pointer shrink-0"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
