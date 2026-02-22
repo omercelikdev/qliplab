@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2 } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
@@ -8,6 +8,7 @@ import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { recordConsent } from '@/lib/consentLog';
 import { exportData, importData, type ExportSection } from '@/lib/exportImport';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
+import { CONFIG } from '@/lib/config';
 import { cn } from '@/lib/utils';
 
 export function SettingsPanel() {
@@ -258,7 +259,7 @@ export function SettingsPanel() {
 
             {/* Report Issue & Privacy — at bottom of scroll */}
             <div className="dotted-separator" />
-            <div className="space-y-2 pb-2">
+            <div className="space-y-2">
               <button
                 onClick={() => setIsReportOpen(true)}
                 className={cn(
@@ -279,6 +280,26 @@ export function SettingsPanel() {
                 <FileText className="w-3 h-3" />
                 Privacy Policy
               </button>
+            </div>
+
+            {/* About */}
+            <div className="dotted-separator" />
+            <div className="space-y-2 pb-2">
+              <div className="flex items-center gap-2">
+                <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">About</span>
+              </div>
+              <div className="text-center space-y-1.5 py-2">
+                <div className="text-sm font-semibold">qliplab</div>
+                <div className="text-[10px] text-muted-foreground">v{CONFIG.APP_VERSION}</div>
+                <div className="text-[10px] text-muted-foreground leading-relaxed">
+                  Cross-platform clipboard manager<br />
+                  Tauri v2 + React 19 + TypeScript
+                </div>
+                <div className="text-[9px] text-foreground/20 pt-1">
+                  MIT License
+                </div>
+              </div>
             </div>
           </div>
         </div>
