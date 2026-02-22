@@ -23,6 +23,7 @@ export async function initDatabase() {
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_pinned_created ON clipboard_history(is_pinned DESC, created_at DESC)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_detected_format ON clipboard_history(detected_format)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_content_type ON clipboard_history(content_type)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_source_app ON clipboard_history(source_app)`);
 
   // Migration: add html_content column for rich text support
   try {
