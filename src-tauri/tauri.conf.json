@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "qliplab",
+  "productName": "QlipLab",
   "version": "0.1.0",
   "identifier": "com.qliplab.app",
   "build": {
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "macOSPrivateApi": true,
     "windows": [{
-      "title": "qliplab",
+      "title": "QlipLab",
       "width": 480,
       "height": 460,
       "minWidth": 350,
