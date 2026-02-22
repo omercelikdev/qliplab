@@ -249,8 +249,14 @@ export const HistoryItem = memo(function HistoryItem({
   const standalone = STANDALONE_ICON[item.detectedFormat];
   const isMonospace = MONOSPACE_FORMATS.has(item.detectedFormat);
 
-  // Tags
-  const itemTags = useTagStore(state => state.getTagsForItem(item.id));
+  // Tags — derive from raw state to avoid new-array-per-render infinite loop
+  const allTags = useTagStore(state => state.tags);
+  const allItemTags = useTagStore(state => state.itemTags);
+  const itemTags = useMemo(() => {
+    const tagIds = allItemTags.get(item.id) || [];
+    if (tagIds.length === 0) return [];
+    return allTags.filter(t => tagIds.includes(t.id));
+  }, [allTags, allItemTags, item.id]);
 
   return (
     <div
