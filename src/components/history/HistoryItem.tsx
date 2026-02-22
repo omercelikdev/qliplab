@@ -9,6 +9,7 @@ import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
+import { useTagStore } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem, DetectedFormat } from '@/types/clipboard';
 
@@ -225,6 +226,9 @@ export const HistoryItem = memo(function HistoryItem({
   const standalone = STANDALONE_ICON[item.detectedFormat];
   const isMonospace = MONOSPACE_FORMATS.has(item.detectedFormat);
 
+  // Tags
+  const itemTags = useTagStore(state => state.getTagsForItem(item.id));
+
   return (
     <div
       className={cn(
@@ -307,6 +311,22 @@ export const HistoryItem = memo(function HistoryItem({
           )}
           <span className="truncate">{highlightMatch(item.content.slice(0, 200).replace(/\n/g, ' '), searchQuery)}</span>
         </span>
+      )}
+      {/* Tags */}
+      {itemTags.length > 0 && !isHovered && !isMenuOpen && (
+        <div className="flex items-center gap-0.5 shrink-0">
+          {itemTags.slice(0, 2).map(tag => (
+            <span
+              key={tag.id}
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: tag.color || '#888' }}
+              title={tag.name}
+            />
+          ))}
+          {itemTags.length > 2 && (
+            <span className="text-[8px] text-foreground/30">+{itemTags.length - 2}</span>
+          )}
+        </div>
       )}
       {/* Source app — dimmer than content */}
       {item.sourceApp && !isHovered && !isMenuOpen && (

@@ -27,6 +27,7 @@ import { useDiffMode } from './hooks/useDiffMode';
 import { useTriggerEngine } from './hooks/useTriggerEngine';
 import { useTheme } from './hooks/useTheme';
 import { useSettingsStore } from './stores/settingsStore';
+import { useTagStore } from './stores/tagStore';
 import { initDatabase } from './lib/database';
 import { cn } from './lib/utils';
 
@@ -63,6 +64,8 @@ function App() {
       }
 
       await loadItems();
+      await useTagStore.getState().loadTags();
+      await useTagStore.getState().loadItemTags();
       setIsInitialized(true);
     };
     init();

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
-import { Clipboard, Search } from 'lucide-react';
+import { Clipboard, Search, Tag, X } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useAppStore, FORMAT_FILTER_GROUPS } from '@/stores/appStore';
@@ -10,6 +10,7 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { getImageBase64ForClipboard } from '@/lib/imageUtils';
+import { useTagStore } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -32,6 +33,10 @@ export function HistoryList() {
   const addToDiffSelection = useAppStore((state) => state.addToDiffSelection);
   const setOpenMenuItemId = useAppStore((state) => state.setOpenMenuItemId);
   const openView = usePreviewStore((state) => state.openView);
+  const tags = useTagStore((state) => state.tags);
+  const activeTagFilter = useTagStore((state) => state.activeTagFilter);
+  const setActiveTagFilter = useTagStore((state) => state.setActiveTagFilter);
+  const itemTags = useTagStore((state) => state.itemTags);
 
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -63,15 +68,23 @@ export function HistoryList() {
     openView(item);
   }, [openView]);
 
-  // Reorder: pinned first, then unpinned
+  // Reorder: pinned first, then unpinned — with optional tag filter
   const { orderedItems, pinnedCount } = useMemo(() => {
-    const pinned = items.filter((item) => item.isPinned);
-    const unpinned = items.filter((item) => !item.isPinned);
+    let filtered = items;
+    if (activeTagFilter) {
+      const taggedItemIds = new Set<string>();
+      for (const [itemId, tagIds] of itemTags) {
+        if (tagIds.includes(activeTagFilter)) taggedItemIds.add(itemId);
+      }
+      filtered = items.filter(item => taggedItemIds.has(item.id));
+    }
+    const pinned = filtered.filter((item) => item.isPinned);
+    const unpinned = filtered.filter((item) => !item.isPinned);
     return {
       orderedItems: [...pinned, ...unpinned],
       pinnedCount: pinned.length,
     };
-  }, [items]);
+  }, [items, activeTagFilter, itemTags]);
 
   const remainingCount = totalCount - items.length;
 
@@ -165,6 +178,40 @@ export function HistoryList() {
           </button>
         ))}
       </div>
+
+      {/* Tag filter — only shown when tags exist */}
+      {tags.length > 0 && (
+        <div className="flex items-center gap-1 px-3 py-1 shrink-0 overflow-x-auto border-t border-border/30">
+          <Tag className="w-3 h-3 text-muted-foreground shrink-0" />
+          {tags.map(tag => (
+            <button
+              key={tag.id}
+              onClick={() => setActiveTagFilter(activeTagFilter === tag.id ? null : tag.id)}
+              className={cn(
+                'flex items-center gap-1 px-2 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer border',
+                activeTagFilter === tag.id
+                  ? 'border-accent bg-accent/10 text-accent'
+                  : 'border-transparent text-muted-foreground hover:bg-surface-hover'
+              )}
+            >
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{ backgroundColor: tag.color || '#888' }}
+              />
+              {tag.name}
+            </button>
+          ))}
+          {activeTagFilter && (
+            <button
+              onClick={() => setActiveTagFilter(null)}
+              className="p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+              title="Clear tag filter"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+      )}
 
       <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden">
       {items.length === 0 ? (

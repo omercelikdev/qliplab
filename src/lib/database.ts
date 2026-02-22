@@ -105,6 +105,29 @@ export async function initDatabase() {
       value TEXT NOT NULL
     )
   `);
+
+  // Tags system (many-to-many)
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS tags (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE,
+      color TEXT,
+      created_at TEXT NOT NULL
+    )
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS item_tags (
+      item_id TEXT NOT NULL,
+      tag_id TEXT NOT NULL,
+      PRIMARY KEY (item_id, tag_id),
+      FOREIGN KEY (item_id) REFERENCES clipboard_history(id) ON DELETE CASCADE,
+      FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+    )
+  `);
+
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_item_tags_item ON item_tags(item_id)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_item_tags_tag ON item_tags(tag_id)`);
 }
 
 export function getDatabase() {

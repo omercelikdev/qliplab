@@ -1,7 +1,7 @@
 import { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Eye, FileText, ClipboardPaste, ScanText, Bot } from 'lucide-react';
+import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Eye, FileText, ClipboardPaste, ScanText, Bot, Tag, Plus, X } from 'lucide-react';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import * as transforms from '@/lib/transforms';
@@ -14,6 +14,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 import { isAiConfigured, isAiConsentGiven, runAiAction, AI_ACTIONS } from '@/lib/ai';
 import type { AiAction } from '@/lib/ai';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
+import { useTagStore } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -306,6 +307,8 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
             )}
 
             <div className="h-px bg-border my-1" />
+            <TagSubmenu itemId={item.id} />
+            <div className="h-px bg-border my-1" />
             <MenuButton icon={item.isPinned ? PinOff : Pin} label={item.isPinned ? 'Unpin' : 'Pin'} onClick={handlePin} />
             <MenuButton icon={Trash2} label="Delete" onClick={handleDelete} destructive />
           </motion.div>
@@ -326,5 +329,92 @@ function MenuButton({ icon: Icon, label, onClick, destructive }: { icon: React.E
       <Icon className="w-3.5 h-3.5" />
       {label}
     </button>
+  );
+}
+
+const TAG_COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6'];
+
+function TagSubmenu({ itemId }: { itemId: string }) {
+  const { tags, getTagsForItem, addTagToItem, removeTagFromItem, createTag } = useTagStore();
+  const [isAdding, setIsAdding] = useState(false);
+  const [newTagName, setNewTagName] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const itemTags = getTagsForItem(itemId);
+  const itemTagIds = new Set(itemTags.map(t => t.id));
+
+  useEffect(() => {
+    if (isAdding && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isAdding]);
+
+  const handleCreateAndAdd = async () => {
+    const name = newTagName.trim();
+    if (!name) return;
+    const color = TAG_COLORS[tags.length % TAG_COLORS.length];
+    const tag = await createTag(name, color);
+    if (tag) {
+      await addTagToItem(itemId, tag.id);
+    }
+    setNewTagName('');
+    setIsAdding(false);
+  };
+
+  return (
+    <div className="px-2 py-1">
+      <div className="flex items-center gap-1 mb-1">
+        <Tag className="w-3 h-3 text-muted-foreground" />
+        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Tags</span>
+      </div>
+      {/* Existing tags — toggle on/off */}
+      {tags.map(tag => {
+        const isApplied = itemTagIds.has(tag.id);
+        return (
+          <button
+            key={tag.id}
+            className="w-full flex items-center gap-1.5 px-1 py-0.5 text-[11px] hover:bg-surface-hover rounded transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isApplied) removeTagFromItem(itemId, tag.id);
+              else addTagToItem(itemId, tag.id);
+            }}
+          >
+            <span
+              className="w-2.5 h-2.5 rounded-full shrink-0 border border-foreground/10"
+              style={{ backgroundColor: tag.color || '#888' }}
+            />
+            <span className="truncate flex-1 text-left">{tag.name}</span>
+            {isApplied && <X className="w-3 h-3 text-muted-foreground shrink-0" />}
+          </button>
+        );
+      })}
+      {/* Add new tag */}
+      {isAdding ? (
+        <div className="flex items-center gap-1 mt-0.5">
+          <input
+            ref={inputRef}
+            type="text"
+            value={newTagName}
+            onChange={(e) => setNewTagName(e.target.value)}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === 'Enter') handleCreateAndAdd();
+              if (e.key === 'Escape') { setIsAdding(false); setNewTagName(''); }
+            }}
+            placeholder="Tag name..."
+            className="flex-1 px-1.5 py-0.5 text-[10px] bg-surface border border-border rounded outline-none focus:ring-1 focus:ring-accent"
+          />
+        </div>
+      ) : (
+        <button
+          className="w-full flex items-center gap-1.5 px-1 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-surface-hover rounded transition-colors cursor-pointer mt-0.5"
+          onClick={(e) => { e.stopPropagation(); setIsAdding(true); }}
+        >
+          <Plus className="w-3 h-3" />
+          New tag
+        </button>
+      )}
+    </div>
   );
 }

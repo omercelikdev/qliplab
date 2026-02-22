@@ -52,3 +52,15 @@ export interface VaultSettingsRow {
   key: string;
   value: string;
 }
+
+export interface TagRow {
+  id: string;
+  name: string;
+  color: string | null;
+  created_at: string;
+}
+
+export interface ItemTagRow {
+  item_id: string;
+  tag_id: string;
+}
