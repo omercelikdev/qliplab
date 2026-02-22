@@ -709,6 +709,20 @@ fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
     Ok(())
 }
 
+/// Write base64 image to a temp file for drag & drop
+#[tauri::command]
+fn write_temp_image(base64_data: String) -> Result<String, String> {
+    use base64::Engine;
+    let temp_dir = std::env::temp_dir().join("qliplab-drag");
+    std::fs::create_dir_all(&temp_dir).map_err(|e| format!("{}", e))?;
+    let file_path = temp_dir.join("clip.png");
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(&base64_data)
+        .map_err(|e| format!("Base64 decode failed: {}", e))?;
+    std::fs::write(&file_path, &bytes).map_err(|e| format!("{}", e))?;
+    file_path.to_str().map(|s| s.to_string()).ok_or_else(|| "Invalid path".to_string())
+}
+
 /// List all installed and running applications (macOS only)
 /// Returns tuples of (app_name, is_running)
 #[cfg(target_os = "macos")]
@@ -796,10 +810,117 @@ fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
     Ok(all_apps)
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "windows")]
 #[tauri::command]
 fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
-    Ok(vec![])
+    use std::collections::HashSet;
+    // Get visible-window processes via PowerShell
+    let mut running = HashSet::new();
+    if let Ok(output) = std::process::Command::new("powershell")
+        .args(["-Command", "Get-Process | Where-Object {$_.MainWindowTitle -ne ''} | Select-Object -ExpandProperty ProcessName | Sort-Object -Unique"])
+        .output()
+    {
+        if output.status.success() {
+            let text = String::from_utf8_lossy(&output.stdout);
+            for line in text.lines() {
+                let name = line.trim();
+                if !name.is_empty() {
+                    running.insert(name.to_lowercase());
+                }
+            }
+        }
+    }
+
+    // Get installed apps from Start Menu shortcuts
+    let mut all_apps: Vec<(String, bool)> = Vec::new();
+    let mut seen = HashSet::new();
+
+    let mut dirs = Vec::new();
+    if let Ok(appdata) = std::env::var("APPDATA") {
+        dirs.push(std::path::PathBuf::from(appdata).join("Microsoft\\Windows\\Start Menu\\Programs"));
+    }
+    dirs.push(std::path::PathBuf::from("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"));
+
+    for dir in dirs {
+        if let Ok(entries) = std::fs::read_dir(&dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().map_or(false, |ext| ext == "lnk") {
+                    if let Some(name) = path.file_stem().and_then(|s| s.to_str()) {
+                        let name = name.to_string();
+                        if seen.insert(name.to_lowercase()) {
+                            let is_running = running.contains(&name.to_lowercase());
+                            all_apps.push((name, is_running));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Add running apps not found in Start Menu
+    for r in &running {
+        if !seen.contains(r) {
+            let display: String = r.chars().next().map(|c| c.to_uppercase().collect::<String>() + &r[1..]).unwrap_or_default();
+            all_apps.push((display, true));
+        }
+    }
+
+    all_apps.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.to_lowercase().cmp(&b.0.to_lowercase())));
+    Ok(all_apps)
+}
+
+#[cfg(target_os = "linux")]
+#[tauri::command]
+fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
+    use std::collections::HashSet;
+    // Get running desktop apps via wmctrl or ps
+    let mut running = HashSet::new();
+    if let Ok(output) = std::process::Command::new("ps")
+        .args(["-eo", "comm"])
+        .output()
+    {
+        if output.status.success() {
+            let text = String::from_utf8_lossy(&output.stdout);
+            for line in text.lines().skip(1) {
+                let name = line.trim();
+                if !name.is_empty() {
+                    running.insert(name.to_lowercase());
+                }
+            }
+        }
+    }
+
+    // List .desktop files
+    let mut all_apps: Vec<(String, bool)> = Vec::new();
+    let mut seen = HashSet::new();
+    let app_dirs = vec![
+        std::path::PathBuf::from("/usr/share/applications"),
+        std::path::PathBuf::from("/usr/local/share/applications"),
+    ];
+    if let Ok(home) = std::env::var("HOME") {
+        let _ = app_dirs.clone(); // just for the push below
+    }
+
+    for dir in &app_dirs {
+        if let Ok(entries) = std::fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().map_or(false, |ext| ext == "desktop") {
+                    if let Some(name) = path.file_stem().and_then(|s| s.to_str()) {
+                        let name = name.to_string();
+                        if seen.insert(name.to_lowercase()) {
+                            let is_running = running.contains(&name.to_lowercase());
+                            all_apps.push((name, is_running));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    all_apps.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.to_lowercase().cmp(&b.0.to_lowercase())));
+    Ok(all_apps)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -840,7 +961,8 @@ pub fn run() {
             update_triggers,
             set_trigger_expanding,
             start_trigger_engine,
-            list_running_apps
+            list_running_apps,
+            write_temp_image
         ])
         .setup(|app| {
             // macOS: Hide dock icon

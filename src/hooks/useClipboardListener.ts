@@ -83,29 +83,24 @@ export function useClipboardListener() {
 
           // Auto-commands: apply matching transform and update clipboard
           const cmds = settings.autoCommands;
-          console.log('[AutoCmd] format:', format, 'cmds:', cmds?.length, cmds);
           if (!cmds || cmds.length === 0) return;
 
           for (const cmd of cmds) {
-            console.log('[AutoCmd] checking:', cmd.format, '===', format, 'enabled:', cmd.enabled);
             if (!cmd.enabled || cmd.format !== format) continue;
 
             const transform = TRANSFORM_REGISTRY.find((t) => t.id === cmd.transformId);
-            console.log('[AutoCmd] transform found:', !!transform, cmd.transformId);
             if (!transform) continue;
 
             try {
               const result = await transform.apply(text);
-              console.log('[AutoCmd] result === text?', result === text, 'result length:', result?.length);
               if (result && result !== text) {
                 skipNextClipboardChange = true;
                 lastTextRef.current = result;
                 await writeTextClipboard(result);
-                console.log('[AutoCmd] clipboard updated successfully');
                 return; // Only apply first matching command
               }
-            } catch (err) {
-              console.error('[AutoCmd] failed:', err);
+            } catch {
+              // Transform failed, continue to next
             }
           }
         });

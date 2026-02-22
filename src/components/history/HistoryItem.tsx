@@ -7,6 +7,7 @@ import { ItemMenu } from './ItemMenu';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { startDrag } from '@crabnebula/tauri-plugin-drag';
+import { invoke } from '@tauri-apps/api/core';
 import { resolveResource } from '@tauri-apps/api/path';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
@@ -119,6 +120,7 @@ export const HistoryItem = memo(function HistoryItem({
   const [isHovered, setIsHovered] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [isPasting, setIsPasting] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -224,32 +226,40 @@ export const HistoryItem = memo(function HistoryItem({
   const handleDragStart = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDragging(true);
     try {
+      const isMac = navigator.platform.includes('Mac');
+      const textType = isMac ? 'public.utf8-plain-text' : 'text/plain';
+      const htmlType = isMac ? 'public.html' : 'text/html';
       const iconPath = await resolveResource('icons/32x32.png');
-      if (item.htmlContent) {
+
+      if (item.contentType === 'image') {
+        // Images: write to temp file and drag as file
+        const parsed = parseImageData(item.content);
+        if (parsed) {
+          const tempPath = await invoke<string>('write_temp_image', { base64Data: parsed.base64 });
+          await startDrag({ item: [tempPath], icon: iconPath });
+        }
+      } else if (item.htmlContent) {
         await startDrag({
           item: {
-            data: {
-              'public.html': item.htmlContent,
-              'public.utf8-plain-text': item.content,
-            },
-            types: ['public.html', 'public.utf8-plain-text'],
+            data: { [htmlType]: item.htmlContent, [textType]: item.content },
+            types: [htmlType, textType],
           },
           icon: iconPath,
         });
       } else {
         await startDrag({
-          item: {
-            data: item.content,
-            types: ['public.utf8-plain-text'],
-          },
+          item: { data: item.content, types: [textType] },
           icon: iconPath,
         });
       }
     } catch (err) {
       console.error('Drag failed:', err);
+    } finally {
+      setIsDragging(false);
     }
-  }, [item.content, item.htmlContent]);
+  }, [item.content, item.htmlContent, item.contentType]);
 
   // Badge rendering
   const badgeGroup = FORMAT_GROUP[item.detectedFormat] ?? null;
@@ -283,7 +293,8 @@ export const HistoryItem = memo(function HistoryItem({
         isSelectedForDiff && 'ring-2 ring-accent',
         isQueueMode && queuePosition !== null && 'bg-accent/[0.07]',
         isSelected && !isDiffMode && 'bg-accent/[0.07]',
-        showFlash && 'copy-flash'
+        showFlash && 'copy-flash',
+        isDragging && 'opacity-50'
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -380,16 +391,14 @@ export const HistoryItem = memo(function HistoryItem({
           'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
           (isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0'
         )}>
-          {item.contentType !== 'image' && (
-            <button
+          <button
               className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-grab active:cursor-grabbing"
               onMouseDown={handleDragStart}
               onClick={(e) => e.stopPropagation()}
-              title="Drag to another app"
+              title={item.contentType === 'image' ? 'Drag image as file' : 'Drag to another app'}
             >
               <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
-          )}
           <button
             className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
             onClick={handleQuickView}
