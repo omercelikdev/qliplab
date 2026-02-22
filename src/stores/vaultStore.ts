@@ -223,14 +223,15 @@ export const useVaultStore = create<VaultState>((set, get) => ({
 
   createItem: async (type, title, data, trigger) => {
     try {
-      if (!sessionPassword) return;
+      const password = sessionPassword;
+      if (!password) return;
       // Reset auto-lock timer on activity
       resetAutoLockTimer(() => get().lock());
 
       const db = getDatabase();
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
-      const encryptedData = await encrypt(JSON.stringify(data), sessionPassword);
+      const encryptedData = await encrypt(JSON.stringify(data), password);
 
       await db.execute(
         `INSERT INTO vault_items (id, type, title, encrypted_data, trigger, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
