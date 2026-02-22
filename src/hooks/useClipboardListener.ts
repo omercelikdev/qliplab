@@ -13,6 +13,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 import { detectFormat, isSensitive } from '@/lib/formatDetector';
 import { isQueuePasting } from '@/lib/window';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
+import { getDatabase } from '@/lib/database';
 
 // Flag to prevent auto-command from re-triggering the listener
 let skipNextClipboardChange = false;
@@ -81,7 +82,7 @@ export function useClipboardListener() {
             sourceApp,
           });
 
-          // Auto-commands: apply matching transform and update clipboard
+          // Auto-commands: apply matching transform and update clipboard + DB
           const cmds = settings.autoCommands;
           if (!cmds || cmds.length === 0) return;
 
@@ -94,9 +95,26 @@ export function useClipboardListener() {
             try {
               const result = await transform.apply(text);
               if (result && result !== text) {
+                // Update clipboard
                 skipNextClipboardChange = true;
                 lastTextRef.current = result;
                 await writeTextClipboard(result);
+
+                // Update stored item so future pastes from qliplab use transformed content
+                try {
+                  const db = getDatabase();
+                  const newFormat = detectFormat(result);
+                  await db.execute(
+                    'UPDATE clipboard_history SET content = ?, detected_format = ?, updated_at = ? WHERE content = ?',
+                    [result, newFormat, new Date().toISOString(), text]
+                  );
+                  // Reload the list to reflect updated content
+                  const { loadItems } = useHistoryStore.getState();
+                  await loadItems();
+                } catch {
+                  // DB update failed, clipboard still updated
+                }
+
                 return; // Only apply first matching command
               }
             } catch {
