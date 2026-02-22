@@ -28,6 +28,7 @@ export function PreviewPanel() {
   const panelRef = useRef<HTMLDivElement>(null);
   const [showHtmlPreview, setShowHtmlPreview] = useState(false);
   const [showTransformPicker, setShowTransformPicker] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'ok' | 'fail'>('idle');
 
   const [left, right] = diffItems;
   const isDiffMode = mode === 'diff';
@@ -62,13 +63,19 @@ export function PreviewPanel() {
   }, [parsedImageData]);
 
   const handleCopy = useCallback(async () => {
-    if (parsedImageData) {
-      try { await writeImageToClipboard(); } catch { /* image copy failed */ }
-    } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
-      await writeHtmlAndText(sourceItem.htmlContent, editedContent);
-    } else {
-      await writeText(editedContent);
+    try {
+      if (parsedImageData) {
+        await writeImageToClipboard();
+      } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
+        await writeHtmlAndText(sourceItem.htmlContent, editedContent);
+      } else {
+        await writeText(editedContent);
+      }
+      setCopyStatus('ok');
+    } catch {
+      setCopyStatus('fail');
     }
+    setTimeout(() => setCopyStatus('idle'), 1500);
   }, [editedContent, sourceItem, parsedImageData, writeImageToClipboard]);
 
   const handlePaste = useCallback(async () => {
@@ -300,12 +307,15 @@ export function PreviewPanel() {
             <button
               onClick={handleCopy}
               className={cn(
-                'flex items-center gap-1.5 px-2 py-1 text-xs cursor-pointer',
-                'bg-surface hover:bg-surface-hover rounded-md transition-colors'
+                'flex items-center gap-1.5 px-2 py-1 text-xs cursor-pointer rounded-md transition-colors',
+                copyStatus === 'ok' ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                  : copyStatus === 'fail' ? 'bg-destructive/10 text-destructive'
+                  : 'bg-surface hover:bg-surface-hover'
               )}
               title="Copy to clipboard"
             >
-              <Copy className="w-3.5 h-3.5" /> Copy
+              <Copy className="w-3.5 h-3.5" />
+              {copyStatus === 'ok' ? 'Copied' : copyStatus === 'fail' ? 'Failed' : 'Copy'}
             </button>
             <button
               onClick={handlePaste}
