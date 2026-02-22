@@ -43,8 +43,9 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
         conditions.push('is_pinned = 1');
       }
       if (searchQuery) {
-        conditions.push('(title LIKE ? OR content LIKE ?)');
-        args.push(`%${searchQuery}%`, `%${searchQuery}%`);
+        const escaped = searchQuery.replace(/[%_]/g, '\\$&');
+        conditions.push("(title LIKE ? ESCAPE '\\' OR content LIKE ? ESCAPE '\\')");
+        args.push(`%${escaped}%`, `%${escaped}%`);
       }
       if (syntaxFilter && syntaxFilter.length > 0) {
         conditions.push(`syntax IN (${syntaxFilter.map(() => '?').join(',')})`);

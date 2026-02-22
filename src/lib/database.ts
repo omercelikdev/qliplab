@@ -174,8 +174,10 @@ function buildWhereClause(params: HistoryQueryParams): { where: string; args: (s
 
   // Search — only text items, case-insensitive LIKE
   if (params.searchQuery) {
-    conditions.push(`(content_type != 'image' AND content LIKE ?)`);
-    args.push(`%${params.searchQuery}%`);
+    // Escape LIKE wildcards so literal % and _ in search are matched exactly
+    const escaped = params.searchQuery.replace(/[%_]/g, '\\$&');
+    conditions.push(`(content_type != 'image' AND content LIKE ? ESCAPE '\\')`);
+    args.push(`%${escaped}%`);
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
