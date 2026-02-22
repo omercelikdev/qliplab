@@ -42,6 +42,7 @@ export function useClipboardListener() {
             lastTextRef.current = text;
             return;
           }
+          if (!text || text.trim().length === 0) return;
           if (text === lastTextRef.current) return;
           if (text.length > MAX_CONTENT_SIZE) return;
           lastTextRef.current = text;
