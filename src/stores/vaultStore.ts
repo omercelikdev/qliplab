@@ -9,9 +9,10 @@ import type { VaultItemRow, VaultSettingsRow } from '@/types/database';
 let sessionPassword: string | null = null;
 let autoLockTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Brute-force protection: exponential backoff on failed attempts
+// Brute-force protection: exponential backoff on failed attempts (persisted to DB)
 let failedAttempts = 0;
 let lockedUntil = 0;
+let bruteForceLoaded = false;
 
 function getLockoutDuration(attempts: number): number {
   if (attempts < 3) return 0;
@@ -23,6 +24,37 @@ function getLockoutDuration(attempts: number): number {
 
 function getRemainingLockout(): number {
   return Math.max(0, lockedUntil - Date.now());
+}
+
+async function loadBruteForceState() {
+  if (bruteForceLoaded) return;
+  try {
+    const db = getDatabase();
+    const rows = await db.select<VaultSettingsRow[]>(
+      "SELECT value FROM vault_settings WHERE key = 'failed_attempts'"
+    );
+    if (rows.length > 0) {
+      const data = JSON.parse(rows[0].value);
+      failedAttempts = data.count ?? 0;
+      lockedUntil = data.lockedUntil ?? 0;
+    }
+    bruteForceLoaded = true;
+  } catch {
+    // DB not ready yet, use in-memory defaults
+  }
+}
+
+async function saveBruteForceState() {
+  try {
+    const db = getDatabase();
+    const value = JSON.stringify({ count: failedAttempts, lockedUntil });
+    await db.execute(
+      "INSERT OR REPLACE INTO vault_settings (key, value) VALUES ('failed_attempts', ?)",
+      [value]
+    );
+  } catch {
+    // Best-effort persist
+  }
 }
 
 // Reset auto-lock timer on activity (reads autoLockMinutes from settings)
@@ -67,6 +99,9 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   failedCount: 0,
 
   unlock: async (password) => {
+    // Load persisted brute-force state on first attempt
+    await loadBruteForceState();
+
     // Check if currently locked out
     const remaining = getRemainingLockout();
     if (remaining > 0) {
@@ -88,6 +123,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           [hash]
         );
         failedAttempts = 0;
+        await saveBruteForceState();
         sessionPassword = password;
         resetAutoLockTimer(() => get().lock());
         set({ isLocked: false, lockoutRemaining: 0, failedCount: 0 });
@@ -108,6 +144,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         }
 
         failedAttempts = 0;
+        await saveBruteForceState();
         sessionPassword = password;
         resetAutoLockTimer(() => get().lock());
         await get().loadItems(password);
@@ -120,6 +157,9 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const lockoutMs = getLockoutDuration(failedAttempts);
       if (lockoutMs > 0) {
         lockedUntil = Date.now() + lockoutMs;
+      }
+      await saveBruteForceState();
+      if (lockoutMs > 0) {
         set({ lockoutRemaining: lockoutMs, failedCount: failedAttempts });
         return 'locked_out';
       }
