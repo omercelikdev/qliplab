@@ -15,28 +15,27 @@ import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
 export function HistoryList() {
+  // Data selectors — trigger re-render on data change
   const items = useHistoryStore((state) => state.items);
   const totalCount = useHistoryStore((state) => state.totalCount);
   const isLoading = useHistoryStore((state) => state.isLoading);
-  const loadItems = useHistoryStore((state) => state.loadItems);
-  const loadMore = useHistoryStore((state) => state.loadMore);
   const searchQuery = useAppStore((state) => state.searchQuery);
   const activeTab = useAppStore((state) => state.activeTab);
   const isDiffMode = useAppStore((state) => state.isDiffMode);
   const formatFilter = useAppStore((state) => state.formatFilter);
-  const setFormatFilter = useAppStore((state) => state.setFormatFilter);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const isQueueMode = useAppStore((state) => state.isQueueMode);
   const pasteQueue = useAppStore((state) => state.pasteQueue);
-  const toggleQueueItem = useAppStore((state) => state.toggleQueueItem);
   const openMenuItemId = useAppStore((state) => state.openMenuItemId);
-  const addToDiffSelection = useAppStore((state) => state.addToDiffSelection);
-  const setOpenMenuItemId = useAppStore((state) => state.setOpenMenuItemId);
-  const openView = usePreviewStore((state) => state.openView);
   const tags = useTagStore((state) => state.tags);
   const activeTagFilter = useTagStore((state) => state.activeTagFilter);
-  const setActiveTagFilter = useTagStore((state) => state.setActiveTagFilter);
   const itemTags = useTagStore((state) => state.itemTags);
+
+  // Stable action references — never trigger re-render
+  const { loadItems, loadMore } = useHistoryStore.getState();
+  const { setFormatFilter, toggleQueueItem, addToDiffSelection, setOpenMenuItemId } = useAppStore.getState();
+  const { openView } = usePreviewStore.getState();
+  const { setActiveTagFilter } = useTagStore.getState();
 
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
