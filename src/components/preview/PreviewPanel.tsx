@@ -38,55 +38,52 @@ export function PreviewPanel() {
 
   // Panel closes only via X button, ESC, or Option+D - not by clicking outside
 
+  // Memoize parsed image data to avoid duplicate JSON.parse in copy/paste
+  const parsedImageData = useMemo(() => {
+    if (sourceItem?.contentType !== 'image') return null;
+    try {
+      const data = JSON.parse(sourceItem.content);
+      if (data.type === 'rgba' && data.data && data.width && data.height) return data;
+      return null;
+    } catch {
+      return null;
+    }
+  }, [sourceItem]);
+
+  const writeImageToClipboard = useCallback(async () => {
+    if (!parsedImageData) return;
+    const binary = atob(parsedImageData.data);
+    const rgba = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      rgba[i] = binary.charCodeAt(i);
+    }
+    const img = await Image.new(rgba, parsedImageData.width, parsedImageData.height);
+    await writeImage(img);
+  }, [parsedImageData]);
+
   const handleCopy = useCallback(async () => {
-    if (sourceItem?.contentType === 'image') {
-      try {
-        const data = JSON.parse(sourceItem.content);
-        if (data.type === 'rgba' && data.data && data.width && data.height) {
-          const binary = atob(data.data);
-          const rgba = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) {
-            rgba[i] = binary.charCodeAt(i);
-          }
-          const img = await Image.new(rgba, data.width, data.height);
-          await writeImage(img);
-        }
-      } catch (e) {
-        console.error('Failed to copy image:', e);
-      }
+    if (parsedImageData) {
+      try { await writeImageToClipboard(); } catch (e) { console.error('Failed to copy image:', e); }
     } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
       await writeHtmlAndText(sourceItem.htmlContent, editedContent);
     } else {
       await writeText(editedContent);
     }
-  }, [editedContent, sourceItem]);
+  }, [editedContent, sourceItem, parsedImageData, writeImageToClipboard]);
 
   const handlePaste = useCallback(async () => {
     // No close() here — hideWindowCore's resetUIState() already sets isOpen:false.
     // Calling close() would trigger shrinkWindowFromPreview() racing with hideWindowCore().
     await hideWriteAndPaste(async () => {
-      if (sourceItem?.contentType === 'image') {
-        try {
-          const data = JSON.parse(sourceItem.content);
-          if (data.type === 'rgba' && data.data && data.width && data.height) {
-            const binary = atob(data.data);
-            const rgba = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) {
-              rgba[i] = binary.charCodeAt(i);
-            }
-            const img = await Image.new(rgba, data.width, data.height);
-            await writeImage(img);
-          }
-        } catch (e) {
-          console.error('Failed to copy image:', e);
-        }
+      if (parsedImageData) {
+        try { await writeImageToClipboard(); } catch (e) { console.error('Failed to copy image:', e); }
       } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
         await writeHtmlAndText(sourceItem.htmlContent, editedContent);
       } else {
         await writeText(editedContent);
       }
     });
-  }, [editedContent, sourceItem]);
+  }, [editedContent, sourceItem, parsedImageData, writeImageToClipboard]);
 
   const theme = settings.theme === 'dark' ? 'vs-dark' : 'light';
 
