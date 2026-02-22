@@ -60,7 +60,7 @@ export function SettingsPanel() {
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">History Limit</label>
               <select
                 value={settings.historyLimit}
-                onChange={(e) => updateSetting('historyLimit', parseInt(e.target.value))}
+                onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('historyLimit', v); }}
                 className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value={100}>100 items</option>
@@ -81,7 +81,7 @@ export function SettingsPanel() {
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Vault Auto-lock</label>
               <select
                 value={settings.autoLockMinutes}
-                onChange={(e) => updateSetting('autoLockMinutes', parseInt(e.target.value))}
+                onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('autoLockMinutes', v); }}
                 className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value={1}>1 minute</option>
@@ -131,7 +131,7 @@ export function SettingsPanel() {
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Auto-delete old clips</label>
               <select
                 value={settings.expirationDays}
-                onChange={(e) => updateSetting('expirationDays', parseInt(e.target.value))}
+                onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('expirationDays', v); }}
                 className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value={0}>Never</option>
