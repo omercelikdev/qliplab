@@ -267,6 +267,7 @@ struct TriggerEngineState {
 /// Send N backspace key events to delete the trigger text
 #[tauri::command]
 fn simulate_backspace(count: u32) -> Result<(), String> {
+    let count = count.min(500); // Cap at reasonable limit
     thread::spawn(move || {
         #[cfg(target_os = "macos")]
         {
