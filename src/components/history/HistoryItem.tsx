@@ -6,9 +6,6 @@ import {
 import { ItemMenu } from './ItemMenu';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
-import { startDrag } from '@crabnebula/tauri-plugin-drag';
-import { invoke } from '@tauri-apps/api/core';
-import { resolveResource } from '@tauri-apps/api/path';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
@@ -222,30 +219,15 @@ export const HistoryItem = memo(function HistoryItem({
     openMenu();
   }, [openMenu]);
 
-  const handleDragStart = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleDragStart = useCallback((e: React.DragEvent) => {
     e.stopPropagation();
-    try {
-      // Write content to temp file, then drag the file
-      const ext = item.detectedFormat === 'json' ? 'json'
-        : item.detectedFormat === 'html' ? 'html'
-        : item.detectedFormat === 'xml' ? 'xml'
-        : item.detectedFormat === 'sql' ? 'sql'
-        : item.detectedFormat === 'csv' ? 'csv'
-        : item.detectedFormat === 'yaml' ? 'yaml'
-        : item.detectedFormat === 'markdown' ? 'md'
-        : 'txt';
-      const content = item.htmlContent && ext === 'html' ? item.htmlContent : item.content;
-      const tempPath = await invoke<string>('write_temp_drag_file', { content, extension: ext });
-      const iconPath = await resolveResource('icons/32x32.png');
-      await startDrag({
-        item: [tempPath],
-        icon: iconPath,
-      });
-    } catch (err) {
-      console.error('Drag failed:', err);
+    // Set text data for inline paste in target app
+    e.dataTransfer.setData('text/plain', item.content);
+    if (item.htmlContent) {
+      e.dataTransfer.setData('text/html', item.htmlContent);
     }
-  }, [item.content, item.htmlContent, item.detectedFormat]);
+    e.dataTransfer.effectAllowed = 'copy';
+  }, [item.content, item.htmlContent]);
 
   // Badge rendering
   const badgeGroup = FORMAT_GROUP[item.detectedFormat] ?? null;
@@ -377,14 +359,14 @@ export const HistoryItem = memo(function HistoryItem({
           (isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0'
         )}>
           {item.contentType !== 'image' && (
-            <button
+            <div
+              draggable
               className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-grab active:cursor-grabbing"
-              onMouseDown={handleDragStart}
-              onClick={(e) => e.stopPropagation()}
+              onDragStart={handleDragStart}
               title="Drag to another app"
             >
               <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
-            </button>
+            </div>
           )}
           <button
             className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"

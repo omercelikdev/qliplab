@@ -709,21 +709,15 @@ fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
     Ok(())
 }
 
-/// Write text content to a temporary file for drag & drop
-#[tauri::command]
-fn write_temp_drag_file(content: String, extension: String) -> Result<String, String> {
-    let temp_dir = std::env::temp_dir().join("qliplab-drag");
-    std::fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {}", e))?;
-    let file_name = format!("clip.{}", extension);
-    let file_path = temp_dir.join(&file_name);
-    std::fs::write(&file_path, content.as_bytes()).map_err(|e| format!("Failed to write temp file: {}", e))?;
-    file_path.to_str().map(|s| s.to_string()).ok_or_else(|| "Invalid path".to_string())
-}
-
-/// List running applications (macOS only)
+/// List all installed and running applications (macOS only)
+/// Returns JSON array of {name, running} objects
 #[cfg(target_os = "macos")]
 #[tauri::command]
-fn list_running_apps() -> Result<Vec<String>, String> {
+fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
+    use std::collections::HashSet;
+
+    // Get running apps via AppleScript
+    let mut running_apps = HashSet::new();
     let script = r#"
         tell application "System Events"
             set appNames to name of every application process whose background only is false
@@ -734,27 +728,55 @@ fn list_running_apps() -> Result<Vec<String>, String> {
             return output
         end tell
     "#;
-    match Command::new("osascript").arg("-e").arg(script).output() {
-        Ok(output) => {
-            if output.status.success() {
-                let text = String::from_utf8_lossy(&output.stdout);
-                let apps: Vec<String> = text
-                    .lines()
-                    .map(|s| s.trim().to_string())
-                    .filter(|s| !s.is_empty())
-                    .collect();
-                Ok(apps)
-            } else {
-                Err("Failed to list apps".to_string())
+    if let Ok(output) = Command::new("osascript").arg("-e").arg(script).output() {
+        if output.status.success() {
+            let text = String::from_utf8_lossy(&output.stdout);
+            for line in text.lines() {
+                let name = line.trim();
+                if !name.is_empty() {
+                    running_apps.insert(name.to_string());
+                }
             }
         }
-        Err(e) => Err(format!("Failed to run osascript: {:?}", e)),
     }
+
+    // Get installed apps from /Applications and ~/Applications
+    let mut all_apps: Vec<(String, bool)> = Vec::new();
+    let mut seen = HashSet::new();
+
+    let mut app_dirs = vec![std::path::PathBuf::from("/Applications")];
+    if let Ok(home) = std::env::var("HOME") {
+        app_dirs.push(std::path::PathBuf::from(home).join("Applications"));
+    }
+
+    for dir in app_dirs {
+        if let Ok(entries) = std::fs::read_dir(&dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().map_or(false, |ext| ext == "app") {
+                    if let Some(name) = path.file_stem().and_then(|s| s.to_str()) {
+                        let name = name.to_string();
+                        if seen.insert(name.clone()) {
+                            let is_running = running_apps.contains(&name);
+                            all_apps.push((name, is_running));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Sort: running first, then alphabetical
+    all_apps.sort_by(|a, b| {
+        b.1.cmp(&a.1).then_with(|| a.0.to_lowercase().cmp(&b.0.to_lowercase()))
+    });
+
+    Ok(all_apps)
 }
 
 #[cfg(not(target_os = "macos"))]
 #[tauri::command]
-fn list_running_apps() -> Result<Vec<String>, String> {
+fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
     Ok(vec![])
 }
 
@@ -796,7 +818,6 @@ pub fn run() {
             update_triggers,
             set_trigger_expanding,
             start_trigger_engine,
-            write_temp_drag_file,
             list_running_apps
         ])
         .setup(|app| {

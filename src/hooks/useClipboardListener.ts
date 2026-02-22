@@ -5,8 +5,8 @@ import {
   onImageUpdate,
   hasHTML,
   readHtml,
-  writeText as writeTextClipboard,
 } from 'tauri-plugin-clipboard-api';
+import { writeText as writeTextNative } from '@tauri-apps/plugin-clipboard-manager';
 import { invoke } from '@tauri-apps/api/core';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -32,7 +32,7 @@ export function useClipboardListener() {
         stopListening = await startListening();
 
         unlistenText = await onTextUpdate(async (text) => {
-          if (isQueuePasting()) return; // Skip clipboard changes during queue paste
+          if (isQueuePasting()) return;
           if (skipNextClipboardChange) {
             skipNextClipboardChange = false;
             lastTextRef.current = text;
@@ -82,38 +82,38 @@ export function useClipboardListener() {
           });
 
           // Auto-commands: apply matching transform and update clipboard
-          if (settings.autoCommands && settings.autoCommands.length > 0) {
-            const matchingCmd = settings.autoCommands.find(
-              (cmd) => cmd.enabled && cmd.format === format
-            );
-            if (matchingCmd) {
-              const transform = TRANSFORM_REGISTRY.find((t) => t.id === matchingCmd.transformId);
-              if (transform) {
-                try {
-                  const result = await transform.apply(text);
-                  if (result && result !== text) {
-                    skipNextClipboardChange = true;
-                    lastTextRef.current = result;
-                    try {
-                      await writeTextClipboard(result);
-                    } catch (writeErr) {
-                      console.error('[AutoCommand] Clipboard write failed:', writeErr);
-                      skipNextClipboardChange = false;
-                    }
-                  }
-                } catch (err) {
-                  console.error('[AutoCommand] Transform failed:', err);
-                }
+          const cmds = settings.autoCommands;
+          console.log('[AutoCmd] format:', format, 'cmds:', cmds?.length, cmds);
+          if (!cmds || cmds.length === 0) return;
+
+          for (const cmd of cmds) {
+            console.log('[AutoCmd] checking:', cmd.format, '===', format, 'enabled:', cmd.enabled);
+            if (!cmd.enabled || cmd.format !== format) continue;
+
+            const transform = TRANSFORM_REGISTRY.find((t) => t.id === cmd.transformId);
+            console.log('[AutoCmd] transform found:', !!transform, cmd.transformId);
+            if (!transform) continue;
+
+            try {
+              const result = await transform.apply(text);
+              console.log('[AutoCmd] result === text?', result === text, 'result length:', result?.length);
+              if (result && result !== text) {
+                skipNextClipboardChange = true;
+                lastTextRef.current = result;
+                await writeTextNative(result);
+                console.log('[AutoCmd] clipboard updated successfully');
+                return; // Only apply first matching command
               }
+            } catch (err) {
+              console.error('[AutoCmd] failed:', err);
             }
           }
         });
 
         unlistenImage = await onImageUpdate(async (base64Image) => {
-          if (isQueuePasting()) return; // Skip clipboard changes during queue paste
+          if (isQueuePasting()) return;
           const settings = useSettingsStore.getState().settings;
 
-          // Respect storeImages setting
           if (!settings.storeImages) return;
 
           // Check ignore list

@@ -732,22 +732,21 @@ function IgnoredAppsList({
   apps: string[];
   onChange: (apps: string[]) => void;
 }) {
-  const [runningApps, setRunningApps] = useState<string[]>([]);
+  const [allApps, setAllApps] = useState<{ name: string; running: boolean }[]>([]);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [filterText, setFilterText] = useState('');
 
-  const loadRunningApps = async () => {
+  const loadApps = async () => {
     try {
-      const result = await invoke<string[]>('list_running_apps');
-      // Sort alphabetically, exclude already-added apps
-      setRunningApps(result.sort((a, b) => a.localeCompare(b)));
+      const result = await invoke<[string, boolean][]>('list_running_apps');
+      setAllApps(result.map(([name, running]) => ({ name, running })));
     } catch {
-      setRunningApps([]);
+      setAllApps([]);
     }
   };
 
   const handlePickerToggle = () => {
-    if (!isPickerOpen) loadRunningApps();
+    if (!isPickerOpen) loadApps();
     setIsPickerOpen(!isPickerOpen);
     setFilterText('');
   };
@@ -762,8 +761,8 @@ function IgnoredAppsList({
     onChange(apps.filter((a) => a !== app));
   };
 
-  const filteredApps = runningApps.filter(
-    (app) => !apps.includes(app) && app.toLowerCase().includes(filterText.toLowerCase())
+  const filteredApps = allApps.filter(
+    (app) => !apps.includes(app.name) && app.name.toLowerCase().includes(filterText.toLowerCase())
   );
 
   return (
@@ -774,32 +773,35 @@ function IgnoredAppsList({
         className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] text-accent hover:bg-accent/10 rounded-md transition-colors cursor-pointer"
       >
         <Plus className="w-3 h-3" />
-        {isPickerOpen ? 'Close' : 'Add from running apps'}
+        {isPickerOpen ? 'Close' : 'Add app'}
       </button>
 
       {isPickerOpen && (
         <div className="border border-border rounded-md overflow-hidden">
           <input
             type="text"
-            placeholder="Filter apps..."
+            placeholder="Search apps..."
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
             className="w-full px-2.5 py-1.5 bg-surface border-b border-border text-[11px] outline-none focus:ring-1 focus:ring-accent"
             autoFocus
           />
-          <div className="max-h-[120px] overflow-y-auto">
+          <div className="max-h-[150px] overflow-y-auto">
             {filteredApps.length === 0 ? (
               <p className="text-[10px] text-muted-foreground text-center py-2">
-                {runningApps.length === 0 ? 'Loading...' : 'No apps found'}
+                {allApps.length === 0 ? 'Loading...' : 'No apps found'}
               </p>
             ) : (
               filteredApps.map((app) => (
                 <button
-                  key={app}
-                  onClick={() => handleAddApp(app)}
-                  className="w-full px-2.5 py-1 text-left text-[11px] hover:bg-surface-hover transition-colors cursor-pointer"
+                  key={app.name}
+                  onClick={() => handleAddApp(app.name)}
+                  className="w-full px-2.5 py-1 text-left text-[11px] hover:bg-surface-hover transition-colors cursor-pointer flex items-center gap-1.5"
                 >
-                  {app}
+                  {app.running && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+                  )}
+                  <span className={app.running ? 'text-foreground' : 'text-muted-foreground'}>{app.name}</span>
                 </button>
               ))
             )}
