@@ -291,7 +291,7 @@ export function SettingsPanel() {
                 <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">About</span>
               </div>
               <div className="text-center space-y-1.5 py-2">
-                <div className="text-sm font-semibold">qliplab</div>
+                <div className="text-sm font-semibold">QlipLab</div>
                 <div className="text-[10px] text-muted-foreground">v{CONFIG.APP_VERSION}</div>
                 <div className="text-[10px] text-muted-foreground leading-relaxed">
                   Cross-platform clipboard manager<br />
