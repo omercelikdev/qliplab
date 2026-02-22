@@ -165,8 +165,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       }
       set({ failedCount: failedAttempts });
       return false;
-    } catch (error) {
-      console.error('Failed to unlock vault:', error);
+    } catch {
       return false;
     }
   },
@@ -200,12 +199,12 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         if (result.status === 'fulfilled') {
           items.push(result.value);
         } else {
-          console.error('Failed to decrypt vault item:', result.reason);
+          // Skip items that failed to decrypt
         }
       }
       set({ items });
-    } catch (error) {
-      console.error('Failed to load vault items:', error);
+    } catch {
+      // Load failed
     }
   },
 
@@ -217,8 +216,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const newPinned = !item.isPinned;
       await db.execute('UPDATE vault_items SET is_pinned = ? WHERE id = ?', [newPinned ? 1 : 0, id]);
       set(state => ({ items: state.items.map(i => i.id === id ? { ...i, isPinned: newPinned } : i) }));
-    } catch (error) {
-      console.error('Failed to toggle pin:', error);
+    } catch {
+      // Toggle pin failed
     }
   },
 
@@ -251,8 +250,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         updatedAt: new Date(now),
       };
       set((state) => ({ items: [newItem, ...state.items] }));
-    } catch (error) {
-      console.error('Failed to create vault item:', error);
+    } catch {
+      // Create failed
     }
   },
 
@@ -263,8 +262,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       set((state) => ({
         items: state.items.map((i) => i.id === id ? { ...i, trigger: trigger ?? undefined } : i),
       }));
-    } catch (error) {
-      console.error('Failed to update trigger:', error);
+    } catch {
+      // Update trigger failed
     }
   },
 
@@ -273,8 +272,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const db = getDatabase();
       await db.execute('DELETE FROM vault_items WHERE id = ?', [id]);
       set((state) => ({ items: state.items.filter((i) => i.id !== id) }));
-    } catch (error) {
-      console.error('Failed to delete vault item:', error);
+    } catch {
+      // Delete failed
     }
   },
 }));

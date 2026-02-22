@@ -93,8 +93,8 @@ export const useFeedbackStore = create<FeedbackState>((set) => ({
         autoErrorReporting: autoReporting ?? false,
         hasSeenOptIn: seenOptIn ?? false,
       });
-    } catch (error) {
-      console.error('Failed to load feedback settings:', error);
+    } catch {
+      // Load failed
     }
   },
 
@@ -104,8 +104,8 @@ export const useFeedbackStore = create<FeedbackState>((set) => ({
       await store.set('autoErrorReporting', enabled);
       await store.save();
       set({ autoErrorReporting: enabled });
-    } catch (error) {
-      console.error('Failed to save auto error reporting setting:', error);
+    } catch {
+      // Save failed
     }
   },
 
@@ -115,8 +115,8 @@ export const useFeedbackStore = create<FeedbackState>((set) => ({
       await store.set('hasSeenOptIn', seen);
       await store.save();
       set({ hasSeenOptIn: seen });
-    } catch (error) {
-      console.error('Failed to save opt-in status:', error);
+    } catch {
+      // Save failed
     }
   },
 

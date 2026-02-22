@@ -42,8 +42,8 @@ export const useTagStore = create<TagState>((set, get) => ({
           createdAt: new Date(row.created_at),
         })),
       });
-    } catch (error) {
-      console.error('Failed to load tags:', error);
+    } catch {
+      // Load tags failed
     }
   },
 
@@ -58,8 +58,8 @@ export const useTagStore = create<TagState>((set, get) => ({
         map.set(row.item_id, existing);
       }
       set({ itemTags: map });
-    } catch (error) {
-      console.error('Failed to load item tags:', error);
+    } catch {
+      // Load item tags failed
     }
   },
 
@@ -75,8 +75,7 @@ export const useTagStore = create<TagState>((set, get) => ({
       const tag: Tag = { id, name: name.trim(), color: color || null, createdAt: new Date(now) };
       set(state => ({ tags: [...state.tags, tag].sort((a, b) => a.name.localeCompare(b.name)) }));
       return tag;
-    } catch (error) {
-      console.error('Failed to create tag:', error);
+    } catch {
       return null;
     }
   },
@@ -97,8 +96,8 @@ export const useTagStore = create<TagState>((set, get) => ({
           activeTagFilter: state.activeTagFilter === id ? null : state.activeTagFilter,
         };
       });
-    } catch (error) {
-      console.error('Failed to delete tag:', error);
+    } catch {
+      // Delete tag failed
     }
   },
 
@@ -117,8 +116,8 @@ export const useTagStore = create<TagState>((set, get) => ({
         }
         return { itemTags: newItemTags };
       });
-    } catch (error) {
-      console.error('Failed to add tag to item:', error);
+    } catch {
+      // Add tag failed
     }
   },
 
@@ -135,8 +134,8 @@ export const useTagStore = create<TagState>((set, get) => ({
         newItemTags.set(itemId, existing.filter(t => t !== tagId));
         return { itemTags: newItemTags };
       });
-    } catch (error) {
-      console.error('Failed to remove tag from item:', error);
+    } catch {
+      // Remove tag failed
     }
   },
 

@@ -63,7 +63,7 @@ export function PreviewPanel() {
 
   const handleCopy = useCallback(async () => {
     if (parsedImageData) {
-      try { await writeImageToClipboard(); } catch (e) { console.error('Failed to copy image:', e); }
+      try { await writeImageToClipboard(); } catch { /* image copy failed */ }
     } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
       await writeHtmlAndText(sourceItem.htmlContent, editedContent);
     } else {
@@ -76,7 +76,7 @@ export function PreviewPanel() {
     // Calling close() would trigger shrinkWindowFromPreview() racing with hideWindowCore().
     await hideWriteAndPaste(async () => {
       if (parsedImageData) {
-        try { await writeImageToClipboard(); } catch (e) { console.error('Failed to copy image:', e); }
+        try { await writeImageToClipboard(); } catch { /* image copy failed */ }
       } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
         await writeHtmlAndText(sourceItem.htmlContent, editedContent);
       } else {

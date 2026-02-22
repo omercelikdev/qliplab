@@ -58,9 +58,7 @@ export function useKeyboardNavigation({
           break;
         case 'Enter':
           e.preventDefault();
-          Promise.resolve(onSelect(selectedIndex)).catch((err) => {
-            console.error('Selection failed:', err);
-          });
+          Promise.resolve(onSelect(selectedIndex)).catch(() => {});
           break;
       }
     },

@@ -258,8 +258,8 @@ export const HistoryItem = memo(function HistoryItem({
           icon: iconPath,
         });
       }
-    } catch (err) {
-      console.error('Drag failed:', err);
+    } catch {
+      // Drag failed
     } finally {
       setIsDragging(false);
     }

@@ -16,8 +16,8 @@ function ResizeEdge({ direction, className }: ResizeEdgeProps) {
     try {
       const window = getCurrentWindow();
       await window.startResizeDragging(direction);
-    } catch (error) {
-      console.error('Failed to start resize:', error);
+    } catch {
+      // Resize start failed
     }
   };
 

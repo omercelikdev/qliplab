@@ -157,8 +157,8 @@ export async function expandTrigger(sourceId: string, triggerLen: number): Promi
     await writeText(content);
     await invoke('simulate_paste_in_place');
     await new Promise((resolve) => setTimeout(resolve, 100));
-  } catch (err) {
-    console.error('[TriggerEngine] Expansion failed:', err);
+  } catch {
+    // Expansion failed silently
   } finally {
     await invoke('set_trigger_expanding', { expanding: false });
   }

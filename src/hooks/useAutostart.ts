@@ -10,8 +10,8 @@ export function useAutostart() {
           await enable();
           // Autostart enabled successfully
         }
-      } catch (error) {
-        console.error('Failed to setup autostart:', error);
+      } catch {
+        // Autostart setup failed
       }
     };
 

@@ -70,8 +70,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         }
       }
       set({ settings: { ...DEFAULT_SETTINGS, ...savedSettings }, isLoading: false });
-    } catch (error) {
-      console.error('Failed to load settings:', error);
+    } catch {
       set({ isLoading: false });
     }
   },
@@ -82,8 +81,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       await store.set(key, value);
       await store.save();
       set((state) => ({ settings: { ...state.settings, [key]: value } }));
-    } catch (error) {
-      console.error('Failed to update setting:', error);
+    } catch {
+      // Update setting failed
     }
   },
 }));

@@ -64,8 +64,8 @@ export async function expandWindowForPreview() {
     const { x, y } = centerOf(width, height);
     await appWindow.setSize(new LogicalSize(width, height));
     await appWindow.setPosition(new LogicalPosition(x, y));
-  } catch (error) {
-    console.error('Failed to expand window:', error);
+  } catch {
+    // Silently handle window resize failure
   }
 }
 
@@ -76,8 +76,8 @@ export async function shrinkWindowFromPreview() {
 
     await appWindow.setSize(new LogicalSize(DEFAULT_WIDTH, DEFAULT_HEIGHT));
     await appWindow.setPosition(new LogicalPosition(x, y));
-  } catch (error) {
-    console.error('Failed to shrink window:', error);
+  } catch {
+    // Silently handle window resize failure
   }
 }
 
@@ -133,8 +133,8 @@ export async function showWindow() {
   try {
     await invoke('save_frontmost_app');
     await showWindowCore();
-  } catch (error) {
-    console.error('Failed to show window:', error);
+  } catch {
+    // Silently handle show failure
   }
 }
 
@@ -172,8 +172,8 @@ export async function startPasteQueue() {
       try {
         await writeQueueItem(items[i]);
         await invoke('simulate_paste');
-      } catch (error) {
-        console.error('Failed to paste queue item:', error);
+      } catch {
+        // Skip failed queue item
       }
     }
   } finally {
@@ -197,8 +197,8 @@ export async function toggleWindow() {
       await invoke('save_frontmost_app');
       await showWindowCore();
     }
-  } catch (error) {
-    console.error('Failed to toggle window:', error);
+  } catch {
+    // Silently handle toggle failure
   } finally {
     toggleInFlight = false;
   }
@@ -207,8 +207,8 @@ export async function toggleWindow() {
 export async function hideWindow() {
   try {
     await hideWindowCore();
-  } catch (error) {
-    console.error('Failed to hide window:', error);
+  } catch {
+    // Silently handle hide failure
   }
 }
 
@@ -216,8 +216,8 @@ export async function hideAndPaste() {
   try {
     await hideWindowCore();
     await invoke('simulate_paste');
-  } catch (error) {
-    console.error('Failed to hide and paste:', error);
+  } catch {
+    // Silently handle paste failure
   }
 }
 
@@ -228,8 +228,8 @@ export async function hideWriteAndPaste(writeToClipboard: () => Promise<void>) {
     await hideWindowCore();
     await clipboardPromise;
     await invoke('simulate_paste');
-  } catch (error) {
-    console.error('Failed to hide, write and paste:', error);
+  } catch {
+    // Silently handle paste failure
   }
 }
 
@@ -238,7 +238,7 @@ export async function hideAndSimulatePaste() {
   try {
     await hideWindowCore();
     await invoke('simulate_paste');
-  } catch (error) {
-    console.error('Failed to hide and paste:', error);
+  } catch {
+    // Silently handle paste failure
   }
 }

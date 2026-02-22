@@ -69,8 +69,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
         updatedAt: new Date(row.updated_at),
       }));
       set({ snippets, isLoading: false });
-    } catch (error) {
-      console.error('Failed to load snippets:', error);
+    } catch {
       set({ isLoading: false });
     }
   },
@@ -87,8 +86,8 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
         createdAt: new Date(row.created_at),
       }));
       set({ categories });
-    } catch (error) {
-      console.error('Failed to load categories:', error);
+    } catch {
+      // Category load failed
     }
   },
 
@@ -116,8 +115,8 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
         updatedAt: new Date(now),
       };
       set((state) => ({ snippets: [newSnippet, ...state.snippets] }));
-    } catch (error) {
-      console.error('Failed to create snippet:', error);
+    } catch {
+      // Create failed
     }
   },
 
@@ -143,8 +142,8 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
           s.id === id ? { ...s, ...updates, updatedAt: new Date(now) } : s
         ),
       }));
-    } catch (error) {
-      console.error('Failed to update snippet:', error);
+    } catch {
+      // Update failed
     }
   },
 
@@ -153,8 +152,8 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       const db = getDatabase();
       await db.execute('DELETE FROM snippets WHERE id = ?', [id]);
       set(state => ({ snippets: state.snippets.filter(s => s.id !== id) }));
-    } catch (error) {
-      console.error('Failed to delete snippet:', error);
+    } catch {
+      // Delete failed
     }
   },
 
@@ -171,8 +170,8 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       // Optimistic local update
       const newCategory: SnippetCategory = { id, name, icon, sortOrder: 0, createdAt: new Date(now) };
       set((state) => ({ categories: [...state.categories, newCategory] }));
-    } catch (error) {
-      console.error('Failed to create category:', error);
+    } catch {
+      // Category create failed
     }
   },
 

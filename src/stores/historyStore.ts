@@ -66,8 +66,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         currentSearchQuery: searchQuery,
         isLoading: false,
       });
-    } catch (error) {
-      console.error('Failed to load clipboard history:', error);
+    } catch {
       set({ isLoading: false });
     }
   },
@@ -87,8 +86,8 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         items: [...items, ...newItems],
         currentOffset: currentOffset + newItems.length,
       });
-    } catch (error) {
-      console.error('Failed to load more items:', error);
+    } catch {
+      // Load more failed
     }
   },
 
@@ -129,8 +128,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       const { currentFormatFilter, currentSearchQuery } = get();
       await get().loadItems(currentFormatFilter, currentSearchQuery);
       return itemId;
-    } catch (error) {
-      console.error('Failed to add clipboard item:', error);
+    } catch {
       return undefined;
     }
   },
@@ -153,8 +151,8 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       if (appState.diffSelectedIds.includes(id)) {
         useAppStore.setState({ diffSelectedIds: appState.diffSelectedIds.filter(did => did !== id) });
       }
-    } catch (error) {
-      console.error('Failed to delete clipboard item:', error);
+    } catch {
+      // Delete failed
     }
   },
 
@@ -166,8 +164,8 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       const newPinned = !item.isPinned;
       await db.execute('UPDATE clipboard_history SET is_pinned = ? WHERE id = ?', [newPinned ? 1 : 0, id]);
       set(state => ({ items: state.items.map(i => i.id === id ? { ...i, isPinned: newPinned } : i) }));
-    } catch (error) {
-      console.error('Failed to toggle pin:', error);
+    } catch {
+      // Toggle pin failed
     }
   },
 
@@ -177,8 +175,8 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       await db.execute('DELETE FROM clipboard_history WHERE is_pinned = 0');
       const { currentFormatFilter, currentSearchQuery } = get();
       await get().loadItems(currentFormatFilter, currentSearchQuery);
-    } catch (error) {
-      console.error('Failed to clear history:', error);
+    } catch {
+      // Clear failed
     }
   },
 
@@ -186,8 +184,8 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
     try {
       const db = getDatabase();
       await db.execute('DELETE FROM clipboard_history WHERE is_pinned = 0');
-    } catch (error) {
-      console.error('Failed to clear unpinned history:', error);
+    } catch {
+      // Clear unpinned failed
     }
   },
 
@@ -202,8 +200,8 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       );
       const { currentFormatFilter, currentSearchQuery } = get();
       await get().loadItems(currentFormatFilter, currentSearchQuery);
-    } catch (error) {
-      console.error('Failed to cleanup expired items:', error);
+    } catch {
+      // Cleanup failed
     }
   },
 }));

@@ -226,7 +226,7 @@ async function saveToLocalLog(record: ConsentRecord): Promise<void> {
     existing.push(record);
     await store.set('log', existing);
     await store.save();
-  } catch (error) {
-    console.error('Failed to write consent audit log:', error);
+  } catch {
+    // Audit log write failed
   }
 }

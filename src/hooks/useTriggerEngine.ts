@@ -27,8 +27,7 @@ export function useTriggerEngine() {
     }
     if (engineStarted.current) return;
     engineStarted.current = true;
-    invoke('start_trigger_engine').catch((err) => {
-      console.error('[TriggerEngine] Failed to start:', err);
+    invoke('start_trigger_engine').catch(() => {
       engineStarted.current = false;
     });
   }, [snippetAutoExpand]);
@@ -38,9 +37,7 @@ export function useTriggerEngine() {
     if (!snippetAutoExpand) return;
 
     const triggers = collectTriggers(snippets, vaultItems, vaultLocked);
-    invoke('update_triggers', { triggers }).catch((err) => {
-      console.error('[TriggerEngine] Failed to update triggers:', err);
-    });
+    invoke('update_triggers', { triggers }).catch(() => {});
   }, [snippets, vaultItems, vaultLocked, snippetAutoExpand]);
 
   // Listen for trigger matches and expand

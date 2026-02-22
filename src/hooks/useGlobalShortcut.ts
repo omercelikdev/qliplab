@@ -33,8 +33,8 @@ export function useGlobalShortcut() {
           }
         });
         currentShortcut.current = globalShortcut;
-      } catch (error) {
-        console.error('Failed to register global shortcut:', error);
+      } catch {
+        // Shortcut registration failed
       }
     };
 

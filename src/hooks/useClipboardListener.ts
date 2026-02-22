@@ -167,8 +167,8 @@ export function useClipboardListener() {
             isSensitive: false,
           });
         });
-      } catch (error) {
-        console.error('[Clipboard] Failed to start listener:', error);
+      } catch {
+        // Listener setup failed
       }
     };
 
