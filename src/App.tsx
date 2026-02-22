@@ -54,18 +54,21 @@ function App() {
   useEffect(() => {
     const init = async () => {
       await initDatabase();
-      await loadSettings();
-      await loadFeedbackSettings();
 
-      // Cleanup expired clips before loading
+      // Settings must load before cleanup; feedback settings are independent
+      await Promise.all([loadSettings(), loadFeedbackSettings()]);
+
+      // Cleanup expired clips, then load data in parallel
       const { expirationDays } = useSettingsStore.getState().settings;
       if (expirationDays > 0) {
         await useHistoryStore.getState().cleanupExpired(expirationDays);
       }
 
-      await loadItems();
-      await useTagStore.getState().loadTags();
-      await useTagStore.getState().loadItemTags();
+      await Promise.all([
+        loadItems(),
+        useTagStore.getState().loadTags(),
+        useTagStore.getState().loadItemTags(),
+      ]);
       setIsInitialized(true);
     };
     init();
