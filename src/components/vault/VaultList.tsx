@@ -16,6 +16,7 @@ export function VaultList() {
   const isLocked = useVaultStore((state) => state.isLocked);
   const items = useVaultStore((state) => state.items);
   const lock = useVaultStore((state) => state.lock);
+  const decryptFailCount = useVaultStore((state) => state.decryptFailCount);
   const activeTab = useAppStore((state) => state.activeTab);
   const searchQuery = useAppStore((state) => state.searchQuery);
   const vaultTypeFilter = useAppStore((state) => state.vaultTypeFilter);
@@ -108,6 +109,12 @@ export function VaultList() {
           <Lock className="w-2.5 h-2.5" /> Lock
         </button>
       </div>
+
+      {decryptFailCount > 0 && (
+        <div className="mx-3 mt-1 px-2 py-1 text-[10px] text-yellow-600 dark:text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
+          {decryptFailCount} item{decryptFailCount > 1 ? 's' : ''} could not be decrypted
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {filteredItems.length === 0 ? (

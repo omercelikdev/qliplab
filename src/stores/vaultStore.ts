@@ -82,6 +82,7 @@ interface VaultState {
   items: VaultItem[];
   lockoutRemaining: number;
   failedCount: number;
+  decryptFailCount: number;
 
   unlock: (password: string) => Promise<boolean | 'locked_out'>;
   lock: () => void;
@@ -97,6 +98,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   items: [],
   lockoutRemaining: 0,
   failedCount: 0,
+  decryptFailCount: 0,
 
   unlock: async (password) => {
     // Load persisted brute-force state on first attempt
@@ -172,7 +174,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
 
   lock: () => {
     clearSessionPassword();
-    set({ isLocked: true, items: [] });
+    set({ isLocked: true, items: [], decryptFailCount: 0 });
   },
 
   loadItems: async (password) => {
@@ -195,14 +197,15 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         }))
       );
       const items: VaultItem[] = [];
+      let failCount = 0;
       for (const result of settled) {
         if (result.status === 'fulfilled') {
           items.push(result.value);
         } else {
-          // Skip items that failed to decrypt
+          failCount++;
         }
       }
-      set({ items });
+      set({ items, decryptFailCount: failCount });
     } catch {
       // Load failed
     }
