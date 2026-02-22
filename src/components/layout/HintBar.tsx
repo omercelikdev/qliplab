@@ -52,7 +52,7 @@ export function HintBar() {
   // Queue selection mode
   if (isQueueMode) {
     return (
-      <div className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
+      <div role="status" aria-live="polite" className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
         <span className="text-accent font-medium">Queue Mode</span>
         <span className="text-muted-foreground">
           {pasteQueue.length === 0
@@ -82,7 +82,7 @@ export function HintBar() {
   // Diff selection mode
   if (isDiffMode) {
     return (
-      <div className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
+      <div role="status" aria-live="polite" className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
         <span className="text-accent font-medium">Diff Mode</span>
         <span className="text-muted-foreground">
           {diffSelectedIds.length === 0 && 'Select first item'}

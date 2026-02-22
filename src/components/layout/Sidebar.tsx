@@ -16,6 +16,9 @@ export function Sidebar() {
     return (
       <button
         key={id}
+        role="tab"
+        aria-selected={isActive}
+        aria-label={label}
         onClick={() => setActiveTab(id)}
         className={cn(
           'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag',
@@ -43,7 +46,7 @@ export function Sidebar() {
       </div>
 
       {/* Top tabs */}
-      <div className="flex flex-col items-center gap-1 mt-3 no-drag">
+      <div role="tablist" aria-label="Navigation" className="flex flex-col items-center gap-1 mt-3 no-drag">
         {topMenuItems.map((item) => renderTabButton(item.id, item.label, item.icon))}
       </div>
 

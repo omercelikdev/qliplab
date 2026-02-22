@@ -71,6 +71,7 @@ export function SearchBar() {
   return (
     <div data-tauri-drag-region className="h-12 flex items-start px-3 pt-2 cursor-move drag-region">
       <div
+        role="search"
         className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag transition-shadow duration-150 ease-out focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent/40"
         onClick={() => inputRef.current?.focus()}
       >
@@ -82,12 +83,14 @@ export function SearchBar() {
           value={localValue}
           onChange={(e) => handleChange(e.target.value.slice(0, 200))}
           maxLength={200}
+          aria-label={PLACEHOLDERS[activeTab]}
           data-search-input
           className="flex-1 bg-transparent outline-none text-xs placeholder:text-foreground/25 cursor-text"
         />
         {localValue && (
           <button
             onClick={handleClear}
+            aria-label="Clear search"
             className="p-0.5 hover:bg-surface-hover rounded cursor-pointer"
           >
             <X className="w-3 h-3 text-muted-foreground" />

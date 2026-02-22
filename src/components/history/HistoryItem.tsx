@@ -254,6 +254,9 @@ export const HistoryItem = memo(function HistoryItem({
 
   return (
     <div
+      role="option"
+      aria-selected={isSelected}
+      aria-label={item.contentType === 'image' ? 'Image clip' : item.content.slice(0, 80)}
       className={cn(
         'relative flex items-center gap-2 h-8 px-2.5 rounded-md cursor-pointer',
         'transition-[background-color] duration-100 ease-out',
