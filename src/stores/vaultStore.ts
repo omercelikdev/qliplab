@@ -237,7 +237,20 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         `INSERT INTO vault_items (id, type, title, encrypted_data, trigger, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [id, type, title, encryptedData, trigger || null, 0, now, now]
       );
-      await get().loadItems(sessionPassword);
+
+      // Optimistic local update — avoid re-decrypting all items
+      const newItem: VaultItem = {
+        id,
+        type,
+        title,
+        data,
+        trigger: trigger ?? undefined,
+        isPinned: false,
+        sortOrder: 0,
+        createdAt: new Date(now),
+        updatedAt: new Date(now),
+      };
+      set((state) => ({ items: [newItem, ...state.items] }));
     } catch (error) {
       console.error('Failed to create vault item:', error);
     }
