@@ -38,6 +38,20 @@ export function SnippetEditorPanel() {
 
   const isEditMode = Boolean(editingSnippet);
 
+  const isDirty = isEditMode
+    ? title !== (editingSnippet?.title ?? '') ||
+      trigger !== (editingSnippet?.trigger ?? '') ||
+      content !== (editingSnippet?.content ?? '') ||
+      syntax !== (editingSnippet?.syntax ?? 'plain')
+    : title.length > 0 || content.length > 0 || trigger.length > 0;
+
+  const confirmClose = useCallback(() => {
+    if (isDirty) {
+      if (!window.confirm('You have unsaved changes. Discard?')) return;
+    }
+    closeEditor();
+  }, [isDirty, closeEditor]);
+
   useEffect(() => {
     if (editingSnippet) {
       setTitle(editingSnippet.title);
@@ -68,10 +82,10 @@ export function SnippetEditorPanel() {
     closeEditor();
   };
 
-  // ESC to close
+  // ESC to close (with dirty check)
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') closeEditor();
-  }, [closeEditor]);
+    if (e.key === 'Escape') confirmClose();
+  }, [confirmClose]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -116,7 +130,7 @@ export function SnippetEditorPanel() {
           <span className="text-xs font-medium">{isEditMode ? 'Edit Snippet' : 'New Snippet'}</span>
         </div>
         <button
-          onClick={closeEditor}
+          onClick={confirmClose}
           className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"
           title="Close (Esc)"
         >
@@ -137,7 +151,7 @@ export function SnippetEditorPanel() {
           )}
           autoFocus
           onKeyDown={(e) => {
-            if (e.key === 'Escape') closeEditor();
+            if (e.key === 'Escape') confirmClose();
           }}
         />
         <input
@@ -152,7 +166,7 @@ export function SnippetEditorPanel() {
             triggerError ? 'border-destructive' : trigger ? 'border-accent/50' : 'border-border'
           )}
           onKeyDown={(e) => {
-            if (e.key === 'Escape') closeEditor();
+            if (e.key === 'Escape') confirmClose();
           }}
         />
         <select
