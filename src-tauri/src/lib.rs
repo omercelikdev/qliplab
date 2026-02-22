@@ -26,14 +26,13 @@ use enigo::{Enigo, Keyboard, Settings, Key, Direction};
 #[cfg(target_os = "macos")]
 static PREVIOUS_APP: Mutex<Option<String>> = Mutex::new(None);
 
-/// Sanitize a string for safe use in AppleScript
-/// Removes dangerous characters to prevent injection attacks
+/// Sanitize a string for safe use in AppleScript using whitelist approach.
+/// Only allows characters that are valid in application names.
 #[cfg(target_os = "macos")]
 fn sanitize_applescript_string(s: &str) -> String {
-    // Remove characters that could break out of AppleScript string context
-    // Normal app names never contain these characters
     s.chars()
-     .filter(|c| *c != '"' && *c != '\\' && *c != '\n' && *c != '\r')
+     .filter(|c| c.is_alphanumeric() || *c == ' ' || *c == '-' || *c == '.' || *c == '_' || *c == '/' || *c == '(' || *c == ')')
+     .take(256)
      .collect()
 }
 
