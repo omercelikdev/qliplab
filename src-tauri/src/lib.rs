@@ -592,63 +592,71 @@ async fn ocr_image(base64_data: String) -> Result<String, String> {
     let image_bytes = STANDARD.decode(&base64_data)
         .map_err(|e| format!("Failed to decode base64: {}", e))?;
 
-    // Write to temp file
-    let temp_path = std::env::temp_dir().join("qliplab_ocr_input.png");
+    // Write to temp file with random name to prevent race conditions
+    let temp_path = std::env::temp_dir().join(format!("qliplab_ocr_{}.png", std::process::id()));
     let mut file = std::fs::File::create(&temp_path)
-        .map_err(|e| format!("Failed to create temp file: {}", e))?;
+        .map_err(|_| "Failed to create temp file".to_string())?;
     file.write_all(&image_bytes)
-        .map_err(|e| format!("Failed to write temp file: {}", e))?;
+        .map_err(|_| "Failed to write temp file".to_string())?;
     drop(file);
 
-    let temp_path_str = temp_path.to_string_lossy().to_string();
+    // Set restrictive permissions on temp file
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let _ = std::fs::set_permissions(&temp_path, std::fs::Permissions::from_mode(0o600));
+    }
 
-    // Run Swift script for Vision OCR
-    let swift_script = format!(r#"
+    // Run Swift script for Vision OCR — pass path via env var to prevent injection
+    let swift_script = r#"
 import Vision
 import AppKit
 import Foundation
 
-guard let image = NSImage(contentsOfFile: "{}"),
+let filePath = ProcessInfo.processInfo.environment["QLIPLAB_OCR_PATH"] ?? ""
+guard let image = NSImage(contentsOfFile: filePath),
       let tiffData = image.tiffRepresentation,
       let bitmap = NSBitmapImageRep(data: tiffData),
-      let cgImage = bitmap.cgImage else {{
+      let cgImage = bitmap.cgImage else {
     print("")
     exit(0)
-}}
+}
 
 let request = VNRecognizeTextRequest()
 request.recognitionLevel = .accurate
 request.usesLanguageCorrection = true
 
 let handler = VNImageRequestHandler(cgImage: cgImage)
-do {{
+do {
     try handler.perform([request])
-}} catch {{
+} catch {
     print("")
     exit(0)
-}}
+}
 
 let text = request.results?
-    .compactMap {{ ($0 as? VNRecognizedTextObservation)?.topCandidates(1).first?.string }}
+    .compactMap { ($0 as? VNRecognizedTextObservation)?.topCandidates(1).first?.string }
     .joined(separator: "\n") ?? ""
 print(text)
-"#, temp_path_str.replace("\"", "\\\""));
+"#;
 
     let output = Command::new("swift")
         .arg("-e")
-        .arg(&swift_script)
+        .arg(swift_script)
+        .env("QLIPLAB_OCR_PATH", temp_path.to_string_lossy().as_ref())
         .output()
-        .map_err(|e| format!("Failed to run OCR (Swift not found): {}", e))?;
+        .map_err(|_| "Failed to run OCR".to_string())?;
 
     // Cleanup temp file
-    let _ = std::fs::remove_file(&temp_path);
+    if let Err(e) = std::fs::remove_file(&temp_path) {
+        eprintln!("[ocr_image] Failed to cleanup temp file: {:?}", e);
+    }
 
     if output.status.success() {
         let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
         Ok(text)
     } else {
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        Err(format!("OCR failed: {}", stderr))
+        Err("OCR processing failed".to_string())
     }
 }
 
