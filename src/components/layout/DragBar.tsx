@@ -82,6 +82,7 @@ export function SearchBar() {
           value={localValue}
           onChange={(e) => handleChange(e.target.value.slice(0, 200))}
           maxLength={200}
+          data-search-input
           className="flex-1 bg-transparent outline-none text-xs placeholder:text-foreground/25 cursor-text"
         />
         {localValue && (

@@ -5,15 +5,19 @@ import { useAppStore } from '@/stores/appStore';
 interface UseKeyboardNavigationOptions {
   itemCount: number;
   onSelect: (index: number) => void;
+  onDelete?: (index: number) => void;
   isActive: boolean;
 }
 
 export function useKeyboardNavigation({
   itemCount,
   onSelect,
+  onDelete,
   isActive,
 }: UseKeyboardNavigationOptions) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [lastKey, setLastKey] = useState('');
+  const [lastKeyTime, setLastKeyTime] = useState(0);
   const isPreviewOpen = usePreviewStore((state) => state.isOpen);
   const windowOpenCount = useAppStore((state) => state.windowOpenCount);
 
@@ -47,25 +51,53 @@ export function useKeyboardNavigation({
         return;
       }
 
+      const now = Date.now();
+
       switch (e.key) {
         case 'ArrowDown':
+        case 'j':
           e.preventDefault();
-          setSelectedIndex((prev) => (prev + 1) % itemCount);
+          setSelectedIndex((prev) => Math.min(prev + 1, itemCount - 1));
           break;
         case 'ArrowUp':
+        case 'k':
           e.preventDefault();
-          setSelectedIndex((prev) => (prev - 1 + itemCount) % itemCount);
+          setSelectedIndex((prev) => Math.max(prev - 1, 0));
           break;
         case 'Enter':
           e.preventDefault();
-          // Handle async onSelect with error catching
           Promise.resolve(onSelect(selectedIndex)).catch((err) => {
             console.error('Selection failed:', err);
           });
           break;
+        case '/': {
+          e.preventDefault();
+          const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
+          searchInput?.focus();
+          break;
+        }
+        case 'g':
+          if (lastKey === 'g' && now - lastKeyTime < 500) {
+            e.preventDefault();
+            setSelectedIndex(0);
+          }
+          break;
+        case 'G':
+          e.preventDefault();
+          setSelectedIndex(itemCount - 1);
+          break;
+        case 'd':
+          if (lastKey === 'd' && now - lastKeyTime < 500 && onDelete) {
+            e.preventDefault();
+            onDelete(selectedIndex);
+          }
+          break;
       }
+
+      setLastKey(e.key);
+      setLastKeyTime(now);
     },
-    [isActive, itemCount, selectedIndex, onSelect, isPreviewOpen]
+    [isActive, itemCount, selectedIndex, onSelect, onDelete, isPreviewOpen, lastKey, lastKeyTime]
   );
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { GitCompareArrows, ListOrdered, ArrowUp, ArrowDown, CornerDownLeft } from 'lucide-react';
+import { GitCompareArrows, ListOrdered, CornerDownLeft } from 'lucide-react';
 import { useAppStore } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
 import { startPasteQueue } from '@/lib/window';
@@ -104,13 +104,17 @@ export function HintBar() {
       {/* Left: Navigation hints */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1">
-          <Kbd><ArrowUp className="w-2.5 h-2.5" /></Kbd>
-          <Kbd><ArrowDown className="w-2.5 h-2.5" /></Kbd>
-          <span className="ml-1">navigate</span>
+          <Kbd>j</Kbd>
+          <Kbd>k</Kbd>
+          <span className="ml-1">nav</span>
         </div>
         <div className="flex items-center gap-1">
           <Kbd><CornerDownLeft className="w-2.5 h-2.5" /></Kbd>
           <span className="ml-1">paste</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Kbd>/</Kbd>
+          <span className="ml-1">search</span>
         </div>
       </div>
 
