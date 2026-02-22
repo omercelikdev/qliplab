@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
 import { PrivacyPolicyDialog } from '@/components/settings/PrivacyPolicyDialog';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { recordConsent } from '@/lib/consentLog';
+import { exportData, importData, type ExportSection } from '@/lib/exportImport';
 import { cn } from '@/lib/utils';
 
 export function SettingsPanel() {
@@ -221,6 +222,10 @@ export function SettingsPanel() {
               </div>
             </div>
 
+            {/* Data Management */}
+            <div className="dotted-separator" />
+            <DataManagement />
+
             {/* Privacy & Reporting Section */}
             <div className="dotted-separator" />
             <div className="space-y-3">
@@ -362,6 +367,108 @@ function ApiKeyInput({
           )}
         </button>
       </div>
+    </div>
+  );
+}
+
+function DataManagement() {
+  const [exportSections, setExportSections] = useState<ExportSection[]>(['history', 'snippets', 'vault']);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const toggleSection = (section: ExportSection) => {
+    setExportSections(prev =>
+      prev.includes(section) ? prev.filter(s => s !== section) : [...prev, section]
+    );
+  };
+
+  const handleExport = async () => {
+    if (exportSections.length === 0) return;
+    try {
+      const success = await exportData(exportSections);
+      if (success) setStatus({ type: 'success', message: 'Data exported successfully' });
+    } catch (e) {
+      setStatus({ type: 'error', message: `Export failed: ${(e as Error).message}` });
+    }
+    setTimeout(() => setStatus(null), 3000);
+  };
+
+  const handleImport = async () => {
+    try {
+      const result = await importData();
+      if (result) {
+        const parts = result.imported.map(s => `${s}: ${result.counts[s]}`);
+        setStatus({ type: 'success', message: `Imported ${parts.join(', ')}` });
+      }
+    } catch (e) {
+      setStatus({ type: 'error', message: `Import failed: ${(e as Error).message}` });
+    }
+    setTimeout(() => setStatus(null), 5000);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Download className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Data Management</span>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] text-muted-foreground">Select sections to export</p>
+        <div className="flex gap-2">
+          {(['history', 'snippets', 'vault'] as ExportSection[]).map(section => (
+            <button
+              key={section}
+              onClick={() => toggleSection(section)}
+              className={cn(
+                'flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-md border transition-colors cursor-pointer',
+                exportSections.includes(section)
+                  ? 'border-accent bg-accent/10 text-accent'
+                  : 'border-border hover:bg-surface-hover'
+              )}
+            >
+              {exportSections.includes(section) && <Check className="w-3 h-3" />}
+              {section.charAt(0).toUpperCase() + section.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={handleExport}
+          disabled={exportSections.length === 0}
+          className={cn(
+            'flex-1 flex items-center justify-center gap-2 py-1.5 text-xs rounded-md transition-colors cursor-pointer',
+            'bg-surface-hover hover:bg-border disabled:opacity-50 disabled:cursor-not-allowed'
+          )}
+        >
+          <Download className="w-3.5 h-3.5" />
+          Export
+        </button>
+        <button
+          onClick={handleImport}
+          className={cn(
+            'flex-1 flex items-center justify-center gap-2 py-1.5 text-xs rounded-md transition-colors cursor-pointer',
+            'bg-surface-hover hover:bg-border'
+          )}
+        >
+          <Upload className="w-3.5 h-3.5" />
+          Import
+        </button>
+      </div>
+
+      {status && (
+        <p className={cn(
+          'text-[10px] text-center py-1 rounded',
+          status.type === 'success' ? 'text-green-500 bg-green-500/10' : 'text-destructive bg-destructive/10'
+        )}>
+          {status.message}
+        </p>
+      )}
+
+      <p className="text-[10px] text-muted-foreground">
+        Vault items are exported encrypted. Import merges data without duplicates.
+      </p>
     </div>
   );
 }
