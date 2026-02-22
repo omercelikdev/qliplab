@@ -5,12 +5,16 @@ import { toggleWindow } from '@/lib/window';
 
 export function useGlobalShortcut() {
   const globalShortcut = useSettingsStore((s) => s.settings.globalShortcut);
+  const isLoading = useSettingsStore((s) => s.isLoading);
   const currentShortcut = useRef<string | null>(null);
 
   useEffect(() => {
+    // Don't register until settings are loaded
+    if (isLoading) return;
+
     const setupShortcut = async () => {
-      // Unregister previous shortcut if changed
-      if (currentShortcut.current && currentShortcut.current !== globalShortcut) {
+      // Unregister previous shortcut if it exists
+      if (currentShortcut.current) {
         try {
           await unregister(currentShortcut.current);
         } catch {
@@ -42,5 +46,5 @@ export function useGlobalShortcut() {
         currentShortcut.current = null;
       }
     };
-  }, [globalShortcut]);
+  }, [globalShortcut, isLoading]);
 }

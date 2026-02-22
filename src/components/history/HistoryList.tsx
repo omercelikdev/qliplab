@@ -115,19 +115,9 @@ export function HistoryList() {
     }
   }, [orderedItems, isDiffMode, isQueueMode, pastingItemId]);
 
-  const deleteItem = useHistoryStore((state) => state.deleteItem);
-
-  const handleVimDelete = useCallback((index: number) => {
-    const item = orderedItems[index];
-    if (item && !item.isPinned) {
-      deleteItem(item.id);
-    }
-  }, [orderedItems, deleteItem]);
-
   const { selectedIndex } = useKeyboardNavigation({
     itemCount: orderedItems.length,
     onSelect: handleSelect,
-    onDelete: handleVimDelete,
     isActive: activeTab === 'history' && !isDiffMode,
   });
 
