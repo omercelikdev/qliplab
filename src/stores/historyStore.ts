@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { getDatabase, queryHistoryItems, countHistoryItems } from '@/lib/database';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { usePreviewStore } from '@/stores/previewStore';
+import { useAppStore } from '@/stores/appStore';
 import type { ClipboardItem, ContentType, DetectedFormat } from '@/types/clipboard';
 import type { ClipboardHistoryRow } from '@/types/database';
 import type { FormatFilterGroup } from '@/stores/appStore';
@@ -141,6 +143,16 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         items: state.items.filter(i => i.id !== id),
         totalCount: state.totalCount - 1,
       }));
+
+      // Clean up related UI state
+      const preview = usePreviewStore.getState();
+      if (preview.isOpen && preview.sourceItem?.id === id) {
+        preview.close();
+      }
+      const appState = useAppStore.getState();
+      if (appState.diffSelectedIds.includes(id)) {
+        useAppStore.setState({ diffSelectedIds: appState.diffSelectedIds.filter(did => did !== id) });
+      }
     } catch (error) {
       console.error('Failed to delete clipboard item:', error);
     }
