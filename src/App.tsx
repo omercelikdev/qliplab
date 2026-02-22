@@ -157,10 +157,12 @@ function App() {
               className="overflow-hidden"
               style={{ width: showSidePanel ? listWidth : '100%' }}
             >
-              {activeTab === 'history' && <HistoryList />}
-              {activeTab === 'snippets' && <SnippetList />}
-              {activeTab === 'vault' && <VaultList />}
-              {activeTab === 'settings' && <SettingsPanel />}
+              <ErrorBoundary>
+                {activeTab === 'history' && <HistoryList />}
+                {activeTab === 'snippets' && <SnippetList />}
+                {activeTab === 'vault' && <VaultList />}
+                {activeTab === 'settings' && <SettingsPanel />}
+              </ErrorBoundary>
             </div>
             {showSidePanel && (
               <Splitter
@@ -170,8 +172,16 @@ function App() {
               />
             )}
             <AnimatePresence mode="wait">
-              {previewOpen && <PreviewPanel />}
-              {snippetEditorOpen && !previewOpen && <SnippetEditorPanel />}
+              {previewOpen && (
+                <ErrorBoundary>
+                  <PreviewPanel />
+                </ErrorBoundary>
+              )}
+              {snippetEditorOpen && !previewOpen && (
+                <ErrorBoundary>
+                  <SnippetEditorPanel />
+                </ErrorBoundary>
+              )}
             </AnimatePresence>
           </div>
           <HintBar />
