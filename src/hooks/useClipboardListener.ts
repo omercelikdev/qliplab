@@ -5,8 +5,8 @@ import {
   onImageUpdate,
   hasHTML,
   readHtml,
+  writeText as writeTextClipboard,
 } from 'tauri-plugin-clipboard-api';
-import { writeText as writeTextNative } from '@tauri-apps/plugin-clipboard-manager';
 import { invoke } from '@tauri-apps/api/core';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -100,7 +100,7 @@ export function useClipboardListener() {
               if (result && result !== text) {
                 skipNextClipboardChange = true;
                 lastTextRef.current = result;
-                await writeTextNative(result);
+                await writeTextClipboard(result);
                 console.log('[AutoCmd] clipboard updated successfully');
                 return; // Only apply first matching command
               }

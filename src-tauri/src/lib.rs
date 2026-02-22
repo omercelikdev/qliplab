@@ -710,14 +710,14 @@ fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
 }
 
 /// List all installed and running applications (macOS only)
-/// Returns JSON array of {name, running} objects
+/// Returns tuples of (app_name, is_running)
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
     use std::collections::HashSet;
 
-    // Get running apps via AppleScript
-    let mut running_apps = HashSet::new();
+    // Get running (non-background) process names via AppleScript
+    let mut running_names = HashSet::new();
     let script = r#"
         tell application "System Events"
             set appNames to name of every application process whose background only is false
@@ -734,13 +734,13 @@ fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
             for line in text.lines() {
                 let name = line.trim();
                 if !name.is_empty() {
-                    running_apps.insert(name.to_string());
+                    running_names.insert(name.to_lowercase());
                 }
             }
         }
     }
 
-    // Get installed apps from /Applications and ~/Applications
+    // Scan /Applications and ~/Applications
     let mut all_apps: Vec<(String, bool)> = Vec::new();
     let mut seen = HashSet::new();
 
@@ -748,6 +748,8 @@ fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
     if let Ok(home) = std::env::var("HOME") {
         app_dirs.push(std::path::PathBuf::from(home).join("Applications"));
     }
+    // Also include /System/Applications for system apps like Finder
+    app_dirs.push(std::path::PathBuf::from("/System/Applications"));
 
     for dir in app_dirs {
         if let Ok(entries) = std::fs::read_dir(&dir) {
@@ -756,13 +758,33 @@ fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
                 if path.extension().map_or(false, |ext| ext == "app") {
                     if let Some(name) = path.file_stem().and_then(|s| s.to_str()) {
                         let name = name.to_string();
-                        if seen.insert(name.clone()) {
-                            let is_running = running_apps.contains(&name);
+                        if seen.insert(name.to_lowercase()) {
+                            // Match by case-insensitive name or common short aliases
+                            let is_running = running_names.contains(&name.to_lowercase());
                             all_apps.push((name, is_running));
                         }
                     }
                 }
             }
+        }
+    }
+
+    // Also add any running apps not found in /Applications (e.g., helper processes with visible windows)
+    for running in &running_names {
+        if !seen.contains(running) {
+            // Capitalize first letter of each word for display
+            let display_name: String = running
+                .split_whitespace()
+                .map(|w| {
+                    let mut chars = w.chars();
+                    match chars.next() {
+                        Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
+                        None => String::new(),
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
+            all_apps.push((display_name, true));
         }
     }
 
