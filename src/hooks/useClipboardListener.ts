@@ -76,14 +76,15 @@ export function useClipboardListener() {
             // Ignore errors reading HTML
           }
 
-          const format = detectFormat(text);
+          const trimmed = text.trim();
+          const format = detectFormat(trimmed);
 
           const itemId = await addItem({
             content: text,
             htmlContent,
             contentType: 'text',
             detectedFormat: format,
-            isSensitive: settings.sensitiveDetectionEnabled ? isSensitive(text) : false,
+            isSensitive: settings.sensitiveDetectionEnabled ? isSensitive(trimmed) : false,
             sourceApp,
           });
 
