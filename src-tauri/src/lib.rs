@@ -709,6 +709,55 @@ fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
     Ok(())
 }
 
+/// Write text content to a temporary file for drag & drop
+#[tauri::command]
+fn write_temp_drag_file(content: String, extension: String) -> Result<String, String> {
+    let temp_dir = std::env::temp_dir().join("qliplab-drag");
+    std::fs::create_dir_all(&temp_dir).map_err(|e| format!("Failed to create temp dir: {}", e))?;
+    let file_name = format!("clip.{}", extension);
+    let file_path = temp_dir.join(&file_name);
+    std::fs::write(&file_path, content.as_bytes()).map_err(|e| format!("Failed to write temp file: {}", e))?;
+    file_path.to_str().map(|s| s.to_string()).ok_or_else(|| "Invalid path".to_string())
+}
+
+/// List running applications (macOS only)
+#[cfg(target_os = "macos")]
+#[tauri::command]
+fn list_running_apps() -> Result<Vec<String>, String> {
+    let script = r#"
+        tell application "System Events"
+            set appNames to name of every application process whose background only is false
+            set output to ""
+            repeat with appName in appNames
+                set output to output & appName & "\n"
+            end repeat
+            return output
+        end tell
+    "#;
+    match Command::new("osascript").arg("-e").arg(script).output() {
+        Ok(output) => {
+            if output.status.success() {
+                let text = String::from_utf8_lossy(&output.stdout);
+                let apps: Vec<String> = text
+                    .lines()
+                    .map(|s| s.trim().to_string())
+                    .filter(|s| !s.is_empty())
+                    .collect();
+                Ok(apps)
+            } else {
+                Err("Failed to list apps".to_string())
+            }
+        }
+        Err(e) => Err(format!("Failed to run osascript: {:?}", e)),
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+fn list_running_apps() -> Result<Vec<String>, String> {
+    Ok(vec![])
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     #[allow(unused_mut)]
@@ -746,7 +795,9 @@ pub fn run() {
             simulate_backspace,
             update_triggers,
             set_trigger_expanding,
-            start_trigger_engine
+            start_trigger_engine,
+            write_temp_drag_file,
+            list_running_apps
         ])
         .setup(|app| {
             // macOS: Hide dock icon

@@ -7,6 +7,7 @@ import { ItemMenu } from './ItemMenu';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { startDrag } from '@crabnebula/tauri-plugin-drag';
+import { invoke } from '@tauri-apps/api/core';
 import { resolveResource } from '@tauri-apps/api/path';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
@@ -225,22 +226,26 @@ export const HistoryItem = memo(function HistoryItem({
     e.preventDefault();
     e.stopPropagation();
     try {
+      // Write content to temp file, then drag the file
+      const ext = item.detectedFormat === 'json' ? 'json'
+        : item.detectedFormat === 'html' ? 'html'
+        : item.detectedFormat === 'xml' ? 'xml'
+        : item.detectedFormat === 'sql' ? 'sql'
+        : item.detectedFormat === 'csv' ? 'csv'
+        : item.detectedFormat === 'yaml' ? 'yaml'
+        : item.detectedFormat === 'markdown' ? 'md'
+        : 'txt';
+      const content = item.htmlContent && ext === 'html' ? item.htmlContent : item.content;
+      const tempPath = await invoke<string>('write_temp_drag_file', { content, extension: ext });
       const iconPath = await resolveResource('icons/32x32.png');
       await startDrag({
-        item: {
-          data: item.htmlContent
-            ? { 'public.html': item.htmlContent, 'public.utf8-plain-text': item.content }
-            : item.content,
-          types: item.htmlContent
-            ? ['public.html', 'public.utf8-plain-text']
-            : ['public.utf8-plain-text'],
-        },
+        item: [tempPath],
         icon: iconPath,
       });
     } catch (err) {
       console.error('Drag failed:', err);
     }
-  }, [item.content, item.htmlContent]);
+  }, [item.content, item.htmlContent, item.detectedFormat]);
 
   // Badge rendering
   const badgeGroup = FORMAT_GROUP[item.detectedFormat] ?? null;

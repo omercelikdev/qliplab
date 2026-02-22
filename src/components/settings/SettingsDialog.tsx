@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
+import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
@@ -424,25 +425,38 @@ function ShortcutSetting({
       .replace(/\+/g, ' + ');
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // Use global keydown listener so modifier keys (Cmd, Ctrl) don't steal focus
+  useEffect(() => {
     if (!isRecording) return;
-    e.preventDefault();
-    e.stopPropagation();
 
-    const parts: string[] = [];
-    if (e.metaKey || e.ctrlKey) parts.push('CommandOrControl');
-    if (e.shiftKey) parts.push('Shift');
-    if (e.altKey) parts.push('Alt');
+    const handleKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    const key = e.key;
-    if (!['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
-      parts.push(key.length === 1 ? key.toUpperCase() : key);
-      const newShortcut = parts.join('+');
-      onChange(newShortcut);
-      setIsRecording(false);
-      setDisplay(formatShortcut(newShortcut));
-    }
-  };
+      // ESC cancels recording
+      if (e.key === 'Escape') {
+        setIsRecording(false);
+        return;
+      }
+
+      const parts: string[] = [];
+      if (e.metaKey || e.ctrlKey) parts.push('CommandOrControl');
+      if (e.shiftKey) parts.push('Shift');
+      if (e.altKey) parts.push('Alt');
+
+      const key = e.key;
+      if (!['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
+        parts.push(key.length === 1 ? key.toUpperCase() : key);
+        const newShortcut = parts.join('+');
+        onChange(newShortcut);
+        setIsRecording(false);
+        setDisplay(formatShortcut(newShortcut));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [isRecording, onChange]);
 
   useEffect(() => {
     setDisplay(formatShortcut(shortcut));
@@ -464,12 +478,12 @@ function ShortcutSetting({
             : 'border-border bg-surface hover:bg-surface-hover'
         )}
         onClick={() => setIsRecording(!isRecording)}
-        onKeyDown={handleKeyDown}
-        onBlur={() => setIsRecording(false)}
       >
         {isRecording ? 'Press shortcut...' : display}
       </button>
-      <p className="text-[10px] text-muted-foreground">Click to record a new shortcut</p>
+      <p className="text-[10px] text-muted-foreground">
+        {isRecording ? 'Press ESC to cancel' : 'Click to record a new shortcut'}
+      </p>
     </div>
   );
 }
@@ -718,13 +732,29 @@ function IgnoredAppsList({
   apps: string[];
   onChange: (apps: string[]) => void;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [runningApps, setRunningApps] = useState<string[]>([]);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [filterText, setFilterText] = useState('');
 
-  const handleAdd = () => {
-    const value = inputRef.current?.value.trim();
-    if (value && !apps.includes(value)) {
-      onChange([...apps, value]);
-      if (inputRef.current) inputRef.current.value = '';
+  const loadRunningApps = async () => {
+    try {
+      const result = await invoke<string[]>('list_running_apps');
+      // Sort alphabetically, exclude already-added apps
+      setRunningApps(result.sort((a, b) => a.localeCompare(b)));
+    } catch {
+      setRunningApps([]);
+    }
+  };
+
+  const handlePickerToggle = () => {
+    if (!isPickerOpen) loadRunningApps();
+    setIsPickerOpen(!isPickerOpen);
+    setFilterText('');
+  };
+
+  const handleAddApp = (app: string) => {
+    if (!apps.includes(app)) {
+      onChange([...apps, app]);
     }
   };
 
@@ -732,29 +762,51 @@ function IgnoredAppsList({
     onChange(apps.filter((a) => a !== app));
   };
 
+  const filteredApps = runningApps.filter(
+    (app) => !apps.includes(app) && app.toLowerCase().includes(filterText.toLowerCase())
+  );
+
   return (
     <div className="space-y-2">
-      <div className="flex gap-1.5">
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="App name..."
-          className="flex-1 px-2.5 py-1 bg-surface border border-border rounded-md text-[11px] outline-none focus:ring-2 focus:ring-accent"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAdd();
-            }
-          }}
-        />
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="px-2 py-1 bg-surface-hover hover:bg-border rounded-md transition-colors cursor-pointer"
-        >
-          <Plus className="w-3.5 h-3.5" />
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={handlePickerToggle}
+        className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] text-accent hover:bg-accent/10 rounded-md transition-colors cursor-pointer"
+      >
+        <Plus className="w-3 h-3" />
+        {isPickerOpen ? 'Close' : 'Add from running apps'}
+      </button>
+
+      {isPickerOpen && (
+        <div className="border border-border rounded-md overflow-hidden">
+          <input
+            type="text"
+            placeholder="Filter apps..."
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+            className="w-full px-2.5 py-1.5 bg-surface border-b border-border text-[11px] outline-none focus:ring-1 focus:ring-accent"
+            autoFocus
+          />
+          <div className="max-h-[120px] overflow-y-auto">
+            {filteredApps.length === 0 ? (
+              <p className="text-[10px] text-muted-foreground text-center py-2">
+                {runningApps.length === 0 ? 'Loading...' : 'No apps found'}
+              </p>
+            ) : (
+              filteredApps.map((app) => (
+                <button
+                  key={app}
+                  onClick={() => handleAddApp(app)}
+                  className="w-full px-2.5 py-1 text-left text-[11px] hover:bg-surface-hover transition-colors cursor-pointer"
+                >
+                  {app}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
       {apps.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {apps.map((app) => (

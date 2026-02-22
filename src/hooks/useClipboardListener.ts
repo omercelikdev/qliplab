@@ -82,21 +82,28 @@ export function useClipboardListener() {
           });
 
           // Auto-commands: apply matching transform and update clipboard
-          const matchingCmd = settings.autoCommands.find(
-            (cmd) => cmd.enabled && cmd.format === format
-          );
-          if (matchingCmd) {
-            const transform = TRANSFORM_REGISTRY.find((t) => t.id === matchingCmd.transformId);
-            if (transform) {
-              try {
-                const result = await transform.apply(text);
-                if (result && result !== text) {
-                  skipNextClipboardChange = true;
-                  lastTextRef.current = result;
-                  await writeTextClipboard(result);
+          if (settings.autoCommands && settings.autoCommands.length > 0) {
+            const matchingCmd = settings.autoCommands.find(
+              (cmd) => cmd.enabled && cmd.format === format
+            );
+            if (matchingCmd) {
+              const transform = TRANSFORM_REGISTRY.find((t) => t.id === matchingCmd.transformId);
+              if (transform) {
+                try {
+                  const result = await transform.apply(text);
+                  if (result && result !== text) {
+                    skipNextClipboardChange = true;
+                    lastTextRef.current = result;
+                    try {
+                      await writeTextClipboard(result);
+                    } catch (writeErr) {
+                      console.error('[AutoCommand] Clipboard write failed:', writeErr);
+                      skipNextClipboardChange = false;
+                    }
+                  }
+                } catch (err) {
+                  console.error('[AutoCommand] Transform failed:', err);
                 }
-              } catch {
-                // Silently ignore transform errors
               }
             }
           }
