@@ -101,7 +101,21 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
         `INSERT INTO snippets (id, title, content, trigger, category_id, syntax, is_pinned, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [id, snippet.title, snippet.content, snippet.trigger || null, snippet.categoryId || null, snippet.syntax, snippet.isPinned ? 1 : 0, 0, now, now]
       );
-      await get().loadSnippets();
+
+      // Optimistic local update
+      const newSnippet: Snippet = {
+        id,
+        title: snippet.title,
+        content: snippet.content,
+        trigger: snippet.trigger,
+        categoryId: snippet.categoryId,
+        syntax: snippet.syntax,
+        isPinned: snippet.isPinned,
+        sortOrder: 0,
+        createdAt: new Date(now),
+        updatedAt: new Date(now),
+      };
+      set((state) => ({ snippets: [newSnippet, ...state.snippets] }));
     } catch (error) {
       console.error('Failed to create snippet:', error);
     }
@@ -122,7 +136,13 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       values.push(id);
 
       await db.execute(`UPDATE snippets SET ${fields.join(', ')} WHERE id = ?`, values);
-      await get().loadSnippets();
+
+      // Optimistic local update
+      set((state) => ({
+        snippets: state.snippets.map((s) =>
+          s.id === id ? { ...s, ...updates, updatedAt: new Date(now) } : s
+        ),
+      }));
     } catch (error) {
       console.error('Failed to update snippet:', error);
     }
@@ -147,7 +167,10 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
         `INSERT INTO snippet_categories (id, name, icon, sort_order, created_at) VALUES (?, ?, ?, ?, ?)`,
         [id, name, icon || null, 0, now]
       );
-      await get().loadCategories();
+
+      // Optimistic local update
+      const newCategory: SnippetCategory = { id, name, icon, sortOrder: 0, createdAt: new Date(now) };
+      set((state) => ({ categories: [...state.categories, newCategory] }));
     } catch (error) {
       console.error('Failed to create category:', error);
     }
