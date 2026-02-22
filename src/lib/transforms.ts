@@ -351,6 +351,315 @@ export function hexToBinary(content: string): string {
   return BigInt('0x' + hex).toString(2);
 }
 
+// ─── Format Conversion ───
+
+export function jsonToCsv(content: string): string {
+  try {
+    const data = JSON.parse(content);
+    if (!Array.isArray(data) || data.length === 0) return content;
+    const headers = Object.keys(data[0]);
+    const rows = data.map((row: Record<string, unknown>) =>
+      headers.map(h => {
+        const val = String(row[h] ?? '');
+        return val.includes(',') || val.includes('"') || val.includes('\n')
+          ? `"${val.replace(/"/g, '""')}"` : val;
+      }).join(',')
+    );
+    return [headers.join(','), ...rows].join('\n');
+  } catch { return content; }
+}
+
+export function xmlToJson(content: string): string {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/xml');
+    const errors = doc.getElementsByTagName('parsererror');
+    if (errors.length > 0) return content;
+
+    function nodeToObj(node: Element): unknown {
+      const obj: Record<string, unknown> = {};
+
+      // Attributes
+      if (node.attributes.length > 0) {
+        const attrs: Record<string, string> = {};
+        for (let i = 0; i < node.attributes.length; i++) {
+          attrs[node.attributes[i].name] = node.attributes[i].value;
+        }
+        obj['@attributes'] = attrs;
+      }
+
+      // Child elements
+      const children = node.children;
+      if (children.length === 0) {
+        const text = node.textContent?.trim() || '';
+        if (Object.keys(obj).length === 0) return text;
+        obj['#text'] = text;
+        return obj;
+      }
+
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        const name = child.tagName;
+        const value = nodeToObj(child);
+        if (obj[name] !== undefined) {
+          if (!Array.isArray(obj[name])) obj[name] = [obj[name]];
+          (obj[name] as unknown[]).push(value);
+        } else {
+          obj[name] = value;
+        }
+      }
+      return obj;
+    }
+
+    const result = { [doc.documentElement.tagName]: nodeToObj(doc.documentElement) };
+    return JSON.stringify(result, null, 2);
+  } catch { return content; }
+}
+
+export function jsonToXml(content: string): string {
+  try {
+    const data = JSON.parse(content);
+
+    function toXml(obj: unknown, tag?: string): string {
+      if (obj === null || obj === undefined) return tag ? `<${tag}/>` : '';
+      if (typeof obj !== 'object') return tag ? `<${tag}>${escapeHtml(String(obj))}</${tag}>` : escapeHtml(String(obj));
+
+      if (Array.isArray(obj)) {
+        return obj.map(item => toXml(item, tag)).join('\n');
+      }
+
+      const record = obj as Record<string, unknown>;
+      const attrs = record['@attributes'] as Record<string, string> | undefined;
+      const attrStr = attrs ? ' ' + Object.entries(attrs).map(([k, v]) => `${k}="${escapeHtml(v)}"`).join(' ') : '';
+
+      const children = Object.entries(record)
+        .filter(([k]) => k !== '@attributes' && k !== '#text')
+        .map(([k, v]) => toXml(v, k))
+        .join('\n');
+
+      const text = record['#text'] ? String(record['#text']) : '';
+      const inner = children + text;
+
+      if (tag) return inner ? `<${tag}${attrStr}>\n${inner}\n</${tag}>` : `<${tag}${attrStr}/>`;
+      return inner;
+    }
+
+    const keys = Object.keys(data);
+    if (keys.length === 1) {
+      return `<?xml version="1.0" encoding="UTF-8"?>\n${toXml(data[keys[0]], keys[0])}`;
+    }
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n${toXml(data)}\n</root>`;
+  } catch { return content; }
+}
+
+export function dateToTimestamp(content: string): string {
+  const date = new Date(content.trim());
+  if (isNaN(date.getTime())) return content;
+  return String(Math.floor(date.getTime() / 1000));
+}
+
+// ─── Hash Generation ───
+
+export async function hashMd5(content: string): Promise<string> {
+  // MD5 implementation (not available in Web Crypto, using pure JS)
+  const data = new TextEncoder().encode(content);
+  const md5 = computeMd5(data);
+  return md5;
+}
+
+function computeMd5(input: Uint8Array): string {
+  function md5cycle(x: number[], k: number[]) {
+    let a = x[0], b = x[1], c = x[2], d = x[3];
+    a = ff(a, b, c, d, k[0], 7, -680876936);  d = ff(d, a, b, c, k[1], 12, -389564586);
+    c = ff(c, d, a, b, k[2], 17, 606105819);   b = ff(b, c, d, a, k[3], 22, -1044525330);
+    a = ff(a, b, c, d, k[4], 7, -176418897);   d = ff(d, a, b, c, k[5], 12, 1200080426);
+    c = ff(c, d, a, b, k[6], 17, -1473231341);  b = ff(b, c, d, a, k[7], 22, -45705983);
+    a = ff(a, b, c, d, k[8], 7, 1770035416);   d = ff(d, a, b, c, k[9], 12, -1958414417);
+    c = ff(c, d, a, b, k[10], 17, -42063);      b = ff(b, c, d, a, k[11], 22, -1990404162);
+    a = ff(a, b, c, d, k[12], 7, 1804603682);   d = ff(d, a, b, c, k[13], 12, -40341101);
+    c = ff(c, d, a, b, k[14], 17, -1502002290); b = ff(b, c, d, a, k[15], 22, 1236535329);
+    a = gg(a, b, c, d, k[1], 5, -165796510);   d = gg(d, a, b, c, k[6], 9, -1069501632);
+    c = gg(c, d, a, b, k[11], 14, 643717713);   b = gg(b, c, d, a, k[0], 20, -373897302);
+    a = gg(a, b, c, d, k[5], 5, -701558691);    d = gg(d, a, b, c, k[10], 9, 38016083);
+    c = gg(c, d, a, b, k[15], 14, -660478335);  b = gg(b, c, d, a, k[4], 20, -405537848);
+    a = gg(a, b, c, d, k[9], 5, 568446438);     d = gg(d, a, b, c, k[14], 9, -1019803690);
+    c = gg(c, d, a, b, k[3], 14, -187363961);   b = gg(b, c, d, a, k[8], 20, 1163531501);
+    a = gg(a, b, c, d, k[13], 5, -1444681467);  d = gg(d, a, b, c, k[2], 9, -51403784);
+    c = gg(c, d, a, b, k[7], 14, 1735328473);   b = gg(b, c, d, a, k[12], 20, -1926607734);
+    a = hh(a, b, c, d, k[5], 4, -378558);       d = hh(d, a, b, c, k[8], 11, -2022574463);
+    c = hh(c, d, a, b, k[11], 16, 1839030562);  b = hh(b, c, d, a, k[14], 23, -35309556);
+    a = hh(a, b, c, d, k[1], 4, -1530992060);   d = hh(d, a, b, c, k[4], 11, 1272893353);
+    c = hh(c, d, a, b, k[7], 16, -155497632);   b = hh(b, c, d, a, k[10], 23, -1094730640);
+    a = hh(a, b, c, d, k[13], 4, 681279174);    d = hh(d, a, b, c, k[0], 11, -358537222);
+    c = hh(c, d, a, b, k[3], 16, -722521979);   b = hh(b, c, d, a, k[6], 23, 76029189);
+    a = hh(a, b, c, d, k[9], 4, -640364487);    d = hh(d, a, b, c, k[12], 11, -421815835);
+    c = hh(c, d, a, b, k[15], 16, 530742520);   b = hh(b, c, d, a, k[2], 23, -995338651);
+    a = ii(a, b, c, d, k[0], 6, -198630844);    d = ii(d, a, b, c, k[7], 10, 1126891415);
+    c = ii(c, d, a, b, k[14], 15, -1416354905); b = ii(b, c, d, a, k[5], 21, -57434055);
+    a = ii(a, b, c, d, k[12], 6, 1700485571);   d = ii(d, a, b, c, k[3], 10, -1894986606);
+    c = ii(c, d, a, b, k[10], 15, -1051523);     b = ii(b, c, d, a, k[1], 21, -2054922799);
+    a = ii(a, b, c, d, k[8], 6, 1873313359);    d = ii(d, a, b, c, k[15], 10, -30611744);
+    c = ii(c, d, a, b, k[6], 15, -1560198380);  b = ii(b, c, d, a, k[13], 21, 1309151649);
+    a = ii(a, b, c, d, k[4], 6, -145523070);    d = ii(d, a, b, c, k[11], 10, -1120210379);
+    c = ii(c, d, a, b, k[2], 15, 718787259);    b = ii(b, c, d, a, k[9], 21, -343485551);
+    x[0] = add32(a, x[0]); x[1] = add32(b, x[1]); x[2] = add32(c, x[2]); x[3] = add32(d, x[3]);
+  }
+
+  function cmn(q: number, a: number, b: number, x: number, s: number, t: number) {
+    a = add32(add32(a, q), add32(x, t));
+    return add32((a << s) | (a >>> (32 - s)), b);
+  }
+  function ff(a: number, b: number, c: number, d: number, x: number, s: number, t: number) { return cmn((b & c) | ((~b) & d), a, b, x, s, t); }
+  function gg(a: number, b: number, c: number, d: number, x: number, s: number, t: number) { return cmn((b & d) | (c & (~d)), a, b, x, s, t); }
+  function hh(a: number, b: number, c: number, d: number, x: number, s: number, t: number) { return cmn(b ^ c ^ d, a, b, x, s, t); }
+  function ii(a: number, b: number, c: number, d: number, x: number, s: number, t: number) { return cmn(c ^ (b | (~d)), a, b, x, s, t); }
+  function add32(a: number, b: number) { return (a + b) & 0xFFFFFFFF; }
+
+  const n = input.length;
+  const state = [1732584193, -271733879, -1732584194, 271733878];
+  let i: number;
+
+  // Pre-processing: adding padding bits
+  const tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  for (i = 0; i < 64; i++) tail[i >> 2] |= 0; // reset
+  const msg = new Array(n + 72);
+
+  for (i = 0; i < n; i++) msg[i] = input[i];
+  msg[n] = 0x80;
+  for (i = n + 1; i < msg.length; i++) msg[i] = 0;
+
+  const bitLen = n * 8;
+  const totalLen = ((n + 8) >> 6) + 1;
+
+  for (let j = 0; j < totalLen; j++) {
+    for (i = 0; i < 16; i++) tail[i] = 0;
+    for (i = 0; i < 64; i++) {
+      const idx = j * 64 + i;
+      if (idx < msg.length) tail[i >> 2] |= msg[idx] << ((i % 4) << 3);
+    }
+    if (j === totalLen - 1) {
+      tail[14] = bitLen;
+      tail[15] = 0;
+    }
+    md5cycle(state, tail);
+  }
+
+  function hex(n: number) {
+    let s = '';
+    for (let j = 0; j < 4; j++) s += ((n >> (j * 8 + 4)) & 0xF).toString(16) + ((n >> (j * 8)) & 0xF).toString(16);
+    return s;
+  }
+
+  return hex(state[0]) + hex(state[1]) + hex(state[2]) + hex(state[3]);
+}
+
+export async function hashSha512(content: string): Promise<string> {
+  const data = new TextEncoder().encode(content);
+  const hashBuffer = await crypto.subtle.digest('SHA-512', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+export async function hashSha1(content: string): Promise<string> {
+  const data = new TextEncoder().encode(content);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+export function hashAll(content: string): Promise<string> {
+  return Promise.all([
+    hashMd5(content),
+    hashSha1(content),
+    hashSha256(content),
+    hashSha512(content),
+  ]).then(([md5, sha1, sha256, sha512]) =>
+    `MD5:    ${md5}\nSHA-1:  ${sha1}\nSHA-256: ${sha256}\nSHA-512: ${sha512}`
+  );
+}
+
+// ─── Text Manipulation ───
+
+export function sortLines(content: string): string {
+  return content.split('\n').sort((a, b) => a.localeCompare(b)).join('\n');
+}
+
+export function sortLinesReverse(content: string): string {
+  return content.split('\n').sort((a, b) => b.localeCompare(a)).join('\n');
+}
+
+export function deduplicateLines(content: string): string {
+  return [...new Set(content.split('\n'))].join('\n');
+}
+
+export function reverseLines(content: string): string {
+  return content.split('\n').reverse().join('\n');
+}
+
+export function reverseText(content: string): string {
+  return [...content].reverse().join('');
+}
+
+export function trimLines(content: string): string {
+  return content.split('\n').map(line => line.trim()).join('\n');
+}
+
+export function removeEmptyLines(content: string): string {
+  return content.split('\n').filter(line => line.trim().length > 0).join('\n');
+}
+
+export function numberLines(content: string): string {
+  return content.split('\n').map((line, i) => `${i + 1}. ${line}`).join('\n');
+}
+
+export function wrapLines(content: string): string {
+  const maxLen = 80;
+  return content.split('\n').map(line => {
+    if (line.length <= maxLen) return line;
+    const words = line.split(' ');
+    const wrapped: string[] = [];
+    let current = '';
+    for (const word of words) {
+      if (current.length + word.length + 1 > maxLen) {
+        wrapped.push(current);
+        current = word;
+      } else {
+        current = current ? current + ' ' + word : word;
+      }
+    }
+    if (current) wrapped.push(current);
+    return wrapped.join('\n');
+  }).join('\n');
+}
+
+export function shuffleLines(content: string): string {
+  const lines = content.split('\n');
+  for (let i = lines.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [lines[i], lines[j]] = [lines[j], lines[i]];
+  }
+  return lines.join('\n');
+}
+
+export function titleCase(content: string): string {
+  return content.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase());
+}
+
+export function kebabCase(content: string): string {
+  return content.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '').replace(/[\s_]+/g, '-');
+}
+
+export function pascalCase(content: string): string {
+  return content.toLowerCase().replace(/(?:^|[^a-zA-Z0-9])(.)/g, (_, c) => c.toUpperCase());
+}
+
+export function countStats(content: string): string {
+  const lines = content.split('\n').length;
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  const chars = content.length;
+  const charsNoSpaces = content.replace(/\s/g, '').length;
+  const bytes = new TextEncoder().encode(content).length;
+  return `Lines: ${lines}\nWords: ${words}\nCharacters: ${chars}\nCharacters (no spaces): ${charsNoSpaces}\nBytes: ${bytes}`;
+}
+
 // Code Formatting with Prettier (lazy loaded)
 let prettierLoaded = false;
 let prettierModule: typeof import('prettier') | null = null;

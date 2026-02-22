@@ -35,13 +35,40 @@ export const TRANSFORM_REGISTRY: TransformDef[] = [
   { id: 'json_to_yaml', label: 'JSON → YAML', category: 'Convert', relevantFormats: ['json'], apply: transforms.jsonToYaml },
   { id: 'yaml_to_json', label: 'YAML → JSON', category: 'Convert', relevantFormats: ['yaml'], apply: transforms.yamlToJson },
   { id: 'csv_to_json', label: 'CSV → JSON', category: 'Convert', relevantFormats: ['csv'], apply: transforms.csvToJson },
+  { id: 'json_to_csv', label: 'JSON → CSV', category: 'Convert', relevantFormats: ['json'], apply: transforms.jsonToCsv },
+  { id: 'xml_to_json', label: 'XML → JSON', category: 'Convert', relevantFormats: ['xml'], apply: transforms.xmlToJson },
+  { id: 'json_to_xml', label: 'JSON → XML', category: 'Convert', relevantFormats: ['json'], apply: transforms.jsonToXml },
   { id: 'timestamp_to_date', label: 'Timestamp → Date', category: 'Convert', relevantFormats: ['timestamp'], apply: transforms.timestampToDate },
+  { id: 'date_to_timestamp', label: 'Date → Timestamp', category: 'Convert', relevantFormats: [], apply: transforms.dateToTimestamp },
+
+  // Hash
+  { id: 'hash_md5', label: 'MD5 Hash', category: 'Hash', relevantFormats: [], apply: transforms.hashMd5 },
+  { id: 'hash_sha1', label: 'SHA-1 Hash', category: 'Hash', relevantFormats: [], apply: transforms.hashSha1 },
+  { id: 'hash_sha256', label: 'SHA-256 Hash', category: 'Hash', relevantFormats: [], apply: transforms.hashSha256 },
+  { id: 'hash_sha512', label: 'SHA-512 Hash', category: 'Hash', relevantFormats: [], apply: transforms.hashSha512 },
+  { id: 'hash_all', label: 'All Hashes', category: 'Hash', relevantFormats: [], apply: transforms.hashAll },
 
   // Case
   { id: 'uppercase', label: 'UPPERCASE', category: 'Case', relevantFormats: [], apply: transforms.toUpperCase },
   { id: 'lowercase', label: 'lowercase', category: 'Case', relevantFormats: [], apply: transforms.toLowerCase },
   { id: 'camelcase', label: 'camelCase', category: 'Case', relevantFormats: [], apply: transforms.toCamelCase },
   { id: 'snakecase', label: 'snake_case', category: 'Case', relevantFormats: [], apply: transforms.toSnakeCase },
+  { id: 'kebabcase', label: 'kebab-case', category: 'Case', relevantFormats: [], apply: transforms.kebabCase },
+  { id: 'pascalcase', label: 'PascalCase', category: 'Case', relevantFormats: [], apply: transforms.pascalCase },
+  { id: 'titlecase', label: 'Title Case', category: 'Case', relevantFormats: [], apply: transforms.titleCase },
+
+  // Text
+  { id: 'sort_lines', label: 'Sort Lines (A→Z)', category: 'Text', relevantFormats: [], apply: transforms.sortLines },
+  { id: 'sort_lines_reverse', label: 'Sort Lines (Z→A)', category: 'Text', relevantFormats: [], apply: transforms.sortLinesReverse },
+  { id: 'deduplicate_lines', label: 'Remove Duplicates', category: 'Text', relevantFormats: [], apply: transforms.deduplicateLines },
+  { id: 'reverse_lines', label: 'Reverse Lines', category: 'Text', relevantFormats: [], apply: transforms.reverseLines },
+  { id: 'reverse_text', label: 'Reverse Text', category: 'Text', relevantFormats: [], apply: transforms.reverseText },
+  { id: 'trim_lines', label: 'Trim Lines', category: 'Text', relevantFormats: [], apply: transforms.trimLines },
+  { id: 'remove_empty_lines', label: 'Remove Empty Lines', category: 'Text', relevantFormats: [], apply: transforms.removeEmptyLines },
+  { id: 'number_lines', label: 'Number Lines', category: 'Text', relevantFormats: [], apply: transforms.numberLines },
+  { id: 'wrap_lines', label: 'Word Wrap (80)', category: 'Text', relevantFormats: [], apply: transforms.wrapLines },
+  { id: 'shuffle_lines', label: 'Shuffle Lines', category: 'Text', relevantFormats: [], apply: transforms.shuffleLines },
+  { id: 'count_stats', label: 'Count Stats', category: 'Text', relevantFormats: [], apply: transforms.countStats },
 ];
 
 export function getTransformById(id: string): TransformDef | undefined {
