@@ -16,6 +16,7 @@ export interface AppSettings {
   aiConsentDate: string; // ISO date when consent was given
   snippetAutoExpand: boolean;
   onboardingSeen: boolean;
+  globalShortcut: string; // e.g. 'CommandOrControl+Shift+V'
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -33,6 +34,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   aiConsentDate: '',
   snippetAutoExpand: false,
   onboardingSeen: false,
+  globalShortcut: 'CommandOrControl+Shift+V',
 };
 
 let store: Store | null = null;

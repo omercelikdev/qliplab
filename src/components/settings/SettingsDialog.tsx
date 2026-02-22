@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
@@ -131,6 +131,12 @@ export function SettingsPanel() {
                 <option value={90}>After 90 days</option>
               </select>
             </div>
+
+            {/* Global Shortcut */}
+            <ShortcutSetting
+              shortcut={settings.globalShortcut}
+              onChange={(s) => updateSetting('globalShortcut', s)}
+            />
 
             {/* Ignored Apps */}
             <div className="space-y-1.5">
@@ -367,6 +373,74 @@ function ApiKeyInput({
           )}
         </button>
       </div>
+    </div>
+  );
+}
+
+function ShortcutSetting({
+  shortcut,
+  onChange,
+}: {
+  shortcut: string;
+  onChange: (s: string) => void;
+}) {
+  const [isRecording, setIsRecording] = useState(false);
+  const [display, setDisplay] = useState('');
+
+  const formatShortcut = (s: string) => {
+    return s
+      .replace('CommandOrControl', navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl')
+      .replace('Shift', 'Shift')
+      .replace('Alt', navigator.platform.includes('Mac') ? 'Option' : 'Alt')
+      .replace(/\+/g, ' + ');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isRecording) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const parts: string[] = [];
+    if (e.metaKey || e.ctrlKey) parts.push('CommandOrControl');
+    if (e.shiftKey) parts.push('Shift');
+    if (e.altKey) parts.push('Alt');
+
+    const key = e.key;
+    if (!['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
+      parts.push(key.length === 1 ? key.toUpperCase() : key);
+      const newShortcut = parts.join('+');
+      onChange(newShortcut);
+      setIsRecording(false);
+      setDisplay(formatShortcut(newShortcut));
+    }
+  };
+
+  useEffect(() => {
+    setDisplay(formatShortcut(shortcut));
+  }, [shortcut]);
+
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">
+        <div className="flex items-center gap-1.5">
+          <Keyboard className="w-3.5 h-3.5" />
+          Global Shortcut
+        </div>
+      </label>
+      <button
+        className={cn(
+          'w-full px-3 py-1.5 text-xs rounded-md border text-left font-mono transition-colors cursor-pointer',
+          isRecording
+            ? 'border-accent bg-accent/10 text-accent animate-pulse'
+            : 'border-border bg-surface hover:bg-surface-hover'
+        )}
+        onClick={() => setIsRecording(!isRecording)}
+        onKeyDown={handleKeyDown}
+        onBlur={() => setIsRecording(false)}
+      >
+        {isRecording ? 'Press shortcut...' : display}
+      </button>
+      <p className="text-[10px] text-muted-foreground">Click to record a new shortcut</p>
     </div>
   );
 }
