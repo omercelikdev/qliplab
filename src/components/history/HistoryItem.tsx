@@ -13,8 +13,12 @@ import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
 import { useTagStore } from '@/stores/tagStore';
+import type { Tag } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem, DetectedFormat } from '@/types/clipboard';
+
+// Stable empty array reference to prevent unnecessary re-renders
+const EMPTY_TAGS: Tag[] = [];
 
 // Badge config — grouped by category with icon + color
 type BadgeGroup = 'code' | 'data' | 'web' | 'security';
@@ -268,14 +272,12 @@ export const HistoryItem = memo(function HistoryItem({
   const standalone = STANDALONE_ICON[item.detectedFormat];
   const isMonospace = MONOSPACE_FORMATS.has(item.detectedFormat);
 
-  // Tags — derive from raw state to avoid new-array-per-render infinite loop
-  const allTags = useTagStore(state => state.tags);
-  const allItemTags = useTagStore(state => state.itemTags);
-  const itemTags = useMemo(() => {
-    const tagIds = allItemTags.get(item.id) || [];
-    if (tagIds.length === 0) return [];
-    return allTags.filter(t => tagIds.includes(t.id));
-  }, [allTags, allItemTags, item.id]);
+  // Tags — single derived selector to minimize re-renders
+  const itemTags = useTagStore(useCallback((state) => {
+    const tagIds = state.itemTags.get(item.id);
+    if (!tagIds || tagIds.length === 0) return EMPTY_TAGS;
+    return state.tags.filter(t => tagIds.includes(t.id));
+  }, [item.id]));
 
   return (
     <div
