@@ -89,6 +89,7 @@ interface VaultState {
   loadItems: (password: string) => Promise<void>;
   togglePin: (id: string) => Promise<void>;
   createItem: (type: VaultItemType, title: string, data: VaultItemData, trigger?: string) => Promise<void>;
+  updateItem: (id: string, title: string, data: VaultItemData, trigger?: string) => Promise<void>;
   updateTrigger: (id: string, trigger: string | null) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
 }
@@ -290,6 +291,31 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       set((state) => ({ items: [newItem, ...state.items] }));
     } catch {
       // Create failed
+    }
+  },
+
+  updateItem: async (id, title, data, trigger) => {
+    try {
+      const password = sessionPassword;
+      if (!password) return;
+      resetAutoLockTimer(() => get().lock());
+
+      const db = getDatabase();
+      const now = new Date().toISOString();
+      const encryptedData = await encrypt(JSON.stringify(data), password);
+
+      await db.execute(
+        'UPDATE vault_items SET title = ?, encrypted_data = ?, trigger = ?, updated_at = ? WHERE id = ?',
+        [title, encryptedData, trigger || null, now, id]
+      );
+
+      set((state) => ({
+        items: state.items.map((i) =>
+          i.id === id ? { ...i, title, data, trigger: trigger ?? undefined, updatedAt: new Date(now) } : i
+        ),
+      }));
+    } catch {
+      // Update failed
     }
   },
 

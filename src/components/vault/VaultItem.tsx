@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Trash2, Pin, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
+import { Eye, EyeOff, Trash2, Pin, Pencil, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useVaultStore } from '@/stores/vaultStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -20,9 +20,10 @@ const TYPE_BADGE: Record<string, { icon: React.ElementType; label: string; style
 interface VaultItemProps {
   item: VaultItemType;
   isSelected?: boolean;
+  onEdit?: (item: VaultItemType) => void;
 }
 
-export function VaultItem({ item, isSelected = false }: VaultItemProps) {
+export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -130,6 +131,15 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
         'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
         isHovered ? 'opacity-100' : 'opacity-0'
       )}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit?.(item);
+          }}
+          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+        >
+          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+        </button>
         <button
           onClick={(e) => {
             e.stopPropagation();

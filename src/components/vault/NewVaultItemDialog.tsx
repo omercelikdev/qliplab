@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { isValidTrigger, TRIGGER_PREFIXES, getVaultFieldMap } from '@/lib/triggerEngine';
-import type { VaultItemType, VaultItemData } from '@/types/vault';
+import type { VaultItem, VaultItemType, VaultItemData } from '@/types/vault';
 import { cn } from '@/lib/utils';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  editItem?: VaultItem; // When provided, dialog is in edit mode
 }
 
 const itemTypes: { type: VaultItemType; label: string; icon: typeof CreditCard }[] = [
@@ -20,12 +21,29 @@ const itemTypes: { type: VaultItemType; label: string; icon: typeof CreditCard }
   { type: 'code', label: 'Code', icon: Key },
 ];
 
-export function NewVaultItemDialog({ isOpen, onClose }: Props) {
+export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
+  const isEditMode = !!editItem;
   const [selectedType, setSelectedType] = useState<VaultItemType>('card');
   const [title, setTitle] = useState('');
   const [trigger, setTrigger] = useState('');
   const [formData, setFormData] = useState<Record<string, string>>({});
   const createItem = useVaultStore((state) => state.createItem);
+  const updateItem = useVaultStore((state) => state.updateItem);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (editItem && isOpen) {
+      setSelectedType(editItem.type);
+      setTitle(editItem.title);
+      setTrigger(editItem.trigger || '');
+      setFormData(editItem.data as unknown as Record<string, string>);
+    } else if (!isOpen) {
+      setSelectedType('card');
+      setTitle('');
+      setTrigger('');
+      setFormData({});
+    }
+  }, [editItem, isOpen]);
 
   const triggerError = trigger.length > 0 && !isValidTrigger(trigger)
     ? `Must start with ${TRIGGER_PREFIXES.join(' ')} and be at least 2 chars`
@@ -36,7 +54,11 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
     if (!title.trim()) return;
     if (trigger && !isValidTrigger(trigger)) return;
 
-    await createItem(selectedType, title, formData as unknown as VaultItemData, trigger || undefined);
+    if (isEditMode && editItem) {
+      await updateItem(editItem.id, title, formData as unknown as VaultItemData, trigger || undefined);
+    } else {
+      await createItem(selectedType, title, formData as unknown as VaultItemData, trigger || undefined);
+    }
     setTitle('');
     setTrigger('');
     setFormData({});
@@ -140,7 +162,7 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="h-12 flex items-center justify-between px-4 border-b border-border shrink-0">
-              <h2 className="font-semibold">New Vault Item</h2>
+              <h2 className="font-semibold">{isEditMode ? 'Edit Vault Item' : 'New Vault Item'}</h2>
               <button
                 onClick={onClose}
                 className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"
@@ -150,22 +172,28 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
             </div>
 
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4">
-              {/* Type Selection */}
+              {/* Type Selection — disabled in edit mode */}
               <div className="flex gap-2">
                 {itemTypes.map(({ type, label, icon: Icon }) => (
                   <button
                     key={type}
                     type="button"
+                    disabled={isEditMode}
                     onClick={() => {
-                      setSelectedType(type);
-                      setFormData({});
-                      setTrigger('');
+                      if (!isEditMode) {
+                        setSelectedType(type);
+                        setFormData({});
+                        setTrigger('');
+                      }
                     }}
                     className={cn(
-                      'flex-1 flex flex-col items-center gap-1 py-2 rounded-lg border transition-colors cursor-pointer',
+                      'flex-1 flex flex-col items-center gap-1 py-2 rounded-lg border transition-colors',
+                      isEditMode ? 'cursor-default' : 'cursor-pointer',
                       selectedType === type
                         ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:bg-surface-hover'
+                        : isEditMode
+                          ? 'border-border opacity-30'
+                          : 'border-border hover:bg-surface-hover'
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -221,7 +249,7 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
                   'bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors'
                 )}
               >
-                Save to Vault
+                {isEditMode ? 'Save Changes' : 'Save to Vault'}
               </button>
             </form>
           </motion.div>

@@ -3,7 +3,7 @@ import { Plus, Lock, Search } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { useAppStore, VAULT_TYPE_FILTERS } from '@/stores/appStore';
 import type { VaultTypeFilter } from '@/stores/appStore';
-import type { CardData, BankData, AddressData, PersonalData, CompanyData, CodeData } from '@/types/vault';
+import type { VaultItem as VaultItemType, CardData, BankData, AddressData, PersonalData, CompanyData, CodeData } from '@/types/vault';
 import { VaultItem } from './VaultItem';
 import { VaultLock } from './VaultLock';
 import { NewVaultItemDialog } from './NewVaultItemDialog';
@@ -22,6 +22,7 @@ export function VaultList() {
   const vaultTypeFilter = useAppStore((state) => state.vaultTypeFilter);
   const setVaultTypeFilter = useAppStore((state) => state.setVaultTypeFilter);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<VaultItemType | undefined>(undefined);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   const getMainValue = (item: typeof items[0]) => {
@@ -61,6 +62,16 @@ export function VaultList() {
   }, [items, vaultTypeFilter, searchQuery]);
 
   const pinnedCount = useMemo(() => filteredItems.filter(i => i.isPinned).length, [filteredItems]);
+
+  const handleEdit = useCallback((item: VaultItemType) => {
+    setEditingItem(item);
+    setIsDialogOpen(true);
+  }, []);
+
+  const handleDialogClose = useCallback(() => {
+    setIsDialogOpen(false);
+    setEditingItem(undefined);
+  }, []);
 
   const handleSelect = useCallback(async (index: number) => {
     const item = filteredItems[index];
@@ -161,7 +172,7 @@ export function VaultList() {
                     else itemRefs.current.delete(index);
                   }}
                 >
-                  <VaultItem item={item} isSelected={index === selectedIndex} />
+                  <VaultItem item={item} isSelected={index === selectedIndex} onEdit={handleEdit} />
                 </div>
               </div>
             ))}
@@ -171,7 +182,7 @@ export function VaultList() {
 
       <div className="px-3 py-1 elevation-top">
         <button
-          onClick={() => setIsDialogOpen(true)}
+          onClick={() => { setEditingItem(undefined); setIsDialogOpen(true); }}
           className={cn(
             'w-full flex items-center justify-center gap-1.5 py-1.5 cursor-pointer',
             'text-xs text-muted-foreground hover:text-foreground hover:bg-surface-hover rounded-md transition-colors'
@@ -181,7 +192,7 @@ export function VaultList() {
         </button>
       </div>
 
-      <NewVaultItemDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
+      <NewVaultItemDialog isOpen={isDialogOpen} onClose={handleDialogClose} editItem={editingItem} />
     </div>
   );
 }
