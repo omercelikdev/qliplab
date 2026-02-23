@@ -83,17 +83,6 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
       }}
       onClick={handleCopy}
     >
-      {/* Pin indicator — always leftmost, clickable to unpin */}
-      {item.isPinned && (
-        <button
-          onClick={(e) => { e.stopPropagation(); togglePin(item.id); }}
-          className="p-0 shrink-0 cursor-pointer"
-          title="Unpin"
-        >
-          <PinOff className="w-3 h-3 text-accent" />
-        </button>
-      )}
-
       {/* Type badge with icon */}
       {badge ? (
         <span className={cn(
@@ -132,20 +121,21 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
         </span>
       </span>
 
-      {/* Action buttons — fade in/out: Pin(if unpinned), Edit, Eye, Delete */}
+      {/* Action buttons — fade in/out: Pin/Unpin, Edit, Eye, Delete */}
       <div className={cn(
         'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
         isHovered ? 'opacity-100' : 'opacity-0'
       )}>
-        {!item.isPinned && (
-          <button
-            onClick={(e) => { e.stopPropagation(); togglePin(item.id); }}
-            className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-            title="Pin"
-          >
-            <Pin className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-        )}
+        <button
+          onClick={(e) => { e.stopPropagation(); togglePin(item.id); }}
+          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+          title={item.isPinned ? 'Unpin' : 'Pin'}
+        >
+          {item.isPinned
+            ? <PinOff className="w-3.5 h-3.5 text-accent" />
+            : <Pin className="w-3.5 h-3.5 text-muted-foreground" />
+          }
+        </button>
         <button
           onClick={(e) => { e.stopPropagation(); onEdit?.(item); }}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"

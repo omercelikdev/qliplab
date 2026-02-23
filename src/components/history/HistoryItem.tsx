@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useMemo, useEffect, memo } from 'react';
 import {
-  MoreVertical, PinOff, Eye, Image as ImageIcon, Loader2, GripVertical,
+  MoreVertical, Eye, Image as ImageIcon, Loader2, GripVertical,
   Code, Braces, Globe, Key, Hash, Clock, Palette, Type,
 } from 'lucide-react';
 import { ItemMenu } from './ItemMenu';
@@ -303,8 +303,6 @@ export const HistoryItem = memo(function HistoryItem({
       onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
-      {/* Pin indicator — leftmost position */}
-      {item.isPinned && !isQueueMode && <PinOff className="w-3 h-3 text-accent shrink-0" />}
       {item.contentType === 'image' ? (
         isCurrentlyPasting ? (
           <Loader2 className="w-3.5 h-3.5 text-blue-500 shrink-0 animate-spin" />

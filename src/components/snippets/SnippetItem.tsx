@@ -84,17 +84,6 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
     >
-      {/* Pin indicator — always leftmost, clickable to toggle */}
-      {snippet.isPinned && (
-        <button
-          onClick={togglePin}
-          className="p-0 shrink-0 cursor-pointer"
-          title="Unpin"
-        >
-          <PinOff className="w-3 h-3 text-accent" />
-        </button>
-      )}
-
       {/* Syntax badge or plain icon */}
       {badge ? (
         <span className={cn(
@@ -124,20 +113,21 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         <span className="text-foreground/35 ml-1.5">{snippet.content.slice(0, 100).replace(/\n/g, ' ')}</span>
       </span>
 
-      {/* Action buttons — fade in/out: Pin(if unpinned), Edit, Delete */}
+      {/* Action buttons — fade in/out: Pin/Unpin, Edit, Delete */}
       <div className={cn(
         'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
         isHovered ? 'opacity-100' : 'opacity-0'
       )}>
-        {!snippet.isPinned && (
-          <button
-            onClick={togglePin}
-            className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-            title="Pin"
-          >
-            <Pin className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-        )}
+        <button
+          onClick={togglePin}
+          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+          title={snippet.isPinned ? 'Unpin' : 'Pin'}
+        >
+          {snippet.isPinned
+            ? <PinOff className="w-3.5 h-3.5 text-accent" />
+            : <Pin className="w-3.5 h-3.5 text-muted-foreground" />
+          }
+        </button>
         <button
           onClick={handleEdit}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
