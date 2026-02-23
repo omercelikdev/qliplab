@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Trash2, Pin, PinOff, Pencil, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { hideWriteAndPaste } from '@/lib/window';
 import { useVaultStore } from '@/stores/vaultStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { VaultItem as VaultItemType, CardData, BankData, AddressData, PersonalData, CompanyData, CodeData } from '@/types/vault';
@@ -61,8 +62,10 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
     return '••••••••••';
   };
 
-  const handleCopy = async () => {
-    await writeText(getMainValue());
+  const handleClick = async () => {
+    await hideWriteAndPaste(async () => {
+      await writeText(getMainValue());
+    });
   };
 
   return (
@@ -81,7 +84,7 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
         setIsHovered(false);
         setIsRevealed(false);
       }}
-      onClick={handleCopy}
+      onClick={handleClick}
     >
       {/* Type badge with icon */}
       {badge ? (
@@ -121,7 +124,7 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
         </span>
       </span>
 
-      {/* Action buttons — fade in/out: Pin/Unpin, Edit, Eye, Delete */}
+      {/* Action buttons — fade in/out: Pin/Unpin, Reveal, Edit, Delete */}
       <div className={cn(
         'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
         isHovered ? 'opacity-100' : 'opacity-0'
@@ -137,14 +140,9 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
           }
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); onEdit?.(item); }}
-          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-        >
-          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
-        <button
           onClick={(e) => { e.stopPropagation(); setIsRevealed(!isRevealed); }}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+          title={isRevealed ? 'Hide' : 'Reveal'}
         >
           {isRevealed
             ? <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
@@ -152,8 +150,16 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
           }
         </button>
         <button
+          onClick={(e) => { e.stopPropagation(); onEdit?.(item); }}
+          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+          title="Edit"
+        >
+          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+        </button>
+        <button
           onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center text-destructive cursor-pointer"
+          title="Delete"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>

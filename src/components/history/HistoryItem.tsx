@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useMemo, useEffect, memo } from 'react';
 import {
-  MoreVertical, Eye, Image as ImageIcon, Loader2, GripVertical,
+  MoreVertical, Pencil, Image as ImageIcon, Loader2, GripVertical,
   Code, Braces, Globe, Key, Hash, Clock, Palette, Type,
 } from 'lucide-react';
 import { ItemMenu } from './ItemMenu';
@@ -403,9 +403,9 @@ export const HistoryItem = memo(function HistoryItem({
           <button
             className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
             onClick={handleQuickView}
-            title="Quick Edit"
+            title="Edit"
           >
-            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+            <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
           <button
             ref={menuButtonRef}

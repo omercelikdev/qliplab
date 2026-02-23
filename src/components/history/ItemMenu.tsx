@@ -1,7 +1,7 @@
 import { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Eye, FileText, ClipboardPaste, ScanText, Bot, Tag, Plus, X } from 'lucide-react';
+import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Bot, Tag, Plus, X } from 'lucide-react';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import * as transforms from '@/lib/transforms';
@@ -283,7 +283,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
                 <MenuButton icon={ClipboardPaste} label="Paste Plain" onClick={handlePastePlainText} />
               </>
             )}
-            <MenuButton icon={Eye} label="Edit" onClick={() => { openView(item); onClose(); }} />
+            <MenuButton icon={Pencil} label="Edit" onClick={() => { openView(item); onClose(); }} />
 
             {item.contentType === 'image' && (
               <>

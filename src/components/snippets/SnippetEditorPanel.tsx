@@ -4,7 +4,12 @@ import { X, FileText } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { AVAILABLE_VARIABLES } from '@/lib/snippetVariables';
-import { isValidTrigger, TRIGGER_PREFIXES } from '@/lib/triggerEngine';
+import {
+  SNIPPET_SYNTAX_PREFIX,
+  buildSnippetTrigger,
+  extractSnippetTriggerSuffix,
+  isUniqueSnippetTrigger,
+} from '@/lib/triggerEngine';
 import { cn } from '@/lib/utils';
 
 const MonacoEditor = lazy(() => import('@monaco-editor/react'));
@@ -28,22 +33,27 @@ const SYNTAX_OPTIONS = [
 ];
 
 export function SnippetEditorPanel() {
-  const { editorOpen, editingSnippet, closeEditor, createSnippet, updateSnippet } = useSnippetStore();
+  const { editorOpen, editingSnippet, snippets, closeEditor, createSnippet, updateSnippet } = useSnippetStore();
   const { settings } = useSettingsStore();
 
   const [title, setTitle] = useState('');
-  const [trigger, setTrigger] = useState('');
+  const [triggerSuffix, setTriggerSuffix] = useState('');
   const [content, setContent] = useState('');
   const [syntax, setSyntax] = useState('plain');
 
   const isEditMode = Boolean(editingSnippet);
+  const triggerPrefix = SNIPPET_SYNTAX_PREFIX[syntax] ?? ';txt:';
+
+  const originalSuffix = isEditMode && editingSnippet?.trigger
+    ? extractSnippetTriggerSuffix(editingSnippet.syntax || 'plain', editingSnippet.trigger)
+    : '';
 
   const isDirty = isEditMode
     ? title !== (editingSnippet?.title ?? '') ||
-      trigger !== (editingSnippet?.trigger ?? '') ||
+      triggerSuffix !== originalSuffix ||
       content !== (editingSnippet?.content ?? '') ||
       syntax !== (editingSnippet?.syntax ?? 'plain')
-    : title.length > 0 || content.length > 0 || trigger.length > 0;
+    : title.length > 0 || content.length > 0 || triggerSuffix.length > 0;
 
   const confirmClose = useCallback(() => {
     if (isDirty) {
@@ -55,29 +65,39 @@ export function SnippetEditorPanel() {
   useEffect(() => {
     if (editingSnippet) {
       setTitle(editingSnippet.title);
-      setTrigger(editingSnippet.trigger || '');
+      const syn = editingSnippet.syntax || 'plain';
+      setSyntax(syn);
+      setTriggerSuffix(editingSnippet.trigger
+        ? extractSnippetTriggerSuffix(syn, editingSnippet.trigger)
+        : '');
       setContent(editingSnippet.content);
-      setSyntax(editingSnippet.syntax || 'plain');
     } else {
       setTitle('');
-      setTrigger('');
+      setTriggerSuffix('');
       setContent('');
       setSyntax('plain');
     }
   }, [editingSnippet, editorOpen]);
 
-  const triggerError = trigger.length > 0 && !isValidTrigger(trigger)
-    ? `Must start with ${TRIGGER_PREFIXES.join(' ')} and be at least 2 chars`
+  const triggerFormatError = triggerSuffix.length > 0 && !/^[a-zA-Z0-9_-]+$/.test(triggerSuffix)
+    ? 'Only letters, numbers, - and _'
     : '';
+  const triggerUniqueError = triggerSuffix.length > 0 && !triggerFormatError
+    && !isUniqueSnippetTrigger(syntax, triggerSuffix, snippets, editingSnippet?.id)
+    ? 'Trigger already exists'
+    : '';
+  const triggerError = triggerFormatError || triggerUniqueError;
 
   const handleSave = async () => {
     if (!title.trim()) return;
-    if (trigger && !isValidTrigger(trigger)) return;
+    if (triggerError) return;
+
+    const fullTrigger = triggerSuffix ? buildSnippetTrigger(syntax, triggerSuffix) : undefined;
 
     if (isEditMode && editingSnippet) {
-      await updateSnippet(editingSnippet.id, { title, trigger: trigger || undefined, content, syntax });
+      await updateSnippet(editingSnippet.id, { title, trigger: fullTrigger, content, syntax });
     } else {
-      await createSnippet({ title, trigger: trigger || undefined, content, syntax, isPinned: false });
+      await createSnippet({ title, trigger: fullTrigger, content, syntax, isPinned: false });
     }
     closeEditor();
   };
@@ -154,21 +174,28 @@ export function SnippetEditorPanel() {
             if (e.key === 'Escape') confirmClose();
           }}
         />
-        <input
-          type="text"
-          placeholder=";trigger"
-          value={trigger}
-          onChange={(e) => setTrigger(e.target.value)}
-          title={triggerError || 'Auto-expand trigger'}
+        <div
           className={cn(
-            'w-[120px] px-2.5 py-1.5 bg-surface border rounded-md text-xs font-mono',
-            'outline-none focus:ring-1 focus:ring-accent',
-            triggerError ? 'border-destructive' : trigger ? 'border-accent/50' : 'border-border'
+            'flex items-center w-[160px] bg-surface border rounded-md overflow-hidden',
+            'focus-within:ring-1 focus-within:ring-accent',
+            triggerError ? 'border-destructive' : triggerSuffix ? 'border-accent/50' : 'border-border'
           )}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') confirmClose();
-          }}
-        />
+          title={triggerError || `Full trigger: ${triggerPrefix}${triggerSuffix || '…'}`}
+        >
+          <span className="px-1.5 py-1.5 text-[10px] font-mono text-muted-foreground bg-surface-hover/50 shrink-0 select-none border-r border-border/50">
+            {triggerPrefix}
+          </span>
+          <input
+            type="text"
+            placeholder="suffix"
+            value={triggerSuffix}
+            onChange={(e) => setTriggerSuffix(e.target.value)}
+            className="flex-1 min-w-0 px-1.5 py-1.5 bg-transparent text-xs font-mono outline-none"
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') confirmClose();
+            }}
+          />
+        </div>
         <select
           value={syntax}
           onChange={(e) => setSyntax(e.target.value)}

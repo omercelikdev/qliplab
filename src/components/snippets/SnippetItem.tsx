@@ -131,12 +131,14 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         <button
           onClick={handleEdit}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
+          title="Edit"
         >
           <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
         <button
           onClick={handleDelete}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center text-destructive cursor-pointer"
+          title="Delete"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>

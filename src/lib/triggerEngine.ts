@@ -54,6 +54,45 @@ export function isUniqueTrigger(
   );
 }
 
+// --- Snippet syntax prefixes (auto-prepended to user triggers) ---
+
+export const SNIPPET_SYNTAX_PREFIX: Record<string, string> = {
+  // Code group
+  javascript: ';code:', typescript: ';code:', python: ';code:', go: ';code:',
+  rust: ';code:', java: ';code:', sql: ';code:', shell: ';code:',
+  // Data group
+  json: ';data:', yaml: ';data:', xml: ';data:', csv: ';data:',
+  // Web group
+  html: ';web:', css: ';web:', markdown: ';web:',
+  // Plain
+  plain: ';txt:',
+};
+
+/** Build a full trigger from syntax prefix + user-supplied suffix */
+export function buildSnippetTrigger(syntax: string, suffix: string): string {
+  const prefix = SNIPPET_SYNTAX_PREFIX[syntax] ?? ';txt:';
+  return prefix + suffix;
+}
+
+/** Extract user suffix from a full snippet trigger */
+export function extractSnippetTriggerSuffix(syntax: string, fullTrigger: string): string {
+  const prefix = SNIPPET_SYNTAX_PREFIX[syntax] ?? ';txt:';
+  return fullTrigger.startsWith(prefix) ? fullTrigger.slice(prefix.length) : fullTrigger;
+}
+
+/** Check if a snippet trigger suffix is unique among existing snippets */
+export function isUniqueSnippetTrigger(
+  syntax: string,
+  suffix: string,
+  existingSnippets: Snippet[],
+  excludeId?: string,
+): boolean {
+  const fullTrigger = buildSnippetTrigger(syntax, suffix);
+  return !existingSnippets.some(
+    s => s.id !== excludeId && s.trigger === fullTrigger
+  );
+}
+
 // --- Vault field maps ---
 
 interface FieldMapping {
