@@ -15,6 +15,7 @@ import { SettingsPanel } from './components/settings/SettingsDialog';
 import { SnippetEditorPanel } from './components/snippets/SnippetEditorPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorReportingOptIn } from './components/feedback/ErrorReportingOptIn';
+import { EulaDialog } from './components/legal/EulaDialog';
 import { useAppStore } from './stores/appStore';
 import { useHistoryStore } from './stores/historyStore';
 import { usePreviewStore } from './stores/previewStore';
@@ -39,6 +40,7 @@ function App() {
   const { activeTab } = useAppStore();
   const { loadItems } = useHistoryStore();
   const { loadSettings } = useSettingsStore();
+  const eulaAccepted = useSettingsStore((s) => s.settings.eulaAccepted);
   const { isOpen: previewOpen } = usePreviewStore();
   const { editorOpen: snippetEditorOpen } = useSnippetStore();
   const showSidePanel = activeTab !== 'settings' && (previewOpen || snippetEditorOpen);
@@ -74,14 +76,14 @@ function App() {
     init();
   }, [loadItems, loadSettings, loadFeedbackSettings]);
 
-  // Show opt-in dialog on first run after initialization
+  // Show opt-in dialog on first run after EULA is accepted
   useEffect(() => {
-    if (isInitialized && !hasSeenOptIn) {
-      // Small delay to let the UI settle
+    if (isInitialized && eulaAccepted && !hasSeenOptIn) {
+      // Small delay to let the UI settle after EULA acceptance
       const timer = setTimeout(() => setShowOptIn(true), 500);
       return () => clearTimeout(timer);
     }
-  }, [isInitialized, hasSeenOptIn]);
+  }, [isInitialized, eulaAccepted, hasSeenOptIn]);
 
   // Clear unpinned history on quit if setting is enabled
   useEffect(() => {
@@ -140,6 +142,14 @@ function App() {
     return (
       <div className={cn('h-screen w-screen flex items-center justify-center', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}>
         <span className="text-muted-foreground">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!eulaAccepted) {
+    return (
+      <div className={cn('h-screen w-screen', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}>
+        <EulaDialog />
       </div>
     );
   }

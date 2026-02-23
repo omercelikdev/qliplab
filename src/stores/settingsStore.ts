@@ -25,6 +25,9 @@ export interface AppSettings {
   onboardingSeen: boolean;
   globalShortcut: string; // e.g. 'CommandOrControl+Shift+V'
   autoCommands: AutoCommand[];
+  eulaAccepted: boolean;
+  eulaAcceptedVersion: string;
+  eulaAcceptedAt: string;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -44,6 +47,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   onboardingSeen: false,
   globalShortcut: 'CommandOrControl+Shift+V',
   autoCommands: [],
+  eulaAccepted: false,
+  eulaAcceptedVersion: '',
+  eulaAcceptedAt: '',
 };
 
 let store: Store | null = null;
@@ -53,6 +59,7 @@ interface SettingsState {
   isLoading: boolean;
   loadSettings: () => Promise<void>;
   updateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => Promise<void>;
+  updateSettings: (updates: Partial<AppSettings>) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -83,6 +90,19 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       set((state) => ({ settings: { ...state.settings, [key]: value } }));
     } catch {
       // Update setting failed
+    }
+  },
+
+  updateSettings: async (updates) => {
+    try {
+      if (!store) return;
+      for (const [key, value] of Object.entries(updates)) {
+        await store.set(key, value);
+      }
+      await store.save();
+      set((state) => ({ settings: { ...state.settings, ...updates } }));
+    } catch {
+      // Update settings failed
     }
   },
 }));

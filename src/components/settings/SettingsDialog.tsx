@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
+import { EulaViewerDialog } from '@/components/legal/EulaViewerDialog';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
 import { PrivacyPolicyDialog } from '@/components/settings/PrivacyPolicyDialog';
@@ -21,6 +22,7 @@ export function SettingsPanel() {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isAiConsentOpen, setIsAiConsentOpen] = useState(false);
+  const [isEulaOpen, setIsEulaOpen] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -281,6 +283,16 @@ export function SettingsPanel() {
                 <FileText className="w-3 h-3" />
                 Privacy Policy
               </button>
+              <button
+                onClick={() => setIsEulaOpen(true)}
+                className={cn(
+                  'w-full flex items-center justify-center gap-2 py-1 text-[11px] rounded-md transition-colors cursor-pointer',
+                  'text-muted-foreground hover:text-foreground hover:bg-surface-hover'
+                )}
+              >
+                <FileText className="w-3 h-3" />
+                Terms of Use
+              </button>
             </div>
 
             {/* About */}
@@ -293,12 +305,8 @@ export function SettingsPanel() {
               <div className="text-center space-y-1.5 py-2">
                 <div className="text-sm font-semibold">QlipLab</div>
                 <div className="text-[10px] text-muted-foreground">v{CONFIG.APP_VERSION}</div>
-                <div className="text-[10px] text-muted-foreground leading-relaxed">
-                  Cross-platform clipboard manager<br />
-                  Tauri v2 + React 19 + TypeScript
-                </div>
-                <div className="text-[9px] text-foreground/20 pt-1">
-                  MIT License
+                <div className="text-[10px] text-muted-foreground">
+                  Cross-platform clipboard manager
                 </div>
               </div>
             </div>
@@ -314,6 +322,7 @@ export function SettingsPanel() {
         onAccept={() => setIsAiConsentOpen(false)}
         provider={settings.aiProvider === 'anthropic' ? 'Anthropic' : 'OpenAI'}
       />
+      <EulaViewerDialog isOpen={isEulaOpen} onClose={() => setIsEulaOpen(false)} />
     </>
   );
 }
