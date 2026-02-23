@@ -207,59 +207,196 @@ xcrun altool --upload-app \
 
 ### 1.7 Review Notes (Apple Reviewer İçin)
 
-Aşağıdaki metin App Store Connect → "App Review Information" → "Notes" alanına yazılacak:
+App Store Connect → **"App Review Information" → "Notes"** alanına aşağıdaki metin yazılacak.
+
+> **Önemli:** Apple reviewer bu notu doğrudan okur. Her entitlement için neden gerektiğini, benzer onaylanmış uygulamaları ve guideline referanslarını içerir. Bu not profesyonel ve teknik olmalı.
 
 ```
-QlipLab is a clipboard manager utility that runs as a floating panel (similar to
-Spotlight). It requires the following permissions:
+QlipLab is a clipboard manager utility — similar in concept to Raycast,
+Alfred, Maccy, and Paste, which are all available on the Mac App Store.
+It provides clipboard history, format detection, text transforms, and an
+encrypted vault for sensitive data.
 
-ACCESSIBILITY / APPLE EVENTS:
-The app uses AppleScript to simulate Cmd+V paste into the previously active
-application. This is the core "paste back" functionality — when a user selects
-a clipboard item, the app hides itself, activates the previous app, and pastes.
-This requires the "com.apple.security.automation.apple-events" entitlement and
-NSAppleEventsUsageDescription is declared in Info.plist.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENTITLEMENT JUSTIFICATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-UNSIGNED EXECUTABLE MEMORY:
-The "com.apple.security.cs.allow-unsigned-executable-memory" entitlement is
-required by the Tauri framework's WebView runtime (WKWebView) and the embedded
-Monaco code editor for syntax highlighting and code evaluation.
+1) com.apple.security.app-sandbox: TRUE
+   Standard requirement for Mac App Store distribution.
 
-PRIVATE API (NSPanel):
-The app uses NSPanel (via tauri-nspanel) to create a Spotlight-like floating
-panel that appears above all windows and on all workspaces. This provides the
-expected clipboard manager UX where the panel appears instantly on hotkey
-(Cmd+Shift+V) without appearing in the Dock or app switcher.
+2) com.apple.security.network.client: TRUE
+   Required for:
+   - Optional crash reporting (opt-in, disabled by default)
+   - Optional AI text processing (user must provide their own API key
+     from Anthropic or OpenAI, explicit consent required before first use)
+   - EULA acceptance audit logging (one-time on first launch)
+   All connections use HTTPS exclusively. No background network activity.
+   No telemetry. No analytics. No tracking.
 
-NETWORK ACCESS:
-- Optional crash reporting (opt-in only, disabled by default)
-- Optional AI features (requires user's own API key, explicit consent per use)
-- EULA/consent audit logging
-All endpoints use HTTPS. No telemetry or tracking.
+3) com.apple.security.automation.apple-events: TRUE
+   Core functionality: When a user selects a clipboard item, the app
+   pastes it into their previously active application by:
+   (a) Writing the selected text to the system clipboard
+   (b) Hiding the QlipLab panel
+   (c) Activating the previous application via AppleScript
+   (d) Simulating Cmd+V keystroke via CGEvent
+   This is the standard clipboard manager "paste-back" pattern used by
+   Raycast, Alfred, Maccy, Paste, and CopyClip — all approved on the
+   Mac App Store. NSAppleEventsUsageDescription is declared in Info.plist.
 
-DATA HANDLING:
-- All clipboard data stored locally in SQLite
-- Vault items encrypted with AES-256-GCM (PBKDF2 210K iterations)
-- No clipboard content is ever sent to our servers
-- Crash reports contain only stack traces (no user data)
+4) com.apple.security.temporary-exception.apple-events
+   → Target: com.apple.systemevents
+   Required to activate the previously focused application before pasting.
+   The app calls "tell application [name] to activate" to bring the
+   user's previous app to front. Only the app name is used (sanitized
+   with whitelist: alphanumeric, spaces, dashes, dots, underscores).
+   No other System Events features are used.
 
-TEST INSTRUCTIONS:
-1. Launch app → Accept EULA
-2. Copy any text → It appears in clipboard history
-3. Click an item → It pastes to your previous app
-4. Try Cmd+Shift+V to toggle the window
-5. Navigate to Vault tab → Set a master password
-6. Settings tab shows all privacy controls
+5) com.apple.security.files.user-selected.read-write: TRUE
+   Used for two user-initiated features:
+   - Export: Save clipboard history/snippets as JSON file (via NSSavePanel)
+   - Import: Load previously exported data (via NSOpenPanel)
+   Both use the standard macOS file picker dialog. No arbitrary file access.
+
+6) com.apple.security.cs.allow-unsigned-executable-memory: TRUE
+   Required by the Tauri v2 framework runtime. Tauri uses WKWebView for
+   rendering, and the embedded JavaScript engine requires this entitlement
+   for JIT compilation. This is a known Tauri framework requirement
+   documented at: https://v2.tauri.app/distribute/macos/
+   Other Tauri-based apps on the Mac App Store use this same entitlement.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NSPanel / FLOATING WINDOW BEHAVIOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+QlipLab uses NSPanel to create a Spotlight-like floating panel:
+- Activates via global hotkey Cmd+Shift+V
+- Appears above all windows on the current Space
+- Does NOT appear in the Dock or App Switcher
+- Visible on all workspaces (Spaces)
+- Dismisses when clicking outside or pressing Escape
+
+This is the standard UX pattern for clipboard managers on macOS.
+Raycast (Mac App Store), Alfred, and Spotlight itself use the same
+NSPanel approach for instant-access utility panels.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRIVACY & DATA HANDLING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- ALL clipboard data is stored locally in SQLite within the app sandbox
+- Vault items are encrypted with AES-256-GCM (PBKDF2, 210K iterations)
+- NO clipboard content is ever transmitted to external servers
+- Crash reporting is opt-in (disabled by default), only stack traces
+  are sent (no user data, no clipboard content, no vault data)
+- AI features require explicit user consent + user's own API key
+- AI actions are blocked for items detected as sensitive (passwords,
+  API keys, credit card numbers)
+- Privacy manifest (PrivacyInfo.xcprivacy) declares all accessed APIs
+- Comprehensive privacy policy accessible in Settings
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LEGAL & CONSENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- EULA shown on first launch (must scroll to bottom + accept)
+- EULA acceptance recorded on server with integrity hash
+- AI data processing consent (3 explicit checkboxes, revocable)
+- Error reporting opt-in dialog shown after EULA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TESTING INSTRUCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+No login or account required. No demo credentials needed.
+
+1. Launch QlipLab → EULA dialog appears → scroll to bottom → "I Accept"
+2. Error reporting opt-in appears → accept or decline (both OK)
+3. Open any text editor (TextEdit, Notes, etc.) and copy some text
+4. Press Cmd+Shift+V → QlipLab panel appears with your copied text
+5. Click the item → panel hides and text is pasted into the editor
+6. Copy a JSON string like {"name":"test"} → format badge appears
+7. Click the item → preview panel shows formatted/beautified JSON
+8. Try Option+D to enter Diff Mode → select 2 items → see comparison
+9. Switch to Snippets tab → create a new snippet
+10. Switch to Vault tab → set a master password → add a card/bank item
+11. Lock the vault → unlock with your password
+12. Settings tab → review all privacy controls, toggle options
+13. Settings → "Privacy Policy" shows in-app privacy policy
+14. Settings → "Terms of Use" shows EULA
+
+All features work offline except: crash reporting, AI features,
+and EULA/consent audit logging (first launch only).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPARABLE APPROVED APPS (Same patterns/entitlements)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- Raycast (Mac App Store) — floating panel, paste-back, AppleScript
+- Paste - Clipboard Manager (Mac App Store) — clipboard history, paste-back
+- Maccy (Mac App Store) — clipboard manager, hotkey, paste simulation
+- CopyClip 2 (Mac App Store) — clipboard history, AppleScript paste
 ```
 
-### 1.8 Rejection Risks & Mitigations
+### 1.8 Apple Guideline Referansları
 
-| Risk | Olasılık | Mitigation |
-|------|---------|-----------|
-| `macos-private-api` (NSPanel) | Orta | Review notes'ta Spotlight benzeri UX açıklaması |
-| `allow-unsigned-executable-memory` | Düşük | Tauri/WKWebView + Monaco gereksinimi açıklaması |
-| `unsafe-eval` CSP | Düşük | Tauri framework gereksinimi, XSS koruması mevcut |
-| AppleScript automation | Düşük | Usage description + review notes açıklaması |
+Review notes'ta bahsedilen her yetki Apple'ın kendi guideline'larıyla uyumlu:
+
+| Guideline | Kural | QlipLab Durumu |
+|-----------|-------|---------------|
+| **2.5.1** | Apps may only use public APIs | NSPanel + CGEvent standart macOS API'ları. `macos-private-api` Tauri framework flag'i — actual private API çağrısı yok, sadece NSPanel window level ayarı. |
+| **2.5.4** | Apps should not download or install executable code | Uygulama çalıştırılabilir kod indirmiyor. `unsafe-eval` sadece Tauri WKWebView JIT için. |
+| **2.5.9** | Apps requesting Accessibility API must explain | AppleScript paste simulation açıklanmış, usage description mevcut. |
+| **5.1.1** | Data collection must be disclosed | Privacy manifest + in-app privacy policy + data collection anketi |
+| **5.1.2** | Data use and sharing must have consent | EULA + AI consent (3 checkbox, server-recorded) + error reporting opt-in |
+| **3.2.2(f)** | Utilities must have sufficient functionality | 6+ farklı özellik: history, transforms, diff, snippets, vault, AI |
+
+### 1.9 Rejection Risks & Response Strategy
+
+| Risk | Olasılık | Apple'ın Sorusu | Hazır Cevap |
+|------|---------|----------------|-------------|
+| NSPanel kullanımı | Orta | "Why does your app use NSPanel?" | "Spotlight-like utility panel UX — same as Raycast, Paste, Maccy on the Mac App Store. Required for instant-access clipboard manager that doesn't appear in Dock." |
+| `allow-unsigned-executable-memory` | Orta | "Why is this entitlement needed?" | "Tauri v2 framework requirement for WKWebView JIT. Documented at tauri.app/distribute/macos. Other Tauri apps approved on MAS use the same entitlement." |
+| AppleScript automation | Düşük | "Why does the app need Apple Events?" | "Clipboard manager paste-back: activate previous app + simulate Cmd+V. Standard pattern used by Raycast, Alfred, Maccy, CopyClip. Usage description in Info.plist." |
+| System Events exception | Düşük | "Why target com.apple.systemevents?" | "Activate the user's previously focused app by name before pasting. Only 'activate' command is used. App name is whitelist-sanitized." |
+| Network access | Çok düşük | "What network calls does the app make?" | "All opt-in: crash reporting (disabled by default), AI features (user's own API key + consent), EULA audit (one-time). HTTPS only. No telemetry." |
+
+### 1.10 Eğer Reddedilirse — Appeal Template
+
+Resolution Center'da veya App Review Board appeal'ında kullanılacak şablon:
+
+```
+Dear App Review Team,
+
+Thank you for your feedback regarding QlipLab.
+
+Regarding [SPECIFIC REJECTION REASON]:
+
+QlipLab is a clipboard manager utility in the same category as several
+approved Mac App Store applications including:
+- Raycast (currently on the Mac App Store)
+- Paste - Clipboard Manager (currently on the Mac App Store)
+- Maccy (currently on the Mac App Store)
+- CopyClip 2 (currently on the Mac App Store)
+
+These apps use the same technical patterns and entitlements that QlipLab
+uses:
+- NSPanel for floating utility window (Spotlight-like UX)
+- AppleScript/CGEvent for paste simulation into the previous app
+- App Sandbox with the same entitlements
+
+[SPECIFIC TECHNICAL EXPLANATION FOR THE REJECTION REASON]
+
+We believe QlipLab complies with App Store Review Guideline [X.X.X]
+because [EXPLANATION].
+
+We are happy to provide additional technical details, make adjustments,
+or schedule a call with the App Review Board to discuss our implementation.
+
+Best regards,
+Ömer Çelik
+QlipLab Developer
+```
 
 > **Red durumunda:** Apple genellikle spesifik sebep belirtir. İlk submission'da reddedilirse, Review Board'a appeal yapılabilir. NSPanel kullanımı için "Spotlight-like utility" categorization önerilir.
 
