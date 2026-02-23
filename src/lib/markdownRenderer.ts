@@ -32,7 +32,6 @@ export function renderMarkdown(md: string): string {
     ALLOWED_ATTR: [
       'href', 'src', 'alt', 'title', 'class', 'id',
       'type', 'checked', 'disabled', // for task list checkboxes
-      'style',
     ],
     ALLOW_DATA_ATTR: false,
   });
