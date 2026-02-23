@@ -88,7 +88,7 @@ interface AppState {
   signalWindowOpen: () => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   activeTab: 'history',
   previewOpen: false,
   theme: 'system',
@@ -104,7 +104,18 @@ export const useAppStore = create<AppState>((set) => ({
   windowOpenCount: 0,
   openMenuItemId: null,
 
-  setActiveTab: (tab) => set({ activeTab: tab }),
+  setActiveTab: (tab) => {
+    if (get().activeTab === tab) return;
+    set({
+      activeTab: tab,
+      searchQuery: '',
+      isDiffMode: false,
+      diffSelectedIds: [],
+      isQueueMode: false,
+      pasteQueue: [],
+      openMenuItemId: null,
+    });
+  },
   setPreviewOpen: (open) => set({ previewOpen: open }),
   setTheme: (theme) => set({ theme }),
   setSearchQuery: (query) => set({ searchQuery: query }),

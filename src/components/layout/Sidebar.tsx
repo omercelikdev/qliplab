@@ -1,5 +1,8 @@
+import { useCallback } from 'react';
 import { Clipboard, History, FileText, Lock, Settings } from 'lucide-react';
 import { useAppStore, Tab } from '@/stores/appStore';
+import { usePreviewStore } from '@/stores/previewStore';
+import { useSnippetStore } from '@/stores/snippetStore';
 import { cn } from '@/lib/utils';
 
 const topMenuItems: { id: Tab; label: string; icon: React.ElementType }[] = [
@@ -11,6 +14,13 @@ const topMenuItems: { id: Tab; label: string; icon: React.ElementType }[] = [
 export function Sidebar() {
   const { activeTab, setActiveTab } = useAppStore();
 
+  const handleTabChange = useCallback((tab: Tab) => {
+    // Close side panels from other tabs before switching
+    if (usePreviewStore.getState().isOpen) usePreviewStore.getState().close();
+    if (useSnippetStore.getState().editorOpen) useSnippetStore.getState().closeEditor();
+    setActiveTab(tab);
+  }, [setActiveTab]);
+
   const renderTabButton = (id: Tab, label: string, Icon: React.ElementType) => {
     const isActive = activeTab === id;
     return (
@@ -19,7 +29,7 @@ export function Sidebar() {
         role="tab"
         aria-selected={isActive}
         aria-label={label}
-        onClick={() => setActiveTab(id)}
+        onClick={() => handleTabChange(id)}
         className={cn(
           'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag',
           isActive

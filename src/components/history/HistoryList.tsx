@@ -35,7 +35,7 @@ export function HistoryList() {
   const { loadItems, loadMore } = useHistoryStore.getState();
   const { setFormatFilter, toggleQueueItem, addToDiffSelection, setOpenMenuItemId } = useAppStore.getState();
   const { openView } = usePreviewStore.getState();
-  const { setActiveTagFilter } = useTagStore.getState();
+  const { setActiveTagFilter, deleteTag } = useTagStore.getState();
 
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -180,25 +180,34 @@ export function HistoryList() {
 
       {/* Tag filter — only shown when tags exist */}
       {tags.length > 0 && (
-        <div className="flex items-center gap-1 px-3 py-1 shrink-0 overflow-x-auto border-t border-border/30">
+        <div className="flex items-center gap-1 px-3 py-1 shrink-0 overflow-x-auto">
           <Tag className="w-3 h-3 text-muted-foreground shrink-0" />
           {tags.map(tag => (
-            <button
-              key={tag.id}
-              onClick={() => setActiveTagFilter(activeTagFilter === tag.id ? null : tag.id)}
-              className={cn(
-                'flex items-center gap-1 px-2 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer border',
-                activeTagFilter === tag.id
-                  ? 'border-accent bg-accent/10 text-accent'
-                  : 'border-transparent text-muted-foreground hover:bg-surface-hover'
-              )}
-            >
-              <span
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ backgroundColor: tag.color || '#888' }}
-              />
-              {tag.name}
-            </button>
+            <div key={tag.id} className="group/tag relative flex items-center">
+              <button
+                onClick={() => setActiveTagFilter(activeTagFilter === tag.id ? null : tag.id)}
+                className={cn(
+                  'flex items-center gap-1 pl-2 pr-1.5 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer border',
+                  activeTagFilter === tag.id
+                    ? 'border-accent bg-accent/10 text-accent'
+                    : 'border-transparent text-muted-foreground hover:bg-surface-hover'
+                )}
+              >
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: tag.color || '#888' }}
+                />
+                {tag.name}
+                <span
+                  role="button"
+                  className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover/tag:opacity-100 hover:bg-destructive/20 hover:text-destructive transition-all cursor-pointer"
+                  onClick={(e) => { e.stopPropagation(); deleteTag(tag.id); }}
+                  title="Delete tag"
+                >
+                  <X className="w-2.5 h-2.5" />
+                </span>
+              </button>
+            </div>
           ))}
           {activeTagFilter && (
             <button

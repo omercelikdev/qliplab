@@ -1,10 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { getVaultFieldMap, VAULT_TYPE_PREFIX, buildVaultTrigger, extractTriggerSuffix, isUniqueTrigger } from '@/lib/triggerEngine';
 import type { VaultItem, VaultItemType, VaultItemData } from '@/types/vault';
 import { cn } from '@/lib/utils';
+import {
+  validateVaultFields,
+  formatCardNumber, unformatCardNumber,
+  formatIban, unformatIban,
+  formatSwift, formatCvv,
+  formatPhoneNumber,
+} from '@/lib/vaultValidation';
+import { COUNTRIES, POPULAR_COUNTRY_CODES, getFlag, getDialCode } from '@/lib/countries';
 
 interface Props {
   isOpen: boolean;
@@ -21,15 +29,77 @@ const itemTypes: { type: VaultItemType; label: string; icon: typeof CreditCard }
   { type: 'code', label: 'Code', icon: Key },
 ];
 
+const MONTHS = [
+  { value: '01', label: '01 - January' },
+  { value: '02', label: '02 - February' },
+  { value: '03', label: '03 - March' },
+  { value: '04', label: '04 - April' },
+  { value: '05', label: '05 - May' },
+  { value: '06', label: '06 - June' },
+  { value: '07', label: '07 - July' },
+  { value: '08', label: '08 - August' },
+  { value: '09', label: '09 - September' },
+  { value: '10', label: '10 - October' },
+  { value: '11', label: '11 - November' },
+  { value: '12', label: '12 - December' },
+];
+
+const DOB_MONTHS = [
+  { value: '01', label: 'January' },
+  { value: '02', label: 'February' },
+  { value: '03', label: 'March' },
+  { value: '04', label: 'April' },
+  { value: '05', label: 'May' },
+  { value: '06', label: 'June' },
+  { value: '07', label: 'July' },
+  { value: '08', label: 'August' },
+  { value: '09', label: 'September' },
+  { value: '10', label: 'October' },
+  { value: '11', label: 'November' },
+  { value: '12', label: 'December' },
+];
+
+function getExpiryYears(): string[] {
+  const currentYear = new Date().getFullYear() % 100;
+  return Array.from({ length: 11 }, (_, i) =>
+    String(currentYear + i).padStart(2, '0'),
+  );
+}
+
+function getDobDays(): number[] {
+  return Array.from({ length: 31 }, (_, i) => i + 1);
+}
+
+function getDobYears(): number[] {
+  const current = new Date().getFullYear();
+  const years: number[] = [];
+  for (let y = current; y >= 1920; y--) years.push(y);
+  return years;
+}
+
 export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
   const isEditMode = !!editItem;
   const [selectedType, setSelectedType] = useState<VaultItemType>('card');
   const [title, setTitle] = useState('');
   const [triggerSuffix, setTriggerSuffix] = useState(''); // user-entered part only
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const createItem = useVaultStore((state) => state.createItem);
   const updateItem = useVaultStore((state) => state.updateItem);
   const items = useVaultStore((state) => state.items);
+
+  const expiryYears = useMemo(getExpiryYears, []);
+  const dobDays = useMemo(getDobDays, []);
+  const dobYears = useMemo(getDobYears, []);
+
+  const popularCountries = useMemo(
+    () => COUNTRIES.filter(c => POPULAR_COUNTRY_CODES.has(c.code)),
+    [],
+  );
+  const otherCountries = useMemo(
+    () => COUNTRIES.filter(c => !POPULAR_COUNTRY_CODES.has(c.code)),
+    [],
+  );
 
   const prefix = VAULT_TYPE_PREFIX[selectedType];
   const fullTrigger = triggerSuffix ? buildVaultTrigger(selectedType, triggerSuffix) : '';
@@ -40,12 +110,38 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
       setSelectedType(editItem.type);
       setTitle(editItem.title);
       setTriggerSuffix(editItem.trigger ? extractTriggerSuffix(editItem.type, editItem.trigger) : '');
-      setFormData(editItem.data as unknown as Record<string, string>);
+      const data = { ...(editItem.data as unknown as Record<string, string>) };
+      if (editItem.type === 'personal') {
+        // Parse existing dateOfBirth into select parts
+        if (data.dateOfBirth) {
+          const parts = data.dateOfBirth.split('/');
+          if (parts.length === 3) {
+            data.dobDay = parts[0];
+            data.dobMonth = parts[1];
+            data.dobYear = parts[2];
+          }
+        }
+        // Parse phone: if it starts with a dial code and no phoneCountry, detect it
+        if (data.phone && !data.phoneCountry && data.phone.startsWith('+')) {
+          // Sort by dial code length desc so longer codes match first (+44 before +4)
+          const sorted = [...COUNTRIES].sort((a, b) => b.dial.length - a.dial.length);
+          for (const c of sorted) {
+            if (data.phone.startsWith(c.dial + ' ') || data.phone === c.dial) {
+              data.phoneCountry = c.code;
+              data.phone = data.phone.slice(c.dial.length).trim();
+              break;
+            }
+          }
+        }
+      }
+      setFormData(data);
+      setErrors({});
     } else if (!isOpen) {
       setSelectedType('card');
       setTitle('');
       setTriggerSuffix('');
       setFormData({});
+      setErrors({});
     }
   }, [editItem, isOpen]);
 
@@ -63,20 +159,62 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
     if (!title.trim()) return;
     if (triggerError) return;
 
+    const fieldErrors = validateVaultFields(selectedType, formData);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+
+    // Build clean data for saving
+    const cleanData = { ...formData };
+
+    // Unformat masked values
+    if (selectedType === 'card' && cleanData.cardNumber) {
+      cleanData.cardNumber = unformatCardNumber(cleanData.cardNumber);
+    }
+    if (selectedType === 'bank' && cleanData.iban) {
+      cleanData.iban = unformatIban(cleanData.iban);
+    }
+
+    // Combine DOB select parts into single dateOfBirth field
+    if (selectedType === 'personal') {
+      const { dobDay, dobMonth, dobYear, ...rest } = cleanData;
+      if (dobDay && dobMonth && dobYear) {
+        rest.dateOfBirth = `${dobDay}/${dobMonth}/${dobYear}`;
+      }
+      // Combine phone with country dial code
+      if (rest.phoneCountry && rest.phone) {
+        const dial = getDialCode(rest.phoneCountry);
+        rest.phone = dial ? `${dial} ${rest.phone}` : rest.phone;
+      }
+      Object.assign(cleanData, rest);
+      delete cleanData.dobDay;
+      delete cleanData.dobMonth;
+      delete cleanData.dobYear;
+    }
+
     const triggerValue = triggerSuffix ? fullTrigger : undefined;
     if (isEditMode && editItem) {
-      await updateItem(editItem.id, title, formData as unknown as VaultItemData, triggerValue);
+      await updateItem(editItem.id, title, cleanData as unknown as VaultItemData, triggerValue);
     } else {
-      await createItem(selectedType, title, formData as unknown as VaultItemData, triggerValue);
+      await createItem(selectedType, title, cleanData as unknown as VaultItemData, triggerValue);
     }
     setTitle('');
     setTriggerSuffix('');
     setFormData({});
+    setErrors({});
     onClose();
   };
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
   };
 
   const renderFields = () => {
@@ -84,32 +222,44 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
       case 'card':
         return (
           <>
-            <Input label="Cardholder Name" value={formData.cardholderName || ''} onChange={(v) => updateField('cardholderName', v)} />
-            <Input label="Card Number" value={formData.cardNumber || ''} onChange={(v) => updateField('cardNumber', v)} placeholder="1234 5678 9012 3456" />
+            <Input label="Cardholder Name" value={formData.cardholderName || ''} onChange={(v) => updateField('cardholderName', v)} maxLength={50} error={errors.cardholderName} />
+            <Input label="Card Number" value={formData.cardNumber || ''} onChange={(v) => updateField('cardNumber', v)} placeholder="1234 5678 9012 3456" formatter={formatCardNumber} maxLength={19} inputMode="numeric" error={errors.cardNumber} />
             <div className="grid grid-cols-3 gap-2">
-              <Input label="Month" value={formData.expiryMonth || ''} onChange={(v) => updateField('expiryMonth', v)} placeholder="MM" />
-              <Input label="Year" value={formData.expiryYear || ''} onChange={(v) => updateField('expiryYear', v)} placeholder="YY" />
-              <Input label="CVV" value={formData.cvv || ''} onChange={(v) => updateField('cvv', v)} placeholder="123" type="password" />
+              <Select label="Month" value={formData.expiryMonth || ''} onChange={(v) => updateField('expiryMonth', v)} error={errors.expiryMonth} placeholder="MM">
+                {MONTHS.map(m => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </Select>
+              <Select label="Year" value={formData.expiryYear || ''} onChange={(v) => updateField('expiryYear', v)} error={errors.expiryYear} placeholder="YY">
+                {expiryYears.map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </Select>
+              <Input label="CVV" value={formData.cvv || ''} onChange={(v) => updateField('cvv', v)} placeholder="123" formatter={formatCvv} maxLength={4} inputMode="numeric" type="password" error={errors.cvv} />
             </div>
           </>
         );
       case 'bank':
         return (
           <>
-            <Input label="Bank Name" value={formData.bankName || ''} onChange={(v) => updateField('bankName', v)} />
-            <Input label="Account Holder" value={formData.accountHolder || ''} onChange={(v) => updateField('accountHolder', v)} />
-            <Input label="IBAN" value={formData.iban || ''} onChange={(v) => updateField('iban', v)} />
-            <Input label="SWIFT (optional)" value={formData.swift || ''} onChange={(v) => updateField('swift', v)} />
+            <Input label="Bank Name" value={formData.bankName || ''} onChange={(v) => updateField('bankName', v)} maxLength={100} error={errors.bankName} />
+            <Input label="Account Holder" value={formData.accountHolder || ''} onChange={(v) => updateField('accountHolder', v)} maxLength={100} error={errors.accountHolder} />
+            <Input label="IBAN" value={formData.iban || ''} onChange={(v) => updateField('iban', v)} formatter={formatIban} maxLength={42} error={errors.iban} />
+            <Input label="SWIFT (optional)" value={formData.swift || ''} onChange={(v) => updateField('swift', v)} formatter={formatSwift} maxLength={11} error={errors.swift} />
           </>
         );
       case 'address':
         return (
           <>
-            <Input label="Street" value={formData.street || ''} onChange={(v) => updateField('street', v)} />
-            <Input label="City" value={formData.city || ''} onChange={(v) => updateField('city', v)} />
+            <Input label="Street" value={formData.street || ''} onChange={(v) => updateField('street', v)} maxLength={200} error={errors.street} />
+            <Input label="Address Line 2 (optional)" value={formData.addressLine2 || ''} onChange={(v) => updateField('addressLine2', v)} maxLength={100} placeholder="Apt, Suite, Floor" />
             <div className="grid grid-cols-2 gap-2">
-              <Input label="Postal Code" value={formData.postalCode || ''} onChange={(v) => updateField('postalCode', v)} />
-              <Input label="Country" value={formData.country || ''} onChange={(v) => updateField('country', v)} />
+              <Input label="City" value={formData.city || ''} onChange={(v) => updateField('city', v)} maxLength={100} error={errors.city} />
+              <Input label="State / Province (optional)" value={formData.state || ''} onChange={(v) => updateField('state', v)} maxLength={100} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Input label="Postal Code (optional)" value={formData.postalCode || ''} onChange={(v) => updateField('postalCode', v)} maxLength={15} />
+              <Input label="Country" value={formData.country || ''} onChange={(v) => updateField('country', v)} maxLength={60} error={errors.country} />
             </div>
           </>
         );
@@ -117,33 +267,91 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
         return (
           <>
             <div className="grid grid-cols-2 gap-2">
-              <Input label="First Name" value={formData.firstName || ''} onChange={(v) => updateField('firstName', v)} />
-              <Input label="Last Name" value={formData.lastName || ''} onChange={(v) => updateField('lastName', v)} />
+              <Input label="First Name" value={formData.firstName || ''} onChange={(v) => updateField('firstName', v)} maxLength={50} error={errors.firstName} />
+              <Input label="Last Name" value={formData.lastName || ''} onChange={(v) => updateField('lastName', v)} maxLength={50} error={errors.lastName} />
             </div>
-            <Input label="Email (optional)" value={formData.email || ''} onChange={(v) => updateField('email', v)} placeholder="name@example.com" />
-            <Input label="Phone (optional)" value={formData.phone || ''} onChange={(v) => updateField('phone', v)} placeholder="+1 234 567 8900" />
-            <Input label="Date of Birth (optional)" value={formData.dateOfBirth || ''} onChange={(v) => updateField('dateOfBirth', v)} placeholder="DD/MM/YYYY" />
+            <Input label="Email (optional)" value={formData.email || ''} onChange={(v) => updateField('email', v)} placeholder="name@example.com" maxLength={100} inputMode="email" error={errors.email} />
+
+            {/* Phone with country code selector */}
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Phone (optional)</label>
+              <div className="flex gap-1.5">
+                <select
+                  value={formData.phoneCountry || ''}
+                  onChange={(e) => updateField('phoneCountry', e.target.value)}
+                  className="w-[110px] px-2 py-2 bg-surface border border-border rounded-lg text-xs outline-none focus:ring-2 focus:ring-accent cursor-pointer shrink-0"
+                >
+                  <option value="">Country</option>
+                  <optgroup label="Popular">
+                    {popularCountries.map(c => (
+                      <option key={c.code} value={c.code}>{getFlag(c.code)} {c.dial}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="All Countries">
+                    {otherCountries.map(c => (
+                      <option key={c.code} value={c.code}>{getFlag(c.code)} {c.name} {c.dial}</option>
+                    ))}
+                  </optgroup>
+                </select>
+                <input
+                  type="tel"
+                  value={formData.phone || ''}
+                  onChange={(e) => updateField('phone', formatPhoneNumber(e.target.value))}
+                  placeholder="555 123 4567"
+                  maxLength={15}
+                  className={cn(
+                    'flex-1 px-3 py-2 bg-surface border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent',
+                    errors.phone ? 'border-destructive' : 'border-border',
+                  )}
+                />
+              </div>
+              {errors.phone && <p className="text-[10px] text-destructive">{errors.phone}</p>}
+            </div>
+
+            {/* Date of Birth — 3 selects */}
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Date of Birth (optional)</label>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={formData.dobDay || ''} onChange={(v) => updateField('dobDay', v)} placeholder="Day">
+                  {dobDays.map(d => (
+                    <option key={d} value={String(d).padStart(2, '0')}>{d}</option>
+                  ))}
+                </Select>
+                <Select value={formData.dobMonth || ''} onChange={(v) => updateField('dobMonth', v)} placeholder="Month">
+                  {DOB_MONTHS.map(m => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </Select>
+                <Select value={formData.dobYear || ''} onChange={(v) => updateField('dobYear', v)} placeholder="Year">
+                  {dobYears.map(y => (
+                    <option key={y} value={String(y)}>{y}</option>
+                  ))}
+                </Select>
+              </div>
+              {errors.dateOfBirth && <p className="text-[10px] text-destructive">{errors.dateOfBirth}</p>}
+            </div>
           </>
         );
       case 'company':
         return (
           <>
-            <Input label="Company Name" value={formData.companyName || ''} onChange={(v) => updateField('companyName', v)} />
-            <Input label="Tax ID (optional)" value={formData.taxId || ''} onChange={(v) => updateField('taxId', v)} />
-            <Input label="Registration No. (optional)" value={formData.registrationNumber || ''} onChange={(v) => updateField('registrationNumber', v)} />
-            <Input label="Website (optional)" value={formData.website || ''} onChange={(v) => updateField('website', v)} placeholder="https://example.com" />
+            <Input label="Company Name" value={formData.companyName || ''} onChange={(v) => updateField('companyName', v)} maxLength={100} error={errors.companyName} />
+            <Input label="Tax ID (optional)" value={formData.taxId || ''} onChange={(v) => updateField('taxId', v)} maxLength={30} error={errors.taxId} />
+            <Input label="Registration No. (optional)" value={formData.registrationNumber || ''} onChange={(v) => updateField('registrationNumber', v)} maxLength={30} />
+            <Input label="Website (optional)" value={formData.website || ''} onChange={(v) => updateField('website', v)} placeholder="https://example.com" maxLength={200} error={errors.website} />
           </>
         );
       case 'code':
         return (
           <>
-            <Input label="Code / PIN" value={formData.code || ''} onChange={(v) => updateField('code', v)} type="password" />
+            <Input label="Code / PIN" value={formData.code || ''} onChange={(v) => updateField('code', v)} type="password" maxLength={200} error={errors.code} />
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Notes (optional)</label>
               <textarea
                 value={formData.notes || ''}
-                onChange={(e) => updateField('notes', e.target.value)}
+                onChange={(e) => updateField('notes', e.target.value.slice(0, 500))}
                 rows={3}
+                maxLength={500}
                 className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent resize-none"
               />
             </div>
@@ -193,6 +401,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
                       if (!isEditMode) {
                         setSelectedType(type);
                         setFormData({});
+                        setErrors({});
                         setTriggerSuffix('');
                       }
                     }}
@@ -274,29 +483,84 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
   );
 }
 
+// ── Reusable form components ────────────────────────────────────────
+
 function Input({
   label,
   value,
   onChange,
   placeholder,
   type = 'text',
+  error,
+  maxLength,
+  formatter,
+  inputMode,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   type?: string;
+  error?: string;
+  maxLength?: number;
+  formatter?: (value: string) => string;
+  inputMode?: 'text' | 'numeric' | 'tel' | 'email' | 'url';
 }) {
+  const handleChange = (v: string) => {
+    onChange(formatter ? formatter(v) : v);
+  };
+
   return (
     <div className="space-y-1">
       <label className="text-xs text-muted-foreground">{label}</label>
       <input
         type={type}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent"
+        maxLength={maxLength}
+        inputMode={inputMode}
+        className={cn(
+          'w-full px-3 py-2 bg-surface border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent',
+          error ? 'border-destructive' : 'border-border',
+        )}
       />
+      {error && <p className="text-[10px] text-destructive">{error}</p>}
+    </div>
+  );
+}
+
+function Select({
+  label,
+  value,
+  onChange,
+  error,
+  placeholder,
+  children,
+}: {
+  label?: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  placeholder?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1">
+      {label && <label className="text-xs text-muted-foreground">{label}</label>}
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={cn(
+          'w-full px-3 py-2 bg-surface border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent cursor-pointer',
+          error ? 'border-destructive' : 'border-border',
+          !value && 'text-muted-foreground',
+        )}
+      >
+        {placeholder && <option value="">{placeholder}</option>}
+        {children}
+      </select>
+      {error && <p className="text-[10px] text-destructive">{error}</p>}
     </div>
   );
 }

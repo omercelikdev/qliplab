@@ -12,7 +12,7 @@ const PLACEHOLDERS: Record<Tab, string> = {
 export function SearchBar() {
   const { searchQuery, setSearchQuery, activeTab } = useAppStore();
   return (
-    <div className="h-11 px-3 py-2 border-b border-border/50">
+    <div className="h-11 px-3 py-2 elevation-bottom">
       <div className={cn('flex items-center gap-2 h-full px-3', 'bg-surface rounded-lg')}>
         <Search className="w-4 h-4 text-muted-foreground" />
         <input

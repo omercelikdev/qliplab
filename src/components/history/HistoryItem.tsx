@@ -17,8 +17,9 @@ import type { Tag } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem, DetectedFormat } from '@/types/clipboard';
 
-// Stable empty array reference to prevent unnecessary re-renders
+// Stable empty array references to prevent unnecessary re-renders
 const EMPTY_TAGS: Tag[] = [];
+const EMPTY_TAG_IDS: string[] = [];
 
 // Badge config — grouped by category with icon + color
 type BadgeGroup = 'code' | 'data' | 'web' | 'security';
@@ -272,12 +273,17 @@ export const HistoryItem = memo(function HistoryItem({
   const standalone = STANDALONE_ICON[item.detectedFormat];
   const isMonospace = MONOSPACE_FORMATS.has(item.detectedFormat);
 
-  // Tags — single derived selector to minimize re-renders
-  const itemTags = useTagStore(useCallback((state) => {
-    const tagIds = state.itemTags.get(item.id);
-    if (!tagIds || tagIds.length === 0) return EMPTY_TAGS;
-    return state.tags.filter(t => tagIds.includes(t.id));
-  }, [item.id]));
+  // Tags — derive from stable key to prevent re-render loops
+  const tagIdKey = useTagStore(useCallback(
+    (s) => (s.itemTags.get(item.id) ?? EMPTY_TAG_IDS).join(','),
+    [item.id],
+  ));
+  const itemTags = useMemo(() => {
+    if (!tagIdKey) return EMPTY_TAGS;
+    const ids = tagIdKey.split(',');
+    // Read tags snapshot without subscribing to tags array changes
+    return useTagStore.getState().tags.filter(t => ids.includes(t.id));
+  }, [tagIdKey]);
 
   return (
     <div

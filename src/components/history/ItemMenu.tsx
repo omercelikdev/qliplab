@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useRef, useEffect } from 'react';
+import { useState, useLayoutEffect, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Bot, Tag, Plus, X } from 'lucide-react';
@@ -335,13 +335,17 @@ function MenuButton({ icon: Icon, label, onClick, destructive }: { icon: React.E
 const TAG_COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6'];
 
 function TagSubmenu({ itemId }: { itemId: string }) {
-  const { tags, getTagsForItem, addTagToItem, removeTagFromItem, createTag } = useTagStore();
+  const tags = useTagStore((s) => s.tags);
+  const itemTags = useTagStore((s) => s.itemTags);
+  const addTagToItem = useTagStore((s) => s.addTagToItem);
+  const removeTagFromItem = useTagStore((s) => s.removeTagFromItem);
+  const createTag = useTagStore((s) => s.createTag);
+  const deleteTag = useTagStore((s) => s.deleteTag);
   const [isAdding, setIsAdding] = useState(false);
   const [newTagName, setNewTagName] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const itemTags = getTagsForItem(itemId);
-  const itemTagIds = new Set(itemTags.map(t => t.id));
+  const itemTagIds = useMemo(() => new Set(itemTags.get(itemId) || []), [itemTags, itemId]);
 
   useEffect(() => {
     if (isAdding && inputRef.current) {
@@ -361,32 +365,45 @@ function TagSubmenu({ itemId }: { itemId: string }) {
     setIsAdding(false);
   };
 
+  const handleDeleteTag = (e: React.MouseEvent, tagId: string) => {
+    e.stopPropagation();
+    deleteTag(tagId);
+  };
+
   return (
     <div className="px-2 py-1">
       <div className="flex items-center gap-1 mb-1">
         <Tag className="w-3 h-3 text-muted-foreground" />
         <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Tags</span>
       </div>
-      {/* Existing tags — toggle on/off */}
+      {/* Existing tags — toggle on/off, delete on trash icon */}
       {tags.map(tag => {
         const isApplied = itemTagIds.has(tag.id);
         return (
-          <button
-            key={tag.id}
-            className="w-full flex items-center gap-1.5 px-1 py-0.5 text-[11px] hover:bg-surface-hover rounded transition-colors cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isApplied) removeTagFromItem(itemId, tag.id);
-              else addTagToItem(itemId, tag.id);
-            }}
-          >
-            <span
-              className="w-2.5 h-2.5 rounded-full shrink-0 border border-foreground/10"
-              style={{ backgroundColor: tag.color || '#888' }}
-            />
-            <span className="truncate flex-1 text-left">{tag.name}</span>
-            {isApplied && <X className="w-3 h-3 text-muted-foreground shrink-0" />}
-          </button>
+          <div key={tag.id} className="group/tag flex items-center">
+            <button
+              className="flex-1 flex items-center gap-1.5 px-1 py-0.5 text-[11px] hover:bg-surface-hover rounded transition-colors cursor-pointer min-w-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isApplied) removeTagFromItem(itemId, tag.id);
+                else addTagToItem(itemId, tag.id);
+              }}
+            >
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0 border border-foreground/10"
+                style={{ backgroundColor: tag.color || '#888' }}
+              />
+              <span className="truncate flex-1 text-left">{tag.name}</span>
+              {isApplied && <X className="w-3 h-3 text-muted-foreground shrink-0" />}
+            </button>
+            <button
+              className="p-0.5 text-muted-foreground hover:text-destructive opacity-0 group-hover/tag:opacity-100 transition-opacity cursor-pointer shrink-0"
+              onClick={(e) => handleDeleteTag(e, tag.id)}
+              title="Delete tag from all items"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </div>
         );
       })}
       {/* Add new tag */}

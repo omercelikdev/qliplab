@@ -116,7 +116,9 @@ const VAULT_FIELD_MAPS: Record<string, FieldMapping[]> = {
   address: [
     { suffix: '', field: '_fullAddress' }, // special: combined
     { suffix: '.street', field: 'street' },
+    { suffix: '.line2', field: 'addressLine2' },
     { suffix: '.city', field: 'city' },
+    { suffix: '.state', field: 'state' },
     { suffix: '.zip', field: 'postalCode' },
     { suffix: '.country', field: 'country' },
   ],
@@ -157,7 +159,7 @@ export function getVaultFieldValue(item: VaultItem, field?: string): string {
   }
   if (field === '_fullAddress' && item.type === 'address') {
     const d = item.data as AddressData;
-    return [d.street, `${d.postalCode} ${d.city}`, d.country].filter(Boolean).join(', ');
+    return [d.street, d.addressLine2, `${d.postalCode ?? ''} ${d.city}`.trim(), d.state, d.country].filter(Boolean).join(', ');
   }
   if (field === '_fullName' && item.type === 'personal') {
     const d = item.data as PersonalData;
@@ -171,7 +173,7 @@ export function getVaultFieldValue(item: VaultItem, field?: string): string {
       case 'bank': return (item.data as BankData).iban;
       case 'address': {
         const d = item.data as AddressData;
-        return [d.street, `${d.postalCode} ${d.city}`, d.country].filter(Boolean).join(', ');
+        return [d.street, d.addressLine2, `${d.postalCode ?? ''} ${d.city}`.trim(), d.state, d.country].filter(Boolean).join(', ');
       }
       case 'personal': {
         const d = item.data as PersonalData;

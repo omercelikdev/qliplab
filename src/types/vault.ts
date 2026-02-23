@@ -32,7 +32,9 @@ export interface BankData {
 
 export interface AddressData {
   street: string;
+  addressLine2?: string;
   city: string;
+  state?: string;
   postalCode: string;
   country: string;
 }
@@ -41,6 +43,7 @@ export interface PersonalData {
   firstName: string;
   lastName: string;
   email?: string;
+  phoneCountry?: string;
   phone?: string;
   dateOfBirth?: string;
 }
