@@ -10,6 +10,10 @@ Cross-platform clipboard manager. Tauri v2 + React 19 + TypeScript.
 - [Components](docs/COMPONENTS.md) - UI component reference
 - [Stores](docs/STORES.md) - Zustand state management
 - [Tauri Backend](docs/TAURI.md) - Rust/Tauri implementation
+- [Security](docs/SECURITY.md) - Encryption, audit, App Store compliance
+- [Reporting](docs/REPORTING.md) - Issue/consent system, labels
+- [Publishing](docs/PUBLISHING.md) - App Store submission guide
+- [Development](docs/DEVELOPMENT.md) - Dev commands & workflow
 
 ---
 
