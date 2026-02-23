@@ -400,12 +400,20 @@ fn start_trigger_engine(
         }
     }
 
+    // Pending match — used for longest-match disambiguation
+    struct PendingMatch {
+        trigger: String,
+        source_id: String,
+        trigger_len: usize,
+    }
+
     // Shared context passed to the C callback via user_info pointer
     struct WatcherContext {
         buffer: String,
         state: Arc<Mutex<TriggerEngineState>>,
         app: tauri::AppHandle,
         tap: cg::CFMachPortRef, // needed to re-enable on timeout
+        pending: Option<PendingMatch>, // deferred match awaiting disambiguation
     }
 
     // Event types we care about
@@ -438,10 +446,12 @@ fn start_trigger_engine(
         match keycode {
             KEY_RETURN | KEY_TAB | KEY_ESCAPE |
             KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT => {
+                ctx.pending = None;
                 ctx.buffer.clear();
                 return;
             }
             KEY_BACKSPACE => {
+                ctx.pending = None;
                 ctx.buffer.pop();
                 return;
             }
@@ -473,12 +483,66 @@ fn start_trigger_engine(
             }
 
             if let Ok(s) = ctx.state.lock() {
+                // Find the longest matching trigger
+                let mut best: Option<(&str, &str, usize)> = None;
                 for (trigger, source_id) in &s.triggers {
-                    if ctx.buffer.ends_with(trigger) {
+                    if ctx.buffer.ends_with(trigger.as_str()) {
+                        if best.is_none() || trigger.len() > best.unwrap().2 {
+                            best = Some((trigger.as_str(), source_id.as_str(), trigger.len()));
+                        }
+                    }
+                }
+
+                if let Some((matched_trigger, matched_id, matched_len)) = best {
+                    // Check if any longer trigger starts with matched text
+                    let has_longer = s.triggers.iter().any(|(t, _)| {
+                        t.len() > matched_len && t.starts_with(matched_trigger)
+                    });
+
+                    if has_longer {
+                        // Defer — a longer trigger may still complete
+                        ctx.pending = Some(PendingMatch {
+                            trigger: matched_trigger.to_string(),
+                            source_id: matched_id.to_string(),
+                            trigger_len: matched_len,
+                        });
+                    } else {
+                        // No longer triggers possible — emit immediately
+                        ctx.pending = None;
                         let _ = ctx.app.emit("trigger-matched", serde_json::json!({
-                            "trigger": trigger,
-                            "sourceId": source_id,
-                            "triggerLen": trigger.len()
+                            "trigger": matched_trigger,
+                            "sourceId": matched_id,
+                            "triggerLen": matched_len
+                        }));
+                        ctx.buffer.clear();
+                        return;
+                    }
+                } else if ctx.pending.is_some() {
+                    // We have a pending short match. Check if typed chars so far
+                    // could still lead to a longer trigger completing.
+                    let pending = ctx.pending.as_ref().unwrap();
+                    // Count chars typed after the pending trigger
+                    let extra = ctx.buffer.len().saturating_sub(
+                        ctx.buffer.rfind(&pending.trigger).map_or(0, |pos| pos + pending.trigger.len())
+                    );
+                    let typed_so_far_len = pending.trigger_len + extra;
+
+                    // Check: does any longer trigger match the buffer as a prefix?
+                    // e.g. pending=";card", buffer ends with ";card.n", trigger ";card.name" exists
+                    let could_still_match = s.triggers.iter().any(|(t, _)| {
+                        t.len() > pending.trigger_len
+                            && t.starts_with(&pending.trigger)
+                            && typed_so_far_len <= t.len()
+                            && ctx.buffer.ends_with(&t[..typed_so_far_len])
+                    });
+
+                    if !could_still_match {
+                        // No longer trigger can match — flush pending + delete extra chars
+                        let pending = ctx.pending.take().unwrap();
+                        let _ = ctx.app.emit("trigger-matched", serde_json::json!({
+                            "trigger": pending.trigger,
+                            "sourceId": pending.source_id,
+                            "triggerLen": pending.trigger_len + extra
                         }));
                         ctx.buffer.clear();
                         return;
@@ -530,6 +594,7 @@ fn start_trigger_engine(
             state,
             app,
             tap: std::ptr::null_mut(),
+            pending: None,
         });
 
         unsafe {
