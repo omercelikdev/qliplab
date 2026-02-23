@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { getDatabase } from '@/lib/database';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { encrypt, decrypt, hashPassword, verifyPassword } from '@/lib/encryption';
+import { encrypt, decrypt, decryptStrict, hashPassword, verifyPassword } from '@/lib/encryption';
 import type { VaultItem, VaultItemType, VaultItemData } from '@/types/vault';
 import type { VaultItemRow, VaultSettingsRow } from '@/types/database';
 
@@ -183,29 +183,63 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const result = await db.select<VaultItemRow[]>('SELECT * FROM vault_items ORDER BY sort_order');
 
       const settled = await Promise.allSettled(
-        result.map(async (row): Promise<VaultItem> => ({
-          id: row.id,
-          type: row.type as VaultItemType,
-          title: row.title,
-          data: JSON.parse(await decrypt(row.encrypted_data, password)),
-          trigger: row.trigger ?? undefined,
-          icon: row.icon ?? undefined,
-          isPinned: row.is_pinned === 1,
-          sortOrder: row.sort_order,
-          createdAt: new Date(row.created_at),
-          updatedAt: new Date(row.updated_at),
-        }))
+        result.map(async (row): Promise<{ item: VaultItem; needsReEncrypt: boolean }> => {
+          let plaintext: string;
+          let needsReEncrypt = false;
+
+          // Try strict (current iterations only) first
+          try {
+            plaintext = await decryptStrict(row.encrypted_data, password);
+          } catch {
+            // Current failed — try with legacy iterations fallback
+            plaintext = await decrypt(row.encrypted_data, password);
+            needsReEncrypt = true;
+          }
+
+          return {
+            item: {
+              id: row.id,
+              type: row.type as VaultItemType,
+              title: row.title,
+              data: JSON.parse(plaintext),
+              trigger: row.trigger ?? undefined,
+              icon: row.icon ?? undefined,
+              isPinned: row.is_pinned === 1,
+              sortOrder: row.sort_order,
+              createdAt: new Date(row.created_at),
+              updatedAt: new Date(row.updated_at),
+            },
+            needsReEncrypt,
+          };
+        })
       );
       const items: VaultItem[] = [];
       let failCount = 0;
-      for (const result of settled) {
-        if (result.status === 'fulfilled') {
-          items.push(result.value);
+      const reEncryptIds: string[] = [];
+      for (const r of settled) {
+        if (r.status === 'fulfilled') {
+          items.push(r.value.item);
+          if (r.value.needsReEncrypt) reEncryptIds.push(r.value.item.id);
         } else {
           failCount++;
         }
       }
       set({ items, decryptFailCount: failCount });
+
+      // Re-encrypt legacy items with current iterations (background, non-blocking)
+      if (reEncryptIds.length > 0) {
+        for (const id of reEncryptIds) {
+          const item = items.find(i => i.id === id);
+          if (item) {
+            try {
+              const newEncrypted = await encrypt(JSON.stringify(item.data), password);
+              await db.execute('UPDATE vault_items SET encrypted_data = ? WHERE id = ?', [newEncrypted, id]);
+            } catch {
+              // Best-effort re-encryption
+            }
+          }
+        }
+      }
     } catch {
       // Load failed
     }

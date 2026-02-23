@@ -10,7 +10,10 @@ function uint8ArrayToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-export async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
+const CURRENT_ITERATIONS = 210000;
+const LEGACY_ITERATIONS = 100000;
+
+async function deriveKeyWithIterations(password: string, salt: Uint8Array, iterations: number): Promise<CryptoKey> {
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
     encoder.encode(password),
@@ -19,12 +22,16 @@ export async function deriveKey(password: string, salt: Uint8Array): Promise<Cry
     ['deriveKey']
   );
   return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: 210000, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
     keyMaterial,
     { name: 'AES-GCM', length: 256 },
     false,
     ['encrypt', 'decrypt']
   );
+}
+
+export async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
+  return deriveKeyWithIterations(password, salt, CURRENT_ITERATIONS);
 }
 
 export async function encrypt(plaintext: string, password: string): Promise<string> {
@@ -45,15 +52,36 @@ export async function encrypt(plaintext: string, password: string): Promise<stri
   return uint8ArrayToBase64(combined);
 }
 
+/** Decrypt using current iterations only (no legacy fallback). Throws on failure. */
+export async function decryptStrict(ciphertext: string, password: string): Promise<string> {
+  const combined = Uint8Array.from(atob(ciphertext), (c) => c.charCodeAt(0));
+  const salt = combined.slice(0, 16);
+  const iv = combined.slice(16, 28);
+  const data = combined.slice(28);
+
+  const key = await deriveKeyWithIterations(password, salt, CURRENT_ITERATIONS);
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+  return decoder.decode(decrypted);
+}
+
+/** Decrypt with automatic legacy fallback (100K → 210K migration). */
 export async function decrypt(ciphertext: string, password: string): Promise<string> {
   const combined = Uint8Array.from(atob(ciphertext), (c) => c.charCodeAt(0));
   const salt = combined.slice(0, 16);
   const iv = combined.slice(16, 28);
   const data = combined.slice(28);
 
-  const key = await deriveKey(password, salt);
-  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
-  return decoder.decode(decrypted);
+  // Try current iterations first
+  try {
+    const key = await deriveKeyWithIterations(password, salt, CURRENT_ITERATIONS);
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+    return decoder.decode(decrypted);
+  } catch {
+    // Fallback: try legacy iterations (migration from 100K → 210K)
+    const legacyKey = await deriveKeyWithIterations(password, salt, LEGACY_ITERATIONS);
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, legacyKey, data);
+    return decoder.decode(decrypted);
+  }
 }
 
 // Hash password with salt for secure storage. Format: base64(salt):base64(hash)
