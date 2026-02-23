@@ -41,13 +41,22 @@ interface AutoErrorReport {
   appVersion: string;
 }
 
+// Strip user-specific file paths from stack traces
+function sanitizeStack(stack?: string): string {
+  if (!stack) return 'No stack trace';
+  // Remove absolute paths, keep only relative filenames
+  return stack.replace(/(?:\/[^\s:)]+\/)+([^\s:)]+)/g, '$1');
+}
+
 function getErrorHash(error: Error): string {
   const content = `${error.message}${error.stack?.split('\n')[1] || ''}`;
-  try {
-    return btoa(content).slice(0, 20);
-  } catch {
-    return content.slice(0, 20);
+  const encoded = new TextEncoder().encode(content);
+  // Use a simple hash instead of truncated base64
+  let hash = 0;
+  for (let i = 0; i < encoded.length; i++) {
+    hash = ((hash << 5) - hash + encoded[i]) | 0;
   }
+  return hash.toString(36);
 }
 
 function checkRateLimit(): boolean {
@@ -99,7 +108,7 @@ ${report.message}
 
 ## Stack Trace
 \`\`\`
-${report.stack || 'No stack trace'}
+${sanitizeStack(report.stack)}
 \`\`\`
 
 ## Context

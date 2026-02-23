@@ -84,26 +84,36 @@ const RE_JS_ARROW = /=>\s*[{(]/;
 const RE_JS_MODULE = /\b(import|export)\s+/;
 
 const SENSITIVE_PATTERNS = [
-  /password\s*[:=]/i,
-  /secret\s*[:=]/i,
-  /api[_-]?key\s*[:=]/i,
-  /token\s*[:=]/i,
-  /auth[_-]?token/i,
-  /access[_-]?token/i,
-  /private[_-]?key/i,
-  /client[_-]?secret/i,
+  // Key-value patterns (covers plain text, JSON with quotes, YAML, .env formats)
+  /["']?password["']?\s*[:=]\s*/i,
+  /["']?secret["']?\s*[:=]\s*/i,
+  /["']?api[_-]?key["']?\s*[:=]\s*/i,
+  /["']?token["']?\s*[:=]\s*/i,
+  /["']?auth[_-]?token["']?\s*[:=]\s*/i,
+  /["']?access[_-]?token["']?\s*[:=]\s*/i,
+  /["']?private[_-]?key["']?\s*[:=]\s*/i,
+  /["']?client[_-]?secret["']?\s*[:=]\s*/i,
+  /["']?database[_-]?url["']?\s*[:=]\s*/i,
+  /["']?connection[_-]?string["']?\s*[:=]\s*/i,
+  // Financial
   /\b[A-Z]{2,4}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}\b/,
   /\b[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}\b/,
   /\b(CVV|CVC|CVV2)\s*[:=]?\s*[0-9]{3,4}\b/i,
   /\bPIN\s*[:=]?\s*[0-9]{4,6}\b/i,
+  // SSN / national ID
   /\b[0-9]{3}[- ]?[0-9]{2}[- ]?[0-9]{4}\b/,
   /\b[0-9]{11}\b/,
-  /-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY-----/,
+  // PEM private keys
+  /-----BEGIN\s+(RSA\s+|EC\s+|OPENSSH\s+)?PRIVATE\s+KEY-----/,
   /-----BEGIN\s+PGP\s+PRIVATE/,
+  // API key prefixes
   /\b(sk-[a-zA-Z0-9_-]{20,})\b/,
   /\b(sk-ant-[a-zA-Z0-9_-]{20,})\b/,
   /\b(ghp_[a-zA-Z0-9]{36,})\b/,
+  /\b(gho_[a-zA-Z0-9]{36,})\b/,
   /\b(AKIA[0-9A-Z]{16})\b/,
+  /\b(xox[bpas]-[a-zA-Z0-9-]{10,})\b/,
+  /\b(SG\.[a-zA-Z0-9_-]{22}\.[a-zA-Z0-9_-]{43})\b/,
 ];
 
 export function detectFormat(content: string): DetectedFormat {

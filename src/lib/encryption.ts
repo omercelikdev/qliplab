@@ -96,6 +96,16 @@ export async function hashPassword(password: string, existingSalt?: Uint8Array):
   return `${uint8ArrayToBase64(salt)}:${uint8ArrayToBase64(new Uint8Array(hash))}`;
 }
 
+// Constant-time string comparison to prevent timing attacks
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
 // Verify a password against a stored hash (supports both salted and legacy unsalted format)
 export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
   if (storedHash.includes(':')) {
@@ -103,11 +113,11 @@ export async function verifyPassword(password: string, storedHash: string): Prom
     const [saltB64] = storedHash.split(':');
     const salt = Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0));
     const computedHash = await hashPassword(password, salt);
-    return computedHash === storedHash;
+    return timingSafeEqual(computedHash, storedHash);
   }
 
   // Legacy unsalted format: base64(SHA-256(password))
   const hash = await crypto.subtle.digest('SHA-256', encoder.encode(password));
   const legacyHash = uint8ArrayToBase64(new Uint8Array(hash));
-  return legacyHash === storedHash;
+  return timingSafeEqual(legacyHash, storedHash);
 }
