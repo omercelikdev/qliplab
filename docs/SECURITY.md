@@ -4,7 +4,7 @@
 
 ### Encryption
 - **Vault:** AES-256-GCM via Web Crypto API
-- **Key Derivation:** PBKDF2 with 100,000 iterations + random 16-byte salt
+- **Key Derivation:** PBKDF2 with 210,000 iterations + random 16-byte salt (legacy 100K auto-migrated)
 - **IV:** Random 12-byte per encryption operation
 - **Password Hash:** Salted SHA-256, format `base64(salt):base64(hash)`
 
@@ -125,10 +125,11 @@ Applied to:
 
 ### Cryptography
 - [x] AES-256-GCM for vault encryption
-- [x] PBKDF2 with 100K iterations for key derivation
+- [x] PBKDF2 with 210K iterations for key derivation (legacy 100K auto-migrated)
 - [x] Random salt (16 bytes) and IV (12 bytes) per operation
 - [x] Salted password hashing (not plain SHA-256)
 - [x] No spread operator overflow on large arrays
+- [x] Constant-time password comparison (prevents timing attacks)
 
 ### Input Validation
 - [x] Vault form validation (Luhn, IBAN, SWIFT, email)
@@ -140,13 +141,15 @@ Applied to:
 - [x] App Sandbox enabled
 - [x] Vault brute-force protection
 - [x] Vault auto-lock timer
-- [x] Sensitive data detection (API keys, passwords)
+- [x] Sensitive data detection (API keys, passwords, tokens, PEM keys, financial data)
 
 ### Data Protection
 - [x] No clipboard content sent to external servers (except user-initiated AI)
 - [x] Vault data encrypted at rest
 - [x] AI actions blocked for sensitive items
 - [x] Export/import uses file picker (sandboxed)
+- [x] Stack trace sanitization in error reports (no absolute paths)
+- [x] Enhanced sensitive pattern detection (JSON/YAML/env formats, Slack/SendGrid/GitHub OAuth tokens)
 
 ### Network
 - [x] CSP with restricted connect-src
@@ -160,3 +163,24 @@ Applied to:
 - [x] Error reporting opt-in (not opt-out)
 - [x] Privacy Policy accessible in-app
 - [x] PrivacyInfo.xcprivacy for App Store
+
+---
+
+## Security Audit Results (2026-02-23)
+
+### Findings & Fixes Applied
+
+| # | Finding | Severity | Status |
+|---|---------|----------|--------|
+| 1 | Password comparison used `===` (timing attack vector) | High | **Fixed** — `timingSafeEqual()` in `encryption.ts` |
+| 2 | Stack traces exposed absolute file paths in error reports | Medium | **Fixed** — `sanitizeStack()` in `errorReporter.ts` |
+| 3 | Error hash used truncated base64 (collision risk) | Low | **Fixed** — proper numeric hash in `errorReporter.ts` |
+| 4 | Sensitive patterns missed JSON/YAML/env formats | Medium | **Fixed** — quoted key support in `formatDetector.ts` |
+| 5 | Missing detection for Slack, SendGrid, GitHub OAuth tokens | Medium | **Fixed** — added `xox*`, `SG.*`, `gho_*` patterns |
+| 6 | Missing EC/OPENSSH private key detection | Low | **Fixed** — extended PEM regex in `formatDetector.ts` |
+| 7 | Missing database URL / connection string detection | Medium | **Fixed** — added patterns in `formatDetector.ts` |
+
+### Accepted Risks (No Action Required)
+- **PBKDF2 210K iterations**: NIST recommends 210K+ for SHA-256. Current level meets the standard. Higher iterations (600K+) would degrade UX on mobile/low-power devices.
+- **Clipboard history in plaintext**: By design — sensitive items are flagged and users are warned. Vault exists for truly sensitive data.
+- **Local SQLite without encryption**: Covered by macOS App Sandbox + file system permissions. Full-database encryption (SQLCipher) would add complexity without meaningful benefit for local-only data.
