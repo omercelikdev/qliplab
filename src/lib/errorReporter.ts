@@ -118,6 +118,9 @@ export async function reportError(
   error: Error,
   context?: { component?: string; action?: string; route?: string; type?: string }
 ): Promise<void> {
+  // Skip external reporting in development
+  if (import.meta.env.DEV) return;
+
   const errorKey = getErrorHash(error);
   const lastReported = recentErrors.get(errorKey);
 

@@ -121,6 +121,11 @@ export const useFeedbackStore = create<FeedbackState>((set) => ({
   },
 
   submitIssue: async (data: IssueData) => {
+    // Skip external reporting in development
+    if (import.meta.env.DEV) {
+      return { success: false, error: 'Issue reporting is disabled in development mode' };
+    }
+
     set({ isSubmitting: true });
 
     try {

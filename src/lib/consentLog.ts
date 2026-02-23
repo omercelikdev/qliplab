@@ -31,8 +31,8 @@ export interface ConsentRecord {
   id: string;
   action: 'grant' | 'revoke';
   termsVersion: string;
-  termsText: readonly string[];
-  provider: 'anthropic' | 'openai';
+  termsText: readonly string[] | string;
+  provider: 'anthropic' | 'openai' | 'eula';
   timestamp: string;
   appVersion: string;
   platform: string;
@@ -65,13 +65,14 @@ export interface ConsentBackend {
  */
 export async function recordConsent(
   action: 'grant' | 'revoke',
-  provider: 'anthropic' | 'openai',
+  provider: 'anthropic' | 'openai' | 'eula',
+  opts?: { termsVersion?: string; termsText?: string },
 ): Promise<ConsentRecord> {
   const partial: Omit<ConsentRecord, 'integrityHash'> = {
     id: generateId(),
     action,
-    termsVersion: CONSENT_TERMS_VERSION,
-    termsText: CONSENT_TERMS,
+    termsVersion: opts?.termsVersion ?? CONSENT_TERMS_VERSION,
+    termsText: opts?.termsText ?? CONSENT_TERMS,
     provider,
     timestamp: new Date().toISOString(),
     appVersion: CONFIG.APP_VERSION,
@@ -86,17 +87,20 @@ export async function recordConsent(
   await saveToLocalLog(record);
 
   // Layer 2: Remote — REQUIRED for grants, best-effort for revokes
-  const backend = getRemoteBackend();
+  // In development, skip server calls (local log is still written above)
+  if (!import.meta.env.DEV) {
+    const backend = getRemoteBackend();
 
-  if (action === 'grant') {
-    // Grant MUST be recorded on server — no server receipt = no consent
-    const result = await backend.send(record);
-    if (!result.success) {
-      throw new Error('CONSENT_SERVER_FAILED');
+    if (action === 'grant') {
+      // Grant MUST be recorded on server — no server receipt = no consent
+      const result = await backend.send(record);
+      if (!result.success) {
+        throw new Error('CONSENT_SERVER_FAILED');
+      }
+    } else {
+      // Revoke is best-effort on server
+      backend.send(record).catch(() => {});
     }
-  } else {
-    // Revoke is best-effort on server
-    backend.send(record).catch(() => {});
   }
 
   return record;
