@@ -70,4 +70,4 @@ npm run tauri:build:linux  # Linux x64
 
 ## License
 
-MIT
+Proprietary — All Rights Reserved. See [LICENSE](LICENSE) for details.

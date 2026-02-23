@@ -2,7 +2,7 @@
 name = "qliplab"
 version = "0.1.0"
 description = "Cross-platform clipboard manager"
-authors = ["you"]
+authors = ["Ömer Çelik"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
