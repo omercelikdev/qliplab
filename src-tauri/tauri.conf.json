@@ -44,7 +44,7 @@
     "macOS": {
       "minimumSystemVersion": "12.0",
       "entitlements": "./Entitlements.plist",
-      "infoPlist": "<key>NSAppleEventsUsageDescription</key><string>QlipLab needs automation access to paste clipboard content into your active application.</string>"
+      "infoPlist": "./Info.plist"
     },
     "windows": {
       "wix": {
