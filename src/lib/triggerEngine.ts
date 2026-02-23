@@ -6,7 +6,7 @@ import { expandVariables } from '@/lib/snippetVariables';
 import type { Snippet } from '@/types/snippet';
 import type {
   VaultItem, VaultItemType,
-  CardData, BankData, AddressData, CodeData,
+  CardData, BankData, AddressData, PersonalData, CompanyData, CodeData,
 } from '@/types/vault';
 
 // --- Trigger validation ---
@@ -46,11 +46,27 @@ const VAULT_FIELD_MAPS: Record<string, FieldMapping[]> = {
     { suffix: '.zip', field: 'postalCode' },
     { suffix: '.country', field: 'country' },
   ],
+  personal: [
+    { suffix: '', field: '_fullName' }, // special: combined firstName + lastName
+    { suffix: '.first', field: 'firstName' },
+    { suffix: '.last', field: 'lastName' },
+    { suffix: '.email', field: 'email' },
+    { suffix: '.phone', field: 'phone' },
+    { suffix: '.dob', field: 'dateOfBirth' },
+  ],
+  company: [
+    { suffix: '', field: 'companyName' },
+    { suffix: '.tax', field: 'taxId' },
+    { suffix: '.reg', field: 'registrationNumber' },
+    { suffix: '.web', field: 'website' },
+  ],
   code: [
     { suffix: '', field: 'code' },
     { suffix: '.notes', field: 'notes' },
   ],
 };
+
+export type { FieldMapping };
 
 export function getVaultFieldMap(type: VaultItemType): FieldMapping[] {
   return VAULT_FIELD_MAPS[type] ?? [];
@@ -69,6 +85,10 @@ export function getVaultFieldValue(item: VaultItem, field?: string): string {
     const d = item.data as AddressData;
     return [d.street, `${d.postalCode} ${d.city}`, d.country].filter(Boolean).join(', ');
   }
+  if (field === '_fullName' && item.type === 'personal') {
+    const d = item.data as PersonalData;
+    return [d.firstName, d.lastName].filter(Boolean).join(' ');
+  }
 
   // Default field (no field specified) — return main value
   if (!field) {
@@ -79,6 +99,11 @@ export function getVaultFieldValue(item: VaultItem, field?: string): string {
         const d = item.data as AddressData;
         return [d.street, `${d.postalCode} ${d.city}`, d.country].filter(Boolean).join(', ');
       }
+      case 'personal': {
+        const d = item.data as PersonalData;
+        return [d.firstName, d.lastName].filter(Boolean).join(' ');
+      }
+      case 'company': return (item.data as CompanyData).companyName;
       case 'code': return (item.data as CodeData).code;
       default: return JSON.stringify(item.data);
     }

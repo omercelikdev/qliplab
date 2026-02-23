@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CreditCard, Building, MapPin, Key } from 'lucide-react';
+import { X, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
-import { isValidTrigger, TRIGGER_PREFIXES } from '@/lib/triggerEngine';
+import { isValidTrigger, TRIGGER_PREFIXES, getVaultFieldMap } from '@/lib/triggerEngine';
 import type { VaultItemType, VaultItemData } from '@/types/vault';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +15,8 @@ const itemTypes: { type: VaultItemType; label: string; icon: typeof CreditCard }
   { type: 'card', label: 'Card', icon: CreditCard },
   { type: 'bank', label: 'Bank', icon: Building },
   { type: 'address', label: 'Address', icon: MapPin },
+  { type: 'personal', label: 'Personal', icon: User },
+  { type: 'company', label: 'Company', icon: Briefcase },
   { type: 'code', label: 'Code', icon: Key },
 ];
 
@@ -77,6 +79,27 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
               <Input label="Postal Code" value={formData.postalCode || ''} onChange={(v) => updateField('postalCode', v)} />
               <Input label="Country" value={formData.country || ''} onChange={(v) => updateField('country', v)} />
             </div>
+          </>
+        );
+      case 'personal':
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              <Input label="First Name" value={formData.firstName || ''} onChange={(v) => updateField('firstName', v)} />
+              <Input label="Last Name" value={formData.lastName || ''} onChange={(v) => updateField('lastName', v)} />
+            </div>
+            <Input label="Email (optional)" value={formData.email || ''} onChange={(v) => updateField('email', v)} placeholder="name@example.com" />
+            <Input label="Phone (optional)" value={formData.phone || ''} onChange={(v) => updateField('phone', v)} placeholder="+1 234 567 8900" />
+            <Input label="Date of Birth (optional)" value={formData.dateOfBirth || ''} onChange={(v) => updateField('dateOfBirth', v)} placeholder="DD/MM/YYYY" />
+          </>
+        );
+      case 'company':
+        return (
+          <>
+            <Input label="Company Name" value={formData.companyName || ''} onChange={(v) => updateField('companyName', v)} />
+            <Input label="Tax ID (optional)" value={formData.taxId || ''} onChange={(v) => updateField('taxId', v)} />
+            <Input label="Registration No. (optional)" value={formData.registrationNumber || ''} onChange={(v) => updateField('registrationNumber', v)} />
+            <Input label="Website (optional)" value={formData.website || ''} onChange={(v) => updateField('website', v)} placeholder="https://example.com" />
           </>
         );
       case 'code':
@@ -170,6 +193,21 @@ export function NewVaultItemDialog({ isOpen, onClose }: Props) {
                 {triggerError && (
                   <p className="text-[10px] text-destructive">{triggerError}</p>
                 )}
+                {trigger && isValidTrigger(trigger) && (() => {
+                  const fields = getVaultFieldMap(selectedType);
+                  const subs = fields.filter(f => f.suffix !== '');
+                  if (subs.length === 0) return null;
+                  return (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      <span className="text-[10px] text-muted-foreground">Fields:</span>
+                      {subs.map(f => (
+                        <span key={f.suffix} className="text-[10px] font-mono text-violet-500 bg-violet-500/10 px-1 rounded">
+                          {trigger}{f.suffix}
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Type-specific fields */}

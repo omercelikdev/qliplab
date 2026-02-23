@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Trash2, Pin, CreditCard, Building, MapPin, Key } from 'lucide-react';
+import { Eye, EyeOff, Trash2, Pin, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useVaultStore } from '@/stores/vaultStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import type { VaultItem as VaultItemType, CardData, BankData, AddressData, CodeData } from '@/types/vault';
+import type { VaultItem as VaultItemType, CardData, BankData, AddressData, PersonalData, CompanyData, CodeData } from '@/types/vault';
+import { getVaultFieldMap } from '@/lib/triggerEngine';
 import { cn } from '@/lib/utils';
 
 // Type badge config — visual language consistent with HistoryItem badges
 const TYPE_BADGE: Record<string, { icon: React.ElementType; label: string; style: string }> = {
   card:    { icon: CreditCard, label: 'Card', style: 'text-blue-400 bg-blue-500/10' },
   bank:    { icon: Building, label: 'Bank', style: 'text-emerald-500 bg-emerald-500/8' },
-  address: { icon: MapPin, label: 'Addr', style: 'text-orange-500 bg-orange-500/8' },
-  code:    { icon: Key, label: 'Code', style: 'text-red-400 bg-red-500/8' },
+  address:  { icon: MapPin, label: 'Addr', style: 'text-orange-500 bg-orange-500/8' },
+  personal: { icon: User, label: 'Person', style: 'text-purple-500 bg-purple-500/8' },
+  company:  { icon: Briefcase, label: 'Corp', style: 'text-cyan-500 bg-cyan-500/8' },
+  code:     { icon: Key, label: 'Code', style: 'text-red-400 bg-red-500/8' },
 };
 
 interface VaultItemProps {
@@ -36,6 +39,12 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
         return (item.data as BankData).iban;
       case 'address':
         return (item.data as AddressData).street;
+      case 'personal': {
+        const d = item.data as PersonalData;
+        return [d.firstName, d.lastName].filter(Boolean).join(' ');
+      }
+      case 'company':
+        return (item.data as CompanyData).companyName;
       case 'code':
         return (item.data as CodeData).code;
       default:
@@ -47,6 +56,7 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
     const value = getMainValue();
     if (item.type === 'card') return `•••• •••• •••• ${value?.slice(-4) || '****'}`;
     if (item.type === 'bank') return `TR•• •••• •••• ${value?.slice(-4) || '****'}`;
+    if (item.type === 'personal' || item.type === 'company') return value; // names are not sensitive
     return '••••••••••';
   };
 
@@ -85,12 +95,22 @@ export function VaultItem({ item, isSelected = false }: VaultItemProps) {
         <Key className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
       )}
 
-      {/* Trigger badge */}
-      {item.trigger && (
-        <span className="text-[9px] font-mono font-semibold text-violet-500 bg-violet-500/10 px-[5px] py-[1px] rounded shrink-0 leading-4">
-          {item.trigger}
-        </span>
-      )}
+      {/* Trigger badge with sub-trigger tooltip */}
+      {item.trigger && (() => {
+        const fields = getVaultFieldMap(item.type);
+        const subs = fields.filter(f => f.suffix !== '');
+        const tooltip = subs.length > 0
+          ? `${item.trigger} + ${subs.map(f => item.trigger + f.suffix).join(', ')}`
+          : item.trigger;
+        return (
+          <span
+            className="text-[9px] font-mono font-semibold text-violet-500 bg-violet-500/10 px-[5px] py-[1px] rounded shrink-0 leading-4"
+            title={tooltip}
+          >
+            {item.trigger}
+          </span>
+        );
+      })()}
 
       {/* Title + masked value */}
       <span className="flex-1 min-w-0 truncate text-xs">

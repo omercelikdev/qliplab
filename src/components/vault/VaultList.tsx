@@ -3,7 +3,7 @@ import { Plus, Lock, Search } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { useAppStore, VAULT_TYPE_FILTERS } from '@/stores/appStore';
 import type { VaultTypeFilter } from '@/stores/appStore';
-import type { CardData, BankData, AddressData, CodeData } from '@/types/vault';
+import type { CardData, BankData, AddressData, PersonalData, CompanyData, CodeData } from '@/types/vault';
 import { VaultItem } from './VaultItem';
 import { VaultLock } from './VaultLock';
 import { NewVaultItemDialog } from './NewVaultItemDialog';
@@ -32,6 +32,12 @@ export function VaultList() {
         return (item.data as BankData).iban;
       case 'address':
         return (item.data as AddressData).street;
+      case 'personal': {
+        const d = item.data as PersonalData;
+        return [d.firstName, d.lastName].filter(Boolean).join(' ');
+      }
+      case 'company':
+        return (item.data as CompanyData).companyName;
       case 'code':
         return (item.data as CodeData).code;
       default:

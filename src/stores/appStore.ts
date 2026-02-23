@@ -14,7 +14,7 @@ export interface PasteQueueItem {
 
 // Format filter groups for smart collections
 export type FormatFilterGroup = 'all' | 'pinned' | 'code' | 'data' | 'web' | 'encoded' | 'other';
-export type VaultTypeFilter = 'all' | 'favorites' | 'card' | 'bank' | 'address' | 'code';
+export type VaultTypeFilter = 'all' | 'favorites' | 'card' | 'bank' | 'address' | 'personal' | 'company' | 'code';
 export type SnippetSyntaxFilter = 'all' | 'favorites' | 'code' | 'data' | 'web' | 'plain';
 
 export const SNIPPET_SYNTAX_FILTERS: Record<SnippetSyntaxFilter, { label: string; syntaxes: string[] | null }> = {
@@ -32,6 +32,8 @@ export const VAULT_TYPE_FILTERS: Record<VaultTypeFilter, string> = {
   card: 'Card',
   bank: 'Bank',
   address: 'Address',
+  personal: 'Personal',
+  company: 'Company',
   code: 'Code',
 };
 
