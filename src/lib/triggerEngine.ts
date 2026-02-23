@@ -19,6 +19,41 @@ export function isValidTrigger(trigger: string): boolean {
   return TRIGGER_PREFIXES.includes(trigger[0]);
 }
 
+// --- Vault type prefixes (auto-prepended to user triggers) ---
+
+export const VAULT_TYPE_PREFIX: Record<VaultItemType, string> = {
+  card: ';card:',
+  bank: ';bank:',
+  address: ';addr:',
+  personal: ';me:',
+  company: ';corp:',
+  code: ';code:',
+};
+
+/** Build a full trigger from type prefix + user-supplied suffix */
+export function buildVaultTrigger(type: VaultItemType, suffix: string): string {
+  return VAULT_TYPE_PREFIX[type] + suffix;
+}
+
+/** Extract user suffix from a full vault trigger */
+export function extractTriggerSuffix(type: VaultItemType, fullTrigger: string): string {
+  const prefix = VAULT_TYPE_PREFIX[type];
+  return fullTrigger.startsWith(prefix) ? fullTrigger.slice(prefix.length) : fullTrigger;
+}
+
+/** Check if a vault trigger suffix is unique among existing vault items */
+export function isUniqueTrigger(
+  type: VaultItemType,
+  suffix: string,
+  existingItems: VaultItem[],
+  excludeItemId?: string,
+): boolean {
+  const fullTrigger = buildVaultTrigger(type, suffix);
+  return !existingItems.some(
+    item => item.id !== excludeItemId && item.trigger === fullTrigger
+  );
+}
+
 // --- Vault field maps ---
 
 interface FieldMapping {

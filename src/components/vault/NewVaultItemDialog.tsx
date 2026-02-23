@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
-import { isValidTrigger, TRIGGER_PREFIXES, getVaultFieldMap } from '@/lib/triggerEngine';
+import { getVaultFieldMap, VAULT_TYPE_PREFIX, buildVaultTrigger, extractTriggerSuffix, isUniqueTrigger } from '@/lib/triggerEngine';
 import type { VaultItem, VaultItemType, VaultItemData } from '@/types/vault';
 import { cn } from '@/lib/utils';
 
@@ -25,42 +25,52 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
   const isEditMode = !!editItem;
   const [selectedType, setSelectedType] = useState<VaultItemType>('card');
   const [title, setTitle] = useState('');
-  const [trigger, setTrigger] = useState('');
+  const [triggerSuffix, setTriggerSuffix] = useState(''); // user-entered part only
   const [formData, setFormData] = useState<Record<string, string>>({});
   const createItem = useVaultStore((state) => state.createItem);
   const updateItem = useVaultStore((state) => state.updateItem);
+  const items = useVaultStore((state) => state.items);
+
+  const prefix = VAULT_TYPE_PREFIX[selectedType];
+  const fullTrigger = triggerSuffix ? buildVaultTrigger(selectedType, triggerSuffix) : '';
 
   // Pre-fill form when editing
   useEffect(() => {
     if (editItem && isOpen) {
       setSelectedType(editItem.type);
       setTitle(editItem.title);
-      setTrigger(editItem.trigger || '');
+      setTriggerSuffix(editItem.trigger ? extractTriggerSuffix(editItem.type, editItem.trigger) : '');
       setFormData(editItem.data as unknown as Record<string, string>);
     } else if (!isOpen) {
       setSelectedType('card');
       setTitle('');
-      setTrigger('');
+      setTriggerSuffix('');
       setFormData({});
     }
   }, [editItem, isOpen]);
 
-  const triggerError = trigger.length > 0 && !isValidTrigger(trigger)
-    ? `Must start with ${TRIGGER_PREFIXES.join(' ')} and be at least 2 chars`
+  // Validate: only alphanumeric, dash, underscore for suffix
+  const suffixFormatError = triggerSuffix.length > 0 && !/^[a-zA-Z0-9_-]+$/.test(triggerSuffix)
+    ? 'Only letters, numbers, - and _ allowed'
     : '';
+  const uniqueError = triggerSuffix.length > 0 && !suffixFormatError && !isUniqueTrigger(
+    selectedType, triggerSuffix, items, editItem?.id
+  ) ? 'This trigger already exists' : '';
+  const triggerError = suffixFormatError || uniqueError;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    if (trigger && !isValidTrigger(trigger)) return;
+    if (triggerError) return;
 
+    const triggerValue = triggerSuffix ? fullTrigger : undefined;
     if (isEditMode && editItem) {
-      await updateItem(editItem.id, title, formData as unknown as VaultItemData, trigger || undefined);
+      await updateItem(editItem.id, title, formData as unknown as VaultItemData, triggerValue);
     } else {
-      await createItem(selectedType, title, formData as unknown as VaultItemData, trigger || undefined);
+      await createItem(selectedType, title, formData as unknown as VaultItemData, triggerValue);
     }
     setTitle('');
-    setTrigger('');
+    setTriggerSuffix('');
     setFormData({});
     onClose();
   };
@@ -183,7 +193,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
                       if (!isEditMode) {
                         setSelectedType(type);
                         setFormData({});
-                        setTrigger('');
+                        setTriggerSuffix('');
                       }
                     }}
                     className={cn(
@@ -205,23 +215,28 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
               {/* Title */}
               <Input label="Title" value={title} onChange={setTitle} placeholder="e.g. My Visa Card" />
 
-              {/* Trigger */}
+              {/* Trigger with auto-prefix */}
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">Trigger (optional)</label>
-                <input
-                  type="text"
-                  value={trigger}
-                  onChange={(e) => setTrigger(e.target.value)}
-                  placeholder=";card"
-                  className={cn(
-                    'w-full px-3 py-2 bg-surface border rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-accent',
-                    triggerError ? 'border-destructive' : 'border-border'
-                  )}
-                />
+                <div className={cn(
+                  'flex items-center bg-surface border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-accent',
+                  triggerError ? 'border-destructive' : 'border-border'
+                )}>
+                  <span className="px-2.5 py-2 text-sm font-mono text-muted-foreground bg-surface-hover shrink-0 select-none border-r border-border">
+                    {prefix}
+                  </span>
+                  <input
+                    type="text"
+                    value={triggerSuffix}
+                    onChange={(e) => setTriggerSuffix(e.target.value.toLowerCase().replace(/\s/g, ''))}
+                    placeholder="mycard"
+                    className="flex-1 px-2.5 py-2 bg-transparent text-sm font-mono outline-none"
+                  />
+                </div>
                 {triggerError && (
                   <p className="text-[10px] text-destructive">{triggerError}</p>
                 )}
-                {trigger && isValidTrigger(trigger) && (() => {
+                {triggerSuffix && !triggerError && (() => {
                   const fields = getVaultFieldMap(selectedType);
                   const subs = fields.filter(f => f.suffix !== '');
                   if (subs.length === 0) return null;
@@ -230,7 +245,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
                       <span className="text-[10px] text-muted-foreground">Fields:</span>
                       {subs.map(f => (
                         <span key={f.suffix} className="text-[10px] font-mono text-violet-500 bg-violet-500/10 px-1 rounded">
-                          {trigger}{f.suffix}
+                          {fullTrigger}{f.suffix}
                         </span>
                       ))}
                     </div>
