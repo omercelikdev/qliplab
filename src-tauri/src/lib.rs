@@ -14,6 +14,7 @@ use std::process::Command;
 use std::io::Write;
 
 #[cfg(target_os = "macos")]
+#[allow(deprecated)]
 use tauri_nspanel::{
     ManagerExt, WebviewWindowExt,
     cocoa::appkit::NSWindowCollectionBehavior,
@@ -764,6 +765,7 @@ fn init_panel(window: tauri::WebviewWindow) -> Result<(), String> {
     // - Join all spaces (appear on every desktop/space)
     // - Transient (don't persist when app quits)
     // - Move to active space
+    #[allow(deprecated)]
     panel.set_collection_behaviour(
         NSWindowCollectionBehavior::NSWindowCollectionBehaviorCanJoinAllSpaces
             | NSWindowCollectionBehavior::NSWindowCollectionBehaviorTransient
