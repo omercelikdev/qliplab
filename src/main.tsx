@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { reportError } from "./lib/errorReporter";
+import "./i18n"; // Initialize i18n before App renders
 import "./index.css";
 
 // Global error handler for uncaught errors

@@ -10,6 +10,7 @@ export interface AutoCommand {
 }
 
 export interface AppSettings {
+  language: 'system' | 'en' | 'tr' | 'ar';
   theme: 'light' | 'dark' | 'system';
   historyLimit: number;
   autoLockMinutes: number;
@@ -32,6 +33,7 @@ export interface AppSettings {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
+  language: 'system',
   theme: 'system',
   historyLimit: 100,
   autoLockMinutes: 5,
