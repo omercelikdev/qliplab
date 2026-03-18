@@ -428,5 +428,20 @@
 
   "errors.somethingWentWrong": "出了点问题",
   "errors.unexpectedError": "发生了意外错误",
-  "errors.tryAgain": "重试"
+  "errors.tryAgain": "重试",
+
+  "errorReporting.optIn.title": "帮助改进 qliplab",
+  "errorReporting.optIn.description": "您是否愿意自动发送崩溃报告以帮助我们修复错误？",
+  "errorReporting.optIn.whatWeCollect": "我们收集的信息：",
+  "errorReporting.optIn.collectErrors": "错误消息和堆栈跟踪",
+  "errorReporting.optIn.collectVersion": "应用版本和操作系统",
+  "errorReporting.optIn.collectFeature": "正在使用的功能",
+  "errorReporting.optIn.whatWeDontCollect": "我们不收集的信息：",
+  "errorReporting.optIn.noClipboard": "您的剪贴板内容",
+  "errorReporting.optIn.noSnippets": "您的代码片段或保险库数据",
+  "errorReporting.optIn.noPersonal": "个人信息",
+  "errorReporting.optIn.changeAnytime": "您可以随时在设置中更改此选项。",
+  "errorReporting.optIn.decline": "不，谢谢",
+  "errorReporting.optIn.enable": "启用报告",
+  "privacy.title": "隐私政策"
 }

@@ -428,5 +428,20 @@
 
   "errors.somethingWentWrong": "問題が発生しました",
   "errors.unexpectedError": "予期しないエラーが発生しました",
-  "errors.tryAgain": "再試行"
+  "errors.tryAgain": "再試行",
+
+  "errorReporting.optIn.title": "qliplabの改善にご協力ください",
+  "errorReporting.optIn.description": "バグ修正のためにクラッシュレポートを自動送信しますか？",
+  "errorReporting.optIn.whatWeCollect": "収集する情報：",
+  "errorReporting.optIn.collectErrors": "エラーメッセージとスタックトレース",
+  "errorReporting.optIn.collectVersion": "アプリのバージョンとOS",
+  "errorReporting.optIn.collectFeature": "使用中の機能",
+  "errorReporting.optIn.whatWeDontCollect": "収集しない情報：",
+  "errorReporting.optIn.noClipboard": "クリップボードの内容",
+  "errorReporting.optIn.noSnippets": "スニペットやVaultのデータ",
+  "errorReporting.optIn.noPersonal": "個人情報",
+  "errorReporting.optIn.changeAnytime": "設定からいつでも変更できます。",
+  "errorReporting.optIn.decline": "いいえ",
+  "errorReporting.optIn.enable": "レポートを有効にする",
+  "privacy.title": "プライバシーポリシー"
 }

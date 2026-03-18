@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, X, Check } from 'lucide-react';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface ErrorReportingOptInProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface ErrorReportingOptInProps {
 }
 
 export function ErrorReportingOptIn({ isOpen, onClose }: ErrorReportingOptInProps) {
+  const { t } = useTranslation();
   const setAutoErrorReporting = useFeedbackStore((s) => s.setAutoErrorReporting);
   const setHasSeenOptIn = useFeedbackStore((s) => s.setHasSeenOptIn);
 
@@ -43,7 +45,7 @@ export function ErrorReportingOptIn({ isOpen, onClose }: ErrorReportingOptInProp
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-accent" />
-                <h2 className="font-semibold">Help Improve qliplab</h2>
+                <h2 className="font-semibold">{t('errorReporting.optIn.title')}</h2>
               </div>
               <button
                 onClick={handleDecline}
@@ -56,17 +58,17 @@ export function ErrorReportingOptIn({ isOpen, onClose }: ErrorReportingOptInProp
             {/* Content */}
             <div className="p-4 space-y-4">
               <p className="text-sm text-muted-foreground">
-                Would you like to automatically send crash reports to help us fix bugs?
+                {t('errorReporting.optIn.description')}
               </p>
 
               {/* What we collect */}
               <div className="space-y-2">
-                <p className="text-xs font-medium text-foreground">What we collect:</p>
+                <p className="text-xs font-medium text-foreground">{t('errorReporting.optIn.whatWeCollect')}</p>
                 <ul className="space-y-1">
                   {[
-                    'Error messages and stack traces',
-                    'App version and OS',
-                    'Which feature was being used',
+                    t('errorReporting.optIn.collectErrors'),
+                    t('errorReporting.optIn.collectVersion'),
+                    t('errorReporting.optIn.collectFeature'),
                   ].map((item) => (
                     <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Check className="w-3 h-3 text-green-500" />
@@ -78,12 +80,12 @@ export function ErrorReportingOptIn({ isOpen, onClose }: ErrorReportingOptInProp
 
               {/* What we don't collect */}
               <div className="space-y-2">
-                <p className="text-xs font-medium text-foreground">What we DON'T collect:</p>
+                <p className="text-xs font-medium text-foreground">{t('errorReporting.optIn.whatWeDontCollect')}</p>
                 <ul className="space-y-1">
                   {[
-                    'Your clipboard content',
-                    'Your snippets or vault data',
-                    'Personal information',
+                    t('errorReporting.optIn.noClipboard'),
+                    t('errorReporting.optIn.noSnippets'),
+                    t('errorReporting.optIn.noPersonal'),
                   ].map((item) => (
                     <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
                       <X className="w-3 h-3 text-destructive" />
@@ -94,7 +96,7 @@ export function ErrorReportingOptIn({ isOpen, onClose }: ErrorReportingOptInProp
               </div>
 
               <p className="text-xs text-muted-foreground">
-                You can change this anytime in Settings.
+                {t('errorReporting.optIn.changeAnytime')}
               </p>
             </div>
 
@@ -107,7 +109,7 @@ export function ErrorReportingOptIn({ isOpen, onClose }: ErrorReportingOptInProp
                   'bg-surface-hover text-foreground hover:bg-border'
                 )}
               >
-                No Thanks
+                {t('errorReporting.optIn.decline')}
               </button>
               <button
                 onClick={handleEnable}
@@ -116,7 +118,7 @@ export function ErrorReportingOptIn({ isOpen, onClose }: ErrorReportingOptInProp
                   'bg-accent text-white hover:bg-accent/90'
                 )}
               >
-                Enable Reporting
+                {t('errorReporting.optIn.enable')}
               </button>
             </div>
           </motion.div>

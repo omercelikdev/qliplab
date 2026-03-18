@@ -428,5 +428,20 @@
 
   "errors.somethingWentWrong": "حدث خطأ ما",
   "errors.unexpectedError": "حدث خطأ غير متوقع",
-  "errors.tryAgain": "حاول مرة أخرى"
+  "errors.tryAgain": "حاول مرة أخرى",
+
+  "errorReporting.optIn.title": "ساعد في تحسين qliplab",
+  "errorReporting.optIn.description": "هل تريد إرسال تقارير الأعطال تلقائيًا لمساعدتنا في إصلاح الأخطاء؟",
+  "errorReporting.optIn.whatWeCollect": "ما نجمعه:",
+  "errorReporting.optIn.collectErrors": "رسائل الخطأ وتتبع المكدس",
+  "errorReporting.optIn.collectVersion": "إصدار التطبيق ونظام التشغيل",
+  "errorReporting.optIn.collectFeature": "الميزة التي كانت قيد الاستخدام",
+  "errorReporting.optIn.whatWeDontCollect": "ما لا نجمعه:",
+  "errorReporting.optIn.noClipboard": "محتوى الحافظة الخاص بك",
+  "errorReporting.optIn.noSnippets": "القصاصات أو بيانات الخزنة الخاصة بك",
+  "errorReporting.optIn.noPersonal": "المعلومات الشخصية",
+  "errorReporting.optIn.changeAnytime": "يمكنك تغيير هذا في أي وقت من الإعدادات.",
+  "errorReporting.optIn.decline": "لا شكرًا",
+  "errorReporting.optIn.enable": "تفعيل الإبلاغ",
+  "privacy.title": "سياسة الخصوصية"
 }

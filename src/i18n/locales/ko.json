@@ -428,5 +428,20 @@
 
   "errors.somethingWentWrong": "문제가 발생했습니다",
   "errors.unexpectedError": "예기치 않은 오류가 발생했습니다",
-  "errors.tryAgain": "다시 시도"
+  "errors.tryAgain": "다시 시도",
+
+  "errorReporting.optIn.title": "qliplab 개선에 도움을 주세요",
+  "errorReporting.optIn.description": "버그 수정을 위해 자동으로 충돌 보고서를 보내시겠습니까?",
+  "errorReporting.optIn.whatWeCollect": "수집하는 정보:",
+  "errorReporting.optIn.collectErrors": "오류 메시지 및 스택 트레이스",
+  "errorReporting.optIn.collectVersion": "앱 버전 및 운영 체제",
+  "errorReporting.optIn.collectFeature": "사용 중이던 기능",
+  "errorReporting.optIn.whatWeDontCollect": "수집하지 않는 정보:",
+  "errorReporting.optIn.noClipboard": "클립보드 내용",
+  "errorReporting.optIn.noSnippets": "스니펫 또는 볼트 데이터",
+  "errorReporting.optIn.noPersonal": "개인 정보",
+  "errorReporting.optIn.changeAnytime": "설정에서 언제든지 변경할 수 있습니다.",
+  "errorReporting.optIn.decline": "괜찮습니다",
+  "errorReporting.optIn.enable": "보고 활성화",
+  "privacy.title": "개인정보 처리방침"
 }

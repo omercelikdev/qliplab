@@ -428,5 +428,20 @@
 
   "errors.somethingWentWrong": "Er ging iets mis",
   "errors.unexpectedError": "Er is een onverwachte fout opgetreden",
-  "errors.tryAgain": "Opnieuw proberen"
+  "errors.tryAgain": "Opnieuw proberen",
+
+  "errorReporting.optIn.title": "Help qliplab verbeteren",
+  "errorReporting.optIn.description": "Wilt u automatisch crashrapporten versturen om ons te helpen bugs op te lossen?",
+  "errorReporting.optIn.whatWeCollect": "Wat we verzamelen:",
+  "errorReporting.optIn.collectErrors": "Foutmeldingen en stacktraces",
+  "errorReporting.optIn.collectVersion": "App-versie en besturingssysteem",
+  "errorReporting.optIn.collectFeature": "Welke functie werd gebruikt",
+  "errorReporting.optIn.whatWeDontCollect": "Wat we NIET verzamelen:",
+  "errorReporting.optIn.noClipboard": "Uw klembordinhoud",
+  "errorReporting.optIn.noSnippets": "Uw snippets of kluisgegevens",
+  "errorReporting.optIn.noPersonal": "Persoonlijke informatie",
+  "errorReporting.optIn.changeAnytime": "U kunt dit op elk moment wijzigen in Instellingen.",
+  "errorReporting.optIn.decline": "Nee bedankt",
+  "errorReporting.optIn.enable": "Rapportage inschakelen",
+  "privacy.title": "Privacybeleid"
 }

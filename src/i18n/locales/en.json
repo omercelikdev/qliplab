@@ -429,5 +429,21 @@
 
   "errors.somethingWentWrong": "Something went wrong",
   "errors.unexpectedError": "An unexpected error occurred",
-  "errors.tryAgain": "Try again"
+  "errors.tryAgain": "Try again",
+
+  "errorReporting.optIn.title": "Help Improve qliplab",
+  "errorReporting.optIn.description": "Would you like to automatically send crash reports to help us fix bugs?",
+  "errorReporting.optIn.whatWeCollect": "What we collect:",
+  "errorReporting.optIn.collectErrors": "Error messages and stack traces",
+  "errorReporting.optIn.collectVersion": "App version and OS",
+  "errorReporting.optIn.collectFeature": "Which feature was being used",
+  "errorReporting.optIn.whatWeDontCollect": "What we DON'T collect:",
+  "errorReporting.optIn.noClipboard": "Your clipboard content",
+  "errorReporting.optIn.noSnippets": "Your snippets or vault data",
+  "errorReporting.optIn.noPersonal": "Personal information",
+  "errorReporting.optIn.changeAnytime": "You can change this anytime in Settings.",
+  "errorReporting.optIn.decline": "No Thanks",
+  "errorReporting.optIn.enable": "Enable Reporting",
+
+  "privacy.title": "Privacy Policy"
 }

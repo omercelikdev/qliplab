@@ -428,5 +428,20 @@
 
   "errors.somethingWentWrong": "Что-то пошло не так",
   "errors.unexpectedError": "Произошла непредвиденная ошибка",
-  "errors.tryAgain": "Повторить"
+  "errors.tryAgain": "Повторить",
+
+  "errorReporting.optIn.title": "Помогите улучшить qliplab",
+  "errorReporting.optIn.description": "Хотите автоматически отправлять отчёты об ошибках, чтобы помочь нам исправлять баги?",
+  "errorReporting.optIn.whatWeCollect": "Что мы собираем:",
+  "errorReporting.optIn.collectErrors": "Сообщения об ошибках и трассировки стека",
+  "errorReporting.optIn.collectVersion": "Версия приложения и ОС",
+  "errorReporting.optIn.collectFeature": "Какая функция использовалась",
+  "errorReporting.optIn.whatWeDontCollect": "Что мы НЕ собираем:",
+  "errorReporting.optIn.noClipboard": "Содержимое буфера обмена",
+  "errorReporting.optIn.noSnippets": "Ваши сниппеты или данные хранилища",
+  "errorReporting.optIn.noPersonal": "Личная информация",
+  "errorReporting.optIn.changeAnytime": "Вы можете изменить это в любое время в Настройках.",
+  "errorReporting.optIn.decline": "Нет, спасибо",
+  "errorReporting.optIn.enable": "Включить отчёты",
+  "privacy.title": "Политика конфиденциальности"
 }

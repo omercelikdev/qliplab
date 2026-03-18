@@ -27,6 +27,10 @@ use enigo::{Enigo, Keyboard, Settings, Key, Direction};
 #[cfg(target_os = "macos")]
 static PREVIOUS_APP: Mutex<Option<String>> = Mutex::new(None);
 
+// Store the previously active window handle (Windows)
+#[cfg(target_os = "windows")]
+static PREVIOUS_HWND: Mutex<Option<isize>> = Mutex::new(None);
+
 /// Sanitize a string for safe use in AppleScript using whitelist approach.
 /// Only allows characters that are valid in application names.
 #[cfg(target_os = "macos")]
@@ -65,7 +69,18 @@ fn save_frontmost_app() -> Result<(), String> {
     }
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "windows")]
+#[tauri::command]
+fn save_frontmost_app() -> Result<(), String> {
+    use windows::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
+    let hwnd = unsafe { GetForegroundWindow() };
+    if let Ok(mut guard) = PREVIOUS_HWND.lock() {
+        *guard = Some(hwnd.0 as isize);
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
 #[tauri::command]
 fn save_frontmost_app() -> Result<(), String> {
     Ok(())
@@ -98,7 +113,46 @@ fn get_frontmost_app() -> Result<String, String> {
     }
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "windows")]
+#[tauri::command]
+fn get_frontmost_app() -> Result<String, String> {
+    use windows::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
+    use windows::Win32::UI::WindowsAndMessaging::GetWindowThreadProcessId;
+    use windows::Win32::System::Threading::{OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION};
+
+    unsafe {
+        let hwnd = GetForegroundWindow();
+        let mut pid: u32 = 0;
+        GetWindowThreadProcessId(hwnd, Some(&mut pid));
+        if pid == 0 {
+            return Ok(String::new());
+        }
+
+        // Get process name via OpenProcess + QueryFullProcessImageNameW
+        if let Ok(handle) = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) {
+            let mut buf = [0u16; 260];
+            let mut len = buf.len() as u32;
+            let ok = windows::Win32::System::Threading::QueryFullProcessImageNameW(
+                handle,
+                windows::Win32::System::Threading::PROCESS_NAME_FORMAT(0),
+                windows::core::PWSTR(buf.as_mut_ptr()),
+                &mut len,
+            );
+            let _ = windows::Win32::Foundation::CloseHandle(handle);
+            if ok.is_ok() {
+                let path = String::from_utf16_lossy(&buf[..len as usize]);
+                // Extract filename without extension
+                let name = path.rsplit('\\').next().unwrap_or("")
+                    .trim_end_matches(".exe")
+                    .to_string();
+                return Ok(name);
+            }
+        }
+    }
+    Ok(String::new())
+}
+
+#[cfg(target_os = "linux")]
 #[tauri::command]
 fn get_frontmost_app() -> Result<String, String> {
     Ok(String::new())
@@ -118,7 +172,12 @@ fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
 
 #[cfg(not(target_os = "macos"))]
 #[tauri::command]
-fn show_panel(_app: tauri::AppHandle) -> Result<(), String> {
+fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
+    // On Windows/Linux, use standard Tauri window APIs
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.show();
+        let _ = window.set_focus();
+    }
     Ok(())
 }
 
@@ -136,7 +195,11 @@ fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
 
 #[cfg(not(target_os = "macos"))]
 #[tauri::command]
-fn hide_panel(_app: tauri::AppHandle) -> Result<(), String> {
+fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
+    // On Windows/Linux, use standard Tauri window APIs
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.hide();
+    }
     Ok(())
 }
 
@@ -222,6 +285,20 @@ fn simulate_paste() -> Result<(), String> {
 
         #[cfg(not(target_os = "macos"))]
         {
+            // On Windows, restore previous foreground window before pasting
+            #[cfg(target_os = "windows")]
+            {
+                use windows::Win32::UI::WindowsAndMessaging::SetForegroundWindow;
+                use windows::Win32::Foundation::HWND;
+                if let Ok(guard) = PREVIOUS_HWND.lock() {
+                    if let Some(hwnd_val) = *guard {
+                        unsafe {
+                            let _ = SetForegroundWindow(HWND(hwnd_val as *mut std::ffi::c_void));
+                        }
+                    }
+                }
+            }
+
             thread::sleep(Duration::from_millis(100));
             if let Ok(mut enigo) = Enigo::new(&Settings::default()) {
                 let _ = enigo.key(Key::Control, Direction::Press);
@@ -662,10 +739,131 @@ fn start_trigger_engine(
 #[cfg(not(target_os = "macos"))]
 #[tauri::command]
 fn start_trigger_engine(
-    _app: tauri::AppHandle,
-    _state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
 ) -> Result<(), String> {
-    // Windows/Linux: trigger engine not yet supported
+    let state = Arc::clone(&state);
+
+    thread::spawn(move || {
+        let mut buffer = String::new();
+        const MAX_BUFFER: usize = 100;
+
+        // Pending match for longest-match disambiguation
+        struct PendingMatch {
+            trigger: String,
+            source_id: String,
+            trigger_len: usize,
+        }
+        let mut pending: Option<PendingMatch> = None;
+
+        let callback = move |event: rdev::Event| {
+            match event.event_type {
+                rdev::EventType::KeyPress(key) => {
+                    // Check if expanding — skip capture
+                    if let Ok(s) = state.lock() {
+                        if s.expanding {
+                            return;
+                        }
+                    }
+
+                    // Handle navigation/control keys — clear buffer
+                    match key {
+                        rdev::Key::Return | rdev::Key::Tab | rdev::Key::Escape |
+                        rdev::Key::UpArrow | rdev::Key::DownArrow |
+                        rdev::Key::LeftArrow | rdev::Key::RightArrow => {
+                            pending = None;
+                            buffer.clear();
+                            return;
+                        }
+                        rdev::Key::Backspace => {
+                            pending = None;
+                            buffer.pop();
+                            return;
+                        }
+                        _ => {}
+                    }
+
+                    // Get typed character from event.name
+                    if let Some(ref name) = event.name {
+                        if name.is_empty() || name.chars().all(|c| c.is_control()) {
+                            return;
+                        }
+
+                        buffer.push_str(name);
+                        if buffer.len() > MAX_BUFFER {
+                            let drain = buffer.len() - MAX_BUFFER;
+                            buffer.drain(..drain);
+                        }
+
+                        if let Ok(s) = state.lock() {
+                            // Find longest matching trigger
+                            let mut best: Option<(&str, &str, usize)> = None;
+                            for (trigger, source_id) in &s.triggers {
+                                if buffer.ends_with(trigger.as_str()) {
+                                    if best.is_none() || trigger.len() > best.unwrap().2 {
+                                        best = Some((trigger, source_id, trigger.len()));
+                                    }
+                                }
+                            }
+
+                            if let Some((matched_trigger, matched_id, matched_len)) = best {
+                                // Check if a longer trigger could still match
+                                let has_longer = s.triggers.iter().any(|(t, _)| {
+                                    t.len() > matched_len && t.starts_with(matched_trigger)
+                                });
+
+                                if has_longer {
+                                    pending = Some(PendingMatch {
+                                        trigger: matched_trigger.to_string(),
+                                        source_id: matched_id.to_string(),
+                                        trigger_len: matched_len,
+                                    });
+                                } else {
+                                    pending = None;
+                                    let _ = app.emit("trigger-matched", serde_json::json!({
+                                        "trigger": matched_trigger,
+                                        "sourceId": matched_id,
+                                        "triggerLen": matched_len
+                                    }));
+                                    buffer.clear();
+                                }
+                            } else if pending.is_some() {
+                                // Check if pending match should be flushed
+                                let p = pending.as_ref().unwrap();
+                                let extra = buffer.len().saturating_sub(
+                                    buffer.rfind(&p.trigger).map_or(0, |pos| pos + p.trigger.len())
+                                );
+                                let typed_so_far_len = p.trigger_len + extra;
+
+                                let could_still_match = s.triggers.iter().any(|(t, _)| {
+                                    t.len() > p.trigger_len
+                                        && t.starts_with(&p.trigger)
+                                        && typed_so_far_len <= t.len()
+                                        && buffer.ends_with(&t[..typed_so_far_len])
+                                });
+
+                                if !could_still_match {
+                                    let p = pending.take().unwrap();
+                                    let _ = app.emit("trigger-matched", serde_json::json!({
+                                        "trigger": p.trigger,
+                                        "sourceId": p.source_id,
+                                        "triggerLen": p.trigger_len + extra
+                                    }));
+                                    buffer.clear();
+                                }
+                            }
+                        }
+                    }
+                }
+                _ => {}
+            }
+        };
+
+        if let Err(e) = rdev::listen(callback) {
+            eprintln!("[TriggerEngine] rdev listen error: {:?}", e);
+        }
+    });
+
     Ok(())
 }
 
@@ -747,10 +945,68 @@ print(text)
     }
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "windows")]
+#[tauri::command]
+async fn ocr_image(base64_data: String) -> Result<String, String> {
+    use base64::{Engine as _, engine::general_purpose::STANDARD};
+
+    // Decode base64 to image bytes
+    let image_bytes = STANDARD.decode(&base64_data)
+        .map_err(|e| format!("Failed to decode base64: {}", e))?;
+
+    // Write to temp file
+    let temp_path = std::env::temp_dir().join(format!("qliplab_ocr_{}.png", std::process::id()));
+    std::fs::write(&temp_path, &image_bytes)
+        .map_err(|_| "Failed to write temp file".to_string())?;
+
+    // Use PowerShell with Windows.Media.Ocr API (available on Windows 10+)
+    let ps_script = r#"
+Add-Type -AssemblyName System.Runtime.WindowsRuntime
+$null = [Windows.Media.Ocr.OcrEngine, Windows.Foundation, ContentType = WindowsRuntime]
+$null = [Windows.Graphics.Imaging.BitmapDecoder, Windows.Foundation, ContentType = WindowsRuntime]
+$null = [Windows.Storage.Streams.RandomAccessStream, Windows.Foundation, ContentType = WindowsRuntime]
+
+function Await($WinRtTask) {
+    $asTask = [System.WindowsRuntimeSystemExtensions].GetMethod('AsTask', @([Windows.Foundation.IAsyncOperation``1].MakeGenericType($WinRtTask.GetType().GetGenericArguments())))
+    $task = $asTask.Invoke($null, @($WinRtTask))
+    $task.Wait()
+    $task.Result
+}
+
+$path = $env:QLIPLAB_OCR_PATH
+$stream = [System.IO.File]::OpenRead($path)
+$randomStream = [System.IO.WindowsRuntimeStreamExtensions]::AsRandomAccessStream($stream)
+$decoder = Await ([Windows.Graphics.Imaging.BitmapDecoder]::CreateAsync($randomStream))
+$bitmap = Await ($decoder.GetSoftwareBitmapAsync())
+$engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromUserProfileLanguages()
+if ($engine -eq $null) { Write-Output ""; exit 0 }
+$result = Await ($engine.RecognizeAsync($bitmap))
+Write-Output $result.Text
+$stream.Close()
+"#;
+
+    let output = std::process::Command::new("powershell")
+        .args(["-NoProfile", "-NonInteractive", "-Command", ps_script])
+        .env("QLIPLAB_OCR_PATH", temp_path.to_string_lossy().as_ref())
+        .output()
+        .map_err(|_| "Failed to run OCR".to_string())?;
+
+    // Cleanup temp file
+    let _ = std::fs::remove_file(&temp_path);
+
+    if output.status.success() {
+        let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        Ok(text)
+    } else {
+        let err = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        Err(format!("OCR failed: {}", err))
+    }
+}
+
+#[cfg(target_os = "linux")]
 #[tauri::command]
 async fn ocr_image(_base64_data: String) -> Result<String, String> {
-    Err("OCR is only available on macOS".to_string())
+    Err("OCR is not yet available on Linux".to_string())
 }
 
 /// Initialize panel with proper settings for Spotlight-like behavior

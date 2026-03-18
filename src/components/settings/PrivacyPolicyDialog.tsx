@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { CONFIG } from '@/lib/config';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {isOpen && (
@@ -26,7 +28,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="h-12 flex items-center justify-between px-4 border-b border-border shrink-0">
-              <h2 className="font-semibold">Privacy Policy</h2>
+              <h2 className="font-semibold">{t('privacy.title')}</h2>
               <button
                 onClick={onClose}
                 className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"

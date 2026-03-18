@@ -428,5 +428,20 @@
 
   "errors.somethingWentWrong": "Coś poszło nie tak",
   "errors.unexpectedError": "Wystąpił nieoczekiwany błąd",
-  "errors.tryAgain": "Spróbuj ponownie"
+  "errors.tryAgain": "Spróbuj ponownie",
+
+  "errorReporting.optIn.title": "Pomóż ulepszyć qliplab",
+  "errorReporting.optIn.description": "Czy chcesz automatycznie wysyłać raporty o awariach, aby pomóc nam naprawić błędy?",
+  "errorReporting.optIn.whatWeCollect": "Co zbieramy:",
+  "errorReporting.optIn.collectErrors": "Komunikaty o błędach i ślady stosu",
+  "errorReporting.optIn.collectVersion": "Wersja aplikacji i system operacyjny",
+  "errorReporting.optIn.collectFeature": "Która funkcja była używana",
+  "errorReporting.optIn.whatWeDontCollect": "Czego NIE zbieramy:",
+  "errorReporting.optIn.noClipboard": "Zawartość schowka",
+  "errorReporting.optIn.noSnippets": "Twoje snippety lub dane sejfu",
+  "errorReporting.optIn.noPersonal": "Dane osobowe",
+  "errorReporting.optIn.changeAnytime": "Możesz to zmienić w dowolnym momencie w Ustawieniach.",
+  "errorReporting.optIn.decline": "Nie, dziękuję",
+  "errorReporting.optIn.enable": "Włącz raportowanie",
+  "privacy.title": "Polityka prywatności"
 }

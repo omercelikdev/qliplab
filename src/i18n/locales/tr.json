@@ -429,5 +429,20 @@
 
   "errors.somethingWentWrong": "Bir şeyler ters gitti",
   "errors.unexpectedError": "Beklenmeyen bir hata oluştu",
-  "errors.tryAgain": "Tekrar dene"
+  "errors.tryAgain": "Tekrar dene",
+
+  "errorReporting.optIn.title": "qliplab'ı Geliştirmemize Yardımcı Olun",
+  "errorReporting.optIn.description": "Hataları düzeltmemize yardımcı olmak için otomatik çökme raporları göndermek ister misiniz?",
+  "errorReporting.optIn.whatWeCollect": "Topladığımız bilgiler:",
+  "errorReporting.optIn.collectErrors": "Hata mesajları ve yığın izleri",
+  "errorReporting.optIn.collectVersion": "Uygulama sürümü ve işletim sistemi",
+  "errorReporting.optIn.collectFeature": "Hangi özelliğin kullanıldığı",
+  "errorReporting.optIn.whatWeDontCollect": "Toplamadığımız bilgiler:",
+  "errorReporting.optIn.noClipboard": "Pano içeriğiniz",
+  "errorReporting.optIn.noSnippets": "Snippet veya kasa verileriniz",
+  "errorReporting.optIn.noPersonal": "Kişisel bilgiler",
+  "errorReporting.optIn.changeAnytime": "Bunu istediğiniz zaman Ayarlar'dan değiştirebilirsiniz.",
+  "errorReporting.optIn.decline": "Hayır, Teşekkürler",
+  "errorReporting.optIn.enable": "Raporlamayı Etkinleştir",
+  "privacy.title": "Gizlilik Politikası"
 }
