@@ -27,7 +27,7 @@
       "visible": false
     }],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src ipc: http://ipc.localhost https://celikomr--8290084cf41111f0b7d742dde27851f2.web.val.run https://celikomr--31b0aea80b1911f18a2342dde27851f2.web.val.run https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com; worker-src 'self' blob:"
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src ipc: http://ipc.localhost https://celikomr--8290084cf41111f0b7d742dde27851f2.web.val.run https://celikomr--31b0aea80b1911f18a2342dde27851f2.web.val.run https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com; worker-src 'self' blob:"
     }
   },
   "bundle": {

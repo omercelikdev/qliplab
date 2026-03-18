@@ -217,11 +217,12 @@ export function SettingsPanel() {
                 <label className="text-[11px] font-medium">Provider</label>
                 <select
                   value={settings.aiProvider}
-                  onChange={(e) => updateSetting('aiProvider', e.target.value as 'anthropic' | 'openai')}
+                  onChange={(e) => updateSetting('aiProvider', e.target.value as 'anthropic' | 'openai' | 'gemini')}
                   className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
                 >
                   <option value="anthropic">Anthropic (Claude)</option>
                   <option value="openai">OpenAI (GPT)</option>
+                  <option value="gemini">Google Gemini</option>
                 </select>
               </div>
 
@@ -320,7 +321,7 @@ export function SettingsPanel() {
         isOpen={isAiConsentOpen}
         onClose={() => setIsAiConsentOpen(false)}
         onAccept={() => setIsAiConsentOpen(false)}
-        provider={settings.aiProvider === 'anthropic' ? 'Anthropic' : 'OpenAI'}
+        provider={settings.aiProvider === 'anthropic' ? 'Anthropic' : settings.aiProvider === 'gemini' ? 'Google Gemini' : 'OpenAI'}
       />
       <EulaViewerDialog isOpen={isEulaOpen} onClose={() => setIsEulaOpen(false)} />
     </>

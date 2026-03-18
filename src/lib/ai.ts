@@ -46,6 +46,8 @@ export async function runAiAction(action: AiAction, content: string): Promise<st
 
   if (aiProvider === 'anthropic') {
     return callAnthropic(aiApiKey, systemPrompt, content);
+  } else if (aiProvider === 'gemini') {
+    return callGemini(aiApiKey, systemPrompt, content);
   } else {
     return callOpenAI(aiApiKey, systemPrompt, content);
   }
@@ -75,6 +77,28 @@ async function callAnthropic(apiKey: string, systemPrompt: string, content: stri
 
   const data = await response.json();
   return data.content?.[0]?.text ?? '';
+}
+
+async function callGemini(apiKey: string, systemPrompt: string, content: string): Promise<string> {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ parts: [{ text: content }] }],
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Gemini API error (${response.status}): ${err}`);
+  }
+
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 }
 
 async function callOpenAI(apiKey: string, systemPrompt: string, content: string): Promise<string> {

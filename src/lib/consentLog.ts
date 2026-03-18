@@ -32,7 +32,7 @@ export interface ConsentRecord {
   action: 'grant' | 'revoke';
   termsVersion: string;
   termsText: readonly string[] | string;
-  provider: 'anthropic' | 'openai' | 'eula';
+  provider: 'anthropic' | 'openai' | 'gemini' | 'eula';
   timestamp: string;
   appVersion: string;
   platform: string;
@@ -65,7 +65,7 @@ export interface ConsentBackend {
  */
 export async function recordConsent(
   action: 'grant' | 'revoke',
-  provider: 'anthropic' | 'openai' | 'eula',
+  provider: 'anthropic' | 'openai' | 'gemini' | 'eula',
   opts?: { termsVersion?: string; termsText?: string },
 ): Promise<ConsentRecord> {
   const partial: Omit<ConsentRecord, 'integrityHash'> = {

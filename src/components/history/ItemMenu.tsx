@@ -130,7 +130,8 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
       return;
     }
 
-    const provider = useSettingsStore.getState().settings.aiProvider === 'anthropic' ? 'Anthropic' : 'OpenAI';
+    const p = useSettingsStore.getState().settings.aiProvider;
+    const provider = p === 'anthropic' ? 'Anthropic' : p === 'gemini' ? 'Google Gemini' : 'OpenAI';
     const confirmed = window.confirm(
       `Send this content to ${provider} for processing?\n\n` +
       `Do NOT proceed if this contains sensitive data.`

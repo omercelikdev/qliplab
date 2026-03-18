@@ -9,7 +9,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onAccept: () => void;
-  provider: 'Anthropic' | 'OpenAI';
+  provider: 'Anthropic' | 'OpenAI' | 'Google Gemini';
 }
 
 export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) {

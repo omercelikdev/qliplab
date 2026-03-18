@@ -19,7 +19,7 @@ export interface AppSettings {
   ignoredApps: string[];
   expirationDays: number; // 0 = never
   aiApiKey: string;
-  aiProvider: 'anthropic' | 'openai';
+  aiProvider: 'anthropic' | 'openai' | 'gemini';
   aiConsentAccepted: boolean;
   aiConsentDate: string; // ISO date when consent was given
   snippetAutoExpand: boolean;
