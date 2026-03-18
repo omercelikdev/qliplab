@@ -227,6 +227,8 @@ export async function hideWriteAndPaste(writeToClipboard: () => Promise<void>) {
     const clipboardPromise = writeToClipboard();
     await hideWindowCore();
     await clipboardPromise;
+    // Small buffer to ensure clipboard is fully committed at OS level before paste
+    await new Promise(resolve => setTimeout(resolve, 30));
     await invoke('simulate_paste');
   } catch {
     // Silently handle paste failure

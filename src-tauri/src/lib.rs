@@ -150,11 +150,22 @@ fn simulate_paste() -> Result<(), String> {
 
             let prev_app = PREVIOUS_APP.lock().ok().and_then(|guard| guard.clone());
 
+            // Electron apps need more time to establish focus after activation
+            const ELECTRON_APPS: &[&str] = &[
+                "Microsoft Teams", "Slack", "Discord",
+                "Visual Studio Code", "Code", "Notion", "Figma",
+                "Obsidian", "Postman", "Spotify",
+            ];
+
             if let Some(app_name) = prev_app {
                 // SECURITY: Sanitize app name to prevent AppleScript injection
                 let safe_app_name = sanitize_applescript_string(&app_name);
+
+                // Use System Events process name for activation (matches save_frontmost_app)
+                // "tell application X to activate" uses app names which may differ from
+                // process names (e.g. Teams process = "MSTeams" but app = "Microsoft Teams")
                 let activate_script = format!(
-                    r#"tell application "{}" to activate"#,
+                    r#"tell application "System Events" to set frontmost of process "{}" to true"#,
                     safe_app_name
                 );
 
@@ -163,30 +174,40 @@ fn simulate_paste() -> Result<(), String> {
                     .arg(&activate_script)
                     .output();
 
-                // Small delay for app activation
-                thread::sleep(Duration::from_millis(50));
+                // Electron apps (Teams, Slack, etc.) need longer to accept focus
+                let delay = if ELECTRON_APPS.iter().any(|e| safe_app_name.contains(e)) {
+                    200
+                } else {
+                    100
+                };
+                thread::sleep(Duration::from_millis(delay));
             }
 
             // Use CGEvent for better compatibility with Electron apps like Teams
             // Key code 9 = V key on macOS
             const V_KEY: CGKeyCode = 9;
 
+            let mut paste_success = false;
+
             if let Ok(source) = CGEventSource::new(CGEventSourceStateID::HIDSystemState) {
                 // Key down with Command modifier
                 if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
                     key_down.set_flags(CGEventFlags::CGEventFlagCommand);
                     key_down.post(CGEventTapLocation::HID);
-                }
 
-                thread::sleep(Duration::from_millis(10));
+                    thread::sleep(Duration::from_millis(10));
 
-                // Key up with Command modifier
-                if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
-                    key_up.set_flags(CGEventFlags::CGEventFlagCommand);
-                    key_up.post(CGEventTapLocation::HID);
+                    // Key up with Command modifier
+                    if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
+                        key_up.set_flags(CGEventFlags::CGEventFlagCommand);
+                        key_up.post(CGEventTapLocation::HID);
+                        paste_success = true;
+                    }
                 }
-            } else {
-                // Fallback to AppleScript if CGEvent fails
+            }
+
+            // Fallback to AppleScript if CGEvent failed at any step
+            if !paste_success {
                 let paste_script = r#"
                     tell application "System Events"
                         key code 9 using command down

@@ -120,6 +120,14 @@ export function HistoryList() {
     isActive: activeTab === 'history' && !isDiffMode,
   });
 
+  // Reset scroll to top when window reopens (matches selectedIndex reset to 0)
+  const windowOpenCount = useAppStore((state) => state.windowOpenCount);
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = 0;
+    }
+  }, [windowOpenCount]);
+
   useEffect(() => {
     const itemEl = itemRefs.current.get(selectedIndex);
     if (itemEl) {

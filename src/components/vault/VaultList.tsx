@@ -23,6 +23,7 @@ export function VaultList() {
   const setVaultTypeFilter = useAppStore((state) => state.setVaultTypeFilter);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<VaultItemType | undefined>(undefined);
+  const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   const getMainValue = (item: typeof items[0]) => {
@@ -88,6 +89,14 @@ export function VaultList() {
     isActive: activeTab === 'vault' && !isLocked,
   });
 
+  // Reset scroll to top when window reopens (matches selectedIndex reset to 0)
+  const windowOpenCount = useAppStore((state) => state.windowOpenCount);
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = 0;
+    }
+  }, [windowOpenCount]);
+
   // Scroll selected item into view
   useEffect(() => {
     const itemEl = itemRefs.current.get(selectedIndex);
@@ -133,7 +142,7 @@ export function VaultList() {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden">
         {filteredItems.length === 0 ? (
           <div className="flex-1 flex items-center justify-center p-6">
             <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
