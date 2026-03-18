@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { encrypt, decrypt, hashPassword, verifyPassword } from './encryption';
+import { encrypt, decrypt, decryptStrict, encryptApiKey, decryptApiKey, hashPassword, verifyPassword } from './encryption';
 
 // ─── Test 9: Vault Encryption ────────────────────────────────
 
@@ -75,5 +75,66 @@ describe('hashPassword / verifyPassword', () => {
     const h2 = await hashPassword('test');
     expect(await verifyPassword('test', h1)).toBe(true);
     expect(await verifyPassword('test', h2)).toBe(true);
+  });
+});
+
+// ─── Test: decryptStrict ─────────────────────────────────────
+
+describe('decryptStrict', () => {
+  it('decrypts data encrypted with current iterations', async () => {
+    const ciphertext = await encrypt('test data', 'password');
+    const result = await decryptStrict(ciphertext, 'password');
+    expect(result).toBe('test data');
+  });
+
+  it('fails with wrong password', async () => {
+    const ciphertext = await encrypt('secret', 'correct');
+    await expect(decryptStrict(ciphertext, 'wrong')).rejects.toThrow();
+  });
+});
+
+// ─── Test: API Key Encryption ────────────────────────────────
+
+describe('encryptApiKey / decryptApiKey', () => {
+  it('roundtrips API key', async () => {
+    const key = 'sk-ant-api03-test-key-12345';
+    const encrypted = await encryptApiKey(key);
+    expect(encrypted).toMatch(/^enc:/);
+    const decrypted = await decryptApiKey(encrypted);
+    expect(decrypted).toBe(key);
+  });
+
+  it('returns empty string for empty input', async () => {
+    expect(await encryptApiKey('')).toBe('');
+    expect(await decryptApiKey('')).toBe('');
+  });
+
+  it('handles legacy plain-text keys', async () => {
+    // Legacy keys don't start with "enc:" — returned as-is
+    expect(await decryptApiKey('sk-plain-text-key')).toBe('sk-plain-text-key');
+  });
+
+  it('produces different ciphertext for same key (random IV)', async () => {
+    const key = 'sk-test';
+    const e1 = await encryptApiKey(key);
+    const e2 = await encryptApiKey(key);
+    expect(e1).not.toBe(e2);
+  });
+});
+
+// ─── Test: Edge Cases ────────────────────────────────────────
+
+describe('edge cases', () => {
+  it('encrypts and decrypts empty string', async () => {
+    const ciphertext = await encrypt('', 'pass');
+    const decrypted = await decrypt(ciphertext, 'pass');
+    expect(decrypted).toBe('');
+  });
+
+  it('handles very long password', async () => {
+    const longPass = 'a'.repeat(1000);
+    const ciphertext = await encrypt('data', longPass);
+    const decrypted = await decrypt(ciphertext, longPass);
+    expect(decrypted).toBe('data');
   });
 });

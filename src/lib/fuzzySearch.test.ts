@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { fuzzyScore, fuzzyFilter } from './fuzzySearch';
+import { fuzzyScore, fuzzyFilter, fuzzyMatchPositions } from './fuzzySearch';
 
 // ─── Test 11: Fuzzy Search ───────────────────────────────────
 
@@ -75,5 +75,39 @@ describe('fuzzyFilter', () => {
     // 'hlw' is not a contiguous substring in any item
     const result = fuzzyFilter(items, 'hlw', (i) => i.text);
     expect(result).toHaveLength(0);
+  });
+});
+
+// ─── Test: fuzzyMatchPositions ───────────────────────────────
+
+describe('fuzzyMatchPositions', () => {
+  it('returns empty for empty query', () => {
+    expect(fuzzyMatchPositions('', 'hello')).toEqual([]);
+  });
+
+  it('returns contiguous positions for substring match', () => {
+    expect(fuzzyMatchPositions('ell', 'hello')).toEqual([1, 2, 3]);
+  });
+
+  it('returns positions starting at 0 for prefix match', () => {
+    expect(fuzzyMatchPositions('hel', 'hello')).toEqual([0, 1, 2]);
+  });
+
+  it('returns word-initial positions when no substring match', () => {
+    // "hw" matches "h" at 0 (start) and "w" at 6 (word boundary after space)
+    expect(fuzzyMatchPositions('hw', 'hello world')).toEqual([0, 6]);
+  });
+
+  it('returns empty for no match at all', () => {
+    expect(fuzzyMatchPositions('xyz', 'hello')).toEqual([]);
+  });
+
+  it('is case insensitive', () => {
+    expect(fuzzyMatchPositions('HEL', 'hello')).toEqual([0, 1, 2]);
+  });
+
+  it('handles word boundary with special characters', () => {
+    // "jq" matches "j" at start and "q" after "/"
+    expect(fuzzyMatchPositions('jq', 'js/query')).toEqual([0, 3]);
   });
 });
