@@ -323,10 +323,11 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
 function MenuButton({ icon: Icon, label, onClick, destructive }: { icon: React.ElementType; label: string; onClick: () => void; destructive?: boolean }) {
   return (
     <button
+      aria-label={label}
       className={cn('w-full flex items-center gap-1.5 px-2.5 py-1 text-xs text-left hover:bg-surface-hover transition-colors cursor-pointer', destructive && 'text-destructive')}
       onClick={onClick}
     >
-      <Icon className="w-3.5 h-3.5" />
+      <Icon className="w-3.5 h-3.5" aria-hidden="true" />
       {label}
     </button>
   );

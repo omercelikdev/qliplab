@@ -3,7 +3,19 @@ import Database from '@tauri-apps/plugin-sql';
 let db: Database | null = null;
 
 export async function initDatabase() {
-  db = await Database.load('sqlite:qliplab.db');
+  try {
+    db = await Database.load('sqlite:qliplab.db');
+  } catch (e) {
+    console.error('[qliplab] Database load failed, attempting fresh init:', e);
+    // If DB is corrupted, try to create a fresh one
+    // The old file will be inaccessible but data is lost — better than app not starting
+    try {
+      db = await Database.load('sqlite:qliplab_recovery.db');
+      console.warn('[qliplab] Using recovery database — previous data may be lost');
+    } catch {
+      throw new Error('Database initialization failed completely');
+    }
+  }
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS clipboard_history (

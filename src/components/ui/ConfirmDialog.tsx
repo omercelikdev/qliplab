@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,23 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({ isOpen, title, message, confirmLabel = 'Delete', onConfirm, onCancel, destructive = true }: ConfirmDialogProps) {
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  // Auto-focus Cancel button when dialog opens & handle Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    cancelRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onCancel();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [isOpen, onCancel]);
+
   return createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -20,6 +38,9 @@ export function ConfirmDialog({ isOpen, title, message, confirmLabel = 'Delete',
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
           className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[10000] flex items-center justify-center"
         >
           <motion.div
@@ -33,15 +54,16 @@ export function ConfirmDialog({ isOpen, title, message, confirmLabel = 'Delete',
             <p className="text-xs text-muted-foreground mb-4">{message}</p>
             <div className="flex gap-2 justify-end">
               <button
+                ref={cancelRef}
                 onClick={onCancel}
-                className="px-3 py-1.5 text-xs rounded-md bg-surface-hover hover:bg-border transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs rounded-md bg-surface-hover hover:bg-border transition-colors cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
               >
                 Cancel
               </button>
               <button
                 onClick={onConfirm}
                 className={cn(
-                  'px-3 py-1.5 text-xs rounded-md transition-colors cursor-pointer',
+                  'px-3 py-1.5 text-xs rounded-md transition-colors cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none',
                   destructive
                     ? 'bg-destructive text-white hover:bg-destructive/90'
                     : 'bg-accent text-accent-foreground hover:bg-accent/90'

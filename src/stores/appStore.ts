@@ -93,9 +93,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   previewOpen: false,
   theme: 'system',
   searchQuery: '',
-  formatFilter: 'all',
-  vaultTypeFilter: 'all',
-  snippetSyntaxFilter: 'all',
+  formatFilter: (localStorage.getItem('qlip_formatFilter') ?? 'all') as FormatFilterGroup,
+  vaultTypeFilter: (localStorage.getItem('qlip_vaultTypeFilter') ?? 'all') as VaultTypeFilter,
+  snippetSyntaxFilter: (localStorage.getItem('qlip_snippetSyntaxFilter') ?? 'all') as SnippetSyntaxFilter,
   isTransformMode: false,
   isDiffMode: false,
   diffSelectedIds: [],
@@ -119,9 +119,18 @@ export const useAppStore = create<AppState>((set, get) => ({
   setPreviewOpen: (open) => set({ previewOpen: open }),
   setTheme: (theme) => set({ theme }),
   setSearchQuery: (query) => set({ searchQuery: query }),
-  setFormatFilter: (filter) => set({ formatFilter: filter }),
-  setVaultTypeFilter: (filter) => set({ vaultTypeFilter: filter }),
-  setSnippetSyntaxFilter: (filter) => set({ snippetSyntaxFilter: filter }),
+  setFormatFilter: (filter) => {
+    set({ formatFilter: filter });
+    try { localStorage.setItem('qlip_formatFilter', filter); } catch { /* noop */ }
+  },
+  setVaultTypeFilter: (filter) => {
+    set({ vaultTypeFilter: filter });
+    try { localStorage.setItem('qlip_vaultTypeFilter', filter); } catch { /* noop */ }
+  },
+  setSnippetSyntaxFilter: (filter) => {
+    set({ snippetSyntaxFilter: filter });
+    try { localStorage.setItem('qlip_snippetSyntaxFilter', filter); } catch { /* noop */ }
+  },
   setTransformMode: (active) => set({ isTransformMode: active }),
   setDiffMode: (active) => set({ isDiffMode: active, diffSelectedIds: active ? [] : [] }),
   addToDiffSelection: (id) => set((state) => {
