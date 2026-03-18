@@ -41,13 +41,6 @@ interface AutoErrorReport {
   appVersion: string;
 }
 
-// Strip user-specific file paths from stack traces
-function sanitizeStack(stack?: string): string {
-  if (!stack) return 'No stack trace';
-  // Remove absolute paths, keep only relative filenames
-  return stack.replace(/(?:\/[^\s:)]+\/)+([^\s:)]+)/g, '$1');
-}
-
 function getErrorHash(error: Error): string {
   const content = `${error.message}${error.stack?.split('\n')[1] || ''}`;
   const encoded = new TextEncoder().encode(content);

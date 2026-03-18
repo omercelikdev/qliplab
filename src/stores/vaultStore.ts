@@ -197,9 +197,9 @@ export const useVaultStore = create<VaultState>((set, get) => ({
             needsReEncrypt = true;
           }
 
-          let parsedData: unknown;
+          let parsedData: VaultItemData;
           try {
-            parsedData = JSON.parse(plaintext);
+            parsedData = JSON.parse(plaintext) as VaultItemData;
           } catch {
             throw new Error(`Vault item ${row.id}: corrupted JSON data`);
           }
