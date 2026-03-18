@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bug, Sparkles, MessageCircle, FileText, Loader2, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
 import { useFeedbackStore, IssueType, Priority } from '@/stores/feedbackStore';
@@ -9,28 +10,36 @@ interface ReportIssueDialogProps {
   onClose: () => void;
 }
 
-const ISSUE_TYPES: { type: IssueType; icon: typeof Bug; label: string }[] = [
-  { type: 'bug', icon: Bug, label: 'Bug' },
-  { type: 'feature', icon: Sparkles, label: 'Feature' },
-  { type: 'question', icon: MessageCircle, label: 'Question' },
-  { type: 'other', icon: FileText, label: 'Other' },
-];
+const ISSUE_TYPE_KEYS: Record<IssueType, string> = {
+  bug: 'feedback.type.bug',
+  feature: 'feedback.type.feature',
+  question: 'feedback.type.question',
+  other: 'feedback.type.other',
+};
 
-const PRIORITIES: { value: Priority; label: string }[] = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'critical', label: 'Critical' },
-];
+const ISSUE_TYPE_ICONS: Record<IssueType, typeof Bug> = {
+  bug: Bug,
+  feature: Sparkles,
+  question: MessageCircle,
+  other: FileText,
+};
 
-const PLACEHOLDERS: Record<IssueType, string> = {
-  bug: 'What happened? What did you expect?',
-  feature: 'Describe the feature you\'d like',
-  question: 'What would you like to know?',
-  other: 'Provide details about your feedback',
+const PRIORITY_KEYS: Record<Priority, string> = {
+  low: 'feedback.priority.low',
+  medium: 'feedback.priority.medium',
+  high: 'feedback.priority.high',
+  critical: 'feedback.priority.critical',
+};
+
+const PLACEHOLDER_KEYS: Record<IssueType, string> = {
+  bug: 'feedback.placeholder.bug',
+  feature: 'feedback.placeholder.feature',
+  question: 'feedback.placeholder.question',
+  other: 'feedback.placeholder.other',
 };
 
 export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
+  const { t } = useTranslation();
   const [issueType, setIssueType] = useState<IssueType>('bug');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -90,7 +99,7 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 shrink-0">
-              <h2 className="font-semibold">Report Issue</h2>
+              <h2 className="font-semibold">{t('feedback.title')}</h2>
               <button
                 onClick={handleClose}
                 className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"
@@ -107,9 +116,9 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                   {result.success ? (
                     <>
                       <CheckCircle className="w-12 h-12 text-green-500 mb-4" />
-                      <h3 className="font-semibold mb-2">Issue Reported!</h3>
+                      <h3 className="font-semibold mb-2">{t('feedback.success.title')}</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Thank you for your feedback.
+                        {t('feedback.success.thanks')}
                       </p>
                       {result.url && (
                         <a
@@ -119,7 +128,7 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                           className="flex items-center gap-2 text-sm text-accent hover:underline cursor-pointer"
                         >
                           <ExternalLink className="w-4 h-4" />
-                          View on GitHub
+                          {t('feedback.success.viewOnGithub')}
                         </a>
                       )}
                     </>
@@ -134,7 +143,7 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                         onClick={() => setResult(null)}
                         className="text-sm text-accent hover:underline cursor-pointer"
                       >
-                        Try again
+                        {t('common.tryAgain')}
                       </button>
                     </>
                   )}
@@ -144,36 +153,39 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                 <>
                   {/* Issue Type */}
                   <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">Issue Type</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t('feedback.issueType')}</label>
                     <div className="grid grid-cols-4 gap-2">
-                      {ISSUE_TYPES.map(({ type, icon: Icon, label }) => (
-                        <button
-                          key={type}
-                          onClick={() => setIssueType(type)}
-                          className={cn(
-                            'flex flex-col items-center gap-1 py-2 rounded-md text-xs transition-colors cursor-pointer',
-                            issueType === type
-                              ? 'bg-accent text-white'
-                              : 'bg-surface-hover text-muted-foreground hover:text-foreground'
-                          )}
-                        >
-                          <Icon className="w-4 h-4" />
-                          {label}
-                        </button>
-                      ))}
+                      {(Object.keys(ISSUE_TYPE_KEYS) as IssueType[]).map((type) => {
+                        const Icon = ISSUE_TYPE_ICONS[type];
+                        return (
+                          <button
+                            key={type}
+                            onClick={() => setIssueType(type)}
+                            className={cn(
+                              'flex flex-col items-center gap-1 py-2 rounded-md text-xs transition-colors cursor-pointer',
+                              issueType === type
+                                ? 'bg-accent text-white'
+                                : 'bg-surface-hover text-muted-foreground hover:text-foreground'
+                            )}
+                          >
+                            <Icon className="w-4 h-4" />
+                            {t(ISSUE_TYPE_KEYS[type])}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Title */}
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-muted-foreground">
-                      Title <span className="text-destructive">*</span>
+                      {t('feedback.titleLabel')} <span className="text-destructive">*</span>
                     </label>
                     <input
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value.slice(0, 100))}
-                      placeholder="Brief description of the issue"
+                      placeholder={t('feedback.titlePlaceholder')}
                       className={cn(
                         'w-full px-3 py-2 text-sm rounded-md',
                         'bg-background border border-border',
@@ -186,12 +198,12 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                   {/* Description */}
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-muted-foreground">
-                      Description <span className="text-destructive">*</span>
+                      {t('feedback.descriptionLabel')} <span className="text-destructive">*</span>
                     </label>
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-                      placeholder={PLACEHOLDERS[issueType]}
+                      placeholder={t(PLACEHOLDER_KEYS[issueType])}
                       rows={3}
                       className={cn(
                         'w-full px-3 py-2 text-sm rounded-md resize-none',
@@ -208,12 +220,12 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                   {issueType === 'bug' && (
                     <div className="space-y-2">
                       <label className="text-xs font-medium text-muted-foreground">
-                        Steps to Reproduce
+                        {t('feedback.stepsLabel')}
                       </label>
                       <textarea
                         value={steps}
                         onChange={(e) => setSteps(e.target.value.slice(0, 1000))}
-                        placeholder="1. Go to...&#10;2. Click on...&#10;3. See error"
+                        placeholder={t('feedback.stepsPlaceholder')}
                         rows={3}
                         className={cn(
                           'w-full px-3 py-2 text-sm rounded-md resize-none',
@@ -226,7 +238,7 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
 
                   {/* Priority */}
                   <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">Priority</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t('feedback.priorityLabel')}</label>
                     <select
                       value={priority}
                       onChange={(e) => setPriority(e.target.value as Priority)}
@@ -236,13 +248,13 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                         'focus:outline-none focus:ring-1 focus:ring-accent'
                       )}
                     >
-                      {PRIORITIES.filter((p) => issueType === 'bug' || p.value !== 'critical').map(
-                        ({ value, label }) => (
+                      {(Object.keys(PRIORITY_KEYS) as Priority[])
+                        .filter((p) => issueType === 'bug' || p !== 'critical')
+                        .map((value) => (
                           <option key={value} value={value}>
-                            {label}
+                            {t(PRIORITY_KEYS[value])}
                           </option>
-                        )
-                      )}
+                        ))}
                     </select>
                   </div>
 
@@ -254,7 +266,7 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                       onChange={(e) => setIncludeSystemInfo(e.target.checked)}
                       className="rounded border-border"
                     />
-                    <span className="text-sm">Include system information</span>
+                    <span className="text-sm">{t('feedback.includeSystemInfo')}</span>
                   </label>
                 </>
               )}
@@ -270,7 +282,7 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                     'bg-surface-hover text-foreground hover:bg-border'
                   )}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleSubmit}
@@ -284,10 +296,10 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Submitting...
+                      {t('common.submitting')}
                     </>
                   ) : (
-                    'Submit'
+                    t('common.submit')
                   )}
                 </button>
               </div>
@@ -300,7 +312,7 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                     'bg-surface-hover text-foreground hover:bg-border'
                   )}
                 >
-                  Close
+                  {t('common.close')}
                 </button>
               </div>
             )}

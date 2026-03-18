@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Lock, Search } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { useAppStore, VAULT_TYPE_FILTERS } from '@/stores/appStore';
@@ -13,6 +14,7 @@ import { hideWriteAndPaste } from '@/lib/window';
 import { cn } from '@/lib/utils';
 
 export function VaultList() {
+  const { t } = useTranslation();
   const isLocked = useVaultStore((state) => state.isLocked);
   const items = useVaultStore((state) => state.items);
   const lock = useVaultStore((state) => state.lock);
@@ -132,13 +134,13 @@ export function VaultList() {
           onClick={lock}
           className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground rounded-md transition-colors cursor-pointer"
         >
-          <Lock className="w-2.5 h-2.5" /> Lock
+          <Lock className="w-2.5 h-2.5" /> {t('vault.lock')}
         </button>
       </div>
 
       {decryptFailCount > 0 && (
         <div className="mx-3 mt-1 px-2 py-1 text-[10px] text-yellow-600 dark:text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
-          {decryptFailCount} item{decryptFailCount > 1 ? 's' : ''} could not be decrypted
+          {t('vault.decryptFail', { count: decryptFailCount })}
         </div>
       )}
 
@@ -151,27 +153,27 @@ export function VaultList() {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-foreground mb-1">
-                  {items.length === 0 ? 'No vault items' : 'No results'}
+                  {items.length === 0 ? t('vault.emptyState.title') : t('common.noResults')}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {items.length === 0 ? 'Add your first secure item' : 'No items match your filters'}
+                  {items.length === 0 ? t('vault.emptyState.description') : t('vault.noResults.description')}
                 </p>
               </div>
             </div>
           </div>
         ) : (
-          <div className="pl-3 pr-1.5 py-1 space-y-0.5">
+          <div className="ps-3 pe-1.5 py-1 space-y-0.5">
             {filteredItems.map((item, index) => (
               <div key={item.id}>
                 {index === 0 && pinnedCount > 0 && (
                   <div className="flex items-center gap-2 px-1 pt-1 pb-1.5">
-                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Pinned</span>
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">{t('common.pinned')}</span>
                     <div className="flex-1 dotted-separator" />
                   </div>
                 )}
                 {index === pinnedCount && pinnedCount > 0 && (
                   <div className="flex items-center gap-2 px-1 pt-1.5 pb-1.5">
-                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Recent</span>
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">{t('common.recent')}</span>
                     <div className="flex-1 dotted-separator" />
                   </div>
                 )}
@@ -197,7 +199,7 @@ export function VaultList() {
             'text-xs text-muted-foreground hover:text-foreground hover:bg-surface-hover rounded-md transition-colors'
           )}
         >
-          <Plus className="w-3.5 h-3.5" /> Add Item
+          <Plus className="w-3.5 h-3.5" /> {t('vault.addItem')}
         </button>
       </div>
 

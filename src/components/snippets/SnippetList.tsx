@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Search, Clipboard } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore, SNIPPET_SYNTAX_FILTERS } from '@/stores/appStore';
@@ -11,6 +12,7 @@ import { expandVariables } from '@/lib/snippetVariables';
 import { cn } from '@/lib/utils';
 
 export function SnippetList() {
+  const { t } = useTranslation();
   const snippets = useSnippetStore((state) => state.snippets);
   const isLoading = useSnippetStore((state) => state.isLoading);
   const loadSnippets = useSnippetStore((state) => state.loadSnippets);
@@ -68,7 +70,7 @@ export function SnippetList() {
       <div className="h-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-2 text-muted-foreground">
           <div className="w-6 h-6 border-2 border-muted-foreground/30 border-t-accent rounded-full animate-spin" />
-          <span className="text-sm">Loading...</span>
+          <span className="text-sm">{t('common.loading')}</span>
         </div>
       </div>
     );
@@ -109,27 +111,27 @@ export function SnippetList() {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-foreground mb-1">
-                  {searchQuery ? 'No results' : 'No snippets yet'}
+                  {searchQuery ? t('common.noResults') : t('snippets.emptyState.title')}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {searchQuery ? 'No snippets match your search' : 'Create your first snippet to get started'}
+                  {searchQuery ? t('snippets.noResults.description') : t('snippets.emptyState.description')}
                 </p>
               </div>
             </div>
           </div>
         ) : (
-          <div className="pl-3 pr-1.5 py-1 space-y-0.5">
+          <div className="ps-3 pe-1.5 py-1 space-y-0.5">
             {snippets.map((snippet, index) => (
               <div key={snippet.id}>
                 {index === 0 && pinnedCount > 0 && (
                   <div className="flex items-center gap-2 px-1 pt-1 pb-1.5">
-                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Pinned</span>
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">{t('common.pinned')}</span>
                     <div className="flex-1 dotted-separator" />
                   </div>
                 )}
                 {index === pinnedCount && pinnedCount > 0 && (
                   <div className="flex items-center gap-2 px-1 pt-1.5 pb-1.5">
-                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Recent</span>
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">{t('common.recent')}</span>
                     <div className="flex-1 dotted-separator" />
                   </div>
                 )}
@@ -156,7 +158,7 @@ export function SnippetList() {
             'hover:text-foreground hover:bg-surface-hover rounded-md transition-colors'
           )}
         >
-          <Plus className="w-3.5 h-3.5" /> New Snippet
+          <Plus className="w-3.5 h-3.5" /> {t('snippets.newSnippet')}
         </button>
       </div>
     </div>

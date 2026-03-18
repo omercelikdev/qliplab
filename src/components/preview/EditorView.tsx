@@ -1,4 +1,5 @@
 import { Suspense, lazy, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePreviewStore, getMonacoLanguage } from '@/stores/previewStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 
@@ -63,11 +64,13 @@ export function EditorView() {
 }
 
 function EditorSkeleton() {
+  const { t } = useTranslation();
+
   return (
     <div className="h-full w-full flex items-center justify-center bg-surface/50">
       <div className="flex flex-col items-center gap-2">
         <div className="w-5 h-5 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
-        <span className="text-xs text-muted-foreground">Loading editor...</span>
+        <span className="text-xs text-muted-foreground">{t('common.loadingEditor')}</span>
       </div>
     </div>
   );

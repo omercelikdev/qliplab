@@ -1,4 +1,5 @@
 import { useState, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Code, Braces, Globe, Pin, PinOff, Trash2, Pencil, FileText, Terminal, Type } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
@@ -39,6 +40,7 @@ interface SnippetItemProps {
 }
 
 export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = false, onEdit }: SnippetItemProps) {
+  const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const updateSnippet = useSnippetStore((state) => state.updateSnippet);
@@ -110,7 +112,7 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         isMonospace && 'font-mono text-[11px]'
       )}>
         <span className="font-medium">{snippet.title}</span>
-        <span className="text-foreground/35 ml-1.5">{snippet.content.slice(0, 100).replace(/\n/g, ' ')}</span>
+        <span className="text-foreground/35 ms-1.5">{snippet.content.slice(0, 100).replace(/\n/g, ' ')}</span>
       </span>
 
       {/* Action buttons — fade in/out: Pin/Unpin, Edit, Delete */}
@@ -121,7 +123,7 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         <button
           onClick={togglePin}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title={snippet.isPinned ? 'Unpin' : 'Pin'}
+          title={snippet.isPinned ? t('common.unpin') : t('common.pin')}
         >
           {snippet.isPinned
             ? <PinOff className="w-3.5 h-3.5 text-accent" />
@@ -131,14 +133,14 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         <button
           onClick={handleEdit}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title="Edit"
+          title={t('common.edit')}
         >
           <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
         <button
           onClick={handleDelete}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center text-destructive cursor-pointer"
-          title="Delete"
+          title={t('common.delete')}
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
@@ -146,8 +148,8 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
 
       <ConfirmDialog
         isOpen={showDeleteConfirm}
-        title="Delete Snippet"
-        message={`"${snippet.title}" will be permanently deleted.`}
+        title={t('snippets.deleteTitle')}
+        message={t('snippets.deleteMessage', { title: snippet.title })}
         onConfirm={() => { setShowDeleteConfirm(false); deleteSnippet(snippet.id); }}
         onCancel={() => setShowDeleteConfirm(false)}
       />

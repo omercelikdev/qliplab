@@ -50,7 +50,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
 
               <section className="space-y-1.5">
                 <h3 className="font-semibold text-foreground">Data We Access</h3>
-                <ul className="list-disc pl-4 space-y-1">
+                <ul className="list-disc ps-4 space-y-1">
                   <li>
                     <strong>Clipboard content</strong> — Text and images you copy are stored locally
                     in a SQLite database on your device. This data never leaves your computer.
@@ -68,7 +68,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
 
               <section className="space-y-1.5">
                 <h3 className="font-semibold text-foreground">Optional Data Collection</h3>
-                <ul className="list-disc pl-4 space-y-1">
+                <ul className="list-disc ps-4 space-y-1">
                   <li>
                     <strong>Crash reports (opt-in)</strong> — If you enable auto error reporting,
                     we send crash details (error message, stack trace, app version, OS version)
@@ -84,7 +84,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
 
               <section className="space-y-1.5">
                 <h3 className="font-semibold text-foreground">Data We Do NOT Collect</h3>
-                <ul className="list-disc pl-4 space-y-1">
+                <ul className="list-disc ps-4 space-y-1">
                   <li>No analytics or usage tracking</li>
                   <li>No advertising identifiers</li>
                   <li>No clipboard content is sent by QlipLab itself (see AI Features below for user-initiated transfers)</li>
@@ -108,13 +108,13 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
                   QlipLab offers optional AI-powered text processing (summarize, translate, fix
                   grammar, etc.). These features are <strong>disabled by default</strong> and require:
                 </p>
-                <ul className="list-disc pl-4 space-y-1 mt-1">
+                <ul className="list-disc ps-4 space-y-1 mt-1">
                   <li>You to provide your own API key (Anthropic or OpenAI)</li>
                   <li>Explicit consent via a dedicated consent dialog with checkboxes</li>
                   <li>Manual confirmation before each individual AI request</li>
                 </ul>
                 <p className="mt-2 font-medium">When you use AI features:</p>
-                <ul className="list-disc pl-4 space-y-1 mt-1">
+                <ul className="list-disc ps-4 space-y-1 mt-1">
                   <li>Your clipboard text content is sent directly from your device to the
                     selected AI provider's API (Anthropic or OpenAI) over encrypted HTTPS</li>
                   <li>QlipLab does NOT act as an intermediary — data goes directly from your
@@ -123,7 +123,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
                   <li>The AI provider's own privacy policy and data retention rules apply</li>
                 </ul>
                 <p className="mt-2 font-medium">Safety measures:</p>
-                <ul className="list-disc pl-4 space-y-1 mt-1">
+                <ul className="list-disc ps-4 space-y-1 mt-1">
                   <li>AI actions are automatically blocked for items detected as sensitive
                     (passwords, API keys, credit cards, personal IDs)</li>
                   <li>A confirmation dialog is shown before every AI request</li>
@@ -134,7 +134,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
 
               <section className="space-y-1.5">
                 <h3 className="font-semibold text-foreground">Third-Party Services</h3>
-                <ul className="list-disc pl-4 space-y-1">
+                <ul className="list-disc ps-4 space-y-1">
                   <li>
                     <strong>Crash reporting (opt-in)</strong> — Uses a secure endpoint to create
                     GitHub issues. No clipboard or personal data is included.
@@ -187,7 +187,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
 
               <section className="space-y-1.5">
                 <h3 className="font-semibold text-foreground">Your Rights</h3>
-                <ul className="list-disc pl-4 space-y-1">
+                <ul className="list-disc ps-4 space-y-1">
                   <li>You can disable image storage at any time in Settings</li>
                   <li>You can clear all clipboard history at any time</li>
                   <li>You can enable auto-clear on quit</li>

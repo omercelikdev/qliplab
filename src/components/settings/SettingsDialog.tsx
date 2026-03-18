@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
@@ -13,9 +14,28 @@ import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { CONFIG } from '@/lib/config';
 import { cn } from '@/lib/utils';
 
+const THEME_LABELS: Record<string, string> = {
+  light: 'settings.theme.light',
+  dark: 'settings.theme.dark',
+  system: 'settings.theme.system',
+};
+
 export function SettingsPanel() {
+  const { t, i18n } = useTranslation();
   const settings = useSettingsStore((state) => state.settings);
   const updateSetting = useSettingsStore((state) => state.updateSetting);
+
+  const SUPPORTED_LANGS = ['en', 'tr', 'ar', 'de', 'fr', 'es', 'pt', 'zh', 'ja', 'ko', 'ru', 'it', 'hi', 'nl', 'pl'];
+
+  const handleLanguageChange = (lang: string) => {
+    updateSetting('language', lang as typeof settings.language);
+    if (lang === 'system') {
+      const detected = navigator.language.split('-')[0];
+      i18n.changeLanguage(SUPPORTED_LANGS.includes(detected) ? detected : 'en');
+    } else {
+      i18n.changeLanguage(lang);
+    }
+  };
 
   const { autoErrorReporting, setAutoErrorReporting, loadSettings } = useFeedbackStore();
 
@@ -35,7 +55,7 @@ export function SettingsPanel() {
           <div className="px-4 py-3 space-y-5">
             {/* Theme */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Theme</label>
+              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.theme.label')}</label>
               <div className="flex gap-2">
                 {(['light', 'dark', 'system'] as const).map((theme) => (
                   <button
@@ -51,15 +71,42 @@ export function SettingsPanel() {
                     {theme === 'light' && <Sun className="w-3.5 h-3.5" />}
                     {theme === 'dark' && <Moon className="w-3.5 h-3.5" />}
                     {theme === 'system' && <Monitor className="w-3.5 h-3.5" />}
-                    {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                    {t(THEME_LABELS[theme])}
                   </button>
                 ))}
               </div>
             </div>
 
+            {/* Language */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.language.label')}</label>
+              <select
+                value={settings.language}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+                className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
+              >
+                <option value="system">{t('settings.language.system')}</option>
+                <option value="en">English</option>
+                <option value="tr">Türkçe</option>
+                <option value="ar">العربية</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="pt">Português</option>
+                <option value="zh">简体中文</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="ru">Русский</option>
+                <option value="it">Italiano</option>
+                <option value="hi">हिन्दी</option>
+                <option value="nl">Nederlands</option>
+                <option value="pl">Polski</option>
+              </select>
+            </div>
+
             {/* History Limit */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">History Limit</label>
+              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.historyLimit.label')}</label>
               <select
                 value={settings.historyLimit}
                 onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('historyLimit', v); }}
@@ -80,42 +127,42 @@ export function SettingsPanel() {
 
             {/* Auto Lock */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Vault Auto-lock</label>
+              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.autoLock.label')}</label>
               <select
                 value={settings.autoLockMinutes}
                 onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('autoLockMinutes', v); }}
                 className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
               >
-                <option value={1}>1 minute</option>
-                <option value={5}>5 minutes</option>
-                <option value={15}>15 minutes</option>
-                <option value={0}>Never</option>
+                <option value={1}>{t('settings.autoLock.1min')}</option>
+                <option value={5}>{t('settings.autoLock.5min')}</option>
+                <option value={15}>{t('settings.autoLock.15min')}</option>
+                <option value={0}>{t('settings.autoLock.never')}</option>
               </select>
             </div>
 
             {/* Toggles */}
             <div className="space-y-3">
               <ToggleSetting
-                label="Detect sensitive data"
-                description="Auto-detect passwords, API keys"
+                label={t('settings.toggle.sensitiveDetection')}
+                description={t('settings.toggle.sensitiveDetectionDesc')}
                 checked={settings.sensitiveDetectionEnabled}
                 onChange={(v) => updateSetting('sensitiveDetectionEnabled', v)}
               />
               <ToggleSetting
-                label="Store images"
-                description="Save copied images to history"
+                label={t('settings.toggle.storeImages')}
+                description={t('settings.toggle.storeImagesDesc')}
                 checked={settings.storeImages}
                 onChange={(v) => updateSetting('storeImages', v)}
               />
               <ToggleSetting
-                label="Clear on quit"
-                description="Delete non-pinned items on close"
+                label={t('settings.toggle.clearOnQuit')}
+                description={t('settings.toggle.clearOnQuitDesc')}
                 checked={settings.clearHistoryOnQuit}
                 onChange={(v) => updateSetting('clearHistoryOnQuit', v)}
               />
               <ToggleSetting
-                label="Snippet auto-expand"
-                description="Type a trigger anywhere to auto-paste snippet"
+                label={t('settings.toggle.snippetAutoExpand')}
+                description={t('settings.toggle.snippetAutoExpandDesc')}
                 checked={settings.snippetAutoExpand}
                 onChange={(v) => updateSetting('snippetAutoExpand', v)}
               />
@@ -130,17 +177,17 @@ export function SettingsPanel() {
 
             {/* Clip Expiration */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Auto-delete old clips</label>
+              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.expiration.label')}</label>
               <select
                 value={settings.expirationDays}
                 onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('expirationDays', v); }}
                 className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
               >
-                <option value={0}>Never</option>
-                <option value={7}>After 7 days</option>
-                <option value={14}>After 14 days</option>
-                <option value={30}>After 30 days</option>
-                <option value={90}>After 90 days</option>
+                <option value={0}>{t('settings.expiration.never')}</option>
+                <option value={7}>{t('settings.expiration.after7')}</option>
+                <option value={14}>{t('settings.expiration.after14')}</option>
+                <option value={30}>{t('settings.expiration.after30')}</option>
+                <option value={90}>{t('settings.expiration.after90')}</option>
               </select>
             </div>
 
@@ -152,8 +199,8 @@ export function SettingsPanel() {
 
             {/* Ignored Apps */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Ignored Apps</label>
-              <p className="text-[10px] text-muted-foreground">Clipboard from these apps won't be captured</p>
+              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.ignoredApps.label')}</label>
+              <p className="text-[10px] text-muted-foreground">{t('settings.ignoredApps.description')}</p>
               <IgnoredAppsList
                 apps={settings.ignoredApps}
                 onChange={(apps) => updateSetting('ignoredApps', apps)}
@@ -165,7 +212,7 @@ export function SettingsPanel() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Bot className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">AI Features</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.ai.label')}</span>
               </div>
 
               {/* Consent Status */}
@@ -183,10 +230,10 @@ export function SettingsPanel() {
                   )}
                   <div>
                     <span className="text-[11px] font-medium">
-                      {settings.aiConsentAccepted ? 'AI Consent Granted' : 'AI Consent Required'}
+                      {settings.aiConsentAccepted ? t('settings.ai.consentGranted') : t('settings.ai.consentRequired')}
                     </span>
                     {settings.aiConsentAccepted && settings.aiConsentDate && (
-                      <span className="text-[10px] text-muted-foreground ml-1.5">
+                      <span className="text-[10px] text-muted-foreground ms-1.5">
                         ({new Date(settings.aiConsentDate).toLocaleDateString()})
                       </span>
                     )}
@@ -201,20 +248,20 @@ export function SettingsPanel() {
                     }}
                     className="px-2 py-0.5 text-[10px] text-destructive hover:bg-destructive/10 rounded transition-colors cursor-pointer"
                   >
-                    Revoke
+                    {t('common.revoke')}
                   </button>
                 ) : (
                   <button
                     onClick={() => setIsAiConsentOpen(true)}
                     className="px-2 py-0.5 text-[10px] text-accent hover:bg-accent/10 rounded transition-colors cursor-pointer"
                   >
-                    Review & Accept
+                    {t('common.reviewAndAccept')}
                   </button>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-medium">Provider</label>
+                <label className="text-[11px] font-medium">{t('settings.ai.provider')}</label>
                 <select
                   value={settings.aiProvider}
                   onChange={(e) => updateSetting('aiProvider', e.target.value as 'anthropic' | 'openai' | 'gemini')}
@@ -233,10 +280,10 @@ export function SettingsPanel() {
 
               <div className="space-y-0.5">
                 <p className="text-[10px] text-muted-foreground">
-                  API key is stored locally and never sent anywhere except the provider.
+                  {t('settings.ai.apiKeyStoredLocally')}
                 </p>
                 <p className="text-[10px] text-yellow-500">
-                  AI actions are blocked for items containing sensitive data. A confirmation is shown before any data is sent.
+                  {t('settings.ai.sensitiveBlocked')}
                 </p>
               </div>
             </div>
@@ -250,12 +297,12 @@ export function SettingsPanel() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Shield className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Privacy & Reporting</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.privacy.label')}</span>
               </div>
 
               <ToggleSetting
-                label="Auto Error Reporting"
-                description="Automatically send crash reports"
+                label={t('settings.privacy.autoErrorReporting')}
+                description={t('settings.privacy.autoErrorReportingDesc')}
                 checked={autoErrorReporting}
                 onChange={setAutoErrorReporting}
               />
@@ -272,7 +319,7 @@ export function SettingsPanel() {
                 )}
               >
                 <MessageSquare className="w-3.5 h-3.5" />
-                Report Issue / Send Feedback
+                {t('settings.privacy.reportIssue')}
               </button>
               <button
                 onClick={() => setIsPrivacyOpen(true)}
@@ -282,7 +329,7 @@ export function SettingsPanel() {
                 )}
               >
                 <FileText className="w-3 h-3" />
-                Privacy Policy
+                {t('settings.privacy.privacyPolicy')}
               </button>
               <button
                 onClick={() => setIsEulaOpen(true)}
@@ -292,7 +339,7 @@ export function SettingsPanel() {
                 )}
               >
                 <FileText className="w-3 h-3" />
-                Terms of Use
+                {t('settings.privacy.termsOfUse')}
               </button>
             </div>
 
@@ -301,13 +348,13 @@ export function SettingsPanel() {
             <div className="space-y-2 pb-2">
               <div className="flex items-center gap-2">
                 <Info className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">About</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.about.label')}</span>
               </div>
               <div className="text-center space-y-1.5 py-2">
-                <div className="text-sm font-semibold">QlipLab</div>
+                <div className="text-sm font-semibold">{t('settings.about.appName')}</div>
                 <div className="text-[10px] text-muted-foreground">v{CONFIG.APP_VERSION}</div>
                 <div className="text-[10px] text-muted-foreground">
-                  Cross-platform clipboard manager
+                  {t('settings.about.description')}
                 </div>
               </div>
             </div>
@@ -355,7 +402,7 @@ function ToggleSetting({
         <div
           className={cn(
             'absolute top-0.5 w-4 h-4 rounded-full bg-background shadow-sm transition-all',
-            checked ? 'left-[18px]' : 'left-0.5'
+            checked ? 'ltr:left-[18px] rtl:right-[18px]' : 'ltr:left-0.5 rtl:right-0.5'
           )}
         />
       </button>
@@ -370,6 +417,7 @@ function ApiKeyInput({
   apiKey: string;
   onChange: (key: string) => void;
 }) {
+  const { t } = useTranslation();
   const [showKey, setShowKey] = useState(false);
   const [localKey, setLocalKey] = useState(apiKey);
 
@@ -385,7 +433,7 @@ function ApiKeyInput({
 
   return (
     <div className="space-y-1">
-      <label className="text-[11px] font-medium">API Key</label>
+      <label className="text-[11px] font-medium">{t('settings.ai.apiKey')}</label>
       <div className="relative">
         <input
           type={showKey ? 'text' : 'password'}
@@ -395,16 +443,16 @@ function ApiKeyInput({
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleBlur();
           }}
-          placeholder="sk-ant-... or sk-..."
+          placeholder={t('settings.ai.apiKeyPlaceholder')}
           className={cn(
-            'w-full px-3 py-1.5 pr-9 bg-surface border border-border rounded-md text-[11px] font-mono',
+            'w-full px-3 py-1.5 pe-9 bg-surface border border-border rounded-md text-[11px] font-mono',
             'outline-none focus:ring-2 focus:ring-accent'
           )}
         />
         <button
           type="button"
           onClick={() => setShowKey(!showKey)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 cursor-pointer"
+          className="absolute end-2 top-1/2 -translate-y-1/2 p-0.5 cursor-pointer"
         >
           {showKey ? (
             <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
@@ -424,6 +472,7 @@ function ShortcutSetting({
   shortcut: string;
   onChange: (s: string) => void;
 }) {
+  const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [display, setDisplay] = useState('');
 
@@ -477,28 +526,35 @@ function ShortcutSetting({
       <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">
         <div className="flex items-center gap-1.5">
           <Keyboard className="w-3.5 h-3.5" />
-          Global Shortcut
+          {t('settings.shortcut.label')}
         </div>
       </label>
       <button
         className={cn(
-          'w-full px-3 py-1.5 text-xs rounded-md border text-left font-mono transition-colors cursor-pointer',
+          'w-full px-3 py-1.5 text-xs rounded-md border text-start font-mono transition-colors cursor-pointer',
           isRecording
             ? 'border-accent bg-accent/10 text-accent animate-pulse'
             : 'border-border bg-surface hover:bg-surface-hover'
         )}
         onClick={() => setIsRecording(!isRecording)}
       >
-        {isRecording ? 'Press shortcut...' : display}
+        {isRecording ? t('settings.shortcut.recording') : display}
       </button>
       <p className="text-[10px] text-muted-foreground">
-        {isRecording ? 'Press ESC to cancel' : 'Click to record a new shortcut'}
+        {isRecording ? t('settings.shortcut.cancelHint') : t('settings.shortcut.recordHint')}
       </p>
     </div>
   );
 }
 
+const DATA_SECTION_LABELS: Record<string, string> = {
+  history: 'settings.dataManagement.history',
+  snippets: 'settings.dataManagement.snippets',
+  vault: 'settings.dataManagement.vault',
+};
+
 function DataManagement() {
+  const { t } = useTranslation();
   const [exportSections, setExportSections] = useState<ExportSection[]>(['history', 'snippets', 'vault']);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -512,9 +568,9 @@ function DataManagement() {
     if (exportSections.length === 0) return;
     try {
       const success = await exportData(exportSections);
-      if (success) setStatus({ type: 'success', message: 'Data exported successfully' });
+      if (success) setStatus({ type: 'success', message: t('settings.dataManagement.exportSuccess') });
     } catch (e) {
-      setStatus({ type: 'error', message: `Export failed: ${(e as Error).message}` });
+      setStatus({ type: 'error', message: t('settings.dataManagement.exportFailed', { error: (e as Error).message }) });
     }
     setTimeout(() => setStatus(null), 3000);
   };
@@ -527,7 +583,7 @@ function DataManagement() {
         setStatus({ type: 'success', message: `Imported ${parts.join(', ')}` });
       }
     } catch (e) {
-      setStatus({ type: 'error', message: `Import failed: ${(e as Error).message}` });
+      setStatus({ type: 'error', message: t('settings.dataManagement.importFailed', { error: (e as Error).message }) });
     }
     setTimeout(() => setStatus(null), 5000);
   };
@@ -536,11 +592,11 @@ function DataManagement() {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Download className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Data Management</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.dataManagement.label')}</span>
       </div>
 
       <div className="space-y-2">
-        <p className="text-[10px] text-muted-foreground">Select sections to export</p>
+        <p className="text-[10px] text-muted-foreground">{t('settings.dataManagement.selectSections')}</p>
         <div className="flex gap-2">
           {(['history', 'snippets', 'vault'] as ExportSection[]).map(section => (
             <button
@@ -554,7 +610,7 @@ function DataManagement() {
               )}
             >
               {exportSections.includes(section) && <Check className="w-3 h-3" />}
-              {section.charAt(0).toUpperCase() + section.slice(1)}
+              {t(DATA_SECTION_LABELS[section])}
             </button>
           ))}
         </div>
@@ -570,7 +626,7 @@ function DataManagement() {
           )}
         >
           <Download className="w-3.5 h-3.5" />
-          Export
+          {t('settings.dataManagement.export')}
         </button>
         <button
           onClick={handleImport}
@@ -580,7 +636,7 @@ function DataManagement() {
           )}
         >
           <Upload className="w-3.5 h-3.5" />
-          Import
+          {t('settings.dataManagement.import')}
         </button>
       </div>
 
@@ -594,7 +650,7 @@ function DataManagement() {
       )}
 
       <p className="text-[10px] text-muted-foreground">
-        Vault items are exported encrypted. Import merges data without duplicates.
+        {t('settings.dataManagement.encryptedNote')}
       </p>
     </div>
   );
@@ -625,6 +681,7 @@ function AutoCommandsSection({
   commands: AutoCommand[];
   onChange: (cmds: AutoCommand[]) => void;
 }) {
+  const { t } = useTranslation();
   const addCommand = () => {
     const id = `ac_${Date.now()}`;
     onChange([...commands, { id, format: 'json', transformId: 'json_beautify', enabled: true }]);
@@ -650,24 +707,24 @@ function AutoCommandsSection({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Zap className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">Auto-Commands</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.autoCommands.label')}</span>
         </div>
         <button
           onClick={addCommand}
           className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-accent hover:bg-accent/10 rounded transition-colors cursor-pointer"
         >
           <Plus className="w-3 h-3" />
-          Add Rule
+          {t('settings.autoCommands.addRule')}
         </button>
       </div>
 
       <p className="text-[10px] text-muted-foreground">
-        Automatically transform clipboard content when a specific format is detected.
+        {t('settings.autoCommands.description')}
       </p>
 
       {commands.length === 0 ? (
         <p className="text-[10px] text-muted-foreground/50 text-center py-2">
-          No auto-commands configured
+          {t('settings.autoCommands.empty')}
         </p>
       ) : (
         <div className="space-y-2">
@@ -688,7 +745,7 @@ function AutoCommandsSection({
               >
                 <div className={cn(
                   'absolute top-0.5 w-3 h-3 rounded-full bg-background shadow-sm transition-all',
-                  cmd.enabled ? 'left-[14px]' : 'left-0.5'
+                  cmd.enabled ? 'ltr:left-[14px] rtl:right-[14px]' : 'ltr:left-0.5 rtl:right-0.5'
                 )} />
               </button>
 
@@ -742,6 +799,7 @@ function IgnoredAppsList({
   apps: string[];
   onChange: (apps: string[]) => void;
 }) {
+  const { t } = useTranslation();
   const [allApps, setAllApps] = useState<{ name: string; running: boolean }[]>([]);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [filterText, setFilterText] = useState('');
@@ -783,14 +841,14 @@ function IgnoredAppsList({
         className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] text-accent hover:bg-accent/10 rounded-md transition-colors cursor-pointer"
       >
         <Plus className="w-3 h-3" />
-        {isPickerOpen ? 'Close' : 'Add app'}
+        {isPickerOpen ? t('settings.ignoredApps.close') : t('settings.ignoredApps.addApp')}
       </button>
 
       {isPickerOpen && (
         <div className="border border-border rounded-md overflow-hidden">
           <input
             type="text"
-            placeholder="Search apps..."
+            placeholder={t('settings.ignoredApps.searchPlaceholder')}
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
             className="w-full px-2.5 py-1.5 bg-surface border-b border-border text-[11px] outline-none focus:ring-1 focus:ring-accent"
@@ -799,14 +857,14 @@ function IgnoredAppsList({
           <div className="max-h-[150px] overflow-y-auto">
             {filteredApps.length === 0 ? (
               <p className="text-[10px] text-muted-foreground text-center py-2">
-                {allApps.length === 0 ? 'Loading...' : 'No apps found'}
+                {allApps.length === 0 ? t('common.loading') : t('settings.ignoredApps.noApps')}
               </p>
             ) : (
               filteredApps.map((app) => (
                 <button
                   key={app.name}
                   onClick={() => handleAddApp(app.name)}
-                  className="w-full px-2.5 py-1 text-left text-[11px] hover:bg-surface-hover transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="w-full px-2.5 py-1 text-start text-[11px] hover:bg-surface-hover transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   {app.running && (
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useMemo, useEffect, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   MoreVertical, Pencil, Image as ImageIcon, Loader2, GripVertical,
   Code, Braces, Globe, Key, Hash, Clock, Palette, Type,
@@ -15,6 +16,7 @@ import { useAppStore } from '@/stores/appStore';
 import { useTagStore } from '@/stores/tagStore';
 import type { Tag } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
+import i18n from '@/i18n';
 import type { ClipboardItem, DetectedFormat } from '@/types/clipboard';
 
 // Stable empty array references to prevent unnecessary re-renders
@@ -70,10 +72,10 @@ function formatRelativeTime(date: Date): string {
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
-  if (days > 0) return `${days}d`;
-  if (hours > 0) return `${hours}h`;
-  if (minutes > 0) return `${minutes}m`;
-  return 'now';
+  if (days > 0) return i18n.t('common.timeDays', { count: days });
+  if (hours > 0) return i18n.t('common.timeHours', { count: hours });
+  if (minutes > 0) return i18n.t('common.timeMinutes', { count: minutes });
+  return i18n.t('common.timeNow');
 }
 
 function highlightMatch(text: string, query: string): React.ReactNode {
@@ -122,6 +124,7 @@ export const HistoryItem = memo(function HistoryItem({
   onQueueToggle,
   onQuickView,
 }: HistoryItemProps) {
+  const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [isPasting, setIsPasting] = useState(false);
@@ -289,7 +292,7 @@ export const HistoryItem = memo(function HistoryItem({
     <div
       role="option"
       aria-selected={isSelected}
-      aria-label={item.contentType === 'image' ? 'Image clip' : item.content.slice(0, 80)}
+      aria-label={item.contentType === 'image' ? t('history.imageClip') : item.content.slice(0, 80)}
       className={cn(
         'relative flex items-center gap-2 h-8 px-2.5 rounded-md cursor-pointer',
         'transition-[background-color] duration-100 ease-out',
@@ -354,7 +357,7 @@ export const HistoryItem = memo(function HistoryItem({
             )}
           />
           <span className="text-xs text-foreground/55 truncate">
-            {isCurrentlyPasting ? 'Pasting...' : 'Image'}
+            {isCurrentlyPasting ? t('common.pasting') : t('common.image')}
           </span>
         </div>
       ) : (
@@ -392,7 +395,7 @@ export const HistoryItem = memo(function HistoryItem({
         <span className="text-[9px] text-foreground/35 shrink-0 max-w-[50px] truncate">{item.sourceApp}</span>
       )}
       {/* Timestamp — dimmest */}
-      <span className="text-[10px] text-foreground/25 shrink-0 w-7 text-right">{formatRelativeTime(item.createdAt)}</span>
+      <span className="text-[10px] text-foreground/25 shrink-0 w-7 text-end">{formatRelativeTime(item.createdAt)}</span>
       {!isDiffMode && !isQueueMode && (
         <div className={cn(
           'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
@@ -402,14 +405,14 @@ export const HistoryItem = memo(function HistoryItem({
               className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-grab active:cursor-grabbing"
               onMouseDown={handleDragStart}
               onClick={(e) => e.stopPropagation()}
-              title={item.contentType === 'image' ? 'Drag image as file' : 'Drag to another app'}
+              title={item.contentType === 'image' ? t('history.dragImage') : t('history.dragText')}
             >
               <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           <button
             className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
             onClick={handleQuickView}
-            title="Edit"
+            title={t('common.edit')}
           >
             <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
@@ -419,7 +422,7 @@ export const HistoryItem = memo(function HistoryItem({
             onMouseEnter={openMenu}
             onMouseLeave={scheduleCloseMenu}
             onClick={(e) => e.stopPropagation()}
-            title="Actions (right-click)"
+            title={t('history.actionsTooltip')}
           >
             <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
           </button>

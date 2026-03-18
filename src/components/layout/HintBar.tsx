@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { GitCompareArrows, ListOrdered, ArrowUp, ArrowDown, CornerDownLeft } from 'lucide-react';
 import { useAppStore } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
@@ -23,6 +24,7 @@ export function HintBar() {
   const setQueueMode = useAppStore((state) => state.setQueueMode);
   const cancelQueue = useAppStore((state) => state.cancelQueue);
   const { isOpen: previewOpen, close: closePreview } = usePreviewStore();
+  const { t } = useTranslation();
 
   const handleDiffClick = () => {
     if (previewOpen) {
@@ -53,11 +55,11 @@ export function HintBar() {
   if (isQueueMode) {
     return (
       <div role="status" aria-live="polite" className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
-        <span className="text-accent font-medium">Queue Mode</span>
+        <span className="text-accent font-medium">{t('hintBar.queueMode')}</span>
         <span className="text-muted-foreground">
           {pasteQueue.length === 0
-            ? 'Click items to add to queue'
-            : `${pasteQueue.length} item${pasteQueue.length > 1 ? 's' : ''} selected`}
+            ? t('hintBar.clickToAddToQueue')
+            : t('hintBar.itemsSelected', { count: pasteQueue.length })}
         </span>
         {pasteQueue.length > 0 && (
           <button
@@ -65,7 +67,7 @@ export function HintBar() {
             className="flex items-center gap-1 px-2 py-0.5 bg-accent text-accent-foreground rounded transition-colors cursor-pointer"
           >
             <CornerDownLeft className="w-2.5 h-2.5" />
-            <span>Start</span>
+            <span>{t('hintBar.start')}</span>
           </button>
         )}
         <button
@@ -73,7 +75,7 @@ export function HintBar() {
           className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
           <Kbd>ESC</Kbd>
-          <span>cancel</span>
+          <span>{t('hintBar.cancel')}</span>
         </button>
       </div>
     );
@@ -83,17 +85,17 @@ export function HintBar() {
   if (isDiffMode) {
     return (
       <div role="status" aria-live="polite" className={cn('h-9 flex items-center justify-center gap-4 px-3', 'elevation-top text-xs bg-accent/10')}>
-        <span className="text-accent font-medium">Diff Mode</span>
+        <span className="text-accent font-medium">{t('hintBar.diffMode')}</span>
         <span className="text-muted-foreground">
-          {diffSelectedIds.length === 0 && 'Select first item'}
-          {diffSelectedIds.length === 1 && 'Select second item'}
+          {diffSelectedIds.length === 0 && t('hintBar.selectFirstItem')}
+          {diffSelectedIds.length === 1 && t('hintBar.selectSecondItem')}
         </span>
         <button
           onClick={handleDiffClick}
           className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
           <Kbd>ESC</Kbd>
-          <span>cancel</span>
+          <span>{t('hintBar.cancel')}</span>
         </button>
       </div>
     );
@@ -106,11 +108,11 @@ export function HintBar() {
         <div className="flex items-center gap-1">
           <Kbd><ArrowUp className="w-2.5 h-2.5" /></Kbd>
           <Kbd><ArrowDown className="w-2.5 h-2.5" /></Kbd>
-          <span className="ml-1">nav</span>
+          <span className="ms-1">{t('hintBar.nav')}</span>
         </div>
         <div className="flex items-center gap-1">
           <Kbd><CornerDownLeft className="w-2.5 h-2.5" /></Kbd>
-          <span className="ml-1">paste</span>
+          <span className="ms-1">{t('hintBar.paste')}</span>
         </div>
       </div>
 
@@ -125,7 +127,7 @@ export function HintBar() {
             )}
           >
             <ListOrdered className="w-3.5 h-3.5" />
-            <span>Queue</span>
+            <span>{t('hintBar.queue')}</span>
           </button>
         )}
         <button
@@ -136,7 +138,7 @@ export function HintBar() {
           )}
         >
           <GitCompareArrows className="w-3.5 h-3.5" />
-          <span>Diff</span>
+          <span>{t('hintBar.diff')}</span>
           <Kbd>⌥D</Kbd>
         </button>
       </div>

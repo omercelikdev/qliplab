@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldAlert, ExternalLink, CheckSquare, Square, Loader2, AlertTriangle } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) {
+  const { t } = useTranslation();
   const [checks, setChecks] = useState([false, false, false]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,9 +47,9 @@ export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) 
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg === 'CONSENT_SERVER_FAILED') {
-        setError('Could not record your consent on our server. Please check your internet connection and try again. Consent cannot be granted without server confirmation.');
+        setError(t('ai.consent.error.serverFailed'));
       } else {
-        setError(`An error occurred: ${msg}. Please try again.`);
+        setError(t('ai.consent.error.generic', { error: msg }));
       }
     } finally {
       setIsSubmitting(false);
@@ -75,7 +77,7 @@ export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) 
             <div className="h-12 flex items-center justify-between px-4 border-b border-border shrink-0">
               <div className="flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4 text-yellow-500" />
-                <h2 className="font-semibold text-sm">AI Data Processing Consent</h2>
+                <h2 className="font-semibold text-sm">{t('ai.consent.title')}</h2>
               </div>
               <button
                 onClick={onClose}
@@ -91,36 +93,32 @@ export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) 
               {/* Warning Banner */}
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
                 <p className="text-xs font-medium text-yellow-600 dark:text-yellow-400">
-                  AI features require sending your clipboard content to external servers.
-                  Please read carefully before proceeding.
+                  {t('ai.consent.warningBanner')}
                 </p>
               </div>
 
               {/* What happens */}
               <section className="space-y-2">
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  What happens when you use AI features
+                  {t('ai.consent.whatHappensTitle')}
                 </h3>
                 <ul className="space-y-1.5 text-xs text-foreground/80">
                   <li className="flex gap-2">
                     <ExternalLink className="w-3.5 h-3.5 mt-0.5 shrink-0 text-muted-foreground" />
                     <span>
-                      Your clipboard text is sent to <strong>{provider}</strong>'s servers
-                      for processing via their API.
+                      {t('ai.consent.whatHappens.sentToProvider', { provider })}
                     </span>
                   </li>
                   <li className="flex gap-2">
                     <ExternalLink className="w-3.5 h-3.5 mt-0.5 shrink-0 text-muted-foreground" />
                     <span>
-                      Data is transmitted over encrypted HTTPS, but is processed on
-                      third-party infrastructure outside your control.
+                      {t('ai.consent.whatHappens.encrypted')}
                     </span>
                   </li>
                   <li className="flex gap-2">
                     <ExternalLink className="w-3.5 h-3.5 mt-0.5 shrink-0 text-muted-foreground" />
                     <span>
-                      {provider}'s own privacy policy and data retention rules apply to
-                      the content you send.
+                      {t('ai.consent.whatHappens.providerPolicy', { provider })}
                     </span>
                   </li>
                 </ul>
@@ -129,20 +127,20 @@ export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) 
               {/* Safety measures */}
               <section className="space-y-2">
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Safety measures in place
+                  {t('ai.consent.safetyTitle')}
                 </h3>
-                <ul className="space-y-1 text-xs text-foreground/80 list-disc pl-4">
-                  <li>AI actions are automatically blocked for items detected as sensitive (passwords, API keys, financial data)</li>
-                  <li>A confirmation prompt is shown before each AI request</li>
-                  <li>Your API key is stored locally and never shared with QlipLab</li>
-                  <li>No data is sent without your explicit action</li>
+                <ul className="space-y-1 text-xs text-foreground/80 list-disc ps-4">
+                  <li>{t('ai.consent.safety.sensitiveBlocked')}</li>
+                  <li>{t('ai.consent.safety.confirmPrompt')}</li>
+                  <li>{t('ai.consent.safety.keyStoredLocally')}</li>
+                  <li>{t('ai.consent.safety.noDataWithoutAction')}</li>
                 </ul>
               </section>
 
               {/* Consent checkboxes */}
               <section className="space-y-2 pt-2 border-t border-border">
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  I acknowledge and accept
+                  {t('ai.consent.acknowledgeTitle')}
                 </h3>
                 {CONSENT_TERMS.map((term, i) => (
                   <ConsentCheckbox
@@ -166,7 +164,7 @@ export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) 
 
             {/* Footer */}
             <div className="px-4 pt-2 text-[10px] text-muted-foreground text-center">
-              Terms v{CONSENT_TERMS_VERSION} — Your consent will be recorded locally and on our server
+              {t('ai.consent.termsVersion', { version: CONSENT_TERMS_VERSION })}
             </div>
             <div className="p-4 pt-2 flex gap-2">
               <button
@@ -174,7 +172,7 @@ export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) 
                 disabled={isSubmitting}
                 className="flex-1 py-2 text-xs rounded-lg border border-border hover:bg-surface-hover transition-colors cursor-pointer disabled:opacity-50"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleAccept}
@@ -189,10 +187,10 @@ export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) 
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Recording...
+                    {t('common.recording')}
                   </>
                 ) : (
-                  'I Accept — Enable AI'
+                  t('ai.consent.accept')
                 )}
               </button>
             </div>
@@ -218,7 +216,7 @@ function ConsentCheckbox({
     <button
       onClick={onChange}
       disabled={disabled}
-      className="flex items-start gap-2 text-left w-full group cursor-pointer disabled:opacity-50"
+      className="flex items-start gap-2 text-start w-full group cursor-pointer disabled:opacity-50"
     >
       {checked ? (
         <CheckSquare className="w-4 h-4 mt-0.5 shrink-0 text-accent" />

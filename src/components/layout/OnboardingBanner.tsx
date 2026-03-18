@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X, Clipboard, ArrowUpDown, Keyboard, GitCompare } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 export function OnboardingBanner() {
   const { settings, updateSetting } = useSettingsStore();
+  const { t } = useTranslation();
 
   if (settings.onboardingSeen) return null;
 
@@ -18,12 +20,12 @@ export function OnboardingBanner() {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-1.5 flex-1">
-          <p className="text-xs font-medium">Welcome to qliplab</p>
+          <p className="text-xs font-medium">{t('onboarding.welcome')}</p>
           <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-            <Hint icon={Clipboard} text="Copy anything — it appears here" />
-            <Hint icon={Keyboard} text="Enter to paste to previous app" />
-            <Hint icon={ArrowUpDown} text="Arrow keys to navigate" />
-            <Hint icon={GitCompare} text="Option+D to compare two items" />
+            <Hint icon={Clipboard} text={t('onboarding.hint.copyAnything')} />
+            <Hint icon={Keyboard} text={t('onboarding.hint.enterToPaste')} />
+            <Hint icon={ArrowUpDown} text={t('onboarding.hint.arrowKeys')} />
+            <Hint icon={GitCompare} text={t('onboarding.hint.optionD')} />
           </div>
         </div>
         <button

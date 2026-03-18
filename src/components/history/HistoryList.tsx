@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Clipboard, Search, Tag, X } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
@@ -15,6 +16,8 @@ import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
 export function HistoryList() {
+  const { t } = useTranslation();
+
   // Data selectors — trigger re-render on data change
   const items = useHistoryStore((state) => state.items);
   const totalCount = useHistoryStore((state) => state.totalCount);
@@ -141,7 +144,7 @@ export function HistoryList() {
       <div className="h-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-2 text-muted-foreground">
           <div className="w-6 h-6 border-2 border-muted-foreground/30 border-t-accent rounded-full animate-spin" />
-          <span className="text-sm">Loading...</span>
+          <span className="text-sm">{t('common.loading')}</span>
         </div>
       </div>
     );
@@ -155,9 +158,9 @@ export function HistoryList() {
             <Clipboard className="w-6 h-6 text-muted-foreground" />
           </div>
           <div>
-            <h3 className="text-sm font-medium text-foreground mb-1">No clips yet</h3>
+            <h3 className="text-sm font-medium text-foreground mb-1">{t('history.emptyState.title')}</h3>
             <p className="text-xs text-muted-foreground">
-              Copy something to get started. Your clipboard history will appear here.
+              {t('history.emptyState.description')}
             </p>
           </div>
         </div>
@@ -196,7 +199,7 @@ export function HistoryList() {
               <button
                 onClick={() => setActiveTagFilter(activeTagFilter === tag.id ? null : tag.id)}
                 className={cn(
-                  'flex items-center gap-1 pl-2 pr-1.5 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer border',
+                  'flex items-center gap-1 ps-2 pe-1.5 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer border',
                   activeTagFilter === tag.id
                     ? 'border-accent bg-accent/10 text-accent'
                     : 'border-transparent text-muted-foreground hover:bg-surface-hover'
@@ -209,9 +212,9 @@ export function HistoryList() {
                 {tag.name}
                 <span
                   role="button"
-                  className="ml-0.5 p-0.5 rounded-full opacity-0 group-hover/tag:opacity-100 hover:bg-destructive/20 hover:text-destructive transition-all cursor-pointer"
+                  className="ms-0.5 p-0.5 rounded-full opacity-0 group-hover/tag:opacity-100 hover:bg-destructive/20 hover:text-destructive transition-all cursor-pointer"
                   onClick={(e) => { e.stopPropagation(); deleteTag(tag.id); }}
-                  title="Delete tag"
+                  title={t('history.deleteTag')}
                 >
                   <X className="w-2.5 h-2.5" />
                 </span>
@@ -222,7 +225,7 @@ export function HistoryList() {
             <button
               onClick={() => setActiveTagFilter(null)}
               className="p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
-              title="Clear tag filter"
+              title={t('history.clearTagFilter')}
             >
               <X className="w-3 h-3" />
             </button>
@@ -230,7 +233,7 @@ export function HistoryList() {
         </div>
       )}
 
-      <div ref={listRef} role="listbox" aria-label="Clipboard history" className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div ref={listRef} role="listbox" aria-label={t('history.ariaLabel')} className="flex-1 overflow-y-auto overflow-x-hidden">
       {items.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
@@ -238,26 +241,26 @@ export function HistoryList() {
               <Search className="w-6 h-6 text-muted-foreground" />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-foreground mb-1">No results</h3>
+              <h3 className="text-sm font-medium text-foreground mb-1">{t('common.noResults')}</h3>
               <p className="text-xs text-muted-foreground">
-                No items match your filters
+                {t('history.noResults.description')}
               </p>
             </div>
           </div>
         </div>
       ) : (
-      <div className="pl-3 pr-1.5 py-1 space-y-0.5">
+      <div className="ps-3 pe-1.5 py-1 space-y-0.5">
         {orderedItems.map((item, index) => (
           <div key={item.id}>
             {index === 0 && pinnedCount > 0 && (
               <div className="flex items-center gap-2 px-1 pt-1 pb-1.5">
-                <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Pinned</span>
+                <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">{t('common.pinned')}</span>
                 <div className="flex-1 dotted-separator" />
               </div>
             )}
             {index === pinnedCount && pinnedCount > 0 && (
               <div className="flex items-center gap-2 px-1 pt-1.5 pb-1.5">
-                <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">Recent</span>
+                <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">{t('common.recent')}</span>
                 <div className="flex-1 dotted-separator" />
               </div>
             )}
@@ -292,7 +295,7 @@ export function HistoryList() {
             disabled={isLoadingMore}
             className="w-full py-2 text-center text-[10px] text-muted-foreground hover:text-foreground hover:bg-surface-hover rounded-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
           >
-            {isLoadingMore ? 'Loading...' : `Load more (${remainingCount})`}
+            {isLoadingMore ? t('history.loadingMore') : t('history.loadMore', { count: remainingCount })}
           </button>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { useRef, useCallback, useEffect, Suspense, lazy, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon, Code, Eye, Plus, ChevronRight } from 'lucide-react';
 import { usePreviewStore, getMonacoLanguage } from '@/stores/previewStore';
@@ -23,6 +24,7 @@ const MonacoDiffEditor = lazy(() =>
 );
 
 export function PreviewPanel() {
+  const { t } = useTranslation();
   const { isOpen, mode, editedContent, transformType, sourceItem, diffItems, diffViewMode, setDiffViewMode, pipelineSteps, addPipelineStep, removePipelineStep, close } = usePreviewStore();
   const { settings } = useSettingsStore();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -129,13 +131,13 @@ export function PreviewPanel() {
         const rightName = getFormatDisplayName(right.detectedFormat);
         return leftName === rightName ? leftName : `${leftName} vs ${rightName}`;
       }
-      return 'Compare';
+      return t('preview.compare');
     }
     if (mode === 'view') {
       if (sourceItem?.contentType === 'image') {
-        return 'Image';
+        return t('preview.image');
       }
-      return sourceItem ? getFormatDisplayName(sourceItem.detectedFormat) : 'View';
+      return sourceItem ? getFormatDisplayName(sourceItem.detectedFormat) : t('preview.view');
     }
     return transformType;
   };
@@ -143,8 +145,8 @@ export function PreviewPanel() {
   const isImageMode = sourceItem?.contentType === 'image';
 
   const getModeLabel = () => {
-    if (mode === 'diff') return 'Diff';
-    return mode === 'view' ? 'Edit' : 'Transform';
+    if (mode === 'diff') return t('preview.diff');
+    return mode === 'view' ? t('common.edit') : t('preview.transform');
   };
 
   const panelKey = isDiffMode
@@ -159,7 +161,7 @@ export function PreviewPanel() {
       animate={{ opacity: 1, flex: 1 }}
       exit={{ opacity: 0, flex: 0 }}
       transition={{ duration: 0.15 }}
-      className="h-full border-l border-border flex flex-col bg-background overflow-hidden"
+      className="h-full border-s border-border flex flex-col bg-background overflow-hidden"
     >
       {/* Header */}
       <div className="h-9 flex items-center justify-between px-3 border-b border-border/50 bg-surface/30">
@@ -191,7 +193,7 @@ export function PreviewPanel() {
                 )}
               >
                 <Code className="w-3 h-3" />
-                Source
+                {t('preview.source')}
               </button>
               <button
                 onClick={() => setShowHtmlPreview(true)}
@@ -203,7 +205,7 @@ export function PreviewPanel() {
                 )}
               >
                 <Eye className="w-3 h-3" />
-                Render
+                {t('preview.render')}
               </button>
             </div>
           )}
@@ -221,7 +223,7 @@ export function PreviewPanel() {
                 )}
               >
                 <Columns2 className="w-3 h-3" />
-                Side
+                {t('preview.side')}
               </button>
               <button
                 onClick={() => setDiffViewMode('inline')}
@@ -233,7 +235,7 @@ export function PreviewPanel() {
                 )}
               >
                 <Rows2 className="w-3 h-3" />
-                Inline
+                {t('preview.inline')}
               </button>
             </div>
           )}
@@ -241,7 +243,7 @@ export function PreviewPanel() {
           <button
             onClick={close}
             className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"
-            title="Close (Esc)"
+            title={t('preview.closeEsc')}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -285,7 +287,7 @@ export function PreviewPanel() {
             </Suspense>
           ) : (
             <div className="h-full flex items-center justify-center text-muted-foreground">
-              Select two items to compare
+              {t('preview.selectTwoItems')}
             </div>
           )
         ) : showHtmlPreview && isMarkdown && sourceItem ? (
@@ -312,10 +314,10 @@ export function PreviewPanel() {
                   : copyStatus === 'fail' ? 'bg-destructive/10 text-destructive'
                   : 'bg-surface hover:bg-surface-hover'
               )}
-              title="Copy to clipboard"
+              title={t('preview.copyToClipboard')}
             >
               <Copy className="w-3.5 h-3.5" />
-              {copyStatus === 'ok' ? 'Copied' : copyStatus === 'fail' ? 'Failed' : 'Copy'}
+              {copyStatus === 'ok' ? t('common.copied') : copyStatus === 'fail' ? t('common.failed') : t('common.copy')}
             </button>
             <button
               onClick={handlePaste}
@@ -323,9 +325,9 @@ export function PreviewPanel() {
                 'flex items-center gap-1.5 px-2 py-1 text-xs cursor-pointer',
                 'bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors'
               )}
-              title="Paste to previous app"
+              title={t('preview.pasteToApp')}
             >
-              <ClipboardPaste className="w-3.5 h-3.5" /> Paste
+              <ClipboardPaste className="w-3.5 h-3.5" /> {t('common.paste')}
             </button>
           </div>
         </div>
@@ -335,8 +337,10 @@ export function PreviewPanel() {
 }
 
 function EditorStats({ content, isImage }: { content: string; isImage?: boolean }) {
+  const { t } = useTranslation();
+
   if (isImage) {
-    return <span className="text-[10px] text-muted-foreground">Image</span>;
+    return <span className="text-[10px] text-muted-foreground">{t('preview.image')}</span>;
   }
 
   const lines = content.split('\n').length;
@@ -345,7 +349,7 @@ function EditorStats({ content, isImage }: { content: string; isImage?: boolean 
 
   return (
     <span className="text-[10px] text-muted-foreground">
-      {lines} {lines === 1 ? 'line' : 'lines'} · {words} {words === 1 ? 'word' : 'words'} · {chars} {chars === 1 ? 'char' : 'chars'}
+      {t('preview.stats.lines', { count: lines })} · {t('preview.stats.words', { count: words })} · {t('preview.stats.chars', { count: chars })}
     </span>
   );
 }
@@ -367,6 +371,8 @@ function PipelineBar({
   onTogglePicker: () => void;
   onClosePicker: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="relative border-b border-border/50 bg-surface/20">
       <div className="flex items-center gap-1 px-3 py-1.5 overflow-x-auto">
@@ -399,7 +405,7 @@ function PipelineBar({
           )}
         >
           <Plus className="w-3 h-3" />
-          Transform
+          {t('preview.addTransform')}
         </button>
       </div>
 
@@ -426,6 +432,7 @@ function TransformPicker({
   onSelect: (transformId: string) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState('');
   const pickerRef = useRef<HTMLDivElement>(null);
 
@@ -470,7 +477,7 @@ function TransformPicker({
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Search transforms..."
+          placeholder={t('preview.searchTransforms')}
           className="w-full px-2 py-1 text-xs bg-background border border-border rounded outline-none focus:ring-1 focus:ring-accent"
           autoFocus
         />
@@ -480,13 +487,13 @@ function TransformPicker({
         {filteredRecommended.length > 0 && (
           <div>
             <div className="px-2 py-1 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              Recommended
+              {t('preview.recommended')}
             </div>
             {filteredRecommended.map((t) => (
               <button
                 key={t.id}
                 onClick={() => onSelect(t.id)}
-                className="w-full text-left px-2 py-1 text-xs hover:bg-surface-hover rounded transition-colors cursor-pointer"
+                className="w-full text-start px-2 py-1 text-xs hover:bg-surface-hover rounded transition-colors cursor-pointer"
               >
                 {t.label}
               </button>
@@ -499,13 +506,13 @@ function TransformPicker({
           <div>
             {filteredRecommended.length > 0 && <div className="h-px bg-border/50 my-1" />}
             <div className="px-2 py-1 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              Other
+              {t('preview.other')}
             </div>
             {filteredOthers.map((t) => (
               <button
                 key={t.id}
                 onClick={() => onSelect(t.id)}
-                className="w-full text-left px-2 py-1 text-xs hover:bg-surface-hover rounded transition-colors cursor-pointer text-muted-foreground"
+                className="w-full text-start px-2 py-1 text-xs hover:bg-surface-hover rounded transition-colors cursor-pointer text-muted-foreground"
               >
                 {t.label}
               </button>
@@ -515,7 +522,7 @@ function TransformPicker({
 
         {filteredRecommended.length === 0 && filteredOthers.length === 0 && (
           <div className="p-3 text-center text-xs text-muted-foreground">
-            No transforms match "{filter}"
+            {t('preview.noTransformsMatch', { query: filter })}
           </div>
         )}
       </div>
@@ -535,11 +542,13 @@ function RenderedPreview({ html }: { html: string }) {
 }
 
 function DiffSkeleton() {
+  const { t } = useTranslation();
+
   return (
     <div className="h-full w-full flex items-center justify-center bg-surface/50">
       <div className="flex flex-col items-center gap-2">
         <div className="w-5 h-5 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
-        <span className="text-xs text-muted-foreground">Loading diff view...</span>
+        <span className="text-xs text-muted-foreground">{t('common.loadingDiffView')}</span>
       </div>
     </div>
   );

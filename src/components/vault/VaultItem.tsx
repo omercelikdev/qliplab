@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, Trash2, Pin, PinOff, Pencil, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
@@ -25,6 +26,7 @@ interface VaultItemProps {
 }
 
 export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) {
+  const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -119,7 +121,7 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
       {/* Title + masked value */}
       <span className="flex-1 min-w-0 truncate text-xs">
         <span className="font-medium">{item.title}</span>
-        <span className="text-foreground/35 ml-1.5 font-mono text-[11px]">
+        <span className="text-foreground/35 ms-1.5 font-mono text-[11px]">
           {isRevealed ? getMainValue() : getMaskedPreview()}
         </span>
       </span>
@@ -132,7 +134,7 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
         <button
           onClick={(e) => { e.stopPropagation(); togglePin(item.id); }}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title={item.isPinned ? 'Unpin' : 'Pin'}
+          title={item.isPinned ? t('common.unpin') : t('common.pin')}
         >
           {item.isPinned
             ? <PinOff className="w-3.5 h-3.5 text-accent" />
@@ -142,7 +144,7 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
         <button
           onClick={(e) => { e.stopPropagation(); setIsRevealed(!isRevealed); }}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title={isRevealed ? 'Hide' : 'Reveal'}
+          title={isRevealed ? t('vault.hide') : t('vault.reveal')}
         >
           {isRevealed
             ? <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
@@ -152,14 +154,14 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
         <button
           onClick={(e) => { e.stopPropagation(); onEdit?.(item); }}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title="Edit"
+          title={t('common.edit')}
         >
           <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
           className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center text-destructive cursor-pointer"
-          title="Delete"
+          title={t('common.delete')}
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
@@ -167,8 +169,8 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
 
       <ConfirmDialog
         isOpen={showDeleteConfirm}
-        title="Delete Vault Item"
-        message={`"${item.title}" will be permanently deleted. This cannot be undone.`}
+        title={t('vault.deleteTitle')}
+        message={t('vault.deleteMessage', { title: item.title })}
         onConfirm={() => { setShowDeleteConfirm(false); deleteItem(item.id); }}
         onCancel={() => setShowDeleteConfirm(false)}
       />

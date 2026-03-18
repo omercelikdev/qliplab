@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScrollText, X } from 'lucide-react';
 import { EULA_TEXT } from '@/lib/eula';
@@ -9,6 +10,7 @@ interface EulaViewerDialogProps {
 }
 
 export function EulaViewerDialog({ isOpen, onClose }: EulaViewerDialogProps) {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {isOpen && (
@@ -28,7 +30,7 @@ export function EulaViewerDialog({ isOpen, onClose }: EulaViewerDialogProps) {
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 shrink-0">
               <div className="flex items-center gap-2">
                 <ScrollText className="w-5 h-5 text-accent" />
-                <h2 className="text-sm font-semibold">Terms of Use</h2>
+                <h2 className="text-sm font-semibold">{t('settings.privacy.termsOfUse')}</h2>
               </div>
               <button
                 onClick={onClose}
@@ -54,7 +56,7 @@ export function EulaViewerDialog({ isOpen, onClose }: EulaViewerDialogProps) {
                   'bg-surface-hover text-foreground hover:bg-border'
                 )}
               >
-                Close
+                {t('common.close')}
               </button>
             </div>
           </motion.div>

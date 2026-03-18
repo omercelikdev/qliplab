@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { cn } from '@/lib/utils';
 
 export function VaultLock() {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -39,9 +41,9 @@ export function VaultLock() {
     setError('');
     const result = await unlock(password);
     if (result === 'locked_out') {
-      setError('Too many attempts');
+      setError(t('vault.lock.tooManyAttemptsError'));
     } else if (!result) {
-      setError('Incorrect password');
+      setError(t('vault.lock.incorrectPassword'));
     }
     setPassword('');
   };
@@ -56,12 +58,12 @@ export function VaultLock() {
         )}
       </div>
       <h2 className="text-lg font-semibold mb-2">
-        {isLockedOut ? 'Too Many Attempts' : 'Vault Locked'}
+        {isLockedOut ? t('vault.lock.tooManyAttempts') : t('vault.lock.title')}
       </h2>
       <p className="text-sm text-muted-foreground mb-6">
         {isLockedOut
-          ? `Try again in ${countdown}s`
-          : 'Enter master password to unlock'}
+          ? t('vault.lock.tryAgainIn', { seconds: countdown })
+          : t('vault.lock.enterPassword')}
       </p>
 
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
@@ -70,9 +72,9 @@ export function VaultLock() {
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Master password"
+            placeholder={t('vault.lock.placeholder')}
             className={cn(
-              'w-full px-3 py-2 pr-10 bg-surface border border-border rounded-lg text-sm',
+              'w-full px-3 py-2 pe-10 bg-surface border border-border rounded-lg text-sm',
               'outline-none focus:ring-2 focus:ring-accent',
               error && 'border-destructive'
             )}
@@ -81,7 +83,7 @@ export function VaultLock() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 cursor-pointer"
+            className="absolute end-2 top-1/2 -translate-y-1/2 p-1 cursor-pointer"
           >
             {showPassword ? (
               <EyeOff className="w-4 h-4 text-muted-foreground" />
@@ -101,11 +103,11 @@ export function VaultLock() {
               : 'bg-accent text-accent-foreground hover:bg-accent/90 cursor-pointer'
           )}
         >
-          {isLockedOut ? `Locked (${countdown}s)` : 'Unlock'}
+          {isLockedOut ? t('vault.lock.locked', { seconds: countdown }) : t('vault.lock.unlock')}
         </button>
         {failedCount >= 3 && !isLockedOut && (
           <p className="text-[10px] text-muted-foreground text-center">
-            {failedCount} failed attempts
+            {t('vault.lock.failedAttempts', { count: failedCount })}
           </p>
         )}
       </form>

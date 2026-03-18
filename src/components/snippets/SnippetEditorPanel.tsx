@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, Suspense, lazy, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X, FileText } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
@@ -33,6 +34,7 @@ const SYNTAX_OPTIONS = [
 ];
 
 export function SnippetEditorPanel() {
+  const { t } = useTranslation();
   const { editorOpen, editingSnippet, snippets, closeEditor, createSnippet, updateSnippet } = useSnippetStore();
   const { settings } = useSettingsStore();
 
@@ -57,10 +59,10 @@ export function SnippetEditorPanel() {
 
   const confirmClose = useCallback(() => {
     if (isDirty) {
-      if (!window.confirm('You have unsaved changes. Discard?')) return;
+      if (!window.confirm(t('snippets.editor.unsavedChanges'))) return;
     }
     closeEditor();
-  }, [isDirty, closeEditor]);
+  }, [isDirty, closeEditor, t]);
 
   useEffect(() => {
     if (editingSnippet) {
@@ -80,11 +82,11 @@ export function SnippetEditorPanel() {
   }, [editingSnippet, editorOpen]);
 
   const triggerFormatError = triggerSuffix.length > 0 && !/^[a-zA-Z0-9_-]+$/.test(triggerSuffix)
-    ? 'Only letters, numbers, - and _'
+    ? t('snippets.editor.triggerFormatError')
     : '';
   const triggerUniqueError = triggerSuffix.length > 0 && !triggerFormatError
     && !isUniqueSnippetTrigger(syntax, triggerSuffix, snippets, editingSnippet?.id)
-    ? 'Trigger already exists'
+    ? t('snippets.editor.triggerExistsError')
     : '';
   const triggerError = triggerFormatError || triggerUniqueError;
 
@@ -141,18 +143,18 @@ export function SnippetEditorPanel() {
       animate={{ opacity: 1, flex: 1 }}
       exit={{ opacity: 0, flex: 0 }}
       transition={{ duration: 0.15 }}
-      className="h-full border-l border-border flex flex-col bg-background overflow-hidden"
+      className="h-full border-s border-border flex flex-col bg-background overflow-hidden"
     >
       {/* Header */}
       <div className="h-9 flex items-center justify-between px-3 border-b border-border/50 bg-surface/30">
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-muted-foreground" />
-          <span className="text-xs font-medium">{isEditMode ? 'Edit Snippet' : 'New Snippet'}</span>
+          <span className="text-xs font-medium">{isEditMode ? t('snippets.editor.editSnippet') : t('snippets.editor.newSnippet')}</span>
         </div>
         <button
           onClick={confirmClose}
           className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"
-          title="Close (Esc)"
+          title={t('snippets.editor.closeEsc')}
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -162,7 +164,7 @@ export function SnippetEditorPanel() {
       <div className="flex gap-2 px-3 py-2 border-b border-border/50 shrink-0">
         <input
           type="text"
-          placeholder="Snippet title"
+          placeholder={t('snippets.editor.titlePlaceholder')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className={cn(
@@ -182,12 +184,12 @@ export function SnippetEditorPanel() {
           )}
           title={triggerError || `Full trigger: ${triggerPrefix}${triggerSuffix || '…'}`}
         >
-          <span className="px-1.5 py-1.5 text-[10px] font-mono text-muted-foreground bg-surface-hover/50 shrink-0 select-none border-r border-border/50">
+          <span className="px-1.5 py-1.5 text-[10px] font-mono text-muted-foreground bg-surface-hover/50 shrink-0 select-none border-e border-border/50">
             {triggerPrefix}
           </span>
           <input
             type="text"
-            placeholder="suffix"
+            placeholder={t('snippets.editor.suffixPlaceholder')}
             value={triggerSuffix}
             onChange={(e) => setTriggerSuffix(e.target.value)}
             className="flex-1 min-w-0 px-1.5 py-1.5 bg-transparent text-xs font-mono outline-none"
@@ -205,7 +207,7 @@ export function SnippetEditorPanel() {
           )}
         >
           {SYNTAX_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>{opt.value === 'plain' ? t('snippets.editor.syntaxPlainText') : opt.label}</option>
           ))}
         </select>
       </div>
@@ -214,7 +216,7 @@ export function SnippetEditorPanel() {
       <div className="flex-1 overflow-hidden min-h-0">
         <Suspense fallback={
           <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-            Loading editor...
+            {t('common.loadingEditor')}
           </div>
         }>
           <MonacoEditor
@@ -255,7 +257,7 @@ export function SnippetEditorPanel() {
             'disabled:opacity-50 disabled:cursor-not-allowed'
           )}
         >
-          {isEditMode ? 'Save Changes' : 'Create Snippet'}
+          {isEditMode ? t('snippets.editor.saveChanges') : t('snippets.editor.createSnippet')}
         </button>
       </div>
     </motion.div>

@@ -30,6 +30,7 @@ import { useTheme } from './hooks/useTheme';
 import { useSettingsStore } from './stores/settingsStore';
 import { useTagStore } from './stores/tagStore';
 import { initDatabase } from './lib/database';
+import i18n from './i18n';
 import { cn } from './lib/utils';
 
 const DEFAULT_LIST_WIDTH = 300;
@@ -59,6 +60,16 @@ function App() {
 
       // Settings must load before cleanup; feedback settings are independent
       await Promise.all([loadSettings(), loadFeedbackSettings()]);
+
+      // Sync i18n language from persisted settings
+      const { language } = useSettingsStore.getState().settings;
+      if (language === 'system') {
+        const detected = navigator.language.split('-')[0];
+        const supported = ['en', 'tr', 'ar', 'de', 'fr', 'es', 'pt', 'zh', 'ja', 'ko', 'ru', 'it', 'hi', 'nl', 'pl'];
+        i18n.changeLanguage(supported.includes(detected) ? detected : 'en');
+      } else {
+        i18n.changeLanguage(language);
+      }
 
       // Cleanup expired clips, then load data in parallel
       const { expirationDays } = useSettingsStore.getState().settings;

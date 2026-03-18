@@ -25,6 +25,11 @@
   "common.reviewAndAccept": "Review & Accept",
   "common.recording": "Recording...",
 
+  "common.timeNow": "now",
+  "common.timeMinutes": "{{count}}m",
+  "common.timeHours": "{{count}}h",
+  "common.timeDays": "{{count}}d",
+
   "common.filter.all": "All",
   "common.filter.pinned": "Pinned",
   "common.filter.favorites": "Favorites",
@@ -351,6 +356,8 @@
   "preview.other": "Other",
   "preview.noTransformsMatch": "No transforms match \"{{query}}\"",
 
+  "preview.unableToLoadImage": "Unable to load image",
+  "preview.imagePixels": "{{width}} × {{height}} pixels",
   "preview.stats.lines": "{{count}} lines",
   "preview.stats.words": "{{count}} words",
   "preview.stats.chars": "{{count}} chars",

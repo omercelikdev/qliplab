@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { ScrollText, Loader2, AlertTriangle } from 'lucide-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -8,6 +9,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 import { cn } from '@/lib/utils';
 
 export function EulaDialog() {
+  const { t } = useTranslation();
   const updateSettings = useSettingsStore((s) => s.updateSettings);
   const [hasScrolledToEnd, setHasScrolledToEnd] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,9 +47,9 @@ export function EulaDialog() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg === 'CONSENT_SERVER_FAILED') {
-        setError('Could not record your acceptance on our server. Please check your internet connection and try again.');
+        setError(t('legal.eula.error.serverFailed'));
       } else {
-        setError(`An error occurred: ${msg}. Please try again.`);
+        setError(t('legal.eula.error.generic', { error: msg }));
       }
     } finally {
       setIsSubmitting(false);
@@ -76,9 +78,9 @@ export function EulaDialog() {
         <div className="flex items-center gap-2.5 px-5 py-4 border-b border-border/50 shrink-0">
           <ScrollText className="w-5 h-5 text-accent shrink-0" />
           <div>
-            <h2 className="text-sm font-semibold">License Agreement</h2>
+            <h2 className="text-sm font-semibold">{t('legal.eula.title')}</h2>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              Please read and accept to continue
+              {t('legal.eula.subtitle')}
             </p>
           </div>
         </div>
@@ -106,14 +108,14 @@ export function EulaDialog() {
         {!hasScrolledToEnd && !error && (
           <div className="px-5 py-2 border-t border-border/50 shrink-0">
             <p className="text-[10px] text-muted-foreground text-center">
-              Scroll to the end to enable the Accept button
+              {t('legal.eula.scrollHint')}
             </p>
           </div>
         )}
 
         {/* Version info */}
         <div className="px-5 pt-2 text-[9px] text-muted-foreground/50 text-center shrink-0">
-          EULA v{EULA_VERSION} — Your acceptance will be recorded locally and on our server
+          {t('legal.eula.versionInfo', { version: EULA_VERSION })}
         </div>
 
         {/* Footer */}
@@ -126,7 +128,7 @@ export function EulaDialog() {
               'bg-surface-hover text-foreground hover:bg-border disabled:opacity-50'
             )}
           >
-            Decline & Exit
+            {t('legal.eula.decline')}
           </button>
           <button
             onClick={handleAccept}
@@ -141,10 +143,10 @@ export function EulaDialog() {
             {isSubmitting ? (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Recording...
+                {t('common.recording')}
               </>
             ) : (
-              'I Accept'
+              t('legal.eula.accept')
             )}
           </button>
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -13,8 +14,10 @@ interface ConfirmDialogProps {
   destructive?: boolean;
 }
 
-export function ConfirmDialog({ isOpen, title, message, confirmLabel = 'Delete', onConfirm, onCancel, destructive = true }: ConfirmDialogProps) {
+export function ConfirmDialog({ isOpen, title, message, confirmLabel, onConfirm, onCancel, destructive = true }: ConfirmDialogProps) {
+  const { t } = useTranslation();
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const label = confirmLabel || t('common.delete');
 
   // Auto-focus Cancel button when dialog opens & handle Escape key
   useEffect(() => {
@@ -58,7 +61,7 @@ export function ConfirmDialog({ isOpen, title, message, confirmLabel = 'Delete',
                 onClick={onCancel}
                 className="px-3 py-1.5 text-xs rounded-md bg-surface-hover hover:bg-border transition-colors cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={onConfirm}
@@ -69,7 +72,7 @@ export function ConfirmDialog({ isOpen, title, message, confirmLabel = 'Delete',
                     : 'bg-accent text-accent-foreground hover:bg-accent/90'
                 )}
               >
-                {confirmLabel}
+                {label}
               </button>
             </div>
           </motion.div>

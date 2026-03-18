@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
@@ -20,14 +21,23 @@ interface Props {
   editItem?: VaultItem; // When provided, dialog is in edit mode
 }
 
-const itemTypes: { type: VaultItemType; label: string; icon: typeof CreditCard }[] = [
-  { type: 'card', label: 'Card', icon: CreditCard },
-  { type: 'bank', label: 'Bank', icon: Building },
-  { type: 'address', label: 'Address', icon: MapPin },
-  { type: 'personal', label: 'Personal', icon: User },
-  { type: 'company', label: 'Company', icon: Briefcase },
-  { type: 'code', label: 'Code', icon: Key },
+const itemTypes: { type: VaultItemType; icon: typeof CreditCard }[] = [
+  { type: 'card', icon: CreditCard },
+  { type: 'bank', icon: Building },
+  { type: 'address', icon: MapPin },
+  { type: 'personal', icon: User },
+  { type: 'company', icon: Briefcase },
+  { type: 'code', icon: Key },
 ];
+
+const TYPE_LABELS: Record<VaultItemType, string> = {
+  card: 'vault.type.card',
+  bank: 'vault.type.bank',
+  address: 'vault.type.address',
+  personal: 'vault.type.personal',
+  company: 'vault.type.company',
+  code: 'vault.type.code',
+};
 
 const MONTHS = [
   { value: '01', label: '01 - January' },
@@ -78,6 +88,7 @@ function getDobYears(): number[] {
 }
 
 export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
+  const { t } = useTranslation();
   const isEditMode = !!editItem;
   const [selectedType, setSelectedType] = useState<VaultItemType>('card');
   const [title, setTitle] = useState('');
@@ -147,11 +158,11 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
 
   // Validate: only alphanumeric, dash, underscore for suffix
   const suffixFormatError = triggerSuffix.length > 0 && !/^[a-zA-Z0-9_-]+$/.test(triggerSuffix)
-    ? 'Only letters, numbers, - and _ allowed'
+    ? t('vault.dialog.suffixFormatError')
     : '';
   const uniqueError = triggerSuffix.length > 0 && !suffixFormatError && !isUniqueTrigger(
     selectedType, triggerSuffix, items, editItem?.id
-  ) ? 'This trigger already exists' : '';
+  ) ? t('vault.dialog.triggerExistsError') : '';
   const triggerError = suffixFormatError || uniqueError;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -222,28 +233,28 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
       case 'card':
         return (
           <>
-            <Input label="Cardholder Name" value={formData.cardholderName || ''} onChange={(v) => updateField('cardholderName', v)} maxLength={50} error={errors.cardholderName} />
-            <Input label="Card Number" value={formData.cardNumber || ''} onChange={(v) => updateField('cardNumber', v)} placeholder="1234 5678 9012 3456" formatter={formatCardNumber} maxLength={19} inputMode="numeric" error={errors.cardNumber} />
+            <Input label={t('vault.dialog.card.cardholderName')} value={formData.cardholderName || ''} onChange={(v) => updateField('cardholderName', v)} maxLength={50} error={errors.cardholderName} />
+            <Input label={t('vault.dialog.card.cardNumber')} value={formData.cardNumber || ''} onChange={(v) => updateField('cardNumber', v)} placeholder={t('vault.dialog.card.cardNumberPlaceholder')} formatter={formatCardNumber} maxLength={19} inputMode="numeric" error={errors.cardNumber} />
             <div className="grid grid-cols-3 gap-2">
-              <Select label="Month" value={formData.expiryMonth || ''} onChange={(v) => updateField('expiryMonth', v)} error={errors.expiryMonth} placeholder="MM">
+              <Select label={t('vault.dialog.card.month')} value={formData.expiryMonth || ''} onChange={(v) => updateField('expiryMonth', v)} error={errors.expiryMonth} placeholder="MM">
                 {MONTHS.map(m => (
                   <option key={m.value} value={m.value}>{m.label}</option>
                 ))}
               </Select>
-              <Select label="Year" value={formData.expiryYear || ''} onChange={(v) => updateField('expiryYear', v)} error={errors.expiryYear} placeholder="YY">
+              <Select label={t('vault.dialog.card.year')} value={formData.expiryYear || ''} onChange={(v) => updateField('expiryYear', v)} error={errors.expiryYear} placeholder="YY">
                 {expiryYears.map(y => (
                   <option key={y} value={y}>{y}</option>
                 ))}
               </Select>
-              <Input label="CVV" value={formData.cvv || ''} onChange={(v) => updateField('cvv', v)} placeholder="123" formatter={formatCvv} maxLength={4} inputMode="numeric" type="password" error={errors.cvv} />
+              <Input label="CVV" value={formData.cvv || ''} onChange={(v) => updateField('cvv', v)} placeholder={t('vault.dialog.card.cvvPlaceholder')} formatter={formatCvv} maxLength={4} inputMode="numeric" type="password" error={errors.cvv} />
             </div>
           </>
         );
       case 'bank':
         return (
           <>
-            <Input label="Bank Name" value={formData.bankName || ''} onChange={(v) => updateField('bankName', v)} maxLength={100} error={errors.bankName} />
-            <Input label="Account Holder" value={formData.accountHolder || ''} onChange={(v) => updateField('accountHolder', v)} maxLength={100} error={errors.accountHolder} />
+            <Input label={t('vault.dialog.bank.bankName')} value={formData.bankName || ''} onChange={(v) => updateField('bankName', v)} maxLength={100} error={errors.bankName} />
+            <Input label={t('vault.dialog.bank.accountHolder')} value={formData.accountHolder || ''} onChange={(v) => updateField('accountHolder', v)} maxLength={100} error={errors.accountHolder} />
             <Input label="IBAN" value={formData.iban || ''} onChange={(v) => updateField('iban', v)} formatter={formatIban} maxLength={42} error={errors.iban} />
             <Input label="SWIFT (optional)" value={formData.swift || ''} onChange={(v) => updateField('swift', v)} formatter={formatSwift} maxLength={11} error={errors.swift} />
           </>
@@ -251,15 +262,15 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
       case 'address':
         return (
           <>
-            <Input label="Street" value={formData.street || ''} onChange={(v) => updateField('street', v)} maxLength={200} error={errors.street} />
-            <Input label="Address Line 2 (optional)" value={formData.addressLine2 || ''} onChange={(v) => updateField('addressLine2', v)} maxLength={100} placeholder="Apt, Suite, Floor" />
+            <Input label={t('vault.dialog.address.street')} value={formData.street || ''} onChange={(v) => updateField('street', v)} maxLength={200} error={errors.street} />
+            <Input label={t('vault.dialog.address.line2')} value={formData.addressLine2 || ''} onChange={(v) => updateField('addressLine2', v)} maxLength={100} placeholder={t('vault.dialog.address.line2Placeholder')} />
             <div className="grid grid-cols-2 gap-2">
-              <Input label="City" value={formData.city || ''} onChange={(v) => updateField('city', v)} maxLength={100} error={errors.city} />
-              <Input label="State / Province (optional)" value={formData.state || ''} onChange={(v) => updateField('state', v)} maxLength={100} />
+              <Input label={t('vault.dialog.address.city')} value={formData.city || ''} onChange={(v) => updateField('city', v)} maxLength={100} error={errors.city} />
+              <Input label={t('vault.dialog.address.state')} value={formData.state || ''} onChange={(v) => updateField('state', v)} maxLength={100} />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Input label="Postal Code (optional)" value={formData.postalCode || ''} onChange={(v) => updateField('postalCode', v)} maxLength={15} />
-              <Input label="Country" value={formData.country || ''} onChange={(v) => updateField('country', v)} maxLength={60} error={errors.country} />
+              <Input label={t('vault.dialog.address.postalCode')} value={formData.postalCode || ''} onChange={(v) => updateField('postalCode', v)} maxLength={15} />
+              <Input label={t('vault.dialog.address.country')} value={formData.country || ''} onChange={(v) => updateField('country', v)} maxLength={60} error={errors.country} />
             </div>
           </>
         );
@@ -267,14 +278,14 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
         return (
           <>
             <div className="grid grid-cols-2 gap-2">
-              <Input label="First Name" value={formData.firstName || ''} onChange={(v) => updateField('firstName', v)} maxLength={50} error={errors.firstName} />
-              <Input label="Last Name" value={formData.lastName || ''} onChange={(v) => updateField('lastName', v)} maxLength={50} error={errors.lastName} />
+              <Input label={t('vault.dialog.personal.firstName')} value={formData.firstName || ''} onChange={(v) => updateField('firstName', v)} maxLength={50} error={errors.firstName} />
+              <Input label={t('vault.dialog.personal.lastName')} value={formData.lastName || ''} onChange={(v) => updateField('lastName', v)} maxLength={50} error={errors.lastName} />
             </div>
-            <Input label="Email (optional)" value={formData.email || ''} onChange={(v) => updateField('email', v)} placeholder="name@example.com" maxLength={100} inputMode="email" error={errors.email} />
+            <Input label={t('vault.dialog.personal.email')} value={formData.email || ''} onChange={(v) => updateField('email', v)} placeholder={t('vault.dialog.personal.emailPlaceholder')} maxLength={100} inputMode="email" error={errors.email} />
 
             {/* Phone with country code selector */}
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Phone (optional)</label>
+              <label className="text-xs text-muted-foreground">{t('vault.dialog.personal.phone')}</label>
               <div className="flex gap-1.5">
                 <select
                   value={formData.phoneCountry || ''}
@@ -297,7 +308,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
                   type="tel"
                   value={formData.phone || ''}
                   onChange={(e) => updateField('phone', formatPhoneNumber(e.target.value))}
-                  placeholder="555 123 4567"
+                  placeholder={t('vault.dialog.personal.phonePlaceholder')}
                   maxLength={15}
                   className={cn(
                     'flex-1 px-3 py-2 bg-surface border rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent',
@@ -310,19 +321,19 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
 
             {/* Date of Birth — 3 selects */}
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Date of Birth (optional)</label>
+              <label className="text-xs text-muted-foreground">{t('vault.dialog.personal.dateOfBirth')}</label>
               <div className="grid grid-cols-3 gap-2">
-                <Select value={formData.dobDay || ''} onChange={(v) => updateField('dobDay', v)} placeholder="Day">
+                <Select value={formData.dobDay || ''} onChange={(v) => updateField('dobDay', v)} placeholder={t('vault.dialog.personal.day')}>
                   {dobDays.map(d => (
                     <option key={d} value={String(d).padStart(2, '0')}>{d}</option>
                   ))}
                 </Select>
-                <Select value={formData.dobMonth || ''} onChange={(v) => updateField('dobMonth', v)} placeholder="Month">
+                <Select value={formData.dobMonth || ''} onChange={(v) => updateField('dobMonth', v)} placeholder={t('vault.dialog.personal.month')}>
                   {DOB_MONTHS.map(m => (
                     <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </Select>
-                <Select value={formData.dobYear || ''} onChange={(v) => updateField('dobYear', v)} placeholder="Year">
+                <Select value={formData.dobYear || ''} onChange={(v) => updateField('dobYear', v)} placeholder={t('vault.dialog.personal.year')}>
                   {dobYears.map(y => (
                     <option key={y} value={String(y)}>{y}</option>
                   ))}
@@ -335,18 +346,18 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
       case 'company':
         return (
           <>
-            <Input label="Company Name" value={formData.companyName || ''} onChange={(v) => updateField('companyName', v)} maxLength={100} error={errors.companyName} />
-            <Input label="Tax ID (optional)" value={formData.taxId || ''} onChange={(v) => updateField('taxId', v)} maxLength={30} error={errors.taxId} />
-            <Input label="Registration No. (optional)" value={formData.registrationNumber || ''} onChange={(v) => updateField('registrationNumber', v)} maxLength={30} />
-            <Input label="Website (optional)" value={formData.website || ''} onChange={(v) => updateField('website', v)} placeholder="https://example.com" maxLength={200} error={errors.website} />
+            <Input label={t('vault.dialog.company.companyName')} value={formData.companyName || ''} onChange={(v) => updateField('companyName', v)} maxLength={100} error={errors.companyName} />
+            <Input label={t('vault.dialog.company.taxId')} value={formData.taxId || ''} onChange={(v) => updateField('taxId', v)} maxLength={30} error={errors.taxId} />
+            <Input label={t('vault.dialog.company.registrationNumber')} value={formData.registrationNumber || ''} onChange={(v) => updateField('registrationNumber', v)} maxLength={30} />
+            <Input label={t('vault.dialog.company.website')} value={formData.website || ''} onChange={(v) => updateField('website', v)} placeholder={t('vault.dialog.company.websitePlaceholder')} maxLength={200} error={errors.website} />
           </>
         );
       case 'code':
         return (
           <>
-            <Input label="Code / PIN" value={formData.code || ''} onChange={(v) => updateField('code', v)} type="password" maxLength={200} error={errors.code} />
+            <Input label={t('vault.dialog.code.codePin')} value={formData.code || ''} onChange={(v) => updateField('code', v)} type="password" maxLength={200} error={errors.code} />
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Notes (optional)</label>
+              <label className="text-xs text-muted-foreground">{t('vault.dialog.code.notes')}</label>
               <textarea
                 value={formData.notes || ''}
                 onChange={(e) => updateField('notes', e.target.value.slice(0, 500))}
@@ -380,7 +391,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="h-12 flex items-center justify-between px-4 border-b border-border shrink-0">
-              <h2 className="font-semibold">{isEditMode ? 'Edit Vault Item' : 'New Vault Item'}</h2>
+              <h2 className="font-semibold">{isEditMode ? t('vault.dialog.editTitle') : t('vault.dialog.newTitle')}</h2>
               <button
                 onClick={onClose}
                 className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"
@@ -392,7 +403,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4">
               {/* Type Selection — disabled in edit mode */}
               <div className="flex gap-2">
-                {itemTypes.map(({ type, label, icon: Icon }) => (
+                {itemTypes.map(({ type, icon: Icon }) => (
                   <button
                     key={type}
                     type="button"
@@ -416,29 +427,29 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
                     )}
                   >
                     <Icon className="w-4 h-4" />
-                    <span className="text-xs">{label}</span>
+                    <span className="text-xs">{t(TYPE_LABELS[type])}</span>
                   </button>
                 ))}
               </div>
 
               {/* Title */}
-              <Input label="Title" value={title} onChange={setTitle} placeholder="e.g. My Visa Card" />
+              <Input label={t('vault.dialog.titleLabel')} value={title} onChange={setTitle} placeholder={t('vault.dialog.titlePlaceholder')} />
 
               {/* Trigger with auto-prefix */}
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Trigger (optional)</label>
+                <label className="text-xs text-muted-foreground">{t('vault.dialog.triggerLabel')}</label>
                 <div className={cn(
                   'flex items-center bg-surface border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-accent',
                   triggerError ? 'border-destructive' : 'border-border'
                 )}>
-                  <span className="px-2.5 py-2 text-sm font-mono text-muted-foreground bg-surface-hover shrink-0 select-none border-r border-border">
+                  <span className="px-2.5 py-2 text-sm font-mono text-muted-foreground bg-surface-hover shrink-0 select-none border-e border-border">
                     {prefix}
                   </span>
                   <input
                     type="text"
                     value={triggerSuffix}
                     onChange={(e) => setTriggerSuffix(e.target.value.toLowerCase().replace(/\s/g, ''))}
-                    placeholder="mycard"
+                    placeholder={t('vault.dialog.triggerPlaceholder')}
                     className="flex-1 px-2.5 py-2 bg-transparent text-sm font-mono outline-none"
                   />
                 </div>
@@ -451,7 +462,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
                   if (subs.length === 0) return null;
                   return (
                     <div className="flex flex-wrap gap-1 mt-1">
-                      <span className="text-[10px] text-muted-foreground">Fields:</span>
+                      <span className="text-[10px] text-muted-foreground">{t('vault.dialog.fieldsLabel')}</span>
                       {subs.map(f => (
                         <span key={f.suffix} className="text-[10px] font-mono text-violet-500 bg-violet-500/10 px-1 rounded">
                           {fullTrigger}{f.suffix}
@@ -473,7 +484,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
                   'bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors'
                 )}
               >
-                {isEditMode ? 'Save Changes' : 'Save to Vault'}
+                {isEditMode ? t('vault.dialog.saveChanges') : t('vault.dialog.saveToVault')}
               </button>
             </form>
           </motion.div>

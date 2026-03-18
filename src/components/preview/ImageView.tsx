@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePreviewStore } from '@/stores/previewStore';
 
 // Parse image data and create a displayable URL
@@ -44,6 +45,7 @@ function parseImageContent(content: string): { dataUrl: string; width?: number; 
 }
 
 export function ImageView() {
+  const { t } = useTranslation();
   const { sourceItem } = usePreviewStore();
 
   const imageData = useMemo(() => {
@@ -56,7 +58,7 @@ export function ImageView() {
   if (!imageData) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
-        Unable to load image
+        {t('preview.unableToLoadImage')}
       </div>
     );
   }
@@ -71,7 +73,7 @@ export function ImageView() {
       />
       {imageData.width && imageData.height && (
         <div className="mt-3 text-xs text-muted-foreground">
-          {imageData.width} × {imageData.height} pixels
+          {t('preview.imagePixels', { width: imageData.width, height: imageData.height })}
         </div>
       )}
     </div>

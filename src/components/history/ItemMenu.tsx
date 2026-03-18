@@ -1,4 +1,5 @@
 import { useState, useLayoutEffect, useRef, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Bot, Tag, Plus, X } from 'lucide-react';
@@ -28,6 +29,7 @@ interface ItemMenuProps {
 }
 
 export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, anchorRef }: ItemMenuProps) {
+  const { t } = useTranslation();
   const { openTransform, openView } = usePreviewStore();
   const { deleteItem, togglePin } = useHistoryStore();
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -101,18 +103,18 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
     try {
       const text = await invoke<string>('ocr_image', { base64Data: imgData.base64 });
       if (text) {
-        openTransform(item, 'OCR Text', text);
+        openTransform(item, t('history.ocrTitle'), text);
       } else {
-        openTransform(item, 'OCR Text', '(No text detected)');
+        openTransform(item, t('history.ocrTitle'), t('history.ocrNoText'));
       }
     } catch (e) {
-      openTransform(item, 'OCR Text', `OCR failed: ${e}`);
+      openTransform(item, t('history.ocrTitle'), t('history.ocrFailed', { error: e }));
     }
     onClose();
   };
   const executeAiAction = async (action: AiAction) => {
     const label = AI_ACTIONS.find(a => a.id === action)?.label ?? action;
-    openTransform(item, `AI: ${label}`, 'Processing...');
+    openTransform(item, `AI: ${label}`, t('history.aiProcessing'));
     try {
       const result = await runAiAction(action, item.content);
       openTransform(item, `AI: ${label}`, result);
@@ -132,10 +134,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
 
     const p = useSettingsStore.getState().settings.aiProvider;
     const provider = p === 'anthropic' ? 'Anthropic' : p === 'gemini' ? 'Google Gemini' : 'OpenAI';
-    const confirmed = window.confirm(
-      `Send this content to ${provider} for processing?\n\n` +
-      `Do NOT proceed if this contains sensitive data.`
-    );
+    const confirmed = window.confirm(t('history.aiConfirm', { provider }));
     if (!confirmed) return;
 
     executeAiAction(action);
@@ -277,19 +276,19 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
           >
-            <MenuButton icon={Copy} label="Copy" onClick={handleCopy} />
+            <MenuButton icon={Copy} label={t('history.menu.copy')} onClick={handleCopy} />
             {item.htmlContent && (
               <>
-                <MenuButton icon={FileText} label="Copy HTML" onClick={handleCopyHtml} />
-                <MenuButton icon={ClipboardPaste} label="Paste Plain" onClick={handlePastePlainText} />
+                <MenuButton icon={FileText} label={t('history.menu.copyHtml')} onClick={handleCopyHtml} />
+                <MenuButton icon={ClipboardPaste} label={t('history.menu.pastePlain')} onClick={handlePastePlainText} />
               </>
             )}
-            <MenuButton icon={Pencil} label="Edit" onClick={() => { openView(item); onClose(); }} />
+            <MenuButton icon={Pencil} label={t('history.menu.edit')} onClick={() => { openView(item); onClose(); }} />
 
             {item.contentType === 'image' && (
               <>
                 <div className="h-px bg-border my-1" />
-                <MenuButton icon={ScanText} label="Extract Text" onClick={handleOcr} />
+                <MenuButton icon={ScanText} label={t('history.menu.extractText')} onClick={handleOcr} />
               </>
             )}
 
@@ -310,8 +309,8 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
             <div className="h-px bg-border my-1" />
             <TagSubmenu itemId={item.id} />
             <div className="h-px bg-border my-1" />
-            <MenuButton icon={item.isPinned ? PinOff : Pin} label={item.isPinned ? 'Unpin' : 'Pin'} onClick={handlePin} />
-            <MenuButton icon={Trash2} label="Delete" onClick={handleDelete} destructive />
+            <MenuButton icon={item.isPinned ? PinOff : Pin} label={item.isPinned ? t('history.menu.unpin') : t('history.menu.pin')} onClick={handlePin} />
+            <MenuButton icon={Trash2} label={t('history.menu.delete')} onClick={handleDelete} destructive />
           </motion.div>
         )}
       </AnimatePresence>,
@@ -325,7 +324,7 @@ function MenuButton({ icon: Icon, label, onClick, destructive }: { icon: React.E
   return (
     <button
       aria-label={label}
-      className={cn('w-full flex items-center gap-1.5 px-2.5 py-1 text-xs text-left hover:bg-surface-hover transition-colors cursor-pointer', destructive && 'text-destructive')}
+      className={cn('w-full flex items-center gap-1.5 px-2.5 py-1 text-xs text-start hover:bg-surface-hover transition-colors cursor-pointer', destructive && 'text-destructive')}
       onClick={onClick}
     >
       <Icon className="w-3.5 h-3.5" aria-hidden="true" />
@@ -337,6 +336,7 @@ function MenuButton({ icon: Icon, label, onClick, destructive }: { icon: React.E
 const TAG_COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6'];
 
 function TagSubmenu({ itemId }: { itemId: string }) {
+  const { t } = useTranslation();
   const tags = useTagStore((s) => s.tags);
   const itemTags = useTagStore((s) => s.itemTags);
   const addTagToItem = useTagStore((s) => s.addTagToItem);
@@ -376,7 +376,7 @@ function TagSubmenu({ itemId }: { itemId: string }) {
     <div className="px-2 py-1">
       <div className="flex items-center gap-1 mb-1">
         <Tag className="w-3 h-3 text-muted-foreground" />
-        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Tags</span>
+        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('history.tags.label')}</span>
       </div>
       {/* Existing tags — toggle on/off, delete on trash icon */}
       {tags.map(tag => {
@@ -395,13 +395,13 @@ function TagSubmenu({ itemId }: { itemId: string }) {
                 className="w-2.5 h-2.5 rounded-full shrink-0 border border-foreground/10"
                 style={{ backgroundColor: tag.color || '#888' }}
               />
-              <span className="truncate flex-1 text-left">{tag.name}</span>
+              <span className="truncate flex-1 text-start">{tag.name}</span>
               {isApplied && <X className="w-3 h-3 text-muted-foreground shrink-0" />}
             </button>
             <button
               className="p-0.5 text-muted-foreground hover:text-destructive opacity-0 group-hover/tag:opacity-100 transition-opacity cursor-pointer shrink-0"
               onClick={(e) => handleDeleteTag(e, tag.id)}
-              title="Delete tag from all items"
+              title={t('history.tags.deleteFromAll')}
             >
               <Trash2 className="w-3 h-3" />
             </button>
@@ -421,7 +421,7 @@ function TagSubmenu({ itemId }: { itemId: string }) {
               if (e.key === 'Enter') handleCreateAndAdd();
               if (e.key === 'Escape') { setIsAdding(false); setNewTagName(''); }
             }}
-            placeholder="Tag name..."
+            placeholder={t('history.tags.placeholder')}
             className="flex-1 px-1.5 py-0.5 text-[10px] bg-surface border border-border rounded outline-none focus:ring-1 focus:ring-accent"
           />
         </div>
@@ -431,7 +431,7 @@ function TagSubmenu({ itemId }: { itemId: string }) {
           onClick={(e) => { e.stopPropagation(); setIsAdding(true); }}
         >
           <Plus className="w-3 h-3" />
-          New tag
+          {t('history.tags.newTag')}
         </button>
       )}
     </div>
