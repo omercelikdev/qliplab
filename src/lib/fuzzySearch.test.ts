@@ -29,9 +29,10 @@ describe('fuzzyScore', () => {
     expect(score).toBeLessThan(9000);
   });
 
-  it('fuzzy matches characters in order', () => {
+  it('returns -1 for non-contiguous characters', () => {
+    // Substring-only matching — 'hlo' is not a contiguous substring of 'hello'
     const score = fuzzyScore('hlo', 'hello');
-    expect(score).toBeGreaterThan(0);
+    expect(score).toBe(-1);
   });
 
   it('is case insensitive', () => {
@@ -70,9 +71,9 @@ describe('fuzzyFilter', () => {
     expect(result).toHaveLength(0);
   });
 
-  it('handles fuzzy queries', () => {
+  it('returns empty for non-substring queries', () => {
+    // 'hlw' is not a contiguous substring in any item
     const result = fuzzyFilter(items, 'hlw', (i) => i.text);
-    expect(result.length).toBeGreaterThan(0);
-    expect(result[0].text).toBe('Hello World');
+    expect(result).toHaveLength(0);
   });
 });
