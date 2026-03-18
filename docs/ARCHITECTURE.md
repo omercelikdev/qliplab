@@ -17,6 +17,7 @@ qliplab is a cross-platform clipboard manager built with **Tauri v2** (Rust back
 | Animations | Framer Motion | 12+ |
 | Database | SQLite | via tauri-plugin-sql |
 | Storage | Key-Value Store | via tauri-plugin-store |
+| i18n | react-i18next | i18next + browser language detection |
 
 ## Project Structure
 
@@ -34,6 +35,9 @@ qliplab/
 │   │   ├── vault/                # Secure vault components
 │   │   └── welcome/              # Welcome screen
 │   ├── hooks/                    # Custom React hooks
+│   ├── i18n/                     # Internationalization (react-i18next)
+│   │   ├── index.ts              # i18next init + language detection + RTL
+│   │   └── locales/              # Translation files (en.json, tr.json, ar.json)
 │   ├── lib/                      # Utility libraries
 │   ├── stores/                   # Zustand state stores
 │   ├── types/                    # TypeScript type definitions
