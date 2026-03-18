@@ -27,6 +27,7 @@ export interface AppSettings {
   onboardingSeen: boolean;
   globalShortcut: string; // e.g. 'CommandOrControl+Shift+V'
   autoCommands: AutoCommand[];
+  launchOnLogin: boolean;
   eulaAccepted: boolean;
   eulaAcceptedVersion: string;
   eulaAcceptedAt: string;
@@ -50,6 +51,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   onboardingSeen: false,
   globalShortcut: 'CommandOrControl+Shift+V',
   autoCommands: [],
+  launchOnLogin: true,
   eulaAccepted: false,
   eulaAcceptedVersion: '',
   eulaAcceptedAt: '',

@@ -1,20 +1,23 @@
 import { useEffect } from 'react';
-import { enable, isEnabled } from '@tauri-apps/plugin-autostart';
+import { enable, disable, isEnabled } from '@tauri-apps/plugin-autostart';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 export function useAutostart() {
+  const launchOnLogin = useSettingsStore((s) => s.settings.launchOnLogin);
+
   useEffect(() => {
-    const setupAutostart = async () => {
+    const sync = async () => {
       try {
-        const enabled = await isEnabled();
-        if (!enabled) {
+        const currentlyEnabled = await isEnabled();
+        if (launchOnLogin && !currentlyEnabled) {
           await enable();
-          // Autostart enabled successfully
+        } else if (!launchOnLogin && currentlyEnabled) {
+          await disable();
         }
       } catch {
-        // Autostart setup failed
+        // Autostart not available on this platform
       }
     };
-
-    setupAutostart();
-  }, []);
+    sync();
+  }, [launchOnLogin]);
 }

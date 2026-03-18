@@ -195,6 +195,8 @@
   "settings.autoLock.15min": "15 dakika",
   "settings.autoLock.never": "Asla",
 
+  "settings.toggle.launchOnLogin": "Oturum açıldığında başlat",
+  "settings.toggle.launchOnLoginDesc": "Oturum açıldığında QlipLab otomatik başlasın",
   "settings.toggle.sensitiveDetection": "Hassas veri algılama",
   "settings.toggle.sensitiveDetectionDesc": "Parolaları, API anahtarlarını otomatik algıla",
   "settings.toggle.storeImages": "Görselleri kaydet",

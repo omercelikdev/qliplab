@@ -143,6 +143,12 @@ export function SettingsPanel() {
             {/* Toggles */}
             <div className="space-y-3">
               <ToggleSetting
+                label={t('settings.toggle.launchOnLogin')}
+                description={t('settings.toggle.launchOnLoginDesc')}
+                checked={settings.launchOnLogin}
+                onChange={(v) => updateSetting('launchOnLogin', v)}
+              />
+              <ToggleSetting
                 label={t('settings.toggle.sensitiveDetection')}
                 description={t('settings.toggle.sensitiveDetectionDesc')}
                 checked={settings.sensitiveDetectionEnabled}

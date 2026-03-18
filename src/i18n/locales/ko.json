@@ -194,7 +194,8 @@
   "settings.autoLock.5min": "5분",
   "settings.autoLock.15min": "15분",
   "settings.autoLock.never": "사용 안 함",
-
+  "settings.toggle.launchOnLogin": "로그인 시 시작",
+  "settings.toggle.launchOnLoginDesc": "로그인 시 QlipLab을 자동으로 시작",
   "settings.toggle.sensitiveDetection": "민감 데이터 감지",
   "settings.toggle.sensitiveDetectionDesc": "비밀번호, API 키를 자동 감지합니다",
   "settings.toggle.storeImages": "이미지 저장",

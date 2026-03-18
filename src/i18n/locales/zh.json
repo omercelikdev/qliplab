@@ -194,7 +194,8 @@
   "settings.autoLock.5min": "5 分钟",
   "settings.autoLock.15min": "15 分钟",
   "settings.autoLock.never": "从不",
-
+  "settings.toggle.launchOnLogin": "登录时启动",
+  "settings.toggle.launchOnLoginDesc": "登录时自动启动 QlipLab",
   "settings.toggle.sensitiveDetection": "检测敏感数据",
   "settings.toggle.sensitiveDetectionDesc": "自动检测密码和 API Key",
   "settings.toggle.storeImages": "存储图片",

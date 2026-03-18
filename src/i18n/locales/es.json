@@ -194,7 +194,8 @@
   "settings.autoLock.5min": "5 minutos",
   "settings.autoLock.15min": "15 minutos",
   "settings.autoLock.never": "Nunca",
-
+  "settings.toggle.launchOnLogin": "Iniciar al iniciar sesión",
+  "settings.toggle.launchOnLoginDesc": "Iniciar QlipLab automáticamente al iniciar sesión",
   "settings.toggle.sensitiveDetection": "Detectar datos sensibles",
   "settings.toggle.sensitiveDetectionDesc": "Detectar automáticamente contraseñas, API Keys",
   "settings.toggle.storeImages": "Almacenar imágenes",
