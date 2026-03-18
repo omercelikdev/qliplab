@@ -133,8 +133,8 @@ export async function showWindow() {
   try {
     await invoke('save_frontmost_app');
     await showWindowCore();
-  } catch {
-    // Silently handle show failure
+  } catch (e) {
+    console.error('[qliplab] showWindow failed:', e);
   }
 }
 
@@ -197,8 +197,8 @@ export async function toggleWindow() {
       await invoke('save_frontmost_app');
       await showWindowCore();
     }
-  } catch {
-    // Silently handle toggle failure
+  } catch (e) {
+    console.error('[qliplab] toggleWindow failed:', e);
   } finally {
     toggleInFlight = false;
   }
@@ -216,8 +216,8 @@ export async function hideAndPaste() {
   try {
     await hideWindowCore();
     await invoke('simulate_paste');
-  } catch {
-    // Silently handle paste failure
+  } catch (e) {
+    console.error('[qliplab] hideAndPaste failed:', e);
   }
 }
 
@@ -230,8 +230,8 @@ export async function hideWriteAndPaste(writeToClipboard: () => Promise<void>) {
     // Small buffer to ensure clipboard is fully committed at OS level before paste
     await new Promise(resolve => setTimeout(resolve, 30));
     await invoke('simulate_paste');
-  } catch {
-    // Silently handle paste failure
+  } catch (e) {
+    console.error('[qliplab] hideWriteAndPaste failed:', e);
   }
 }
 
@@ -240,7 +240,7 @@ export async function hideAndSimulatePaste() {
   try {
     await hideWindowCore();
     await invoke('simulate_paste');
-  } catch {
-    // Silently handle paste failure
+  } catch (e) {
+    console.error('[qliplab] hideAndSimulatePaste failed:', e);
   }
 }

@@ -28,6 +28,7 @@ interface HistoryState {
   items: ClipboardItem[];
   totalCount: number;
   isLoading: boolean;
+  isLoadingMore: boolean;
   currentOffset: number;
   // Current query params (for load more)
   currentFormatFilter: FormatFilterGroup;
@@ -47,6 +48,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   items: [],
   totalCount: 0,
   isLoading: true,
+  isLoadingMore: false,
   currentOffset: 0,
   currentFormatFilter: 'all',
   currentSearchQuery: '',
@@ -72,8 +74,9 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   },
 
   loadMore: async () => {
-    const { currentOffset, currentFormatFilter, currentSearchQuery, totalCount, items } = get();
-    if (currentOffset >= totalCount) return;
+    const { currentOffset, currentFormatFilter, currentSearchQuery, totalCount, items, isLoadingMore } = get();
+    if (currentOffset >= totalCount || isLoadingMore) return;
+    set({ isLoadingMore: true });
     try {
       const rows = await queryHistoryItems({
         formatFilter: currentFormatFilter,
@@ -85,9 +88,10 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       set({
         items: [...items, ...newItems],
         currentOffset: currentOffset + newItems.length,
+        isLoadingMore: false,
       });
     } catch {
-      // Load more failed
+      set({ isLoadingMore: false });
     }
   },
 

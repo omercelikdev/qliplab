@@ -19,6 +19,7 @@ export function HistoryList() {
   const items = useHistoryStore((state) => state.items);
   const totalCount = useHistoryStore((state) => state.totalCount);
   const isLoading = useHistoryStore((state) => state.isLoading);
+  const isLoadingMore = useHistoryStore((state) => state.isLoadingMore);
   const searchQuery = useAppStore((state) => state.searchQuery);
   const activeTab = useAppStore((state) => state.activeTab);
   const isDiffMode = useAppStore((state) => state.isDiffMode);
@@ -288,9 +289,10 @@ export function HistoryList() {
         {remainingCount > 0 && (
           <button
             onClick={loadMore}
-            className="w-full py-2 text-center text-[10px] text-muted-foreground hover:text-foreground hover:bg-surface-hover rounded-md transition-colors cursor-pointer"
+            disabled={isLoadingMore}
+            className="w-full py-2 text-center text-[10px] text-muted-foreground hover:text-foreground hover:bg-surface-hover rounded-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
           >
-            Load more ({remainingCount})
+            {isLoadingMore ? 'Loading...' : `Load more (${remainingCount})`}
           </button>
         )}
       </div>

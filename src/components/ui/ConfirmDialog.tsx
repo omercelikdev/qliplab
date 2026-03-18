@@ -21,7 +21,6 @@ export function ConfirmDialog({ isOpen, title, message, confirmLabel = 'Delete',
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[10000] flex items-center justify-center"
-          onClick={onCancel}
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
