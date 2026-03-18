@@ -20,6 +20,8 @@ let skipNextClipboardChange = false;
 
 // Max content size to store (5MB) — prevents app freeze on huge clipboard data
 const MAX_CONTENT_SIZE = 5 * 1024 * 1024;
+// HTML content limit (1MB) — HTML can be much larger than text and costly to sanitize
+const MAX_HTML_SIZE = 1 * 1024 * 1024;
 
 export function useClipboardListener() {
   const { addItem } = useHistoryStore();
@@ -68,7 +70,7 @@ export function useClipboardListener() {
           try {
             if (await hasHTML()) {
               const html = await readHtml();
-              if (html && html.trim().length > 0) {
+              if (html && html.trim().length > 0 && html.length <= MAX_HTML_SIZE) {
                 htmlContent = html;
               }
             }

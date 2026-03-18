@@ -197,12 +197,19 @@ export const useVaultStore = create<VaultState>((set, get) => ({
             needsReEncrypt = true;
           }
 
+          let parsedData: unknown;
+          try {
+            parsedData = JSON.parse(plaintext);
+          } catch {
+            throw new Error(`Vault item ${row.id}: corrupted JSON data`);
+          }
+
           return {
             item: {
               id: row.id,
               type: row.type as VaultItemType,
               title: row.title,
-              data: JSON.parse(plaintext),
+              data: parsedData,
               trigger: row.trigger ?? undefined,
               icon: row.icon ?? undefined,
               isPinned: row.is_pinned === 1,

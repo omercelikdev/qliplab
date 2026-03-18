@@ -94,21 +94,26 @@ async function getAutoReportingEnabled(): Promise<boolean> {
   }
 }
 
+// Sanitize error message to remove potential user data (file paths, URLs with params, etc.)
+function sanitizeMessage(msg: string): string {
+  return msg
+    .replace(/(?:\/[^\s:)]+\/)+([^\s:)]+)/g, '$1') // Strip absolute paths
+    .replace(/https?:\/\/[^\s]+/g, '[url]') // Strip URLs
+    .replace(/"[^"]{50,}"/g, '"[redacted]"') // Strip long quoted strings
+    .slice(0, 200); // Truncate
+}
+
 function formatAutoReportBody(report: AutoErrorReport, systemInfoFormatted: string): string {
   return `## Auto-Reported Error
 
 **Type:** ${report.type}
 **Severity:** ${report.severity}
 **Time:** ${report.timestamp}
+**Error Hash:** ${report.stack || 'N/A'}
 
 ## Error
 \`\`\`
-${report.message}
-\`\`\`
-
-## Stack Trace
-\`\`\`
-${sanitizeStack(report.stack)}
+${sanitizeMessage(report.message)}
 \`\`\`
 
 ## Context
@@ -160,7 +165,7 @@ export async function reportError(
     const report: AutoErrorReport = {
       type: 'unhandled_exception',
       message: error.message,
-      stack: error.stack,
+      stack: getErrorHash(error), // Send hash only, never raw stack traces
       severity: 'error',
       context: {
         component: context?.component,

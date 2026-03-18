@@ -96,6 +96,56 @@ export async function hashPassword(password: string, existingSalt?: Uint8Array):
   return `${uint8ArrayToBase64(salt)}:${uint8ArrayToBase64(new Uint8Array(hash))}`;
 }
 
+// --- API Key obfuscation (not for vault-level security, just prevents plain-text in settings file) ---
+
+const API_KEY_SALT = new Uint8Array([113, 108, 105, 112, 108, 97, 98, 46, 97, 112, 105, 107, 101, 121, 115, 46]); // "qliplab.apikeys."
+
+async function deriveApiKeyEncryptionKey(): Promise<CryptoKey> {
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode('com.qliplab.app.settings.v1'),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: API_KEY_SALT, iterations: 10000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+/** Encrypt an API key for safe storage in settings. Returns base64 string. */
+export async function encryptApiKey(apiKey: string): Promise<string> {
+  if (!apiKey) return '';
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveApiKeyEncryptionKey();
+  const encrypted = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    encoder.encode(apiKey)
+  );
+  const combined = new Uint8Array(iv.length + encrypted.byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(encrypted), iv.length);
+  return `enc:${uint8ArrayToBase64(combined)}`;
+}
+
+/** Decrypt an API key from settings. Handles both encrypted (enc:...) and legacy plain-text. */
+export async function decryptApiKey(stored: string): Promise<string> {
+  if (!stored) return '';
+  if (!stored.startsWith('enc:')) return stored; // Legacy plain-text, will be re-encrypted on next save
+  const payload = stored.slice(4);
+  const combined = Uint8Array.from(atob(payload), (c) => c.charCodeAt(0));
+  const iv = combined.slice(0, 12);
+  const data = combined.slice(12);
+  const key = await deriveApiKeyEncryptionKey();
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+  return decoder.decode(decrypted);
+}
+
 // Constant-time string comparison to prevent timing attacks
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
