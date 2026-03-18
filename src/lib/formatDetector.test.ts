@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectFormat, isSensitive } from './formatDetector';
+import { detectFormat, isSensitive, getFormatDisplayName } from './formatDetector';
 
 // ─── Test 1: Format Detection ────────────────────────────────
 
@@ -159,5 +159,34 @@ describe('isSensitive', () => {
 
   it('does NOT flag normal code', () => {
     expect(isSensitive('const x = 42; console.log(x);')).toBe(false);
+  });
+});
+
+// ─── Test 3: getFormatDisplayName ────────────────────────────
+
+describe('getFormatDisplayName', () => {
+  it('returns format name as-is for unknown format', () => {
+    expect(getFormatDisplayName('unknown_format' as any)).toBe('unknown_format');
+  });
+});
+
+// ─── Test 4: XML Detection (non-HTML) ────────────────────────
+
+describe('detectFormat XML', () => {
+  it('detects XML (non-HTML)', () => {
+    expect(detectFormat('<root><item>hello</item></root>')).toBe('xml');
+  });
+});
+
+// ─── Test 5: YAML Edge Cases ─────────────────────────────────
+
+describe('detectFormat YAML edge cases', () => {
+  it('does not detect simple string as YAML', () => {
+    // "hello" is valid YAML but loads as a string, not an object
+    expect(detectFormat('hello')).toBe('plain');
+  });
+
+  it('does not detect content without colon as YAML', () => {
+    expect(detectFormat('no colon here')).toBe('plain');
   });
 });

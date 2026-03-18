@@ -20,6 +20,7 @@ import {
   titleCase, kebabCase, pascalCase,
   countStats,
   xmlToJson, jsonToXml,
+  beautifyJavaScript, beautifyTypeScript,
 } from './transforms';
 
 // ─── Test 3: JSON Transforms ─────────────────────────────────
@@ -649,5 +650,116 @@ describe('XML transforms', () => {
     const input = 'not xml at all';
     const result = xmlToJson(input);
     expect(result).toBe(input);
+  });
+});
+
+// ─── Test 21: Prettier Formatting ───────────────────────────
+
+describe('Prettier formatting', () => {
+  it('beautifies JavaScript code', async () => {
+    const input = 'const x=1;const y=2;';
+    const result = await beautifyJavaScript(input);
+    expect(result).toContain('const x = 1;');
+    expect(result).toContain('const y = 2;');
+  });
+
+  it('beautifies TypeScript code', async () => {
+    const input = 'const x:number=1;';
+    const result = await beautifyTypeScript(input);
+    expect(result).toContain('const x: number = 1;');
+  });
+
+  it('returns original on invalid JS', async () => {
+    const input = '{{{{invalid';
+    const result = await beautifyJavaScript(input);
+    expect(result).toBe(input);
+  });
+
+  it('returns original on invalid TS', async () => {
+    const input = '{{{{invalid';
+    const result = await beautifyTypeScript(input);
+    expect(result).toBe(input);
+  });
+});
+
+// ─── Test 22: HSL Color Range Branches ──────────────────────
+
+describe('Color HSL range branches', () => {
+  it('converts green HSL (h=120)', () => {
+    expect(colorToRgb('hsl(120, 100%, 50%)')).toBe('rgb(0, 255, 0)');
+  });
+
+  it('converts blue HSL (h=240)', () => {
+    expect(colorToRgb('hsl(240, 100%, 50%)')).toBe('rgb(0, 0, 255)');
+  });
+
+  it('converts cyan HSL (h=180)', () => {
+    expect(colorToRgb('hsl(180, 100%, 50%)')).toBe('rgb(0, 255, 255)');
+  });
+
+  it('converts magenta HSL (h=300)', () => {
+    expect(colorToRgb('hsl(300, 100%, 50%)')).toBe('rgb(255, 0, 255)');
+  });
+
+  it('converts yellow HSL (h=60)', () => {
+    expect(colorToRgb('hsl(60, 100%, 50%)')).toBe('rgb(255, 255, 0)');
+  });
+
+  it('handles RGBA with alpha', () => {
+    expect(colorToHex('rgba(255, 0, 0, 0.5)')).toContain('#ff0000');
+  });
+
+  it('handles HSLA with alpha', () => {
+    const result = colorToRgb('hsla(0, 100%, 50%, 0.5)');
+    expect(result).toBe('rgba(255, 0, 0, 0.5)');
+  });
+
+  it('handles 8-digit HEX with alpha', () => {
+    const result = colorToRgb('#ff000080');
+    expect(result).toContain('rgba');
+  });
+});
+
+// ─── Test 23: CSV Delimiter Detection ───────────────────────
+
+describe('CSV delimiter detection', () => {
+  it('detects semicolon delimiter', () => {
+    const result = parseCsv('a;b;c\n1;2;3');
+    expect(result).toEqual([['a', 'b', 'c'], ['1', '2', '3']]);
+  });
+
+  it('detects tab delimiter', () => {
+    const result = parseCsv('a\tb\tc\n1\t2\t3');
+    expect(result).toEqual([['a', 'b', 'c'], ['1', '2', '3']]);
+  });
+
+  it('detects pipe delimiter', () => {
+    const result = parseCsv('a|b|c\n1|2|3');
+    expect(result).toEqual([['a', 'b', 'c'], ['1', '2', '3']]);
+  });
+});
+
+// ─── Test 24: XML with Arrays and Attributes ────────────────
+
+describe('XML arrays and attributes', () => {
+  it('jsonToXml handles arrays', () => {
+    const json = '{"root":{"item":["a","b","c"]}}';
+    const result = jsonToXml(json);
+    expect(result).toContain('<item>a</item>');
+    expect(result).toContain('<item>b</item>');
+    expect(result).toContain('<item>c</item>');
+  });
+
+  it('jsonToXml wraps multiple root keys', () => {
+    const json = '{"a":"1","b":"2"}';
+    const result = jsonToXml(json);
+    expect(result).toContain('<root>');
+  });
+
+  it('jsonToXml handles attributes', () => {
+    const json = '{"root":{"@attributes":{"id":"1"},"#text":"hello"}}';
+    const result = jsonToXml(json);
+    expect(result).toContain('id="1"');
+    expect(result).toContain('hello');
   });
 });

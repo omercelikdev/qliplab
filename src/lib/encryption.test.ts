@@ -138,3 +138,88 @@ describe('edge cases', () => {
     expect(decrypted).toBe('data');
   });
 });
+
+// ─── Test: Legacy iteration fallback (line 83) ─────────────
+
+describe('legacy iteration fallback', () => {
+  it('decrypt throws when both current and legacy iterations fail', async () => {
+    // Corrupt ciphertext that will fail both iteration counts
+    const fakeCiphertext = btoa('a'.repeat(100)); // Invalid encrypted data
+    await expect(decrypt(fakeCiphertext, 'password')).rejects.toThrow();
+  });
+
+  it('decrypt succeeds with data encrypted using legacy 100K iterations', async () => {
+    // Manually encrypt with 100K iterations to simulate legacy data
+    const encoder = new TextEncoder();
+    const password = 'legacyPass';
+    const plaintext = 'legacy secret';
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(password),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+    const legacyKey = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      legacyKey,
+      encoder.encode(plaintext)
+    );
+
+    const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+    combined.set(salt, 0);
+    combined.set(iv, salt.length);
+    combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+
+    let binary = '';
+    for (let i = 0; i < combined.length; i++) {
+      binary += String.fromCharCode(combined[i]);
+    }
+    const legacyCiphertext = btoa(binary);
+
+    // decrypt() should fail with 210K iterations, then succeed with 100K fallback
+    const result = await decrypt(legacyCiphertext, password);
+    expect(result).toBe(plaintext);
+  });
+});
+
+// ─── Test: timingSafeEqual different-length branch (line 151) ─
+
+describe('timingSafeEqual different-length strings', () => {
+  it('rejects password when hash lengths differ', async () => {
+    // A stored hash with different length will hit the early return in timingSafeEqual
+    // We use a salted format hash but tamper with it so computed vs stored lengths differ
+    const hash = await hashPassword('myPassword');
+    const tamperedHash = hash + 'extra'; // Different length from any computed hash
+    expect(await verifyPassword('myPassword', tamperedHash)).toBe(false);
+  });
+});
+
+// ─── Test: Legacy unsalted password verification (lines 170-172) ─
+
+describe('legacy unsalted password verification', () => {
+  it('verifies against legacy unsalted SHA-256 hash', async () => {
+    // Create a legacy-format hash: base64(SHA-256(password)) without salt
+    const encoder = new TextEncoder();
+    const hash = await crypto.subtle.digest('SHA-256', encoder.encode('testpass'));
+    const bytes = new Uint8Array(hash);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const legacyHash = btoa(binary); // No colon, no salt prefix
+
+    expect(await verifyPassword('testpass', legacyHash)).toBe(true);
+    expect(await verifyPassword('wrongpass', legacyHash)).toBe(false);
+  });
+});
