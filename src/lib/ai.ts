@@ -53,6 +53,32 @@ export async function runAiAction(action: AiAction, content: string): Promise<st
   }
 }
 
+/** Parse API error responses into user-friendly messages */
+function formatApiError(provider: string, status: number, body: string): string {
+  // Try to extract a clean message from JSON error responses
+  try {
+    const json = JSON.parse(body);
+    const msg = json.error?.message || json.message || '';
+
+    if (status === 429) {
+      return `${provider} rate limit exceeded. Please wait a moment and try again.`;
+    }
+    if (status === 401 || status === 403) {
+      return `${provider} API key is invalid or expired. Check your key in Settings.`;
+    }
+    if (status === 400) {
+      return `${provider} rejected the request: ${msg.slice(0, 150) || 'Bad request'}`;
+    }
+    if (msg) {
+      return `${provider} error: ${msg.slice(0, 150)}`;
+    }
+  } catch {
+    // Not JSON, use status code
+  }
+
+  return `${provider} API error (${status}). Please try again later.`;
+}
+
 async function callAnthropic(apiKey: string, systemPrompt: string, content: string): Promise<string> {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -71,8 +97,7 @@ async function callAnthropic(apiKey: string, systemPrompt: string, content: stri
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Anthropic API error (${response.status}): ${err}`);
+    throw new Error(formatApiError('Anthropic', response.status, await response.text()));
   }
 
   const data = await response.json();
@@ -93,8 +118,7 @@ async function callGemini(apiKey: string, systemPrompt: string, content: string)
   );
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Gemini API error (${response.status}): ${err}`);
+    throw new Error(formatApiError('Gemini', response.status, await response.text()));
   }
 
   const data = await response.json();
@@ -119,8 +143,7 @@ async function callOpenAI(apiKey: string, systemPrompt: string, content: string)
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`OpenAI API error (${response.status}): ${err}`);
+    throw new Error(formatApiError('OpenAI', response.status, await response.text()));
   }
 
   const data = await response.json();
