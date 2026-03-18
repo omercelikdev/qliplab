@@ -204,6 +204,39 @@ export const CONFIG = {
 
 ---
 
+## Development Rules (MANDATORY)
+
+### 1. Tests Required for Every Change
+- **Every new function** in `src/lib/` MUST have unit tests
+- **Every bug fix** MUST include a regression test proving the fix
+- Run `npx vitest run` before committing — all tests must pass
+- Target: 95%+ line coverage, 100% function coverage
+- Test files: `src/lib/{module}.test.ts` using vitest
+
+### 2. i18n Required for Every UI String
+- **Every user-visible string** MUST use `t('key')` from `useTranslation()`
+- **Never hardcode** UI text in components — always add to `en.json` first
+- After adding keys to `en.json`, add translations to ALL 15 locale files:
+  `en, tr, ar, de, fr, es, pt, zh, ja, ko, ru, it, hi, nl, pl`
+- Key convention: `{namespace}.{section}.{key}` (e.g. `history.emptyState.title`)
+- Use `{{variable}}` for interpolation
+- DO NOT translate: brand names, format names (JSON, YAML), programming terms
+
+### 3. RTL Awareness
+- Use logical CSS properties: `ps-`/`pe-` (not `pl-`/`pr-`), `ms-`/`me-` (not `ml-`/`mr-`)
+- Use `text-start`/`text-end` (not `text-left`/`text-right`)
+- Use `border-s`/`border-e` (not `border-l`/`border-r`)
+- Toggle switches: `ltr:left-*/rtl:right-*` variants
+
+### 4. Code Quality Gates
+- `npx tsc --noEmit` — zero TypeScript errors
+- `npx vitest run` — all tests pass
+- No `any` types in `src/` (except test files with `as any`)
+- No `console.log` in production code (only `console.error` in catch blocks)
+- No unauthorized functional changes without user approval
+
+---
+
 ## Common Patterns
 
 ### Component with Store
