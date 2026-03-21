@@ -228,7 +228,17 @@ export const CONFIG = {
 - Use `border-s`/`border-e` (not `border-l`/`border-r`)
 - Toggle switches: `ltr:left-*/rtl:right-*` variants
 
-### 4. Code Quality Gates
+### 4. Cross-Platform (CRITICAL)
+- **Every change MUST work on macOS, Windows, AND Linux**
+- Rust: use `#[cfg(target_os = "macos")]` / `#[cfg(not(target_os = "macos"))]` for platform-specific code
+- Rust: `show_panel`/`hide_panel` already have cross-platform implementations — always use them
+- Tray icon: macOS = template image (black on transparent), Windows/Linux = full-color icon
+- Window management: macOS uses NSPanel, Windows/Linux use standard Tauri window — both handled by `show_panel`/`hide_panel`
+- Keyboard shortcuts: macOS = `Cmd`, Windows/Linux = `Ctrl` — use platform-aware mappings
+- Never add macOS-only features without a Windows/Linux fallback
+- Test `cargo check` for Rust and `npx tsc --noEmit` for TypeScript
+
+### 5. Code Quality Gates (Run Before Every Commit)
 - `npx tsc --noEmit` — zero TypeScript errors
 - `npx vitest run` — all tests pass
 - No `any` types in `src/` (except test files with `as any`)
