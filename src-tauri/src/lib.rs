@@ -1605,9 +1605,15 @@ pub fn run() {
                     .build()?;
 
                 let mut tray_builder = TrayIconBuilder::new();
-                if let Some(icon) = app.default_window_icon().cloned() {
+
+                // Use dedicated tray icon (black on transparent for macOS template)
+                let tray_icon_bytes = include_bytes!("../icons/tray-icon.png");
+                if let Ok(icon) = tauri::image::Image::from_bytes(tray_icon_bytes) {
+                    tray_builder = tray_builder.icon(icon);
+                } else if let Some(icon) = app.default_window_icon().cloned() {
                     tray_builder = tray_builder.icon(icon);
                 }
+
                 let _tray = tray_builder
                     .icon_as_template(true)
                     .menu(&menu)
