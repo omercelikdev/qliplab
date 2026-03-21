@@ -1630,11 +1630,9 @@ pub fn run() {
                     .on_menu_event(|app, event| {
                         match event.id().as_ref() {
                             "show" => {
-                                let _ = show_panel(app.clone());
-                                if let Some(window) = app.get_webview_window("main") {
-                                    let _ = window.show();
-                                    let _ = window.set_focus();
-                                }
+                                // Emit event to frontend — let JS handle the full
+                                // show sequence (show_panel → size → position → focus)
+                                let _ = app.emit("tray-show", ());
                             }
                             "quit" => {
                                 app.exit(0);
@@ -1645,11 +1643,7 @@ pub fn run() {
                     .on_tray_icon_event(|tray, event| {
                         if let tauri::tray::TrayIconEvent::Click { button: tauri::tray::MouseButton::Left, .. } = event {
                             let app = tray.app_handle();
-                            let _ = show_panel(app.clone());
-                            if let Some(window) = app.get_webview_window("main") {
-                                let _ = window.show();
-                                let _ = window.set_focus();
-                            }
+                            let _ = app.emit("tray-show", ());
                         }
                     })
                     .build(app)?;

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { getCurrentWindow, LogicalPosition, type CloseRequestedEvent } from '@tauri-apps/api/window';
+import { listen } from '@tauri-apps/api/event';
 import { Sidebar } from './components/layout/Sidebar';
 import { SearchBar } from './components/layout/DragBar';
 import { HintBar } from './components/layout/HintBar';
@@ -32,6 +33,7 @@ import { useTagStore } from './stores/tagStore';
 import { useLicenseStore } from './stores/licenseStore';
 import { initDatabase } from './lib/database';
 import i18n from './i18n';
+import { showWindow } from './lib/window';
 import { cn } from './lib/utils';
 
 const DEFAULT_LIST_WIDTH = 300;
@@ -97,6 +99,14 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [isInitialized, eulaAccepted, hasSeenOptIn]);
+
+  // Listen for tray icon "Show" event from Rust
+  useEffect(() => {
+    const unlisten = listen('tray-show', () => {
+      showWindow();
+    });
+    return () => { unlisten.then(fn => fn()); };
+  }, []);
 
   // Clear unpinned history on quit if setting is enabled
   useEffect(() => {
