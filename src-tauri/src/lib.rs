@@ -1606,20 +1606,31 @@ pub fn run() {
 
                 let mut tray_builder = TrayIconBuilder::new();
 
-                // Use dedicated tray icon (black on transparent for macOS template)
-                let tray_icon_bytes = include_bytes!("../icons/tray-icon.png");
-                if let Ok(icon) = tauri::image::Image::from_bytes(tray_icon_bytes) {
-                    tray_builder = tray_builder.icon(icon);
-                } else if let Some(icon) = app.default_window_icon().cloned() {
-                    tray_builder = tray_builder.icon(icon);
+                // macOS: Use template image (black on transparent, system adapts color)
+                // Windows/Linux: Use full-color app icon
+                #[cfg(target_os = "macos")]
+                {
+                    let tray_icon_bytes = include_bytes!("../icons/tray-icon.png");
+                    if let Ok(icon) = tauri::image::Image::from_bytes(tray_icon_bytes) {
+                        tray_builder = tray_builder.icon(icon);
+                    } else if let Some(icon) = app.default_window_icon().cloned() {
+                        tray_builder = tray_builder.icon(icon);
+                    }
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    if let Some(icon) = app.default_window_icon().cloned() {
+                        tray_builder = tray_builder.icon(icon);
+                    }
                 }
 
                 let _tray = tray_builder
-                    .icon_as_template(true)
+                    .icon_as_template(cfg!(target_os = "macos"))
                     .menu(&menu)
                     .on_menu_event(|app, event| {
                         match event.id().as_ref() {
                             "show" => {
+                                let _ = show_panel(app.clone());
                                 if let Some(window) = app.get_webview_window("main") {
                                     let _ = window.show();
                                     let _ = window.set_focus();
@@ -1634,16 +1645,10 @@ pub fn run() {
                     .on_tray_icon_event(|tray, event| {
                         if let tauri::tray::TrayIconEvent::Click { button: tauri::tray::MouseButton::Left, .. } = event {
                             let app = tray.app_handle();
+                            let _ = show_panel(app.clone());
                             if let Some(window) = app.get_webview_window("main") {
                                 let _ = window.show();
                                 let _ = window.set_focus();
-                                #[cfg(target_os = "macos")]
-                                {
-                                    if let Ok(panel) = app.get_webview_panel("main") {
-                                        panel.set_ignore_mouse_events(false);
-                                        panel.show();
-                                    }
-                                }
                             }
                         }
                     })
