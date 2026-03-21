@@ -17,6 +17,7 @@ import type { AiAction } from '@/lib/ai';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { useTagStore } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
+import { useLicenseStore } from '@/stores/licenseStore';
 import type { ClipboardItem } from '@/types/clipboard';
 
 interface ItemMenuProps {
@@ -150,7 +151,10 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
   const handleDelete = () => { deleteItem(item.id); onClose(); };
   const handlePin = () => { togglePin(item.id); onClose(); };
 
-  const aiAvailable = isAiConfigured() && item.contentType === 'text' && !item.isSensitive;
+  const canUse = useLicenseStore((state) => state.canUse);
+  const aiAvailable = canUse('ai_actions') && isAiConfigured() && item.contentType === 'text' && !item.isSensitive;
+  const ocrAvailable = canUse('ocr');
+  const htmlPasteAvailable = canUse('html_paste');
 
   const getTransformItems = () => {
     switch (item.detectedFormat) {
@@ -277,7 +281,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
             onMouseLeave={onMouseLeave}
           >
             <MenuButton icon={Copy} label={t('history.menu.copy')} onClick={handleCopy} />
-            {item.htmlContent && (
+            {item.htmlContent && htmlPasteAvailable && (
               <>
                 <MenuButton icon={FileText} label={t('history.menu.copyHtml')} onClick={handleCopyHtml} />
                 <MenuButton icon={ClipboardPaste} label={t('history.menu.pastePlain')} onClick={handlePastePlainText} />
@@ -285,7 +289,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
             )}
             <MenuButton icon={Pencil} label={t('history.menu.edit')} onClick={() => { openView(item); onClose(); }} />
 
-            {item.contentType === 'image' && (
+            {item.contentType === 'image' && ocrAvailable && (
               <>
                 <div className="h-px bg-border my-1" />
                 <MenuButton icon={ScanText} label={t('history.menu.extractText')} onClick={handleOcr} />

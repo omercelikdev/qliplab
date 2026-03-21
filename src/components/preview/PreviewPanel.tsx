@@ -17,6 +17,7 @@ import { Image } from '@tauri-apps/api/image';
 import { hideWriteAndPaste } from '@/lib/window';
 import { renderMarkdown } from '@/lib/markdownRenderer';
 import DOMPurify from 'dompurify';
+import { useLicenseStore } from '@/stores/licenseStore';
 import { cn } from '@/lib/utils';
 
 const MonacoDiffEditor = lazy(() =>
@@ -255,6 +256,7 @@ export function PreviewPanel() {
         <PipelineBar
           steps={pipelineSteps}
           detectedFormat={pipelineSteps.length > 0 ? detectFormat(editedContent) : (sourceItem?.detectedFormat ?? 'plain')}
+          canChain={useLicenseStore.getState().canUse('transform_chaining')}
           onRemoveStep={removePipelineStep}
           onAddStep={async (transformId) => {
             const def = getTransformById(transformId);
@@ -357,6 +359,7 @@ function EditorStats({ content, isImage }: { content: string; isImage?: boolean 
 function PipelineBar({
   steps,
   detectedFormat,
+  canChain,
   onRemoveStep,
   onAddStep,
   showPicker,
@@ -365,6 +368,7 @@ function PipelineBar({
 }: {
   steps: PipelineStep[];
   detectedFormat: string;
+  canChain: boolean;
   onRemoveStep: (index: number) => void;
   onAddStep: (transformId: string) => void;
   showPicker: boolean;
@@ -395,18 +399,20 @@ function PipelineBar({
             <ChevronRight className="w-3 h-3 text-muted-foreground shrink-0" />
           </>
         )}
-        <button
-          onClick={onTogglePicker}
-          className={cn(
-            'flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded transition-colors cursor-pointer shrink-0',
-            showPicker
-              ? 'bg-accent text-accent-foreground'
-              : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
-          )}
-        >
-          <Plus className="w-3 h-3" />
-          {t('preview.addTransform')}
-        </button>
+        {(steps.length === 0 || canChain) && (
+          <button
+            onClick={onTogglePicker}
+            className={cn(
+              'flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded transition-colors cursor-pointer shrink-0',
+              showPicker
+                ? 'bg-accent text-accent-foreground'
+                : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
+            )}
+          >
+            <Plus className="w-3 h-3" />
+            {t('preview.addTransform')}
+          </button>
+        )}
       </div>
 
       {showPicker && (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info, Sparkles, RotateCcw, Crown } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { EulaViewerDialog } from '@/components/legal/EulaViewerDialog';
@@ -12,6 +12,8 @@ import { recordConsent } from '@/lib/consentLog';
 import { exportData, importData, type ExportSection } from '@/lib/exportImport';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { CONFIG } from '@/lib/config';
+import { useLicenseStore } from '@/stores/licenseStore';
+import { PREMIUM_FEATURES, isBeta } from '@/lib/license';
 import { cn } from '@/lib/utils';
 
 const THEME_LABELS: Record<string, string> = {
@@ -57,23 +59,31 @@ export function SettingsPanel() {
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.theme.label')}</label>
               <div className="flex gap-2">
-                {(['light', 'dark', 'system'] as const).map((theme) => (
-                  <button
-                    key={theme}
-                    onClick={() => updateSetting('theme', theme)}
-                    className={cn(
-                      'flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border transition-colors cursor-pointer',
-                      settings.theme === theme
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:bg-surface-hover'
-                    )}
-                  >
-                    {theme === 'light' && <Sun className="w-3.5 h-3.5" />}
-                    {theme === 'dark' && <Moon className="w-3.5 h-3.5" />}
-                    {theme === 'system' && <Monitor className="w-3.5 h-3.5" />}
-                    {t(THEME_LABELS[theme])}
-                  </button>
-                ))}
+                {(['light', 'dark', 'system'] as const).map((themeOption) => {
+                  const canUseThemes = useLicenseStore.getState().canUse('themes');
+                  const isLocked = !canUseThemes && themeOption !== 'system';
+                  return (
+                    <button
+                      key={themeOption}
+                      onClick={() => !isLocked && updateSetting('theme', themeOption)}
+                      disabled={isLocked}
+                      className={cn(
+                        'flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border transition-colors',
+                        isLocked
+                          ? 'border-border opacity-40 cursor-not-allowed'
+                          : 'cursor-pointer',
+                        !isLocked && settings.theme === themeOption
+                          ? 'border-accent bg-accent/10 text-accent'
+                          : !isLocked ? 'border-border hover:bg-surface-hover' : ''
+                      )}
+                    >
+                      {themeOption === 'light' && <Sun className="w-3.5 h-3.5" />}
+                      {themeOption === 'dark' && <Moon className="w-3.5 h-3.5" />}
+                      {themeOption === 'system' && <Monitor className="w-3.5 h-3.5" />}
+                      {t(THEME_LABELS[themeOption])}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -212,6 +222,10 @@ export function SettingsPanel() {
                 onChange={(apps) => updateSetting('ignoredApps', apps)}
               />
             </div>
+
+            {/* Premium */}
+            <div className="dotted-separator" />
+            <PremiumSection />
 
             {/* AI Settings */}
             <div className="dotted-separator" />
@@ -899,6 +913,90 @@ function IgnoredAppsList({
               </button>
             </span>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PremiumSection() {
+  const { t } = useTranslation();
+  const entitlement = useLicenseStore((state) => state.entitlement);
+  const isPurchasing = useLicenseStore((state) => state.isPurchasing);
+  const error = useLicenseStore((state) => state.error);
+  const purchasePremium = useLicenseStore((state) => state.purchasePremium);
+  const restorePurchases = useLicenseStore((state) => state.restorePurchases);
+
+  const beta = isBeta();
+  const premium = entitlement.isPremium && !beta;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Crown className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">
+          {t('license.premium.title')}
+        </span>
+        <span className={cn(
+          'px-1.5 py-0.5 text-[10px] font-medium rounded',
+          beta ? 'bg-blue-500/10 text-blue-500' :
+          premium ? 'bg-green-500/10 text-green-500' :
+          'bg-foreground/5 text-muted-foreground'
+        )}>
+          {beta ? t('license.status.beta') : premium ? t('license.status.premium') : t('license.status.free')}
+        </span>
+      </div>
+
+      {premium && (
+        <div className="p-3 rounded-md border border-green-500/20 bg-green-500/5 text-xs space-y-1">
+          <p className="font-medium text-green-600 dark:text-green-400">{t('license.premium.thankyou')}</p>
+          {entitlement.purchaseDate && (
+            <p className="text-muted-foreground">
+              {t('license.premium.purchaseDate', { date: new Date(entitlement.purchaseDate).toLocaleDateString() })}
+            </p>
+          )}
+        </div>
+      )}
+
+      {beta && (
+        <p className="text-[11px] text-muted-foreground">
+          {t('license.upgrade.description')}
+        </p>
+      )}
+
+      {!premium && !beta && (
+        <div className="space-y-2">
+          <p className="text-[11px] text-muted-foreground">
+            {t('license.upgrade.description')}
+          </p>
+          <div className="space-y-1">
+            {Object.values(PREMIUM_FEATURES).map((def) => (
+              <div key={def.id} className="flex items-center gap-2 text-[11px]">
+                <Sparkles className="w-3 h-3 text-accent shrink-0" />
+                <span>{t(def.labelKey)}</span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={purchasePremium}
+            disabled={isPurchasing}
+            className={cn(
+              'w-full py-2 text-xs font-medium rounded-lg transition-colors cursor-pointer',
+              'bg-accent text-accent-foreground hover:bg-accent/90',
+              isPurchasing && 'opacity-50 cursor-not-allowed'
+            )}
+          >
+            {isPurchasing ? t('license.upgrade.purchasing') : t('license.upgrade.button')}
+          </button>
+          <button
+            onClick={restorePurchases}
+            disabled={isPurchasing}
+            className="w-full flex items-center justify-center gap-1 py-1.5 text-[11px] text-muted-foreground hover:text-foreground cursor-pointer"
+          >
+            <RotateCcw className="w-3 h-3" />
+            {t('license.restore.button')}
+          </button>
+          {error && <p className="text-[11px] text-destructive">{error}</p>}
         </div>
       )}
     </div>

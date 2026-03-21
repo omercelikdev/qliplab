@@ -3,6 +3,7 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useVaultStore } from '@/stores/vaultStore';
 import { expandVariables } from '@/lib/snippetVariables';
+import { useLicenseStore } from '@/stores/licenseStore';
 import type { Snippet } from '@/types/snippet';
 import type {
   VaultItem, VaultItemType,
@@ -241,7 +242,8 @@ export async function expandTrigger(sourceId: string, triggerLen: number): Promi
       const snippetId = sourceId.slice('snippet:'.length);
       const snippet = useSnippetStore.getState().snippets.find((s) => s.id === snippetId);
       if (!snippet) return;
-      content = await expandVariables(snippet.content);
+      const canExpandVars = useLicenseStore.getState().canUse('snippet_variables');
+      content = canExpandVars ? await expandVariables(snippet.content) : snippet.content;
     } else if (sourceId.startsWith('vault:')) {
       // Format: "vault:<uuid>:<field>"
       const parts = sourceId.split(':');

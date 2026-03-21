@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAppStore } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useHistoryStore } from '@/stores/historyStore';
+import { useLicenseStore } from '@/stores/licenseStore';
 
 export function useDiffMode() {
   const isDiffMode = useAppStore((state) => state.isDiffMode);
@@ -20,6 +21,10 @@ export function useDiffMode() {
       // macOS: Option+D produces '∂', so check both key and code
       if (e.altKey && (e.key === 'd' || e.key === '∂' || e.code === 'KeyD')) {
         e.preventDefault();
+
+        // Check diff mode license gate
+        if (!useLicenseStore.getState().canUse('diff_mode')) return;
+
         const currentIsDiffMode = useAppStore.getState().isDiffMode;
         const { isOpen, close } = usePreviewStore.getState();
 

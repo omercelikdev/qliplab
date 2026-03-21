@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clipboard, History, FileText, Lock, Settings } from 'lucide-react';
+import { History, FileText, Lock, Settings } from 'lucide-react';
+import { QlipLabIcon } from '@/components/icons/QlipLabIcon';
 import { useAppStore, Tab } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useSnippetStore } from '@/stores/snippetStore';
@@ -61,8 +62,8 @@ export function Sidebar() {
       className="w-11 h-full flex flex-col items-center pt-2 pb-[6px] elevation-right cursor-move shrink-0 drag-region"
     >
       {/* Brand Logo */}
-      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-[0_2px_8px_var(--color-accent)/10] no-drag">
-        <Clipboard className="w-4 h-4 text-accent-foreground" />
+      <div className="w-8 h-8 flex items-center justify-center no-drag">
+        <QlipLabIcon size={24} />
       </div>
 
       {/* Top tabs */}

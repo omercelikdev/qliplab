@@ -6,6 +6,7 @@ import { useAppStore } from '@/stores/appStore';
 import type { ClipboardItem, ContentType, DetectedFormat } from '@/types/clipboard';
 import type { ClipboardHistoryRow } from '@/types/database';
 import type { FormatFilterGroup } from '@/stores/appStore';
+import { useLicenseStore } from '@/stores/licenseStore';
 
 const PAGE_SIZE = 50;
 
@@ -118,8 +119,10 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         );
       }
 
-      // Enforce history limit
-      const limit = useSettingsStore.getState().settings.historyLimit;
+      // Enforce history limit (use license-capped limit or user setting)
+      const featureLimit = useLicenseStore.getState().getLimit('history_unlimited');
+      const userLimit = useSettingsStore.getState().settings.historyLimit;
+      const limit = featureLimit !== null ? Math.min(featureLimit, userLimit) : userLimit;
       await db.execute(
         `DELETE FROM clipboard_history WHERE id IN (
           SELECT id FROM clipboard_history WHERE is_pinned = 0

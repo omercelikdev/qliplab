@@ -29,6 +29,7 @@ import { useTriggerEngine } from './hooks/useTriggerEngine';
 import { useTheme } from './hooks/useTheme';
 import { useSettingsStore } from './stores/settingsStore';
 import { useTagStore } from './stores/tagStore';
+import { useLicenseStore } from './stores/licenseStore';
 import { initDatabase } from './lib/database';
 import i18n from './i18n';
 import { cn } from './lib/utils';
@@ -81,6 +82,7 @@ function App() {
         loadItems(),
         useTagStore.getState().loadTags(),
         useTagStore.getState().loadItemTags(),
+        useLicenseStore.getState().checkEntitlement(),
       ]);
       setIsInitialized(true);
     };
