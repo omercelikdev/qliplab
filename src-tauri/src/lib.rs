@@ -1640,11 +1640,8 @@ pub fn run() {
                             _ => {}
                         }
                     })
-                    .on_tray_icon_event(|tray, event| {
-                        if let tauri::tray::TrayIconEvent::Click { button: tauri::tray::MouseButton::Left, .. } = event {
-                            let app = tray.app_handle();
-                            let _ = app.emit("tray-show", ());
-                        }
+                    .on_tray_icon_event(|_tray, _event| {
+                        // No action on icon click — use right-click menu instead
                     })
                     .build(app)?;
             }
