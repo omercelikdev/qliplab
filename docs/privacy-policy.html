@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QlipLab — Privacy Policy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0B1120;
+      color: #e2e8f0;
+      line-height: 1.7;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #F97316;
+    }
+    .updated {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      color: #FBBF24;
+      margin-top: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+    p { margin-bottom: 0.75rem; }
+    ul {
+      padding-left: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    li { margin-bottom: 0.35rem; }
+    strong { color: #f8fafc; }
+    .disclaimer {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    a { color: #F97316; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>QlipLab Privacy Policy</h1>
+    <p class="updated">Last updated: March 2026 | QlipLab v0.1.0</p>
+
+    <h2>Overview</h2>
+    <p>QlipLab is a local-first clipboard manager. Your data stays on your device. We do not collect, transmit, or store your clipboard content on any external server.</p>
+
+    <h2>Data We Access</h2>
+    <ul>
+      <li><strong>Clipboard content</strong> — Text and images you copy are stored locally in a SQLite database on your device. This data never leaves your computer.</li>
+      <li><strong>Secure vault data</strong> — Vault items are encrypted with AES-256-GCM using a password only you know. Encrypted data is stored locally.</li>
+      <li><strong>App settings</strong> — Your preferences (theme, history limit, etc.) are stored locally on your device.</li>
+    </ul>
+
+    <h2>Optional Data Collection</h2>
+    <ul>
+      <li><strong>Crash reports (opt-in)</strong> — If you enable auto error reporting, we send crash details (error message, stack trace, app version, OS version) to help improve the app. No clipboard content, vault data, or personal information is included in these reports.</li>
+      <li><strong>Manual feedback</strong> — When you submit an issue report, only the information you explicitly type is sent.</li>
+    </ul>
+
+    <h2>Data We Do NOT Collect</h2>
+    <ul>
+      <li>No analytics or usage tracking</li>
+      <li>No advertising identifiers</li>
+      <li>No clipboard content is sent by QlipLab itself (see AI Features below for user-initiated transfers)</li>
+      <li>No vault passwords or encrypted data is transmitted</li>
+      <li>No personal information is collected</li>
+    </ul>
+
+    <h2>Data Storage</h2>
+    <p>All data is stored locally in the app's sandboxed data directory. Clipboard history is stored in plain text in SQLite. Vault items are encrypted with AES-256-GCM before storage. You can delete all data at any time from within the app.</p>
+
+    <h2>AI Features (Optional, User-Initiated)</h2>
+    <p>QlipLab offers optional AI-powered text processing (summarize, translate, fix grammar, etc.). These features are <strong>disabled by default</strong> and require:</p>
+    <ul>
+      <li>You to provide your own API key (Anthropic or OpenAI)</li>
+      <li>Explicit consent via a dedicated consent dialog with checkboxes</li>
+      <li>Manual confirmation before each individual AI request</li>
+    </ul>
+    <p><strong>When you use AI features:</strong></p>
+    <ul>
+      <li>Your clipboard text content is sent directly from your device to the selected AI provider's API over encrypted HTTPS</li>
+      <li>QlipLab does NOT act as an intermediary — data goes directly from your device to the provider</li>
+      <li>QlipLab does NOT store, log, or have access to the data you send to AI providers</li>
+      <li>The AI provider's own privacy policy and data retention rules apply</li>
+    </ul>
+    <p><strong>Safety measures:</strong></p>
+    <ul>
+      <li>AI actions are automatically blocked for items detected as sensitive (passwords, API keys, credit cards, personal IDs)</li>
+      <li>A confirmation dialog is shown before every AI request</li>
+      <li>Vault-encrypted data is never accessible to AI features</li>
+      <li>No AI processing occurs without your explicit, manual action</li>
+    </ul>
+
+    <h2>Third-Party Services</h2>
+    <ul>
+      <li><strong>Crash reporting (opt-in)</strong> — Uses a secure endpoint to create GitHub issues. No clipboard or personal data is included.</li>
+      <li><strong>AI providers (opt-in, user-initiated)</strong> — When you explicitly use AI features, your clipboard text is sent to Anthropic (api.anthropic.com) or OpenAI (api.openai.com) depending on your chosen provider. See their respective privacy policies for data handling details.</li>
+    </ul>
+    <p>No third-party analytics, advertising, or tracking services are used.</p>
+
+    <h2>Disclaimer &amp; Limitation of Liability</h2>
+    <div class="disclaimer">
+      <p>QlipLab is provided "AS IS" without warranty of any kind, express or implied.</p>
+      <p><strong>AI features:</strong> When you choose to use AI features, you are solely responsible for the content you send to third-party AI providers. QlipLab and its developers accept no liability for any data you choose to transmit to external services.</p>
+      <p><strong>Sensitive data detection:</strong> QlipLab uses automated pattern matching to detect potentially sensitive content. This detection is provided as a convenience and is NOT guaranteed to catch all sensitive content.</p>
+      <p><strong>Encryption:</strong> Vault encryption uses industry-standard AES-256-GCM. However, no encryption system is infallible.</p>
+      <p>In no event shall QlipLab or its developers be liable for any direct, indirect, incidental, special, or consequential damages arising from the use of this software.</p>
+    </div>
+
+    <h2>Your Rights</h2>
+    <ul>
+      <li>You can disable image storage at any time in Settings</li>
+      <li>You can clear all clipboard history at any time</li>
+      <li>You can enable auto-clear on quit</li>
+      <li>You can disable crash reporting at any time</li>
+      <li>You can revoke AI consent at any time in Settings</li>
+      <li>You can delete your API key at any time from Settings</li>
+      <li>Uninstalling the app removes all local data</li>
+    </ul>
+
+    <h2>Contact</h2>
+    <p>For questions about this privacy policy, please open an issue at <a href="https://github.com/celikomr/qliplab/issues">github.com/celikomr/qliplab/issues</a>.</p>
+
+    <p style="margin-top: 2rem; font-size: 0.8rem; color: #64748b;">&copy; 2026 &Ouml;mer &Ccedil;elik. All rights reserved.</p>
+  </div>
+</body>
+</html>
