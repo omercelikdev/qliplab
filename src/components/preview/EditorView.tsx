@@ -1,13 +1,60 @@
-import { Suspense, lazy, useMemo } from 'react';
+import { useState, useEffect, useMemo, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePreviewStore, getMonacoLanguage } from '@/stores/previewStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 
-const MonacoEditor = lazy(() => import('@monaco-editor/react'));
+// Dynamically load Monaco with error-resilient fallback
+function useMonacoEditor() {
+  const [Editor, setEditor] = useState<ComponentType<{
+    key?: string;
+    height?: string;
+    language?: string;
+    value?: string;
+    theme?: string;
+    options?: Record<string, unknown>;
+    onChange?: (value: string | undefined) => void;
+    loading?: React.ReactNode;
+  }> | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      if (!Editor && !cancelled) setFailed(true);
+    }, 5000);
+
+    import('@monaco-editor/react')
+      .then((mod) => {
+        if (!cancelled) {
+          setEditor(() => mod.default as ComponentType<{
+            key?: string;
+            height?: string;
+            language?: string;
+            value?: string;
+            theme?: string;
+            options?: Record<string, unknown>;
+            onChange?: (value: string | undefined) => void;
+            loading?: React.ReactNode;
+          }>);
+          clearTimeout(timer);
+        }
+      })
+      .catch((err) => {
+        console.error('[qliplab] Monaco editor failed to load:', err);
+        if (!cancelled) setFailed(true);
+        clearTimeout(timer);
+      });
+
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { Editor, failed };
+}
 
 export function EditorView() {
   const { sourceItem, editedContent, setEditedContent, mode, transformType } = usePreviewStore();
   const { settings } = useSettingsStore();
+  const { Editor, failed } = useMonacoEditor();
 
   const language = useMemo(() => {
     if (!sourceItem) return 'plaintext';
@@ -23,8 +70,6 @@ export function EditorView() {
     const transformKey = mode === 'transform' ? transformType : mode;
     return `${itemId}-${transformKey}`;
   }, [sourceItem?.id, mode, transformType]);
-
-  const isViewMode = mode === 'view';
 
   const editorOptions = useMemo(() => ({
     readOnly: false,
@@ -43,23 +88,47 @@ export function EditorView() {
       verticalScrollbarSize: 8,
       horizontalScrollbarSize: 8,
     },
-  }), [mode, isViewMode]);
+  }), [mode]);
 
   const theme = settings.theme === 'dark' ? 'vs-dark' : 'light';
 
-  return (
-    <Suspense fallback={<EditorSkeleton />}>
-      <MonacoEditor
-        key={editorKey}
-        height="100%"
-        language={language}
-        value={content}
-        theme={theme}
-        options={editorOptions}
-        onChange={(value) => setEditedContent(value || '')}
-        loading={<EditorSkeleton />}
+  // Fallback: plain textarea when Monaco fails to load (e.g. sandbox restrictions)
+  if (failed) {
+    return (
+      <FallbackEditor
+        content={content}
+        onChange={setEditedContent}
       />
-    </Suspense>
+    );
+  }
+
+  // Still loading Monaco
+  if (!Editor) {
+    return <EditorSkeleton />;
+  }
+
+  return (
+    <Editor
+      key={editorKey}
+      height="100%"
+      language={language}
+      value={content}
+      theme={theme}
+      options={editorOptions}
+      onChange={(value) => setEditedContent(value || '')}
+      loading={<EditorSkeleton />}
+    />
+  );
+}
+
+function FallbackEditor({ content, onChange }: { content: string | undefined; onChange: (value: string) => void }) {
+  return (
+    <textarea
+      className="h-full w-full bg-background text-foreground font-mono text-xs p-3 resize-none outline-none border-none"
+      value={content ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+      spellCheck={false}
+    />
   );
 }
 

@@ -42,7 +42,7 @@ export function Sidebar() {
         aria-label={label}
         onClick={() => handleTabChange(id)}
         className={cn(
-          'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag',
+          'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag outline-none focus:outline-none',
           isActive
             ? 'bg-accent/15 text-accent'
             : 'text-foreground/40 hover:text-foreground/70 hover:bg-surface-hover'

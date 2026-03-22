@@ -64,8 +64,8 @@ export async function expandWindowForPreview() {
     const { x, y } = centerOf(width, height);
     await appWindow.setSize(new LogicalSize(width, height));
     await appWindow.setPosition(new LogicalPosition(x, y));
-  } catch {
-    // Silently handle window resize failure
+  } catch (e) {
+    console.error('[qliplab] expandWindowForPreview failed:', e);
   }
 }
 
@@ -76,8 +76,8 @@ export async function shrinkWindowFromPreview() {
 
     await appWindow.setSize(new LogicalSize(DEFAULT_WIDTH, DEFAULT_HEIGHT));
     await appWindow.setPosition(new LogicalPosition(x, y));
-  } catch {
-    // Silently handle window resize failure
+  } catch (e) {
+    console.error('[qliplab] shrinkWindowFromPreview failed:', e);
   }
 }
 
@@ -207,8 +207,8 @@ export async function toggleWindow() {
 export async function hideWindow() {
   try {
     await hideWindowCore();
-  } catch {
-    // Silently handle hide failure
+  } catch (e) {
+    console.error('[qliplab] hideWindow failed:', e);
   }
 }
 

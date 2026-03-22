@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, Suspense, lazy, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X, FileText } from 'lucide-react';
@@ -13,7 +13,49 @@ import {
 } from '@/lib/triggerEngine';
 import { cn } from '@/lib/utils';
 
-const MonacoEditor = lazy(() => import('@monaco-editor/react'));
+// Dynamically load Monaco with error-resilient fallback
+function useMonacoEditor() {
+  const [Editor, setEditor] = useState<ComponentType<{
+    height?: string;
+    language?: string;
+    value?: string;
+    theme?: string;
+    options?: Record<string, unknown>;
+    onChange?: (value: string | undefined) => void;
+  }> | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      if (!Editor && !cancelled) setFailed(true);
+    }, 5000);
+
+    import('@monaco-editor/react')
+      .then((mod) => {
+        if (!cancelled) {
+          setEditor(() => mod.default as ComponentType<{
+            height?: string;
+            language?: string;
+            value?: string;
+            theme?: string;
+            options?: Record<string, unknown>;
+            onChange?: (value: string | undefined) => void;
+          }>);
+          clearTimeout(timer);
+        }
+      })
+      .catch((err) => {
+        console.error('[qliplab] Monaco editor failed to load:', err);
+        if (!cancelled) setFailed(true);
+        clearTimeout(timer);
+      });
+
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { Editor, failed };
+}
 
 const SYNTAX_OPTIONS = [
   { value: 'plain', label: 'Plain Text' },
@@ -114,6 +156,8 @@ export function SnippetEditorPanel() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  const { Editor: MonacoEditorComponent, failed: monacoFailed } = useMonacoEditor();
+
   const monacoLanguage = syntax === 'plain' ? 'plaintext' : syntax === 'shell' ? 'shell' : syntax;
   const theme = settings.theme === 'dark' ? 'vs-dark' : 'light';
 
@@ -212,14 +256,17 @@ export function SnippetEditorPanel() {
         </select>
       </div>
 
-      {/* Monaco Editor */}
+      {/* Editor — Monaco with textarea fallback */}
       <div className="flex-1 overflow-hidden min-h-0">
-        <Suspense fallback={
-          <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-            {t('common.loadingEditor')}
-          </div>
-        }>
-          <MonacoEditor
+        {monacoFailed ? (
+          <textarea
+            className="h-full w-full bg-background text-foreground font-mono text-xs p-3 resize-none outline-none border-none"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            spellCheck={false}
+          />
+        ) : MonacoEditorComponent ? (
+          <MonacoEditorComponent
             height="100%"
             language={monacoLanguage}
             value={content}
@@ -227,7 +274,11 @@ export function SnippetEditorPanel() {
             options={editorOptions}
             onChange={(value) => setContent(value || '')}
           />
-        </Suspense>
+        ) : (
+          <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
+            {t('common.loadingEditor')}
+          </div>
+        )}
       </div>
 
       {/* Footer */}

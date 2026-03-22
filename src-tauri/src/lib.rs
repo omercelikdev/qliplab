@@ -59,13 +59,20 @@ fn save_frontmost_app() -> Result<(), String> {
         Ok(output) => {
             if output.status.success() {
                 let app_name = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                eprintln!("[qliplab] save_frontmost_app: captured '{}'", app_name);
                 if let Ok(mut prev) = PREVIOUS_APP.lock() {
                     *prev = Some(app_name.clone());
                 }
+            } else {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                eprintln!("[qliplab] save_frontmost_app failed (status {}): {}", output.status, stderr.trim());
             }
             Ok(())
         }
-        Err(e) => Err(format!("Failed to get frontmost app: {:?}", e))
+        Err(e) => {
+            eprintln!("[save_frontmost_app] Failed to run osascript: {:?}", e);
+            Err(format!("Failed to get frontmost app: {:?}", e))
+        }
     }
 }
 
@@ -106,10 +113,15 @@ fn get_frontmost_app() -> Result<String, String> {
             if output.status.success() {
                 Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
             } else {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                eprintln!("[get_frontmost_app] osascript failed (status {}): {}", output.status, stderr.trim());
                 Err("Failed to get frontmost app".to_string())
             }
         }
-        Err(e) => Err(format!("Failed to get frontmost app: {:?}", e))
+        Err(e) => {
+            eprintln!("[get_frontmost_app] Failed to run osascript: {:?}", e);
+            Err(format!("Failed to get frontmost app: {:?}", e))
+        }
     }
 }
 
@@ -159,13 +171,46 @@ fn get_frontmost_app() -> Result<String, String> {
 }
 
 /// Show panel on current space (macOS)
+/// Falls back to standard window API if NSPanel is unavailable (e.g. macOSPrivateApi: false)
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
+    // CRITICAL: Save frontmost app BEFORE showing panel.
+    // Even with NSPanel, the panel.show() call may trigger focus changes.
+    // By capturing here (inside Rust, synchronously before show), we guarantee
+    // the correct previous app is saved before any window system events fire.
+    // This is the most reliable point — called from both showWindow() and toggleWindow().
+    let script = r#"
+        tell application "System Events"
+            set frontApp to name of first application process whose frontmost is true
+            return frontApp
+        end tell
+    "#;
+    if let Ok(output) = Command::new("osascript").arg("-e").arg(script).output() {
+        if output.status.success() {
+            let app_name = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            // Don't save QlipLab itself as the previous app
+            if app_name != "qliplab" && app_name != "QlipLab" {
+                eprintln!("[qliplab] show_panel: saved frontmost app '{}' before showing", app_name);
+                if let Ok(mut prev) = PREVIOUS_APP.lock() {
+                    *prev = Some(app_name);
+                }
+            } else {
+                eprintln!("[qliplab] show_panel: frontmost is QlipLab itself, keeping previous value");
+            }
+        }
+    }
+
     if let Ok(panel) = app.get_webview_panel("main") {
         // Re-enable mouse events before showing
         panel.set_ignore_mouse_events(false);
         panel.show();
+    } else {
+        // Fallback: standard Tauri window API (when macOSPrivateApi is false)
+        if let Some(window) = app.get_webview_window("main") {
+            let _ = window.show();
+            let _ = window.set_focus();
+        }
     }
     Ok(())
 }
@@ -182,6 +227,7 @@ fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 /// Hide panel (macOS)
+/// Falls back to standard window API if NSPanel is unavailable (e.g. macOSPrivateApi: false)
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
@@ -189,6 +235,11 @@ fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
         // Disable mouse events BEFORE hiding to prevent input capture
         panel.set_ignore_mouse_events(true);
         panel.order_out(None);
+    } else {
+        // Fallback: standard Tauri window API (when macOSPrivateApi is false)
+        if let Some(window) = app.get_webview_window("main") {
+            let _ = window.hide();
+        }
     }
     Ok(())
 }
@@ -220,9 +271,9 @@ fn simulate_paste() -> Result<(), String> {
                 "Obsidian", "Postman", "Spotify",
             ];
 
-            if let Some(app_name) = prev_app {
+            if let Some(ref app_name) = prev_app {
                 // SECURITY: Sanitize app name to prevent AppleScript injection
-                let safe_app_name = sanitize_applescript_string(&app_name);
+                let safe_app_name = sanitize_applescript_string(app_name);
 
                 // Use System Events process name for activation (matches save_frontmost_app)
                 // "tell application X to activate" uses app names which may differ from
@@ -232,10 +283,18 @@ fn simulate_paste() -> Result<(), String> {
                     safe_app_name
                 );
 
-                let _ = Command::new("osascript")
+                match Command::new("osascript")
                     .arg("-e")
                     .arg(&activate_script)
-                    .output();
+                    .output()
+                {
+                    Ok(output) => {
+                        if !output.status.success() {
+                            eprintln!("[qliplab] activate app '{}' failed: {}", safe_app_name, String::from_utf8_lossy(&output.stderr).trim());
+                        }
+                    }
+                    Err(e) => eprintln!("[qliplab] activate app exec failed: {:?}", e),
+                }
 
                 // Electron apps (Teams, Slack, etc.) need longer to accept focus
                 let delay = if ELECTRON_APPS.iter().any(|e| safe_app_name.contains(e)) {
@@ -244,42 +303,64 @@ fn simulate_paste() -> Result<(), String> {
                     100
                 };
                 thread::sleep(Duration::from_millis(delay));
+            } else {
+                // No previous app saved (AppleScript may have failed in sandbox).
+                // QlipLab window is already hidden, so the previously active app
+                // should be in front. Wait briefly for window server to settle.
+                eprintln!("[qliplab] simulate_paste: no previous app saved, pasting to current frontmost");
+                thread::sleep(Duration::from_millis(100));
             }
 
-            // Use CGEvent for better compatibility with Electron apps like Teams
+            // ALWAYS attempt paste regardless of whether app activation succeeded.
+            // Use CGEvent for better compatibility with Electron apps like Teams.
             // Key code 9 = V key on macOS
             const V_KEY: CGKeyCode = 9;
 
             let mut paste_success = false;
 
-            if let Ok(source) = CGEventSource::new(CGEventSourceStateID::HIDSystemState) {
+            if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
                 // Key down with Command modifier
                 if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
                     key_down.set_flags(CGEventFlags::CGEventFlagCommand);
-                    key_down.post(CGEventTapLocation::HID);
+                    key_down.post(CGEventTapLocation::AnnotatedSession);
 
                     thread::sleep(Duration::from_millis(10));
 
                     // Key up with Command modifier
                     if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
                         key_up.set_flags(CGEventFlags::CGEventFlagCommand);
-                        key_up.post(CGEventTapLocation::HID);
+                        key_up.post(CGEventTapLocation::AnnotatedSession);
                         paste_success = true;
                     }
                 }
             }
 
+            if paste_success {
+                eprintln!("[qliplab] CGEvent paste succeeded");
+            }
+
             // Fallback to AppleScript if CGEvent failed at any step
             if !paste_success {
+                eprintln!("[qliplab] CGEvent paste failed, trying AppleScript fallback");
                 let paste_script = r#"
                     tell application "System Events"
                         key code 9 using command down
                     end tell
                 "#;
-                let _ = Command::new("osascript")
+                match Command::new("osascript")
                     .arg("-e")
                     .arg(paste_script)
-                    .output();
+                    .output()
+                {
+                    Ok(output) => {
+                        if !output.status.success() {
+                            eprintln!("[qliplab] AppleScript paste failed: {}", String::from_utf8_lossy(&output.stderr).trim());
+                        } else {
+                            eprintln!("[qliplab] AppleScript paste succeeded");
+                        }
+                    }
+                    Err(e) => eprintln!("[qliplab] AppleScript paste exec failed: {:?}", e),
+                }
             }
         }
 
@@ -325,15 +406,15 @@ fn simulate_paste_in_place() -> Result<(), String> {
 
             const V_KEY: CGKeyCode = 9;
 
-            if let Ok(source) = CGEventSource::new(CGEventSourceStateID::HIDSystemState) {
+            if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
                 if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
                     key_down.set_flags(CGEventFlags::CGEventFlagCommand);
-                    key_down.post(CGEventTapLocation::HID);
+                    key_down.post(CGEventTapLocation::AnnotatedSession);
                 }
                 thread::sleep(Duration::from_millis(10));
                 if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
                     key_up.set_flags(CGEventFlags::CGEventFlagCommand);
-                    key_up.post(CGEventTapLocation::HID);
+                    key_up.post(CGEventTapLocation::AnnotatedSession);
                 }
             }
         }
@@ -376,13 +457,13 @@ fn simulate_backspace(count: u32) -> Result<(), String> {
             const BACKSPACE_KEY: CGKeyCode = 51;
 
             for _ in 0..count {
-                if let Ok(source) = CGEventSource::new(CGEventSourceStateID::HIDSystemState) {
+                if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
                     if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), BACKSPACE_KEY, true) {
-                        key_down.post(CGEventTapLocation::HID);
+                        key_down.post(CGEventTapLocation::AnnotatedSession);
                     }
                     thread::sleep(Duration::from_millis(5));
                     if let Ok(key_up) = CGEvent::new_keyboard_event(source, BACKSPACE_KEY, false) {
-                        key_up.post(CGEventTapLocation::HID);
+                        key_up.post(CGEventTapLocation::AnnotatedSession);
                     }
                     thread::sleep(Duration::from_millis(10));
                 }
@@ -925,12 +1006,24 @@ let text = request.results?
 print(text)
 "#;
 
-    let output = Command::new("swift")
+    let output = match Command::new("swift")
         .arg("-e")
         .arg(swift_script)
         .env("QLIPLAB_OCR_PATH", temp_path.to_string_lossy().as_ref())
         .output()
-        .map_err(|_| "Failed to run OCR".to_string())?;
+    {
+        Ok(o) => o,
+        Err(e) => {
+            // Cleanup temp file before returning
+            let _ = std::fs::remove_file(&temp_path);
+            let err_msg = format!("{}", e);
+            eprintln!("[ocr_image] Failed to run swift: {:?}", e);
+            if err_msg.contains("Operation not permitted") || err_msg.contains("sandbox") {
+                return Err("OCR is not available in sandboxed mode. Please use the development build for OCR.".to_string());
+            }
+            return Err("Failed to run OCR. The swift command may not be available in this environment.".to_string());
+        }
+    };
 
     // Cleanup temp file
     if let Err(e) = std::fs::remove_file(&temp_path) {
@@ -941,7 +1034,13 @@ print(text)
         let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
         Ok(text)
     } else {
-        Err("OCR processing failed".to_string())
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        eprintln!("[ocr_image] swift script failed: {}", stderr);
+        if stderr.contains("Operation not permitted") || stderr.contains("sandbox") || stderr.contains("deny") {
+            Err("OCR is not available in sandboxed mode. Please use the development build for OCR.".to_string())
+        } else {
+            Err("OCR processing failed".to_string())
+        }
     }
 }
 
@@ -1457,7 +1556,9 @@ fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
     if let Ok(appdata) = std::env::var("APPDATA") {
         dirs.push(std::path::PathBuf::from(appdata).join("Microsoft\\Windows\\Start Menu\\Programs"));
     }
-    dirs.push(std::path::PathBuf::from("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"));
+    if let Ok(program_data) = std::env::var("ProgramData") {
+        dirs.push(std::path::PathBuf::from(format!("{}\\Microsoft\\Windows\\Start Menu\\Programs", program_data)));
+    }
 
     for dir in dirs {
         if let Ok(entries) = std::fs::read_dir(&dir) {
