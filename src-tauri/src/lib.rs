@@ -23,57 +23,129 @@ use tauri_nspanel::{
 #[cfg(not(target_os = "macos"))]
 use enigo::{Enigo, Keyboard, Settings, Key, Direction};
 
-// Store the previously active application
+// Store the previously active application as (pid, name) for reliable activation.
+// PID is primary (unique per process), name is for logging and fallback matching.
 #[cfg(target_os = "macos")]
-static PREVIOUS_APP: Mutex<Option<String>> = Mutex::new(None);
+static PREVIOUS_APP: Mutex<Option<(i32, String)>> = Mutex::new(None);
 
 // Store the previously active window handle (Windows)
 #[cfg(target_os = "windows")]
 static PREVIOUS_HWND: Mutex<Option<isize>> = Mutex::new(None);
 
-/// Sanitize a string for safe use in AppleScript using whitelist approach.
-/// Only allows characters that are valid in application names.
+// --- Native Cocoa helpers (macOS) ---
+// Replace all osascript/AppleScript calls with direct Cocoa API access.
+// This removes the need for com.apple.security.automation.apple-events and
+// com.apple.security.temporary-exception.apple-events entitlements,
+// which are routinely rejected by App Store Review.
+
+/// Get frontmost application info via NSWorkspace (no AppleScript needed).
+/// Returns (pid, name) or None if no frontmost app.
 #[cfg(target_os = "macos")]
-fn sanitize_applescript_string(s: &str) -> String {
-    s.chars()
-     .filter(|c| c.is_alphanumeric() || *c == ' ' || *c == '-' || *c == '.' || *c == '_' || *c == '/' || *c == '(' || *c == ')')
-     .take(256)
-     .collect()
+fn cocoa_frontmost_app() -> Option<(i32, String)> {
+    use objc2_app_kit::NSWorkspace;
+    let workspace = NSWorkspace::sharedWorkspace();
+    let app = workspace.frontmostApplication()?;
+    let name = app.localizedName()?.to_string();
+    let pid = app.processIdentifier();
+    if pid > 0 { Some((pid, name)) } else { None }
+}
+
+/// Activate an application by PID via NSRunningApplication (no AppleScript needed).
+/// Returns true if activation succeeded.
+#[cfg(target_os = "macos")]
+fn cocoa_activate_app(pid: i32) -> bool {
+    use objc2_app_kit::{NSRunningApplication, NSApplicationActivationOptions};
+    if let Some(app) = NSRunningApplication::runningApplicationWithProcessIdentifier(pid) {
+        #[allow(deprecated)] // ActivateIgnoringOtherApps deprecated in macOS 14 but still works
+        app.activateWithOptions(NSApplicationActivationOptions::ActivateIgnoringOtherApps)
+    } else {
+        false
+    }
+}
+
+/// List all running (non-background) applications via NSWorkspace.
+/// Returns Vec of (name, pid) for all regular apps.
+#[cfg(target_os = "macos")]
+fn cocoa_running_apps() -> Vec<(String, i32)> {
+    use objc2_app_kit::NSWorkspace;
+    let workspace = NSWorkspace::sharedWorkspace();
+    let apps = workspace.runningApplications();
+    apps.iter()
+        .filter(|app| app.activationPolicy() == objc2_app_kit::NSApplicationActivationPolicy::Regular)
+        .filter_map(|app| {
+            let name = app.localizedName()?.to_string();
+            let pid = app.processIdentifier();
+            Some((name, pid))
+        })
+        .collect()
+}
+
+// --- CGEvent helpers (macOS) ---
+// CGEvent.post requires Accessibility (kTCCServiceAccessibility) permission.
+// This is separate from Apple Events — removing apple-events entitlements has zero effect.
+
+#[cfg(target_os = "macos")]
+extern "C" {
+    /// Returns true if the app has Accessibility permission (macOS 10.15+).
+    fn CGPreflightPostEventAccess() -> bool;
+    /// Requests Accessibility permission, showing the TCC dialog if needed (macOS 10.15+).
+    fn CGRequestPostEventAccess() -> bool;
+}
+
+/// Post Cmd+V via CGEvent using Session tap (Maccy App Store best practice).
+/// Session tap doesn't annotate events with process info, avoiding sandbox blocking.
+#[cfg(target_os = "macos")]
+fn paste_via_cgevent() -> bool {
+    use core_graphics::event::{CGEvent, CGEventFlags, CGKeyCode, CGEventTapLocation};
+    use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
+    const V_KEY: CGKeyCode = 9;
+
+    if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
+        if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
+            key_down.set_flags(CGEventFlags::CGEventFlagCommand);
+            key_down.post(CGEventTapLocation::Session);
+            thread::sleep(Duration::from_millis(10));
+            if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
+                key_up.set_flags(CGEventFlags::CGEventFlagCommand);
+                key_up.post(CGEventTapLocation::Session);
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// Post a single key code via CGEvent (Session tap). Returns true on success.
+#[cfg(target_os = "macos")]
+fn post_key_via_cgevent(key_code: u16) -> bool {
+    use core_graphics::event::{CGEvent, CGEventTapLocation};
+    use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
+
+    if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
+        if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), key_code, true) {
+            key_down.post(CGEventTapLocation::Session);
+            thread::sleep(Duration::from_millis(5));
+            if let Ok(key_up) = CGEvent::new_keyboard_event(source, key_code, false) {
+                key_up.post(CGEventTapLocation::Session);
+                return true;
+            }
+        }
+    }
+    false
 }
 
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn save_frontmost_app() -> Result<(), String> {
-    let script = r#"
-        tell application "System Events"
-            set frontApp to name of first application process whose frontmost is true
-            return frontApp
-        end tell
-    "#;
-
-    match Command::new("osascript")
-        .arg("-e")
-        .arg(script)
-        .output()
-    {
-        Ok(output) => {
-            if output.status.success() {
-                let app_name = String::from_utf8_lossy(&output.stdout).trim().to_string();
-                eprintln!("[qliplab] save_frontmost_app: captured '{}'", app_name);
-                if let Ok(mut prev) = PREVIOUS_APP.lock() {
-                    *prev = Some(app_name.clone());
-                }
-            } else {
-                let stderr = String::from_utf8_lossy(&output.stderr);
-                eprintln!("[qliplab] save_frontmost_app failed (status {}): {}", output.status, stderr.trim());
-            }
-            Ok(())
+    if let Some((pid, name)) = cocoa_frontmost_app() {
+        eprintln!("[qliplab] save_frontmost_app: captured '{}' (pid={})", name, pid);
+        if let Ok(mut prev) = PREVIOUS_APP.lock() {
+            *prev = Some((pid, name));
         }
-        Err(e) => {
-            eprintln!("[save_frontmost_app] Failed to run osascript: {:?}", e);
-            Err(format!("Failed to get frontmost app: {:?}", e))
-        }
+    } else {
+        eprintln!("[qliplab] save_frontmost_app: no frontmost app found");
     }
+    Ok(())
 }
 
 #[cfg(target_os = "windows")]
@@ -97,31 +169,9 @@ fn save_frontmost_app() -> Result<(), String> {
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn get_frontmost_app() -> Result<String, String> {
-    let script = r#"
-        tell application "System Events"
-            set frontApp to name of first application process whose frontmost is true
-            return frontApp
-        end tell
-    "#;
-
-    match Command::new("osascript")
-        .arg("-e")
-        .arg(script)
-        .output()
-    {
-        Ok(output) => {
-            if output.status.success() {
-                Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
-            } else {
-                let stderr = String::from_utf8_lossy(&output.stderr);
-                eprintln!("[get_frontmost_app] osascript failed (status {}): {}", output.status, stderr.trim());
-                Err("Failed to get frontmost app".to_string())
-            }
-        }
-        Err(e) => {
-            eprintln!("[get_frontmost_app] Failed to run osascript: {:?}", e);
-            Err(format!("Failed to get frontmost app: {:?}", e))
-        }
+    match cocoa_frontmost_app() {
+        Some((_pid, name)) => Ok(name),
+        None => Ok(String::new()),
     }
 }
 
@@ -175,29 +225,19 @@ fn get_frontmost_app() -> Result<String, String> {
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
-    // CRITICAL: Save frontmost app BEFORE showing panel.
+    // CRITICAL: Save frontmost app BEFORE showing panel via native NSWorkspace API.
     // Even with NSPanel, the panel.show() call may trigger focus changes.
     // By capturing here (inside Rust, synchronously before show), we guarantee
     // the correct previous app is saved before any window system events fire.
-    // This is the most reliable point — called from both showWindow() and toggleWindow().
-    let script = r#"
-        tell application "System Events"
-            set frontApp to name of first application process whose frontmost is true
-            return frontApp
-        end tell
-    "#;
-    if let Ok(output) = Command::new("osascript").arg("-e").arg(script).output() {
-        if output.status.success() {
-            let app_name = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            // Don't save QlipLab itself as the previous app
-            if app_name != "qliplab" && app_name != "QlipLab" {
-                eprintln!("[qliplab] show_panel: saved frontmost app '{}' before showing", app_name);
-                if let Ok(mut prev) = PREVIOUS_APP.lock() {
-                    *prev = Some(app_name);
-                }
-            } else {
-                eprintln!("[qliplab] show_panel: frontmost is QlipLab itself, keeping previous value");
+    if let Some((pid, name)) = cocoa_frontmost_app() {
+        // Don't save QlipLab itself as the previous app
+        if name != "qliplab" && name != "QlipLab" {
+            eprintln!("[qliplab] show_panel: saved frontmost app '{}' (pid={}) before showing", name, pid);
+            if let Ok(mut prev) = PREVIOUS_APP.lock() {
+                *prev = Some((pid, name));
             }
+        } else {
+            eprintln!("[qliplab] show_panel: frontmost is QlipLab itself, keeping previous value");
         }
     }
 
@@ -259,8 +299,16 @@ fn simulate_paste() -> Result<(), String> {
     thread::spawn(|| {
         #[cfg(target_os = "macos")]
         {
-            use core_graphics::event::{CGEvent, CGEventFlags, CGKeyCode, CGEventTapLocation};
-            use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
+            // Ensure Accessibility permission is requested on first paste attempt.
+            // This triggers the macOS TCC dialog if permission hasn't been granted yet.
+            // CGEvent.post uses Accessibility (kTCCServiceAccessibility) — separate from Apple Events.
+            unsafe {
+                if !CGPreflightPostEventAccess() {
+                    eprintln!("[qliplab] Accessibility not granted, requesting...");
+                    CGRequestPostEventAccess();
+                    thread::sleep(Duration::from_millis(200));
+                }
+            }
 
             let prev_app = PREVIOUS_APP.lock().ok().and_then(|guard| guard.clone());
 
@@ -271,102 +319,36 @@ fn simulate_paste() -> Result<(), String> {
                 "Obsidian", "Postman", "Spotify",
             ];
 
-            if let Some(ref app_name) = prev_app {
-                // SECURITY: Sanitize app name to prevent AppleScript injection
-                let safe_app_name = sanitize_applescript_string(app_name);
-
-                // Use System Events process name for activation (matches save_frontmost_app)
-                // "tell application X to activate" uses app names which may differ from
-                // process names (e.g. Teams process = "MSTeams" but app = "Microsoft Teams")
-                let activate_script = format!(
-                    r#"tell application "System Events" to set frontmost of process "{}" to true"#,
-                    safe_app_name
-                );
-
-                match Command::new("osascript")
-                    .arg("-e")
-                    .arg(&activate_script)
-                    .output()
-                {
-                    Ok(output) => {
-                        if !output.status.success() {
-                            eprintln!("[qliplab] activate app '{}' failed: {}", safe_app_name, String::from_utf8_lossy(&output.stderr).trim());
-                        }
-                    }
-                    Err(e) => eprintln!("[qliplab] activate app exec failed: {:?}", e),
-                }
-
-                // Electron apps (Teams, Slack, etc.) need longer to accept focus
-                let delay = if ELECTRON_APPS.iter().any(|e| safe_app_name.contains(e)) {
-                    200
+            if let Some((pid, ref name)) = prev_app {
+                // Step 1: Activate previous app via native NSRunningApplication API
+                let activated = cocoa_activate_app(pid);
+                if activated {
+                    eprintln!("[qliplab] activated '{}' (pid={}) via NSRunningApplication", name, pid);
                 } else {
-                    100
-                };
+                    eprintln!("[qliplab] failed to activate '{}' (pid={}), app may have quit", name, pid);
+                }
+
+                // Step 2: Wait for focus — Electron apps need longer
+                let delay = if ELECTRON_APPS.iter().any(|e| name.contains(e)) { 200 } else { 100 };
                 thread::sleep(Duration::from_millis(delay));
+
+                // Step 3: Paste via CGEvent (Session tap — Maccy App Store best practice)
+                if paste_via_cgevent() {
+                    eprintln!("[qliplab] CGEvent paste succeeded for '{}'", name);
+                } else {
+                    eprintln!("[qliplab] CGEvent paste failed for '{}'", name);
+                }
             } else {
-                // No previous app saved (AppleScript may have failed in sandbox).
-                // QlipLab window is already hidden, so the previously active app
-                // should be in front. Wait briefly for window server to settle.
-                eprintln!("[qliplab] simulate_paste: no previous app saved, pasting to current frontmost");
+                // No previous app saved — QlipLab panel is hidden, so macOS
+                // should have restored focus to the previously active app.
+                eprintln!("[qliplab] simulate_paste: no previous app, pasting to current frontmost");
                 thread::sleep(Duration::from_millis(100));
-            }
-
-            // ALWAYS attempt paste regardless of whether app activation succeeded.
-            // Use CGEvent for better compatibility with Electron apps like Teams.
-            // Key code 9 = V key on macOS
-            const V_KEY: CGKeyCode = 9;
-
-            let mut paste_success = false;
-
-            if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
-                // Key down with Command modifier
-                if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
-                    key_down.set_flags(CGEventFlags::CGEventFlagCommand);
-                    key_down.post(CGEventTapLocation::AnnotatedSession);
-
-                    thread::sleep(Duration::from_millis(10));
-
-                    // Key up with Command modifier
-                    if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
-                        key_up.set_flags(CGEventFlags::CGEventFlagCommand);
-                        key_up.post(CGEventTapLocation::AnnotatedSession);
-                        paste_success = true;
-                    }
-                }
-            }
-
-            if paste_success {
-                eprintln!("[qliplab] CGEvent paste succeeded");
-            }
-
-            // Fallback to AppleScript if CGEvent failed at any step
-            if !paste_success {
-                eprintln!("[qliplab] CGEvent paste failed, trying AppleScript fallback");
-                let paste_script = r#"
-                    tell application "System Events"
-                        key code 9 using command down
-                    end tell
-                "#;
-                match Command::new("osascript")
-                    .arg("-e")
-                    .arg(paste_script)
-                    .output()
-                {
-                    Ok(output) => {
-                        if !output.status.success() {
-                            eprintln!("[qliplab] AppleScript paste failed: {}", String::from_utf8_lossy(&output.stderr).trim());
-                        } else {
-                            eprintln!("[qliplab] AppleScript paste succeeded");
-                        }
-                    }
-                    Err(e) => eprintln!("[qliplab] AppleScript paste exec failed: {:?}", e),
-                }
+                paste_via_cgevent();
             }
         }
 
         #[cfg(not(target_os = "macos"))]
         {
-            // On Windows, restore previous foreground window before pasting
             #[cfg(target_os = "windows")]
             {
                 use windows::Win32::UI::WindowsAndMessaging::SetForegroundWindow;
@@ -395,27 +377,17 @@ fn simulate_paste() -> Result<(), String> {
 }
 
 /// Simulate Cmd+V (or Ctrl+V) in the CURRENT frontmost app — no app switching.
-/// Used by snippet auto-expand where the user is already typing in the target app.
+/// Used by snippet auto-expand where the user is already typing in the target app,
+/// and by OCR "Extract Text" paste.
 #[tauri::command]
 fn simulate_paste_in_place() -> Result<(), String> {
     thread::spawn(|| {
         #[cfg(target_os = "macos")]
         {
-            use core_graphics::event::{CGEvent, CGEventFlags, CGKeyCode, CGEventTapLocation};
-            use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
-
-            const V_KEY: CGKeyCode = 9;
-
-            if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
-                if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
-                    key_down.set_flags(CGEventFlags::CGEventFlagCommand);
-                    key_down.post(CGEventTapLocation::AnnotatedSession);
-                }
-                thread::sleep(Duration::from_millis(10));
-                if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
-                    key_up.set_flags(CGEventFlags::CGEventFlagCommand);
-                    key_up.post(CGEventTapLocation::AnnotatedSession);
-                }
+            // CGEvent with Session tap (Maccy App Store best practice).
+            // No AppleScript fallback — CGEvent is the only App Store compliant method.
+            if !paste_via_cgevent() {
+                eprintln!("[qliplab] simulate_paste_in_place: CGEvent paste failed");
             }
         }
 
@@ -444,29 +416,18 @@ struct TriggerEngineState {
     expanding: bool,
 }
 
-/// Send N backspace key events to delete the trigger text
+/// Send N backspace key events to delete the trigger text.
+/// Uses CGEvent with Session tap (Maccy App Store best practice).
 #[tauri::command]
 fn simulate_backspace(count: u32) -> Result<(), String> {
     let count = count.min(500); // Cap at reasonable limit
     thread::spawn(move || {
         #[cfg(target_os = "macos")]
         {
-            use core_graphics::event::{CGEvent, CGKeyCode, CGEventTapLocation};
-            use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
-
-            const BACKSPACE_KEY: CGKeyCode = 51;
-
+            const BACKSPACE_KEY: u16 = 51;
             for _ in 0..count {
-                if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
-                    if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), BACKSPACE_KEY, true) {
-                        key_down.post(CGEventTapLocation::AnnotatedSession);
-                    }
-                    thread::sleep(Duration::from_millis(5));
-                    if let Ok(key_up) = CGEvent::new_keyboard_event(source, BACKSPACE_KEY, false) {
-                        key_up.post(CGEventTapLocation::AnnotatedSession);
-                    }
-                    thread::sleep(Duration::from_millis(10));
-                }
+                post_key_via_cgevent(BACKSPACE_KEY);
+                thread::sleep(Duration::from_millis(10));
             }
         }
 
@@ -1447,29 +1408,11 @@ fn write_temp_image(base64_data: String) -> Result<String, String> {
 fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
     use std::collections::HashSet;
 
-    // Get running (non-background) process names via AppleScript
-    let mut running_names = HashSet::new();
-    let script = r#"
-        tell application "System Events"
-            set appNames to name of every application process whose background only is false
-            set output to ""
-            repeat with appName in appNames
-                set output to output & appName & "\n"
-            end repeat
-            return output
-        end tell
-    "#;
-    if let Ok(output) = Command::new("osascript").arg("-e").arg(script).output() {
-        if output.status.success() {
-            let text = String::from_utf8_lossy(&output.stdout);
-            for line in text.lines() {
-                let name = line.trim();
-                if !name.is_empty() {
-                    running_names.insert(name.to_lowercase());
-                }
-            }
-        }
-    }
+    // Get running (non-background) process names via native NSWorkspace API
+    let running_names: HashSet<String> = cocoa_running_apps()
+        .into_iter()
+        .map(|(name, _pid)| name.to_lowercase())
+        .collect();
 
     // Scan /Applications and ~/Applications
     let mut all_apps: Vec<(String, bool)> = Vec::new();
@@ -1490,7 +1433,6 @@ fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
                     if let Some(name) = path.file_stem().and_then(|s| s.to_str()) {
                         let name = name.to_string();
                         if seen.insert(name.to_lowercase()) {
-                            // Match by case-insensitive name or common short aliases
                             let is_running = running_names.contains(&name.to_lowercase());
                             all_apps.push((name, is_running));
                         }
@@ -1500,10 +1442,9 @@ fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
         }
     }
 
-    // Also add any running apps not found in /Applications (e.g., helper processes with visible windows)
+    // Also add any running apps not found in /Applications
     for running in &running_names {
         if !seen.contains(running) {
-            // Capitalize first letter of each word for display
             let display_name: String = running
                 .split_whitespace()
                 .map(|w| {
