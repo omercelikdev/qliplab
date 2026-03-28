@@ -13,6 +13,29 @@ use std::process::Command;
 #[cfg(target_os = "macos")]
 use std::io::Write;
 
+/// Unified logging for macOS — writes to a file in the app's sandbox-accessible temp dir.
+/// Visible via: cat /tmp/qliplab-debug.log (dev) or
+/// cat ~/Library/Containers/com.qliplab.app/Data/tmp/qliplab-debug.log (sandbox)
+#[cfg(target_os = "macos")]
+fn qlip_log(msg: &str) {
+    use std::fs::OpenOptions;
+    let path = std::env::temp_dir().join("qliplab-debug.log");
+    if let Ok(mut f) = OpenOptions::new().create(true).append(true).open(&path) {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| {
+                let secs = d.as_secs();
+                let h = (secs / 3600) % 24;
+                let m = (secs / 60) % 60;
+                let s = secs % 60;
+                let ms = d.subsec_millis();
+                format!("{:02}:{:02}:{:02}.{:03}", h, m, s, ms)
+            })
+            .unwrap_or_default();
+        let _ = std::io::Write::write_fmt(&mut f, format_args!("[{}] {}\n", now, msg));
+    }
+}
+
 #[cfg(target_os = "macos")]
 #[allow(deprecated)]
 use tauri_nspanel::{
@@ -100,16 +123,34 @@ fn paste_via_cgevent() -> bool {
     use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
     const V_KEY: CGKeyCode = 9;
 
-    if let Ok(source) = CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
-        if let Ok(key_down) = CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
-            key_down.set_flags(CGEventFlags::CGEventFlagCommand);
-            key_down.post(CGEventTapLocation::Session);
-            thread::sleep(Duration::from_millis(10));
-            if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
-                key_up.set_flags(CGEventFlags::CGEventFlagCommand);
-                key_up.post(CGEventTapLocation::Session);
-                return true;
+    // Check accessibility permission first
+    let has_access = unsafe { CGPreflightPostEventAccess() };
+    qlip_log(&format!("paste_via_cgevent: CGPreflightPostEventAccess={}", has_access));
+
+    match CGEventSource::new(CGEventSourceStateID::CombinedSessionState) {
+        Ok(source) => {
+            match CGEvent::new_keyboard_event(source.clone(), V_KEY, true) {
+                Ok(key_down) => {
+                    key_down.set_flags(CGEventFlags::CGEventFlagCommand);
+                    key_down.post(CGEventTapLocation::Session);
+                    qlip_log("paste_via_cgevent: key_down posted (Session tap)");
+                    thread::sleep(Duration::from_millis(10));
+                    if let Ok(key_up) = CGEvent::new_keyboard_event(source, V_KEY, false) {
+                        key_up.set_flags(CGEventFlags::CGEventFlagCommand);
+                        key_up.post(CGEventTapLocation::Session);
+                        qlip_log("paste_via_cgevent: key_up posted → SUCCESS");
+                        return true;
+                    } else {
+                        qlip_log("paste_via_cgevent: FAILED to create key_up event");
+                    }
+                }
+                Err(()) => {
+                    qlip_log("paste_via_cgevent: FAILED to create key_down event");
+                }
             }
+        }
+        Err(()) => {
+            qlip_log("paste_via_cgevent: FAILED to create CGEventSource");
         }
     }
     false
@@ -138,12 +179,12 @@ fn post_key_via_cgevent(key_code: u16) -> bool {
 #[tauri::command]
 fn save_frontmost_app() -> Result<(), String> {
     if let Some((pid, name)) = cocoa_frontmost_app() {
-        eprintln!("[qliplab] save_frontmost_app: captured '{}' (pid={})", name, pid);
+        qlip_log(&format!("save_frontmost_app: captured '{}' (pid={})", name, pid));
         if let Ok(mut prev) = PREVIOUS_APP.lock() {
             *prev = Some((pid, name));
         }
     } else {
-        eprintln!("[qliplab] save_frontmost_app: no frontmost app found");
+        qlip_log("save_frontmost_app: no frontmost app found");
     }
     Ok(())
 }
@@ -232,12 +273,12 @@ fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
     if let Some((pid, name)) = cocoa_frontmost_app() {
         // Don't save QlipLab itself as the previous app
         if name != "qliplab" && name != "QlipLab" {
-            eprintln!("[qliplab] show_panel: saved frontmost app '{}' (pid={}) before showing", name, pid);
+            qlip_log(&format!("show_panel: saved frontmost app '{}' (pid={}) before showing", name, pid));
             if let Ok(mut prev) = PREVIOUS_APP.lock() {
                 *prev = Some((pid, name));
             }
         } else {
-            eprintln!("[qliplab] show_panel: frontmost is QlipLab itself, keeping previous value");
+            qlip_log("show_panel: frontmost is QlipLab itself, keeping previous value");
         }
     }
 
@@ -267,7 +308,10 @@ fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 /// Hide panel (macOS)
+/// Hide panel (macOS)
 /// Falls back to standard window API if NSPanel is unavailable (e.g. macOSPrivateApi: false)
+/// With non-activating panel, the previous app remains "active" throughout,
+/// so no activation/deactivation dance is needed — just hide the panel.
 #[cfg(target_os = "macos")]
 #[tauri::command]
 fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
@@ -296,21 +340,23 @@ fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 fn simulate_paste() -> Result<(), String> {
+    qlip_log("simulate_paste: CALLED");
     thread::spawn(|| {
         #[cfg(target_os = "macos")]
         {
             // Ensure Accessibility permission is requested on first paste attempt.
             // This triggers the macOS TCC dialog if permission hasn't been granted yet.
             // CGEvent.post uses Accessibility (kTCCServiceAccessibility) — separate from Apple Events.
-            unsafe {
-                if !CGPreflightPostEventAccess() {
-                    eprintln!("[qliplab] Accessibility not granted, requesting...");
-                    CGRequestPostEventAccess();
-                    thread::sleep(Duration::from_millis(200));
-                }
+            let preflight = unsafe { CGPreflightPostEventAccess() };
+            qlip_log(&format!("simulate_paste: CGPreflightPostEventAccess={}", preflight));
+            if !preflight {
+                qlip_log("Accessibility not granted, requesting...");
+                unsafe { CGRequestPostEventAccess(); }
+                thread::sleep(Duration::from_millis(200));
             }
 
             let prev_app = PREVIOUS_APP.lock().ok().and_then(|guard| guard.clone());
+            qlip_log(&format!("simulate_paste: prev_app={:?}", prev_app));
 
             // Electron apps need more time to establish focus after activation
             const ELECTRON_APPS: &[&str] = &[
@@ -320,28 +366,26 @@ fn simulate_paste() -> Result<(), String> {
             ];
 
             if let Some((pid, ref name)) = prev_app {
-                // Step 1: Activate previous app via native NSRunningApplication API
+                // Activate the previous app explicitly before posting CGEvent.
+                // Even though NSPanel is non-activating, Tauri's appWindow.show()
+                // calls makeKeyAndOrderFront which MAY steal activation in some cases.
+                // Explicitly activating ensures CGEvent Cmd+V always reaches the right app.
                 let activated = cocoa_activate_app(pid);
-                if activated {
-                    eprintln!("[qliplab] activated '{}' (pid={}) via NSRunningApplication", name, pid);
-                } else {
-                    eprintln!("[qliplab] failed to activate '{}' (pid={}), app may have quit", name, pid);
-                }
+                qlip_log(&format!("simulate_paste: activating '{}' (pid={}) → {}", name, pid, activated));
 
-                // Step 2: Wait for focus — Electron apps need longer
-                let delay = if ELECTRON_APPS.iter().any(|e| name.contains(e)) { 200 } else { 100 };
+                // Wait for activation to take effect + clipboard write to commit
+                let delay = if ELECTRON_APPS.iter().any(|e| name.contains(e)) { 150 } else { 80 };
                 thread::sleep(Duration::from_millis(delay));
 
-                // Step 3: Paste via CGEvent (Session tap — Maccy App Store best practice)
+                // Paste via CGEvent (Session tap — Maccy App Store best practice)
                 if paste_via_cgevent() {
-                    eprintln!("[qliplab] CGEvent paste succeeded for '{}'", name);
+                    qlip_log(&format!("CGEvent paste succeeded for '{}'", name));
                 } else {
-                    eprintln!("[qliplab] CGEvent paste failed for '{}'", name);
+                    qlip_log(&format!("CGEvent paste FAILED for '{}'", name));
                 }
             } else {
-                // No previous app saved — QlipLab panel is hidden, so macOS
-                // should have restored focus to the previously active app.
-                eprintln!("[qliplab] simulate_paste: no previous app, pasting to current frontmost");
+                // No previous app saved — try to paste to current frontmost
+                qlip_log("simulate_paste: no previous app, pasting to current frontmost");
                 thread::sleep(Duration::from_millis(100));
                 paste_via_cgevent();
             }
@@ -387,7 +431,7 @@ fn simulate_paste_in_place() -> Result<(), String> {
             // CGEvent with Session tap (Maccy App Store best practice).
             // No AppleScript fallback — CGEvent is the only App Store compliant method.
             if !paste_via_cgevent() {
-                eprintln!("[qliplab] simulate_paste_in_place: CGEvent paste failed");
+                qlip_log("simulate_paste_in_place: CGEvent paste FAILED");
             }
         }
 
@@ -420,6 +464,7 @@ struct TriggerEngineState {
 /// Uses CGEvent with Session tap (Maccy App Store best practice).
 #[tauri::command]
 fn simulate_backspace(count: u32) -> Result<(), String> {
+    qlip_log(&format!("simulate_backspace: count={}", count));
     let count = count.min(500); // Cap at reasonable limit
     thread::spawn(move || {
         #[cfg(target_os = "macos")]
@@ -451,6 +496,7 @@ fn update_triggers(
     state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
     triggers: Vec<(String, String)>,
 ) -> Result<(), String> {
+    qlip_log(&format!("update_triggers: received {} triggers", triggers.len()));
     if let Ok(mut s) = state.lock() {
         s.triggers = triggers;
     }
@@ -650,6 +696,7 @@ fn start_trigger_engine(
                     } else {
                         // No longer triggers possible — emit immediately
                         ctx.pending = None;
+                        qlip_log(&format!("TriggerEngine: MATCHED '{}' → {}", matched_trigger, matched_id));
                         let _ = ctx.app.emit("trigger-matched", serde_json::json!({
                             "trigger": matched_trigger,
                             "sourceId": matched_id,
@@ -726,9 +773,11 @@ fn start_trigger_engine(
         event // pass through (ListenOnly)
     }
 
+    qlip_log("start_trigger_engine: CALLED");
     let state = Arc::clone(&state);
 
     thread::spawn(move || {
+        qlip_log("TriggerEngine: thread started, creating CGEventTap...");
         // Create context first with null tap — we'll set the tap after creation
         let mut ctx = Box::new(WatcherContext {
             buffer: String::new(),
@@ -749,9 +798,10 @@ fn start_trigger_engine(
             );
 
             if tap.is_null() {
-                eprintln!("[TriggerEngine] Failed to create CGEventTap — check Accessibility permissions");
+                qlip_log("TriggerEngine: CGEventTapCreate returned NULL — Accessibility not granted?");
                 return;
             }
+            qlip_log("TriggerEngine: CGEventTap created successfully, starting run loop");
 
             // Store tap reference so callback can re-enable on timeout
             ctx.tap = tap;
@@ -1145,7 +1195,7 @@ import Foundation
 @available(macOS 12.0, *)
 func purchasePremium() async -> String {
     do {
-        let products = try await Product.products(for: ["com.qliplab.premium"])
+        let products = try await Product.products(for: ["com.qliplab.premium.lifetime"])
         guard let product = products.first else {
             return "{\"isPremium\":false,\"purchaseDate\":null,\"productId\":null,\"source\":\"storekit\"}"
         }

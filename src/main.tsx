@@ -5,6 +5,15 @@ import { reportError } from "./lib/errorReporter";
 import "./i18n"; // Initialize i18n before App renders
 import "./index.css";
 
+// Configure Monaco Editor to use the locally bundled version instead of CDN.
+// @monaco-editor/react's default loader fetches Monaco from jsdelivr CDN, which
+// is blocked by WKWebView's CachedResourceLoader in App Store sandbox.
+// By calling loader.config({ monaco }), we tell it to use the local monaco-editor
+// package from node_modules, bundled by Vite. No CDN requests needed.
+import * as monaco from 'monaco-editor';
+import { loader } from '@monaco-editor/react';
+loader.config({ monaco });
+
 // Configure Monaco Editor workers using Vite's ?worker&inline import.
 // The &inline suffix inlines worker code as base64 in the main bundle and creates
 // blob: URL workers at runtime. Without &inline, Vite emits separate chunk files

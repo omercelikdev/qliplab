@@ -101,29 +101,36 @@ async function hideWindowCore() {
 
 /**
  * Core show sequence ("Show-Then-Size"):
- * 1. show_panel + show() → window becomes visible but at offscreen (-10000,-10000)
- *    (mouse events ON but offscreen → safe, no user interaction possible)
- * 2. setSize(420, 450) → WORKS because window is now visible
- * 3. setPosition(center) → moves to screen center → user sees window HERE
- * 4. setFocus()
+ * 1. show_panel → panel becomes visible via NSPanel.show() which calls
+ *    makeKeyWindow (NOT activateIgnoringOtherApps). This keeps the panel
+ *    as key window for keyboard input without making QlipLab the "active app".
+ *    The previous app remains active, so CGEvent paste lands correctly.
+ * 2. appWindow.show() → sync Tauri's internal window state (tao calls
+ *    makeKeyAndOrderFront, but on a non-activating NSPanel this just
+ *    orders front + makes key, it does NOT activate the app).
+ * 3. setSize → WORKS because window is now visible
+ * 4. setPosition(center) → moves to screen center
  * 5. signalWindowOpen() → reset keyboard nav, diff mode
+ *
+ * IMPORTANT: We do NOT call appWindow.setFocus() because Tauri's tao backend
+ * calls activateIgnoringOtherApps, which overrides the panel's
+ * NSWindowStyleMaskNonActivatingPanel flag and makes QlipLab the "active app".
  */
 async function showWindowCore() {
   const appWindow = getCurrentWindow();
 
-  // Step 1: Make visible offscreen
+  // Step 1: Show panel (non-activating — previous app stays active)
   await invoke('show_panel');
+
+  // Step 2: Sync Tauri internal state (no setFocus — that force-activates)
   await appWindow.show();
 
-  // Step 2: Set size (works because window is now visible)
+  // Step 3: Set size (works because panel is now visible)
   await appWindow.setSize(new LogicalSize(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
-  // Step 3: Center on screen
+  // Step 4: Center on screen
   const { x, y } = centerOf(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   await appWindow.setPosition(new LogicalPosition(x, y));
-
-  // Step 4: Focus
-  try { await appWindow.setFocus(); } catch { /* User can click to focus */ }
 
   // Step 5: Signal open for keyboard nav reset
   useAppStore.getState().signalWindowOpen();

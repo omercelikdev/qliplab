@@ -47,7 +47,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   aiProvider: 'anthropic',
   aiConsentAccepted: false,
   aiConsentDate: '',
-  snippetAutoExpand: false,
+  snippetAutoExpand: true,
   onboardingSeen: false,
   globalShortcut: 'CommandOrControl+Shift+V',
   autoCommands: [],
