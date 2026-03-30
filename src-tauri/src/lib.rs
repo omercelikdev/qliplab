@@ -13,10 +13,10 @@ use std::process::Command;
 #[cfg(target_os = "macos")]
 use std::io::Write;
 
-/// Unified logging for macOS — writes to a file in the app's sandbox-accessible temp dir.
-/// Visible via: cat /tmp/qliplab-debug.log (dev) or
-/// cat ~/Library/Containers/com.qliplab.app/Data/tmp/qliplab-debug.log (sandbox)
-#[cfg(target_os = "macos")]
+/// Unified logging — writes to a file in the app's temp dir.
+/// macOS: /tmp/qliplab-debug.log (dev) or ~/Library/Containers/com.qliplab.app/Data/tmp/qliplab-debug.log (sandbox)
+/// Windows: %TEMP%\qliplab-debug.log (typically C:\Users\<user>\AppData\Local\Temp\qliplab-debug.log)
+/// Linux: /tmp/qliplab-debug.log
 fn qlip_log(msg: &str) {
     use std::fs::OpenOptions;
     let path = std::env::temp_dir().join("qliplab-debug.log");
@@ -194,6 +194,7 @@ fn save_frontmost_app() -> Result<(), String> {
 fn save_frontmost_app() -> Result<(), String> {
     use windows::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
     let hwnd = unsafe { GetForegroundWindow() };
+    qlip_log(&format!("save_frontmost_app [win]: hwnd={}", hwnd.0 as isize));
     if let Ok(mut guard) = PREVIOUS_HWND.lock() {
         *guard = Some(hwnd.0 as isize);
     }
@@ -299,10 +300,13 @@ fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
 #[cfg(not(target_os = "macos"))]
 #[tauri::command]
 fn show_panel(app: tauri::AppHandle) -> Result<(), String> {
-    // On Windows/Linux, use standard Tauri window APIs
+    qlip_log("show_panel [non-mac]: showing window");
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.show();
         let _ = window.set_focus();
+        qlip_log("show_panel [non-mac]: window shown + focused");
+    } else {
+        qlip_log("show_panel [non-mac]: ERROR — main window not found");
     }
     Ok(())
 }
@@ -331,9 +335,12 @@ fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
 #[cfg(not(target_os = "macos"))]
 #[tauri::command]
 fn hide_panel(app: tauri::AppHandle) -> Result<(), String> {
-    // On Windows/Linux, use standard Tauri window APIs
+    qlip_log("hide_panel [non-mac]: hiding window");
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.hide();
+        qlip_log("hide_panel [non-mac]: window hidden");
+    } else {
+        qlip_log("hide_panel [non-mac]: ERROR — main window not found");
     }
     Ok(())
 }
@@ -393,26 +400,34 @@ fn simulate_paste() -> Result<(), String> {
 
         #[cfg(not(target_os = "macos"))]
         {
+            qlip_log("simulate_paste [non-mac]: starting");
             #[cfg(target_os = "windows")]
             {
                 use windows::Win32::UI::WindowsAndMessaging::SetForegroundWindow;
                 use windows::Win32::Foundation::HWND;
                 if let Ok(guard) = PREVIOUS_HWND.lock() {
                     if let Some(hwnd_val) = *guard {
+                        qlip_log(&format!("simulate_paste [win]: activating hwnd={}", hwnd_val));
                         unsafe {
                             let _ = SetForegroundWindow(HWND(hwnd_val as *mut std::ffi::c_void));
                         }
+                    } else {
+                        qlip_log("simulate_paste [win]: no previous hwnd saved");
                     }
                 }
             }
 
             thread::sleep(Duration::from_millis(100));
             if let Ok(mut enigo) = Enigo::new(&Settings::default()) {
+                qlip_log("simulate_paste [non-mac]: enigo created, pressing Ctrl+V");
                 let _ = enigo.key(Key::Control, Direction::Press);
                 thread::sleep(Duration::from_millis(20));
                 let _ = enigo.key(Key::Unicode('v'), Direction::Click);
                 thread::sleep(Duration::from_millis(20));
                 let _ = enigo.key(Key::Control, Direction::Release);
+                qlip_log("simulate_paste [non-mac]: Ctrl+V sent");
+            } else {
+                qlip_log("simulate_paste [non-mac]: ERROR — failed to create Enigo instance");
             }
         }
     });
