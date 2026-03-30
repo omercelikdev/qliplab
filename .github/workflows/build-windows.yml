@@ -44,6 +44,67 @@ jobs:
         with:
           args: --target x86_64-pc-windows-msvc
 
+      - name: Prepare MSIX package
+        shell: pwsh
+        run: |
+          $buildDir = "src-tauri/target/x86_64-pc-windows-msvc/release"
+          $msixDir = "msix-package"
+          $assetsDir = "$msixDir/Assets"
+
+          # Create package directory
+          New-Item -ItemType Directory -Force -Path $assetsDir
+
+          # Copy main executable and dependencies
+          Copy-Item "$buildDir/QlipLab.exe" "$msixDir/"
+
+          # Copy WebView2 loader if exists
+          if (Test-Path "$buildDir/WebView2Loader.dll") {
+            Copy-Item "$buildDir/WebView2Loader.dll" "$msixDir/"
+          }
+
+          # Copy any other DLLs from the build
+          Get-ChildItem "$buildDir/*.dll" | ForEach-Object {
+            Copy-Item $_.FullName "$msixDir/"
+          }
+
+          # Copy icon assets
+          Copy-Item "src-tauri/icons/Square44x44Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/Square150x150Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/Square310x310Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/Square71x71Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/Wide310x150Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/StoreLogo.png" "$assetsDir/"
+
+          # Copy AppxManifest
+          Copy-Item "src-tauri/AppxManifest.xml" "$msixDir/"
+
+          # List package contents for debugging
+          Write-Host "=== MSIX Package Contents ==="
+          Get-ChildItem -Recurse $msixDir | ForEach-Object {
+            Write-Host $_.FullName
+          }
+
+      - name: Create MSIX package
+        shell: pwsh
+        run: |
+          # Find makeappx.exe from Windows SDK
+          $sdkPath = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -Recurse | Sort-Object -Descending | Select-Object -First 1
+          Write-Host "Using makeappx: $($sdkPath.FullName)"
+
+          # Create MSIX package
+          & $sdkPath.FullName pack /d "msix-package" /p "QlipLab_0.1.20_x64.msix" /o
+          Write-Host "MSIX package created successfully"
+
+          # Show package size
+          Get-Item "QlipLab_0.1.20_x64.msix" | Select-Object Name, Length
+
+      - name: Upload MSIX package
+        uses: actions/upload-artifact@v4
+        with:
+          name: qliplab-windows-msix
+          path: QlipLab_0.1.20_x64.msix
+          if-no-files-found: error
+
       - name: Upload MSI installer
         uses: actions/upload-artifact@v4
         with:
