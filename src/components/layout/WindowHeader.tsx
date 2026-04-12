@@ -1,30 +1,48 @@
-import { Minus, X, Square } from 'lucide-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { hideWindow } from '@/lib/window';
 
 const isMac = navigator.platform.toUpperCase().includes('MAC');
 
+/** Minimal system-style icons for window controls */
+function MinimizeIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" className="text-foreground/50">
+      <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MaximizeIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" className="text-foreground/50">
+      <rect x="1.5" y="1.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" className="text-foreground/50 group-hover:text-red-500">
+      <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function WindowHeader() {
   return (
     <div
       data-tauri-drag-region
-      className="h-8 flex items-center justify-between px-2 cursor-move drag-region shrink-0 border-b border-foreground/[0.04] dark:border-white/[0.03]"
+      className="h-5 flex items-center justify-end pe-1 cursor-move drag-region shrink-0 elevation-bottom"
     >
-      {/* macOS: traffic light buttons are native, we just leave space */}
-      {isMac && <div className="w-16" />}
-
-      {/* Draggable spacer */}
-      <div className="flex-1" />
-
-      {/* Windows/Linux: window controls */}
+      {/* Windows/Linux: compact window controls */}
       {!isMac && (
         <div className="flex items-center no-drag">
           <button
             onClick={() => getCurrentWindow().minimize()}
-            className="w-8 h-7 flex items-center justify-center hover:bg-foreground/[0.06] transition-colors cursor-pointer rounded-sm"
-            title="Minimize"
+            className="w-6 h-5 flex items-center justify-center hover:bg-foreground/[0.06] dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
-            <Minus className="w-3.5 h-3.5 text-foreground/40" />
+            <MinimizeIcon />
           </button>
           <button
             onClick={async () => {
@@ -33,17 +51,15 @@ export function WindowHeader() {
               if (maximized) await win.unmaximize();
               else await win.maximize();
             }}
-            className="w-8 h-7 flex items-center justify-center hover:bg-foreground/[0.06] transition-colors cursor-pointer rounded-sm"
-            title="Maximize"
+            className="w-6 h-5 flex items-center justify-center hover:bg-foreground/[0.06] dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
-            <Square className="w-3 h-3 text-foreground/40" />
+            <MaximizeIcon />
           </button>
           <button
             onClick={() => hideWindow()}
-            className="w-8 h-7 flex items-center justify-center hover:bg-red-500/10 transition-colors cursor-pointer rounded-sm group"
-            title="Close"
+            className="w-6 h-5 flex items-center justify-center hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-colors cursor-pointer group"
           >
-            <X className="w-3.5 h-3.5 text-foreground/40 group-hover:text-red-500" />
+            <CloseIcon />
           </button>
         </div>
       )}
