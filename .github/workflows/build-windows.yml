@@ -84,25 +84,28 @@ jobs:
             Write-Host $_.FullName
           }
 
+      - name: Get version from package.json
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Create MSIX package
         shell: pwsh
         run: |
-          # Find makeappx.exe from Windows SDK
+          $version = "${{ steps.version.outputs.VERSION }}"
           $sdkPath = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -Recurse | Sort-Object -Descending | Select-Object -First 1
           Write-Host "Using makeappx: $($sdkPath.FullName)"
-
-          # Create MSIX package
-          & $sdkPath.FullName pack /d "msix-package" /p "QlipLab_0.1.20_x64.msix" /o
+          & $sdkPath.FullName pack /d "msix-package" /p "QlipLab_${version}_x64.msix" /o
           Write-Host "MSIX package created successfully"
-
-          # Show package size
-          Get-Item "QlipLab_0.1.20_x64.msix" | Select-Object Name, Length
+          Get-Item "QlipLab_${version}_x64.msix" | Select-Object Name, Length
 
       - name: Upload MSIX package
         uses: actions/upload-artifact@v4
         with:
           name: qliplab-windows-msix
-          path: QlipLab_0.1.20_x64.msix
+          path: QlipLab_*_x64.msix
           if-no-files-found: error
 
       - name: Upload MSI installer
