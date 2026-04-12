@@ -5,6 +5,7 @@ import { writeHtmlAndText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore } from '@/stores/appStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { getImageBase64ForClipboard } from '@/lib/imageUtils';
 import type { PasteQueueItem } from '@/stores/appStore';
 
@@ -14,10 +15,27 @@ const PREVIEW_WIDTH = 1300;
 const PREVIEW_HEIGHT = 700;
 
 // Remember last window size & position so it opens where the user left it (Ditto-like)
+// Initialized from persisted settings, updated on each hide
 let _lastWidth = DEFAULT_WIDTH;
 let _lastHeight = DEFAULT_HEIGHT;
 let _lastX: number | null = null;
 let _lastY: number | null = null;
+let _initialized = false;
+
+/** Load persisted window position/size from settings (once on first show) */
+function initFromSettings() {
+  if (_initialized) return;
+  _initialized = true;
+  const s = useSettingsStore.getState().settings;
+  if (s.windowWidth && s.windowHeight) {
+    _lastWidth = s.windowWidth;
+    _lastHeight = s.windowHeight;
+  }
+  if (s.windowX !== null && s.windowY !== null) {
+    _lastX = s.windowX;
+    _lastY = s.windowY;
+  }
+}
 
 /** Guard against concurrent toggle operations (rapid double-tap). */
 let toggleInFlight = false;
@@ -114,6 +132,13 @@ async function hideWindowCore() {
     }
     _lastX = Math.round(pos.x / sf);
     _lastY = Math.round(pos.y / sf);
+    // Persist to settings so position survives app restart
+    useSettingsStore.getState().updateSettings({
+      windowX: _lastX,
+      windowY: _lastY,
+      windowWidth: _lastWidth,
+      windowHeight: _lastHeight,
+    });
   } catch {
     // Read failed, keep previous values
   }
@@ -143,6 +168,7 @@ async function hideWindowCore() {
  * NSWindowStyleMaskNonActivatingPanel flag and makes QlipLab the "active app".
  */
 async function showWindowCore() {
+  initFromSettings();
   const appWindow = getCurrentWindow();
 
   // Step 1: Show panel (non-activating — previous app stays active)

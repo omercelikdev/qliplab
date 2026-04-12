@@ -28,6 +28,10 @@ export interface AppSettings {
   globalShortcut: string; // e.g. 'CommandOrControl+Shift+V'
   autoCommands: AutoCommand[];
   launchOnLogin: boolean;
+  windowX: number | null;
+  windowY: number | null;
+  windowWidth: number | null;
+  windowHeight: number | null;
   eulaAccepted: boolean;
   eulaAcceptedVersion: string;
   eulaAcceptedAt: string;
@@ -52,6 +56,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   globalShortcut: 'Alt+Q',
   autoCommands: [],
   launchOnLogin: false,
+  windowX: null,
+  windowY: null,
+  windowWidth: null,
+  windowHeight: null,
   eulaAccepted: false,
   eulaAcceptedVersion: '',
   eulaAcceptedAt: '',
