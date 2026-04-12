@@ -81,13 +81,13 @@ export function SnippetList() {
   return (
     <div className="h-full flex flex-col">
       {/* Syntax filter bar — consistent with HistoryList/VaultList */}
-      <div className="flex items-center gap-1 px-3 py-1.5 shrink-0 overflow-x-auto elevation-bottom">
+      <div data-tauri-drag-region className="flex items-center gap-1 px-3 py-1.5 shrink-0 overflow-x-auto elevation-bottom cursor-move drag-region">
         {filterEntries.map(([key, { label }]) => (
           <button
             key={key}
             onClick={() => setSnippetSyntaxFilter(key)}
             className={cn(
-              'px-2 py-0.5 text-[10px] rounded-md whitespace-nowrap transition-colors cursor-pointer',
+              'px-2 py-0.5 text-[10px] rounded-md whitespace-nowrap transition-colors cursor-pointer no-drag',
               snippetSyntaxFilter === key
                 ? 'bg-accent text-accent-foreground'
                 : 'text-muted-foreground hover:bg-surface-hover'
