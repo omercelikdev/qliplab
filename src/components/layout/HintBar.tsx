@@ -102,9 +102,9 @@ export function HintBar() {
   }
 
   return (
-    <div className={cn('h-9 flex items-center justify-between px-3', 'elevation-top text-xs text-foreground/35')}>
+    <div data-tauri-drag-region className={cn('h-9 flex items-center justify-between px-3 cursor-move drag-region', 'elevation-top text-xs text-foreground/35')}>
       {/* Left: Navigation hints */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 no-drag">
         <div className="flex items-center gap-1">
           <Kbd><ArrowUp className="w-2.5 h-2.5" /></Kbd>
           <Kbd><ArrowDown className="w-2.5 h-2.5" /></Kbd>
@@ -117,7 +117,7 @@ export function HintBar() {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 no-drag">
         {activeTab === 'history' && (
           <button
             onClick={handleQueueClick}

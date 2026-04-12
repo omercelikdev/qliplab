@@ -73,7 +73,7 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div data-tauri-drag-region className="h-12 flex items-center px-3 cursor-move drag-region">
+    <div data-tauri-drag-region className="h-14 flex items-end pb-1.5 px-3 cursor-move drag-region">
       <div
         role="search"
         className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag transition-shadow duration-150 ease-out focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent/40"
