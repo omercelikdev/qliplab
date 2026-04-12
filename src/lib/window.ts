@@ -151,17 +151,14 @@ async function showWindowCore() {
   // Step 2: Sync Tauri internal state (no setFocus — that force-activates)
   await appWindow.show();
 
-  // Step 3: Restore last size (or default on first open)
-  await appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight));
-
-  // Step 4: Restore last position (Ditto-like: opens where user left it)
-  // First open centers on screen; after that, remembers position + monitor
-  if (_lastX !== null && _lastY !== null) {
-    await appWindow.setPosition(new LogicalPosition(_lastX, _lastY));
-  } else {
-    const { x, y } = centerOf(_lastWidth, _lastHeight);
-    await appWindow.setPosition(new LogicalPosition(x, y));
-  }
+  // Step 3+4: Restore size + position in parallel for faster show
+  const pos = (_lastX !== null && _lastY !== null)
+    ? { x: _lastX, y: _lastY }
+    : centerOf(_lastWidth, _lastHeight);
+  await Promise.all([
+    appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight)),
+    appWindow.setPosition(new LogicalPosition(pos.x, pos.y)),
+  ]);
 
   // Step 5: Signal open for keyboard nav reset
   useAppStore.getState().signalWindowOpen();

@@ -61,8 +61,8 @@ export function Sidebar() {
       data-tauri-drag-region
       className="w-11 h-full flex flex-col items-center pt-2 pb-[6px] elevation-right cursor-move shrink-0 drag-region"
     >
-      {/* Brand Logo */}
-      <div className="w-8 h-8 flex items-center justify-center no-drag">
+      {/* Brand Logo — also drag-friendly */}
+      <div className="w-8 h-8 flex items-center justify-center">
         <QlipLabIcon size={24} />
       </div>
 
