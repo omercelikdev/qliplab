@@ -1,5 +1,4 @@
-import { getCurrentWindow, LogicalSize, LogicalPosition, cursorPosition } from '@tauri-apps/api/window';
-import { availableMonitors } from '@tauri-apps/api/window';
+import { getCurrentWindow, LogicalSize, LogicalPosition } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeHtmlAndText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
@@ -40,31 +39,9 @@ async function writeQueueItem(item: PasteQueueItem) {
 
 /** Center window on the monitor where the cursor is (multi-monitor aware).
  *  Falls back to JS screen API if Tauri monitor query fails. */
-async function centerOf(width: number, height: number) {
-  try {
-    const cursor = await cursorPosition();
-    const monitors = await availableMonitors();
-    // Find the monitor containing the cursor
-    const monitor = monitors.find((m) => {
-      const pos = m.position;
-      const size = m.size;
-      return cursor.x >= pos.x && cursor.x < pos.x + size.width &&
-             cursor.y >= pos.y && cursor.y < pos.y + size.height;
-    }) ?? monitors[0];
-    if (monitor) {
-      const sf = monitor.scaleFactor;
-      const mx = monitor.position.x / sf;
-      const my = monitor.position.y / sf;
-      const mw = monitor.size.width / sf;
-      const mh = monitor.size.height / sf;
-      return {
-        x: Math.round(mx + (mw - width) / 2),
-        y: Math.round(my + (mh - height) / 2),
-      };
-    }
-  } catch {
-    // Fall through to JS screen API
-  }
+/** Center window on screen using JS screen API.
+ *  Works on macOS, Windows, and Linux. */
+function centerOf(width: number, height: number) {
   const sw = screen.availWidth;
   const sh = screen.availHeight;
   const st = (screen as unknown as { availTop?: number }).availTop ?? 0;
@@ -91,7 +68,7 @@ export async function expandWindowForPreview() {
     const width = Math.min(PREVIEW_WIDTH, screen.availWidth - margin);
     const height = Math.min(PREVIEW_HEIGHT, screen.availHeight - margin);
 
-    const { x, y } = await centerOf(width, height);
+    const { x, y } = centerOf(width, height);
     await appWindow.setSize(new LogicalSize(width, height));
     await appWindow.setPosition(new LogicalPosition(x, y));
   } catch (e) {
@@ -102,7 +79,7 @@ export async function expandWindowForPreview() {
 export async function shrinkWindowFromPreview() {
   try {
     const appWindow = getCurrentWindow();
-    const { x, y } = await centerOf(_lastWidth, _lastHeight);
+    const { x, y } = centerOf(_lastWidth, _lastHeight);
 
     await appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight));
     await appWindow.setPosition(new LogicalPosition(x, y));
@@ -173,7 +150,7 @@ async function showWindowCore() {
   await appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight));
 
   // Step 4: Center on screen using remembered size
-  const { x, y } = await centerOf(_lastWidth, _lastHeight);
+  const { x, y } = centerOf(_lastWidth, _lastHeight);
   await appWindow.setPosition(new LogicalPosition(x, y));
 
   // Step 5: Signal open for keyboard nav reset
