@@ -69,7 +69,7 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div className="h-10 flex items-center px-3">
+    <div className="h-9 flex items-center px-3 pt-0.5">
       <div
         role="search"
         className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag transition-shadow duration-150 ease-out focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent/40"
