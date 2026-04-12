@@ -13,9 +13,11 @@ const DEFAULT_HEIGHT = 580;
 const PREVIEW_WIDTH = 1300;
 const PREVIEW_HEIGHT = 700;
 
-// Remember last window size so it persists across show/hide cycles
+// Remember last window size & position so it opens where the user left it (Ditto-like)
 let _lastWidth = DEFAULT_WIDTH;
 let _lastHeight = DEFAULT_HEIGHT;
+let _lastX: number | null = null;
+let _lastY: number | null = null;
 
 /** Guard against concurrent toggle operations (rapid double-tap). */
 let toggleInFlight = false;
@@ -98,19 +100,22 @@ export async function shrinkWindowFromPreview() {
  */
 async function hideWindowCore() {
   const appWindow = getCurrentWindow();
-  // Save current logical size so it persists across hide/show cycles.
-  // innerSize() returns PhysicalSize — divide by scaleFactor to get logical.
+  // Save current logical size + position so window reopens where user left it.
+  // innerSize()/outerPosition() return physical pixels — divide by scaleFactor.
   try {
-    const size = await appWindow.innerSize();
     const sf = await appWindow.scaleFactor();
+    const size = await appWindow.innerSize();
+    const pos = await appWindow.outerPosition();
     const logicalW = Math.round(size.width / sf);
     const logicalH = Math.round(size.height / sf);
     if (logicalW > 0 && logicalH > 0) {
       _lastWidth = logicalW;
       _lastHeight = logicalH;
     }
+    _lastX = Math.round(pos.x / sf);
+    _lastY = Math.round(pos.y / sf);
   } catch {
-    // Size read failed, keep previous values
+    // Read failed, keep previous values
   }
   await invoke('hide_panel');
   resetUIState();
@@ -149,9 +154,14 @@ async function showWindowCore() {
   // Step 3: Restore last size (or default on first open)
   await appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight));
 
-  // Step 4: Center on screen using remembered size
-  const { x, y } = centerOf(_lastWidth, _lastHeight);
-  await appWindow.setPosition(new LogicalPosition(x, y));
+  // Step 4: Restore last position (Ditto-like: opens where user left it)
+  // First open centers on screen; after that, remembers position + monitor
+  if (_lastX !== null && _lastY !== null) {
+    await appWindow.setPosition(new LogicalPosition(_lastX, _lastY));
+  } else {
+    const { x, y } = centerOf(_lastWidth, _lastHeight);
+    await appWindow.setPosition(new LogicalPosition(x, y));
+  }
 
   // Step 5: Signal open for keyboard nav reset
   useAppStore.getState().signalWindowOpen();
