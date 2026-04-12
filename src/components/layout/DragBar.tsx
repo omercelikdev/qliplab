@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, X } from 'lucide-react';
 import { useAppStore, Tab } from '@/stores/appStore';
 import { hideWindow } from '@/lib/window';
@@ -13,6 +14,7 @@ const PLACEHOLDERS: Record<Tab, string> = {
 const DEBOUNCE_MS = 120;
 
 export function SearchBar() {
+  const { t } = useTranslation();
   const { searchQuery, setSearchQuery, activeTab } = useAppStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -101,12 +103,10 @@ export function SearchBar() {
       {/* Close — invisible by default, appears on hover */}
       <button
         onClick={() => hideWindow()}
+        title={t('common.close')}
         className="ms-1.5 w-8 h-8 flex items-center justify-center rounded-md opacity-0 group-hover/bar:opacity-100 hover:!bg-foreground/[0.06] dark:hover:!bg-white/[0.08] transition-all cursor-pointer no-drag shrink-0"
       >
-        <svg width="8" height="8" viewBox="0 0 8 8" className="text-foreground/30 hover:text-foreground/60">
-          <line x1="1" y1="1" x2="7" y2="7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-          <line x1="7" y1="1" x2="1" y2="7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
+        <X className="w-3.5 h-3.5 text-foreground/30 hover:text-foreground/60" />
       </button>
     </div>
   );
