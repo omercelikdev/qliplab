@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D — сравнить два элемента",
   "vault.lock.createTitle": "Создать пароль хранилища",
   "vault.lock.createDescription": "Выберите пароль для защиты конфиденциальных данных",
-  "vault.lock.createButton": "Создать пароль"
+  "vault.lock.createButton": "Создать пароль",
+  "feedback.screenshotHint": "Чтобы прикрепить скриншоты, откройте ссылку на GitHub после отправки и перетащите изображения."
 }

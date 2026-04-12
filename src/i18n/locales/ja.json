@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D で2つの項目を比較",
   "vault.lock.createTitle": "Vaultパスワードを作成",
   "vault.lock.createDescription": "機密データを保護するパスワードを設定してください",
-  "vault.lock.createButton": "パスワードを作成"
+  "vault.lock.createButton": "パスワードを作成",
+  "feedback.screenshotHint": "スクリーンショットを添付するには、送信後にGitHub issueリンクを開き、画像をドラッグ＆ドロップしてください。"
 }

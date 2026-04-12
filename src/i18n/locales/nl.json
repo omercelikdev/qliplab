@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D om twee items te vergelijken",
   "vault.lock.createTitle": "Kluiswachtwoord aanmaken",
   "vault.lock.createDescription": "Kies een wachtwoord om uw gevoelige gegevens te beschermen",
-  "vault.lock.createButton": "Wachtwoord aanmaken"
+  "vault.lock.createButton": "Wachtwoord aanmaken",
+  "feedback.screenshotHint": "Om schermafbeeldingen toe te voegen, open de GitHub-issue-link na verzending en sleep afbeeldingen erheen."
 }

@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D para comparar dos elementos",
   "vault.lock.createTitle": "Crear contraseña",
   "vault.lock.createDescription": "Elige una contraseña para proteger tus datos sensibles",
-  "vault.lock.createButton": "Crear contraseña"
+  "vault.lock.createButton": "Crear contraseña",
+  "feedback.screenshotHint": "Para adjuntar capturas, abre el enlace de GitHub después de enviar y arrastra las imágenes allí."
 }

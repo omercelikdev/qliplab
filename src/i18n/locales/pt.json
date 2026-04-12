@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D para comparar dois itens",
   "vault.lock.createTitle": "Criar senha do cofre",
   "vault.lock.createDescription": "Escolha uma senha para proteger seus dados sensíveis",
-  "vault.lock.createButton": "Criar senha"
+  "vault.lock.createButton": "Criar senha",
+  "feedback.screenshotHint": "Para anexar capturas, abra o link do GitHub após enviar e arraste as imagens."
 }

@@ -1,6 +1,10 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, Minus, X as XIcon } from 'lucide-react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useAppStore, Tab } from '@/stores/appStore';
+import { hideWindow } from '@/lib/window';
+
+const isMac = navigator.platform.toUpperCase().includes('MAC');
 
 const PLACEHOLDERS: Record<Tab, string> = {
   history: 'Search clips...',
@@ -97,6 +101,25 @@ export function SearchBar() {
           </button>
         )}
       </div>
+      {/* Window controls for Windows/Linux (macOS uses NSPanel, no chrome needed) */}
+      {!isMac && (
+        <div className="flex items-center gap-0.5 ms-1.5 shrink-0 no-drag">
+          <button
+            onClick={() => getCurrentWindow().minimize()}
+            className="p-1 rounded hover:bg-surface-hover transition-colors cursor-pointer"
+            title="Minimize"
+          >
+            <Minus className="w-3 h-3 text-muted-foreground" />
+          </button>
+          <button
+            onClick={() => hideWindow()}
+            className="p-1 rounded hover:bg-destructive/10 transition-colors cursor-pointer"
+            title="Close"
+          >
+            <XIcon className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

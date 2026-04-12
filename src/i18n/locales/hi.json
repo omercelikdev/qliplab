@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "दो आइटम की तुलना के लिए Alt+D",
   "vault.lock.createTitle": "वॉल्ट पासवर्ड बनाएं",
   "vault.lock.createDescription": "अपने संवेदनशील डेटा की सुरक्षा के लिए पासवर्ड चुनें",
-  "vault.lock.createButton": "पासवर्ड बनाएं"
+  "vault.lock.createButton": "पासवर्ड बनाएं",
+  "feedback.screenshotHint": "स्क्रीनशॉट संलग्न करने के लिए, सबमिशन के बाद GitHub issue लिंक खोलें और छवियों को ड्रैग करें।"
 }

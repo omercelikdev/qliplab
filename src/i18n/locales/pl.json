@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D, aby porównać dwa elementy",
   "vault.lock.createTitle": "Utwórz hasło sejfu",
   "vault.lock.createDescription": "Wybierz hasło, aby chronić swoje wrażliwe dane",
-  "vault.lock.createButton": "Utwórz hasło"
+  "vault.lock.createButton": "Utwórz hasło",
+  "feedback.screenshotHint": "Aby dołączyć zrzuty ekranu, otwórz link do GitHub po wysłaniu i przeciągnij tam obrazy."
 }

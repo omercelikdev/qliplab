@@ -268,6 +268,11 @@ export function ReportIssueDialog({ isOpen, onClose }: ReportIssueDialogProps) {
                     />
                     <span className="text-sm">{t('feedback.includeSystemInfo')}</span>
                   </label>
+
+                  {/* Screenshot hint */}
+                  <p className="text-[10px] text-muted-foreground">
+                    {t('feedback.screenshotHint')}
+                  </p>
                 </>
               )}
             </div>

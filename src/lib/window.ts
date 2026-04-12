@@ -1,4 +1,5 @@
-import { getCurrentWindow, LogicalSize, LogicalPosition } from '@tauri-apps/api/window';
+import { getCurrentWindow, LogicalSize, LogicalPosition, cursorPosition } from '@tauri-apps/api/window';
+import { availableMonitors } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeHtmlAndText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
@@ -8,10 +9,14 @@ import { useAppStore } from '@/stores/appStore';
 import { getImageBase64ForClipboard } from '@/lib/imageUtils';
 import type { PasteQueueItem } from '@/stores/appStore';
 
-const DEFAULT_WIDTH = 480;
-const DEFAULT_HEIGHT = 460;
+const DEFAULT_WIDTH = 560;
+const DEFAULT_HEIGHT = 580;
 const PREVIEW_WIDTH = 1300;
 const PREVIEW_HEIGHT = 700;
+
+// Remember last window size so it persists across show/hide cycles
+let _lastWidth = DEFAULT_WIDTH;
+let _lastHeight = DEFAULT_HEIGHT;
 
 /** Guard against concurrent toggle operations (rapid double-tap). */
 let toggleInFlight = false;
@@ -33,8 +38,33 @@ async function writeQueueItem(item: PasteQueueItem) {
   }
 }
 
-/** Use JS screen API — always returns correct logical dimensions regardless of window position. */
-function centerOf(width: number, height: number) {
+/** Center window on the monitor where the cursor is (multi-monitor aware).
+ *  Falls back to JS screen API if Tauri monitor query fails. */
+async function centerOf(width: number, height: number) {
+  try {
+    const cursor = await cursorPosition();
+    const monitors = await availableMonitors();
+    // Find the monitor containing the cursor
+    const monitor = monitors.find((m) => {
+      const pos = m.position;
+      const size = m.size;
+      return cursor.x >= pos.x && cursor.x < pos.x + size.width &&
+             cursor.y >= pos.y && cursor.y < pos.y + size.height;
+    }) ?? monitors[0];
+    if (monitor) {
+      const sf = monitor.scaleFactor;
+      const mx = monitor.position.x / sf;
+      const my = monitor.position.y / sf;
+      const mw = monitor.size.width / sf;
+      const mh = monitor.size.height / sf;
+      return {
+        x: Math.round(mx + (mw - width) / 2),
+        y: Math.round(my + (mh - height) / 2),
+      };
+    }
+  } catch {
+    // Fall through to JS screen API
+  }
   const sw = screen.availWidth;
   const sh = screen.availHeight;
   const st = (screen as unknown as { availTop?: number }).availTop ?? 0;
@@ -61,7 +91,7 @@ export async function expandWindowForPreview() {
     const width = Math.min(PREVIEW_WIDTH, screen.availWidth - margin);
     const height = Math.min(PREVIEW_HEIGHT, screen.availHeight - margin);
 
-    const { x, y } = centerOf(width, height);
+    const { x, y } = await centerOf(width, height);
     await appWindow.setSize(new LogicalSize(width, height));
     await appWindow.setPosition(new LogicalPosition(x, y));
   } catch (e) {
@@ -72,9 +102,9 @@ export async function expandWindowForPreview() {
 export async function shrinkWindowFromPreview() {
   try {
     const appWindow = getCurrentWindow();
-    const { x, y } = centerOf(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    const { x, y } = await centerOf(_lastWidth, _lastHeight);
 
-    await appWindow.setSize(new LogicalSize(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+    await appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight));
     await appWindow.setPosition(new LogicalPosition(x, y));
   } catch (e) {
     console.error('[qliplab] shrinkWindowFromPreview failed:', e);
@@ -91,6 +121,20 @@ export async function shrinkWindowFromPreview() {
  */
 async function hideWindowCore() {
   const appWindow = getCurrentWindow();
+  // Save current logical size so it persists across hide/show cycles.
+  // innerSize() returns PhysicalSize — divide by scaleFactor to get logical.
+  try {
+    const size = await appWindow.innerSize();
+    const sf = await appWindow.scaleFactor();
+    const logicalW = Math.round(size.width / sf);
+    const logicalH = Math.round(size.height / sf);
+    if (logicalW > 0 && logicalH > 0) {
+      _lastWidth = logicalW;
+      _lastHeight = logicalH;
+    }
+  } catch {
+    // Size read failed, keep previous values
+  }
   await invoke('hide_panel');
   resetUIState();
   await Promise.all([
@@ -125,11 +169,11 @@ async function showWindowCore() {
   // Step 2: Sync Tauri internal state (no setFocus — that force-activates)
   await appWindow.show();
 
-  // Step 3: Set size (works because panel is now visible)
-  await appWindow.setSize(new LogicalSize(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+  // Step 3: Restore last size (or default on first open)
+  await appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight));
 
-  // Step 4: Center on screen
-  const { x, y } = centerOf(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  // Step 4: Center on screen using remembered size
+  const { x, y } = await centerOf(_lastWidth, _lastHeight);
   await appWindow.setPosition(new LogicalPosition(x, y));
 
   // Step 5: Signal open for keyboard nav reset

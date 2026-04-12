@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D ile iki öğeyi karşılaştır",
   "vault.lock.createTitle": "Kasa Şifresi Oluştur",
   "vault.lock.createDescription": "Hassas verilerinizi korumak için bir şifre belirleyin",
-  "vault.lock.createButton": "Şifre Oluştur"
+  "vault.lock.createButton": "Şifre Oluştur",
+  "feedback.screenshotHint": "Ekran görüntüsü eklemek için, gönderim sonrası GitHub issue linkini açıp görüntüleri sürükleyip bırakın."
 }

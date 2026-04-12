@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D لمقارنة عنصرين",
   "vault.lock.createTitle": "إنشاء كلمة مرور الخزنة",
   "vault.lock.createDescription": "اختر كلمة مرور لحماية بياناتك الحساسة",
-  "vault.lock.createButton": "إنشاء كلمة المرور"
+  "vault.lock.createButton": "إنشاء كلمة المرور",
+  "feedback.screenshotHint": "لإرفاق لقطات شاشة، افتح رابط المشكلة على GitHub بعد الإرسال واسحب الصور هناك."
 }

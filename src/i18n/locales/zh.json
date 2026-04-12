@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D 对比两个项目",
   "vault.lock.createTitle": "创建保险库密码",
   "vault.lock.createDescription": "选择一个密码来保护您的敏感数据",
-  "vault.lock.createButton": "创建密码"
+  "vault.lock.createButton": "创建密码",
+  "feedback.screenshotHint": "要附加截图，提交后打开GitHub issue链接并拖放图片。"
 }

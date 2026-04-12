@@ -10,7 +10,7 @@ describe('DEFAULT_SETTINGS', () => {
   it('has all required settings defined', () => {
     expect(DEFAULT_SETTINGS.language).toBe('system');
     expect(DEFAULT_SETTINGS.theme).toBe('system');
-    expect(DEFAULT_SETTINGS.globalShortcut).toBe('CommandOrControl+Shift+V');
+    expect(DEFAULT_SETTINGS.globalShortcut).toBe('Alt+Q');
     expect(DEFAULT_SETTINGS.sensitiveDetectionEnabled).toBe(true);
     expect(DEFAULT_SETTINGS.storeImages).toBe(true);
     expect(DEFAULT_SETTINGS.clearHistoryOnQuit).toBe(false);

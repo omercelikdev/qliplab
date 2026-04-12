@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D per confrontare due elementi",
   "vault.lock.createTitle": "Crea password cassaforte",
   "vault.lock.createDescription": "Scegli una password per proteggere i tuoi dati sensibili",
-  "vault.lock.createButton": "Crea password"
+  "vault.lock.createButton": "Crea password",
+  "feedback.screenshotHint": "Per allegare screenshot, apri il link GitHub dopo l'invio e trascina le immagini."
 }

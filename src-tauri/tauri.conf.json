@@ -14,8 +14,8 @@
     "macOSPrivateApi": true,
     "windows": [{
       "title": "QlipLab",
-      "width": 480,
-      "height": 460,
+      "width": 560,
+      "height": 580,
       "minWidth": 350,
       "minHeight": 300,
       "resizable": true,

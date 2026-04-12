@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D um zwei Einträge zu vergleichen",
   "vault.lock.createTitle": "Tresor-Passwort erstellen",
   "vault.lock.createDescription": "Wählen Sie ein Passwort zum Schutz Ihrer sensiblen Daten",
-  "vault.lock.createButton": "Passwort erstellen"
+  "vault.lock.createButton": "Passwort erstellen",
+  "feedback.screenshotHint": "Um Screenshots anzuhängen, öffnen Sie nach dem Absenden den GitHub-Issue-Link und ziehen Sie Bilder dorthin."
 }

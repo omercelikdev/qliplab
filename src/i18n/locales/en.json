@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D to compare two items",
   "vault.lock.createTitle": "Create Vault Password",
   "vault.lock.createDescription": "Choose a password to protect your sensitive data",
-  "vault.lock.createButton": "Create Password"
+  "vault.lock.createButton": "Create Password",
+  "feedback.screenshotHint": "To attach screenshots, open the GitHub issue link after submission and drag & drop images there."
 }

@@ -441,5 +441,6 @@
   "onboarding.hint.altD": "Alt+D로 두 항목 비교",
   "vault.lock.createTitle": "금고 비밀번호 만들기",
   "vault.lock.createDescription": "민감한 데이터를 보호할 비밀번호를 선택하세요",
-  "vault.lock.createButton": "비밀번호 만들기"
+  "vault.lock.createButton": "비밀번호 만들기",
+  "feedback.screenshotHint": "스크린샷을 첨부하려면 제출 후 GitHub issue 링크를 열고 이미지를 드래그 앤 드롭하세요."
 }

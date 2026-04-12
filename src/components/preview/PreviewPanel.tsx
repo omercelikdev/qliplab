@@ -11,7 +11,7 @@ import { EditorView } from './EditorView';
 import { ImageView } from './ImageView';
 import { FormatIcon } from '@/components/history/FormatIcon';
 import { getFormatDisplayName, detectFormat } from '@/lib/formatDetector';
-import { writeText, writeImage } from '@tauri-apps/plugin-clipboard-manager';
+import { writeImage } from '@tauri-apps/plugin-clipboard-manager';
 import { writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { Image } from '@tauri-apps/api/image';
 import { hideWriteAndPaste } from '@/lib/window';
@@ -72,7 +72,10 @@ export function PreviewPanel() {
       } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
         await writeHtmlAndText(sourceItem.htmlContent, editedContent);
       } else {
-        await writeText(editedContent);
+        // For transformed/edited content, wrap in <pre> HTML so rich text apps
+        // (Teams, Slack, Word) preserve formatting (newlines, indentation)
+        const html = `<pre style="font-family:monospace;white-space:pre">${editedContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>`;
+        await writeHtmlAndText(html, editedContent);
       }
       setCopyStatus('ok');
     } catch {
@@ -90,7 +93,8 @@ export function PreviewPanel() {
       } else if (sourceItem?.htmlContent && editedContent === sourceItem.content) {
         await writeHtmlAndText(sourceItem.htmlContent, editedContent);
       } else {
-        await writeText(editedContent);
+        const html = `<pre style="font-family:monospace;white-space:pre">${editedContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>`;
+        await writeHtmlAndText(html, editedContent);
       }
     });
   }, [editedContent, sourceItem, parsedImageData, writeImageToClipboard]);

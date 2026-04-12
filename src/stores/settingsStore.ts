@@ -49,7 +49,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   aiConsentDate: '',
   snippetAutoExpand: true,
   onboardingSeen: false,
-  globalShortcut: 'CommandOrControl+Shift+V',
+  globalShortcut: 'Alt+Q',
   autoCommands: [],
   launchOnLogin: false,
   eulaAccepted: false,
