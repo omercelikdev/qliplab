@@ -45,6 +45,12 @@ html, body, #root {
   overflow: hidden;
 }
 
+/* Remove focus ring from all interactive elements — keyboard nav uses selected state instead */
+button:focus, button:focus-visible,
+[role="tab"]:focus, [role="tab"]:focus-visible {
+  outline: none;
+}
+
 /* Platform-agnostic solid background */
 .glass { @apply bg-background; }
 .drag-region { -webkit-app-region: drag; }
