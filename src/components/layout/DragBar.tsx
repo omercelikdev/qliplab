@@ -101,7 +101,7 @@ export function SearchBar() {
       {/* Close — invisible by default, appears on hover */}
       <button
         onClick={() => hideWindow()}
-        className="ms-1.5 w-6 h-6 flex items-center justify-center rounded-md opacity-0 group-hover/bar:opacity-100 hover:!bg-foreground/[0.06] dark:hover:!bg-white/[0.08] transition-all cursor-pointer no-drag shrink-0"
+        className="ms-1.5 w-8 h-8 flex items-center justify-center rounded-md opacity-0 group-hover/bar:opacity-100 hover:!bg-foreground/[0.06] dark:hover:!bg-white/[0.08] transition-all cursor-pointer no-drag shrink-0"
       >
         <svg width="8" height="8" viewBox="0 0 8 8" className="text-foreground/30 hover:text-foreground/60">
           <line x1="1" y1="1" x2="7" y2="7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
