@@ -1,6 +1,6 @@
 [package]
 name = "qliplab"
-version = "0.1.20"
+version = "0.1.21"
 description = "Cross-platform clipboard manager"
 authors = ["Ömer Çelik"]
 edition = "2021"

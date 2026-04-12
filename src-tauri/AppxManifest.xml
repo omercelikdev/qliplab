@@ -7,7 +7,7 @@
   <Identity
     Name="celikomr.QlipLab"
     Publisher="CN=8AE43AF7-DD16-4F61-B93D-DCFE6F1E22FE"
-    Version="0.1.20.0"
+    Version="0.1.21.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
