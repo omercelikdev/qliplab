@@ -25,6 +25,7 @@ jobs:
       pull-requests: write
       issues: write
       actions: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -50,6 +51,7 @@ jobs:
             --max-turns 10
           additional_permissions: |
             actions: read
+      id-token: write
 
   # ── Issue Analysis & Fix ────────────────────────────────────
   # Triggers on: user-reported bugs/features AND auto-reported crash errors
@@ -70,6 +72,7 @@ jobs:
       pull-requests: write
       issues: write
       actions: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -123,6 +126,7 @@ jobs:
       pull-requests: write
       issues: write
       actions: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -137,3 +141,4 @@ jobs:
             --max-turns 20
           additional_permissions: |
             actions: read
+      id-token: write
