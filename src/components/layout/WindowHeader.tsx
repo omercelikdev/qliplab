@@ -59,7 +59,7 @@ function MacTrafficLights() {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Close — red */}
-      <button onClick={handleClose} className="w-3 h-3 rounded-full bg-[#FF5F57] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center">
+      <button onClick={handleClose} className="w-3.5 h-3.5 rounded-full bg-[#FF5F57] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center">
         {hovered && (
           <svg width="6" height="6" viewBox="0 0 6 6">
             <line x1="1" y1="1" x2="5" y2="5" stroke="rgba(0,0,0,0.5)" strokeWidth="1.2" strokeLinecap="round" />
@@ -68,7 +68,7 @@ function MacTrafficLights() {
         )}
       </button>
       {/* Minimize — yellow */}
-      <button onClick={handleMinimize} className="w-3 h-3 rounded-full bg-[#FEBC2E] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center">
+      <button onClick={handleMinimize} className="w-3.5 h-3.5 rounded-full bg-[#FEBC2E] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center">
         {hovered && (
           <svg width="6" height="6" viewBox="0 0 6 6">
             <line x1="1" y1="3" x2="5" y2="3" stroke="rgba(0,0,0,0.5)" strokeWidth="1.2" strokeLinecap="round" />
@@ -76,7 +76,7 @@ function MacTrafficLights() {
         )}
       </button>
       {/* Maximize — green */}
-      <button onClick={handleMaximize} className="w-3 h-3 rounded-full bg-[#28C840] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center">
+      <button onClick={handleMaximize} className="w-3.5 h-3.5 rounded-full bg-[#28C840] hover:brightness-90 transition-all cursor-pointer flex items-center justify-center">
         {hovered && (
           <svg width="6" height="6" viewBox="0 0 6 6">
             <polyline points="1,3.5 3,1.5 5,3.5" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
@@ -92,7 +92,7 @@ export function WindowHeader() {
   return (
     <div
       data-tauri-drag-region
-      className="h-5 flex items-center cursor-move drag-region shrink-0 elevation-bottom"
+      className="h-7 flex items-center cursor-move drag-region shrink-0 elevation-bottom"
     >
       {/* macOS: traffic lights on the left */}
       {isMac && <MacTrafficLights />}
