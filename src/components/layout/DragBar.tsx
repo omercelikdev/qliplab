@@ -1,10 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Search, X, Minus, X as XIcon } from 'lucide-react';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { Search, X } from 'lucide-react';
 import { useAppStore, Tab } from '@/stores/appStore';
-import { hideWindow } from '@/lib/window';
-
-const isMac = navigator.platform.toUpperCase().includes('MAC');
 
 const PLACEHOLDERS: Record<Tab, string> = {
   history: 'Search clips...',
@@ -73,7 +69,7 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div data-tauri-drag-region className="h-14 flex items-end pb-1.5 px-3 cursor-move drag-region">
+    <div className="h-10 flex items-center px-3">
       <div
         role="search"
         className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag transition-shadow duration-150 ease-out focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent/40"
@@ -101,25 +97,6 @@ export function SearchBar() {
           </button>
         )}
       </div>
-      {/* Window controls for Windows/Linux (macOS uses NSPanel, no chrome needed) */}
-      {!isMac && (
-        <div className="flex items-center gap-0.5 ms-1.5 shrink-0 no-drag">
-          <button
-            onClick={() => getCurrentWindow().minimize()}
-            className="p-1 rounded hover:bg-surface-hover transition-colors cursor-pointer"
-            title="Minimize"
-          >
-            <Minus className="w-3 h-3 text-muted-foreground" />
-          </button>
-          <button
-            onClick={() => hideWindow()}
-            className="p-1 rounded hover:bg-destructive/10 transition-colors cursor-pointer"
-            title="Close"
-          >
-            <XIcon className="w-3 h-3 text-muted-foreground hover:text-destructive" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }

@@ -14,6 +14,7 @@ import { VaultList } from './components/vault/VaultList';
 import { PreviewPanel } from './components/preview/PreviewPanel';
 import { SettingsPanel } from './components/settings/SettingsDialog';
 import { SnippetEditorPanel } from './components/snippets/SnippetEditorPanel';
+import { WindowHeader } from './components/layout/WindowHeader';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorReportingOptIn } from './components/feedback/ErrorReportingOptIn';
 import { EulaDialog } from './components/legal/EulaDialog';
@@ -197,7 +198,11 @@ function App() {
   return (
     <ErrorBoundary>
       <ResizeBorder />
-      <div className={cn('h-screen w-screen flex overflow-hidden', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}>
+      <div className={cn('h-screen w-screen flex flex-col overflow-hidden', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}>
+        {/* Window Header — thin draggable strip with platform controls */}
+        <WindowHeader />
+
+        <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar with Brand */}
         <Sidebar />
 
@@ -238,6 +243,7 @@ function App() {
             </AnimatePresence>
           </div>
           <HintBar />
+        </div>
         </div>
       </div>
 
