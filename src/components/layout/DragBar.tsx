@@ -1,6 +1,9 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Search, X } from 'lucide-react';
 import { useAppStore, Tab } from '@/stores/appStore';
+import { hideWindow } from '@/lib/window';
+
+const isMac = navigator.platform.toUpperCase().includes('MAC');
 
 const PLACEHOLDERS: Record<Tab, string> = {
   history: 'Search clips...',
@@ -69,7 +72,7 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div className="h-11 flex items-center px-3">
+    <div data-tauri-drag-region className="h-11 flex items-end pb-1 px-3 cursor-move drag-region">
       <div
         role="search"
         className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag transition-shadow duration-150 ease-out focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent/40"
@@ -97,6 +100,20 @@ export function SearchBar() {
           </button>
         )}
       </div>
+      {/* Close (hide) button */}
+      <button
+        onClick={() => hideWindow()}
+        className="ms-2 mb-0.5 w-5 h-5 flex items-center justify-center rounded-full hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-colors cursor-pointer no-drag group shrink-0"
+      >
+        {isMac ? (
+          <div className="w-3 h-3 rounded-full bg-[#FF5F57] group-hover:brightness-90" />
+        ) : (
+          <svg width="8" height="8" viewBox="0 0 8 8" className="text-foreground/40 group-hover:text-red-500">
+            <line x1="1" y1="1" x2="7" y2="7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            <line x1="7" y1="1" x2="1" y2="7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
+        )}
+      </button>
     </div>
   );
 }
