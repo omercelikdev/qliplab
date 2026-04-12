@@ -1754,8 +1754,11 @@ pub fn run() {
                             _ => {}
                         }
                     })
-                    .on_tray_icon_event(|_tray, _event| {
-                        // No action on icon click — use right-click menu instead
+                    .on_tray_icon_event(|tray, event| {
+                        // Click on tray icon → show window (Windows/Linux behavior)
+                        if let tauri::tray::TrayIconEvent::Click { button: tauri::tray::MouseButton::Left, .. } = event {
+                            let _ = tray.app_handle().emit("tray-show", ());
+                        }
                     })
                     .build(app)?;
             }
