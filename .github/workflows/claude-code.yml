@@ -1,0 +1,123 @@
+name: Claude Code
+
+on:
+  # PR review - otomatik
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+  # Issue analizi - label ile
+  issues:
+    types: [labeled, opened]
+
+  # @claude mention - interaktif
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  # ── PR Auto Review ──────────────────────────────────────────
+  claude-pr-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      actions: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review this PR thoroughly. Check for:
+            1. Tests: Every new/changed function in src/lib/ MUST have unit tests
+            2. i18n: Every UI string MUST use t('key') with translations in all 15 locales
+            3. RTL: Must use logical CSS (ps-/pe-, ms-/me-, text-start/text-end)
+            4. Cross-platform: Must work on macOS, Windows, AND Linux
+            5. No any types in src/ (except as any in tests)
+            6. No console.log in production code
+            7. Security: no command injection, XSS, SQL injection
+            8. No breaking changes to existing functionality
+
+            If any of these rules are violated, request changes with clear fix suggestions.
+          claude_args: |
+            --max-turns 10
+          additional_permissions: |
+            actions: read
+
+  # ── Issue Analysis & Fix ────────────────────────────────────
+  # Triggers on: user-reported bugs/features AND auto-reported crash errors
+  # Skips: consent-log issues (EULA/AI consent records)
+  claude-issue-fix:
+    if: >
+      github.event_name == 'issues' &&
+      !contains(toJSON(github.event.issue.labels.*.name), 'consent-log') &&
+      (
+        contains(toJSON(github.event.issue.labels.*.name), 'bug') ||
+        contains(toJSON(github.event.issue.labels.*.name), 'enhancement') ||
+        contains(toJSON(github.event.issue.labels.*.name), 'auto-reported')
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Analyze this issue and implement a fix:
+
+            1. Understand the issue and identify affected code
+            2. Create a fix on a new branch (fix/issue-{number} or feat/issue-{number})
+            3. Write regression tests for any bug fix
+            4. Write unit tests for any new function in src/lib/
+            5. Ensure all existing tests still pass (npx vitest run)
+            6. Ensure TypeScript compiles (npx tsc --noEmit)
+            7. If UI strings are added, use t('key') and add to ALL 15 locale files
+            8. Use logical CSS properties for RTL support
+            9. Ensure cross-platform compatibility (macOS, Windows, Linux)
+            10. Open a PR with the fix, referencing this issue
+
+            CRITICAL: Do NOT break any existing functionality. Run the full test suite before creating the PR.
+          claude_args: |
+            --max-turns 30
+
+  # ── Interactive @claude ─────────────────────────────────────
+  claude-interactive:
+    if: >
+      (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
+      contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          trigger_phrase: "@claude"
+          claude_args: |
+            --max-turns 20
+          additional_permissions: |
+            actions: read

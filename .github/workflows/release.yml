@@ -1,0 +1,222 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  APP_NAME: QlipLab
+
+jobs:
+  # ── macOS Build ─────────────────────────────────────────────
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      - name: Build Tauri (universal)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --target universal-apple-darwin
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          path: |
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: error
+
+  # ── Windows Build ───────────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      - name: Build Tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_OPTIONS: "--max-old-space-size=4096"
+        with:
+          args: --target x86_64-pc-windows-msvc
+
+      - name: Get version from tag
+        id: version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Prepare MSIX package
+        shell: pwsh
+        run: |
+          $buildDir = "src-tauri/target/x86_64-pc-windows-msvc/release"
+          $msixDir = "msix-package"
+          $assetsDir = "$msixDir/Assets"
+
+          New-Item -ItemType Directory -Force -Path $assetsDir
+
+          Copy-Item "$buildDir/QlipLab.exe" "$msixDir/"
+          Get-ChildItem "$buildDir/*.dll" | ForEach-Object {
+            Copy-Item $_.FullName "$msixDir/"
+          }
+
+          Copy-Item "src-tauri/icons/Square44x44Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/Square150x150Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/Square310x310Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/Square71x71Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/Wide310x150Logo.png" "$assetsDir/"
+          Copy-Item "src-tauri/icons/StoreLogo.png" "$assetsDir/"
+          Copy-Item "src-tauri/AppxManifest.xml" "$msixDir/"
+
+      - name: Create MSIX package
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $sdkPath = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -Recurse | Sort-Object -Descending | Select-Object -First 1
+          & $sdkPath.FullName pack /d "msix-package" /p "QlipLab_${version}_x64.msix" /o
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: |
+            QlipLab_*_x64.msix
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          if-no-files-found: error
+
+  # ── Linux Build ─────────────────────────────────────────────
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libxdo-dev
+
+      - run: npm ci
+
+      - name: Build Tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --target x86_64-unknown-linux-gnu
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: |
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+          if-no-files-found: error
+
+  # ── Create Release on qliplab-site ──────────────────────────
+  publish-release:
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Get version and changelog
+        id: info
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+
+          # Find previous tag
+          PREV_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
+          if [ -z "$PREV_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            CHANGELOG=$(git log ${PREV_TAG}..${GITHUB_REF_NAME} --pretty=format:"- %s (%h)" --no-merges)
+          fi
+
+          # Write changelog to file
+          cat > changelog.md << 'HEREDOC'
+          ## What's Changed
+          HEREDOC
+          echo "$CHANGELOG" >> changelog.md
+
+      - name: Flatten artifacts
+        run: |
+          mkdir -p release-files
+          find artifacts -type f \( -name "*.dmg" -o -name "*.msix" -o -name "*.msi" -o -name "*.exe" -o -name "*.deb" -o -name "*.AppImage" \) -exec cp {} release-files/ \;
+          ls -la release-files/
+
+      - name: Create release on qliplab-releases
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: celikomr/qliplab-releases
+          tag_name: ${{ github.ref_name }}
+          name: "QlipLab ${{ steps.info.outputs.VERSION }}"
+          body_path: changelog.md
+          draft: true
+          files: release-files/*
+          token: ${{ secrets.RELEASES_REPO_TOKEN }}

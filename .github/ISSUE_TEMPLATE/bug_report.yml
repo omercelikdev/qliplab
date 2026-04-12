@@ -1,0 +1,51 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+labels: ["bug", "user-reported"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: App Version
+      description: Which version of QlipLab are you using?
+      placeholder: "e.g. 0.1.20"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - macOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Open the app
+        2. Click on ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Screenshots
+      description: Paste any error messages or attach screenshots
+    validations:
+      required: false
