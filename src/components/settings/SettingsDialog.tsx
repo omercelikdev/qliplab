@@ -13,6 +13,8 @@ import { exportData, importData, type ExportSection } from '@/lib/exportImport';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { CONFIG } from '@/lib/config';
 import { useLicenseStore } from '@/stores/licenseStore';
+import { useHistoryStore } from '@/stores/historyStore';
+import { useSnippetStore } from '@/stores/snippetStore';
 import { PREMIUM_FEATURES, isBeta } from '@/lib/license';
 import { cn } from '@/lib/utils';
 
@@ -223,9 +225,13 @@ export function SettingsPanel() {
               />
             </div>
 
-            {/* Premium */}
-            <div className="dotted-separator" />
-            <PremiumSection />
+            {/* Premium — hidden during beta, show when v1.0+ with working IAP */}
+            {!isBeta() && (
+              <>
+                <div className="dotted-separator" />
+                <PremiumSection />
+              </>
+            )}
 
             {/* AI Settings */}
             <div className="dotted-separator" />
@@ -599,6 +605,13 @@ function DataManagement() {
     try {
       const result = await importData();
       if (result) {
+        // Reload stores so imported items appear immediately and are pasteable
+        if (result.imported.includes('history')) {
+          await useHistoryStore.getState().loadItems();
+        }
+        if (result.imported.includes('snippets')) {
+          await useSnippetStore.getState().loadSnippets();
+        }
         const parts = result.imported.map(s => `${s}: ${result.counts[s]}`);
         setStatus({ type: 'success', message: `Imported ${parts.join(', ')}` });
       }

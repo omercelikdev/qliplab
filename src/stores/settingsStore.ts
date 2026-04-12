@@ -33,7 +33,7 @@ export interface AppSettings {
   eulaAcceptedAt: string;
 }
 
-const DEFAULT_SETTINGS: AppSettings = {
+export const DEFAULT_SETTINGS: AppSettings = {
   language: 'system',
   theme: 'system',
   historyLimit: 100,
@@ -51,7 +51,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   onboardingSeen: false,
   globalShortcut: 'CommandOrControl+Shift+V',
   autoCommands: [],
-  launchOnLogin: true,
+  launchOnLogin: false,
   eulaAccepted: false,
   eulaAcceptedVersion: '',
   eulaAcceptedAt: '',

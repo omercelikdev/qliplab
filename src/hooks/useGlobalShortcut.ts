@@ -33,8 +33,8 @@ export function useGlobalShortcut() {
           }
         });
         currentShortcut.current = globalShortcut;
-      } catch {
-        // Shortcut registration failed
+      } catch (e) {
+        console.error(`[qliplab] Failed to register shortcut "${globalShortcut}":`, e);
       }
     };
 

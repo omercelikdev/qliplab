@@ -15,8 +15,17 @@ import { isQueuePasting } from '@/lib/window';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { getDatabase } from '@/lib/database';
 
-// Flag to prevent auto-command from re-triggering the listener
+// Flag to prevent clipboard listener from recording the next change
+// Used by: auto-commands (re-trigger prevention) and vault paste (security)
 let skipNextClipboardChange = false;
+
+/** Skip the next clipboard change from being recorded in history.
+ *  Used by vault paste to prevent sensitive data from leaking into history. */
+export function skipNextClipboard() {
+  skipNextClipboardChange = true;
+  // Safety timeout: reset after 2s in case the clipboard event never fires
+  setTimeout(() => { skipNextClipboardChange = false; }, 2000);
+}
 
 // Max content size to store (5MB) — prevents app freeze on huge clipboard data
 const MAX_CONTENT_SIZE = 5 * 1024 * 1024;
@@ -38,6 +47,7 @@ export function useClipboardListener() {
         stopListening = await startListening();
 
         unlistenText = await onTextUpdate(async (text) => {
+          try {
           if (isQueuePasting()) return;
           if (skipNextClipboardChange) {
             skipNextClipboardChange = false;
@@ -132,9 +142,14 @@ export function useClipboardListener() {
               // Transform failed, continue to next
             }
           }
+          } catch (e) {
+            // Prevent clipboard access errors (e.g. Windows OSError(5)) from crashing the app
+            console.error('[qliplab] clipboard text handler error:', e);
+          }
         });
 
         unlistenImage = await onImageUpdate(async (base64Image) => {
+          try {
           if (isQueuePasting()) return;
           if (base64Image.length > MAX_CONTENT_SIZE) return;
           const settings = useSettingsStore.getState().settings;
@@ -169,6 +184,9 @@ export function useClipboardListener() {
             detectedFormat: 'plain',
             isSensitive: false,
           });
+          } catch (e) {
+            console.error('[qliplab] clipboard image handler error:', e);
+          }
         });
       } catch {
         // Listener setup failed

@@ -11,6 +11,7 @@ import { NewVaultItemDialog } from './NewVaultItemDialog';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
+import { skipNextClipboard } from '@/hooks/useClipboardListener';
 import { cn } from '@/lib/utils';
 
 export function VaultList() {
@@ -79,6 +80,7 @@ export function VaultList() {
   const handleSelect = useCallback(async (index: number) => {
     const item = filteredItems[index];
     if (item) {
+      skipNextClipboard();
       await hideWriteAndPaste(async () => {
         await writeText(getMainValue(item));
       });

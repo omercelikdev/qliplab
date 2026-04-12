@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, Trash2, Pin, PinOff, Pencil, CreditCard, Building, MapPin, Key, User, Briefcase } from 'lucide-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
+import { skipNextClipboard } from '@/hooks/useClipboardListener';
 import { useVaultStore } from '@/stores/vaultStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { VaultItem as VaultItemType, CardData, BankData, AddressData, PersonalData, CompanyData, CodeData } from '@/types/vault';
@@ -65,6 +66,8 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
   };
 
   const handleClick = async () => {
+    // Skip clipboard listener to prevent vault content from leaking into history
+    skipNextClipboard();
     await hideWriteAndPaste(async () => {
       await writeText(getMainValue());
     });
