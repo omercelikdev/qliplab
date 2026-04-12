@@ -24,12 +24,10 @@
   "common.revoke": "Intrekken",
   "common.reviewAndAccept": "Bekijken en accepteren",
   "common.recording": "Opnemen...",
-
   "common.timeNow": "nu",
   "common.timeMinutes": "{{count}}min",
   "common.timeHours": "{{count}}u",
   "common.timeDays": "{{count}}d",
-
   "common.filter.all": "Alles",
   "common.filter.pinned": "Vastgepind",
   "common.filter.favorites": "Favorieten",
@@ -44,7 +42,6 @@
   "common.filter.address": "Adres",
   "common.filter.personal": "Persoonlijk",
   "common.filter.company": "Bedrijf",
-
   "history.emptyState.title": "Nog geen clips",
   "history.emptyState.description": "Kopieer iets om te beginnen. Je klembordgeschiedenis verschijnt hier.",
   "history.noResults.description": "Geen items komen overeen met je filters",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "Acties (rechtsklik)",
   "history.deleteTitle": "Clip verwijderen",
   "history.deleteMessage": "Dit item wordt permanent verwijderd.",
-
   "history.menu.copy": "Kopiëren",
   "history.menu.copyHtml": "HTML kopiëren",
   "history.menu.pastePlain": "Platte tekst plakken",
@@ -68,26 +64,21 @@
   "history.menu.pin": "Vastpinnen",
   "history.menu.unpin": "Losmaken",
   "history.menu.delete": "Verwijderen",
-
   "history.tags.label": "Tags",
   "history.tags.newTag": "Nieuwe tag",
   "history.tags.placeholder": "Tagnaam...",
   "history.tags.deleteFromAll": "Tag van alle items verwijderen",
-
   "history.ocrTitle": "OCR-tekst",
   "history.ocrNoText": "(Geen tekst gedetecteerd)",
   "history.ocrFailed": "OCR mislukt: {{error}}",
-
   "history.aiConfirm": "Deze inhoud naar {{provider}} sturen voor verwerking?\n\nGa NIET verder als dit gevoelige gegevens bevat.",
   "history.aiProcessing": "Verwerken...",
-
   "snippets.emptyState.title": "Nog geen snippets",
   "snippets.emptyState.description": "Maak je eerste snippet om te beginnen",
   "snippets.noResults.description": "Geen snippets komen overeen met je zoekopdracht",
   "snippets.newSnippet": "Nieuw snippet",
   "snippets.deleteTitle": "Snippet verwijderen",
   "snippets.deleteMessage": "\"{{title}}\" wordt permanent verwijderd.",
-
   "snippets.editor.newSnippet": "Nieuw snippet",
   "snippets.editor.editSnippet": "Snippet bewerken",
   "snippets.editor.closeEsc": "Sluiten (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "Alleen letters, cijfers, - en _",
   "snippets.editor.triggerExistsError": "Deze trigger bestaat al",
   "snippets.editor.syntaxPlainText": "Platte tekst",
-
   "vault.emptyState.title": "Geen kluisitems",
   "vault.emptyState.description": "Voeg je eerste beveiligde item toe",
   "vault.noResults.description": "Geen items komen overeen met je filters",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" wordt permanent verwijderd. Dit kan niet ongedaan worden gemaakt.",
   "vault.reveal": "Tonen",
   "vault.hide": "Verbergen",
-
   "vault.type.card": "Kaart",
   "vault.type.bank": "Bank",
   "vault.type.address": "Adres",
   "vault.type.personal": "Persoonlijk",
   "vault.type.company": "Bedrijf",
   "vault.type.code": "Code",
-
   "vault.lock.title": "Kluis vergrendeld",
   "vault.lock.tooManyAttempts": "Te veel pogingen",
   "vault.lock.enterPassword": "Voer het hoofdwachtwoord in om te ontgrendelen",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "Onjuist wachtwoord",
   "vault.lock.tooManyAttemptsError": "Te veel pogingen",
   "vault.lock.failedAttempts": "{{count}} mislukte pogingen",
-
   "vault.dialog.newTitle": "Nieuw kluisitem",
   "vault.dialog.editTitle": "Kluisitem bewerken",
   "vault.dialog.titleLabel": "Titel",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "Opslaan in kluis",
   "vault.dialog.suffixFormatError": "Alleen letters, cijfers, - en _ toegestaan",
   "vault.dialog.triggerExistsError": "Deze trigger bestaat al",
-
   "vault.dialog.card.cardholderName": "Naam kaarthouder",
   "vault.dialog.card.cardNumber": "Kaartnummer",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "Maand",
   "vault.dialog.card.year": "Jaar",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "Banknaam",
   "vault.dialog.bank.accountHolder": "Rekeninghouder",
-
   "vault.dialog.address.street": "Straat",
   "vault.dialog.address.line2": "Adresregel 2 (optioneel)",
   "vault.dialog.address.line2Placeholder": "Appartement, suite, verdieping",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "Provincie (optioneel)",
   "vault.dialog.address.postalCode": "Postcode (optioneel)",
   "vault.dialog.address.country": "Land",
-
   "vault.dialog.personal.firstName": "Voornaam",
   "vault.dialog.personal.lastName": "Achternaam",
   "vault.dialog.personal.email": "E-mail (optioneel)",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "Dag",
   "vault.dialog.personal.month": "Maand",
   "vault.dialog.personal.year": "Jaar",
-
   "vault.dialog.company.companyName": "Bedrijfsnaam",
   "vault.dialog.company.taxId": "BTW-nummer (optioneel)",
   "vault.dialog.company.registrationNumber": "KVK-nummer (optioneel)",
   "vault.dialog.company.website": "Website (optioneel)",
   "vault.dialog.company.websitePlaceholder": "https://voorbeeld.nl",
-
   "vault.dialog.code.codePin": "Code / PIN",
   "vault.dialog.code.notes": "Notities (optioneel)",
-
   "settings.language.label": "Taal",
   "settings.language.system": "Systeem",
-
   "settings.theme.label": "Thema",
   "settings.theme.light": "Licht",
   "settings.theme.dark": "Donker",
   "settings.theme.system": "Systeem",
-
   "settings.historyLimit.label": "Geschiedenislimiet",
-
   "settings.autoLock.label": "Kluis automatisch vergrendelen",
   "settings.autoLock.1min": "1 minuut",
   "settings.autoLock.5min": "5 minuten",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "Niet-vastgepinde items verwijderen bij sluiten",
   "settings.toggle.snippetAutoExpand": "Snippet automatisch uitvouwen",
   "settings.toggle.snippetAutoExpandDesc": "Typ een trigger om automatisch een snippet te plakken",
-
   "settings.autoCommands.label": "Auto-opdrachten",
   "settings.autoCommands.addRule": "Regel toevoegen",
   "settings.autoCommands.description": "Klembordinhoud automatisch transformeren wanneer een bepaald formaat wordt gedetecteerd.",
   "settings.autoCommands.empty": "Geen auto-opdrachten ingesteld",
-
   "settings.expiration.label": "Oude clips automatisch verwijderen",
   "settings.expiration.never": "Nooit",
   "settings.expiration.after7": "Na 7 dagen",
   "settings.expiration.after14": "Na 14 dagen",
   "settings.expiration.after30": "Na 30 dagen",
   "settings.expiration.after90": "Na 90 dagen",
-
   "settings.shortcut.label": "Globale sneltoets",
   "settings.shortcut.recording": "Druk op sneltoets...",
   "settings.shortcut.cancelHint": "Druk op ESC om te annuleren",
   "settings.shortcut.recordHint": "Klik om een nieuwe sneltoets op te nemen",
-
   "settings.ignoredApps.label": "Genegeerde apps",
   "settings.ignoredApps.description": "Klembord van deze apps wordt niet vastgelegd",
   "settings.ignoredApps.addApp": "App toevoegen",
   "settings.ignoredApps.close": "Sluiten",
   "settings.ignoredApps.searchPlaceholder": "Apps zoeken...",
   "settings.ignoredApps.noApps": "Geen apps gevonden",
-
   "settings.ai.label": "AI-functies",
   "settings.ai.consentGranted": "AI-toestemming verleend",
   "settings.ai.consentRequired": "AI-toestemming vereist",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... of sk-...",
   "settings.ai.apiKeyStoredLocally": "De API Key wordt lokaal opgeslagen en alleen naar de aanbieder verzonden.",
   "settings.ai.sensitiveBlocked": "AI-acties zijn geblokkeerd voor items met gevoelige gegevens. Er wordt altijd om bevestiging gevraagd voordat gegevens worden verzonden.",
-
   "settings.dataManagement.label": "Gegevensbeheer",
   "settings.dataManagement.selectSections": "Selecteer secties om te exporteren",
   "settings.dataManagement.export": "Exporteren",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "Geschiedenis",
   "settings.dataManagement.snippets": "Snippets",
   "settings.dataManagement.vault": "Kluis",
-
   "settings.privacy.label": "Privacy en rapportage",
   "settings.privacy.autoErrorReporting": "Automatische foutrapportage",
   "settings.privacy.autoErrorReportingDesc": "Crashrapporten automatisch verzenden",
   "settings.privacy.reportIssue": "Probleem melden / Feedback sturen",
   "settings.privacy.privacyPolicy": "Privacybeleid",
   "settings.privacy.termsOfUse": "Gebruiksvoorwaarden",
-
   "settings.about.label": "Over",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "Cross-platform klembordbeheerder",
-
   "ai.summarize": "Samenvatten",
   "ai.fixGrammar": "Grammatica corrigeren",
   "ai.translate": "Vertalen",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} heeft het verzoek afgewezen: {{message}}",
   "ai.error.generic": "{{provider}}-fout: {{message}}",
   "ai.error.apiError": "{{provider}} API-fout ({{status}}). Probeer het later opnieuw.",
-
   "ai.consent.title": "Toestemming voor AI-gegevensverwerking",
   "ai.consent.warningBanner": "AI-functies vereisen dat je klembordinhoud naar externe servers wordt verzonden. Lees dit zorgvuldig door voordat je verdergaat.",
   "ai.consent.whatHappensTitle": "Wat er gebeurt als je AI-functies gebruikt",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "Ik accepteer — AI inschakelen",
   "ai.consent.error.serverFailed": "Je toestemming kon niet op onze server worden vastgelegd. Controleer je internetverbinding en probeer het opnieuw.",
   "ai.consent.error.generic": "Er is een fout opgetreden: {{error}}. Probeer het opnieuw.",
-
   "transforms.base64Encode": "Base64 coderen",
   "transforms.urlEncode": "URL coderen",
   "transforms.htmlEscape": "HTML escapen",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "Woordterugloop (80)",
   "transforms.shuffleLines": "Regels schudden",
   "transforms.countStats": "Telstatistieken",
-
   "preview.compare": "Vergelijken",
   "preview.view": "Bekijken",
   "preview.image": "Afbeelding",
@@ -356,23 +321,19 @@
   "preview.recommended": "Aanbevolen",
   "preview.other": "Overig",
   "preview.noTransformsMatch": "Geen transformaties gevonden voor \"{{query}}\"",
-
   "preview.unableToLoadImage": "Afbeelding kan niet worden geladen",
   "preview.imagePixels": "{{width}} × {{height}} pixels",
   "preview.stats.lines": "{{count}} regels",
   "preview.stats.words": "{{count}} woorden",
   "preview.stats.chars": "{{count}} tekens",
-
   "search.history": "Clips zoeken...",
   "search.snippets": "Snippets zoeken...",
   "search.vault": "Kluis doorzoeken...",
   "search.settings": "Instellingen zoeken...",
-
   "sidebar.history": "Geschiedenis",
   "sidebar.snippets": "Snippets",
   "sidebar.vault": "Kluis",
   "sidebar.settings": "Instellingen",
-
   "hintBar.nav": "navigatie",
   "hintBar.paste": "plakken",
   "hintBar.queue": "Wachtrij",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "Selecteer tweede item",
   "hintBar.clickToAddToQueue": "Klik op items om aan de wachtrij toe te voegen",
   "hintBar.itemsSelected": "{{count}} items geselecteerd",
-
   "onboarding.welcome": "Welkom bij QlipLab",
   "onboarding.hint.copyAnything": "Kopieer iets — het verschijnt hier",
   "onboarding.hint.enterToPaste": "Enter om te plakken in de vorige app",
   "onboarding.hint.arrowKeys": "Pijltjestoetsen om te navigeren",
   "onboarding.hint.optionD": "Option+D om twee items te vergelijken",
-
   "feedback.title": "Probleem melden",
   "feedback.issueType": "Type probleem",
   "feedback.type.bug": "Bug",
@@ -416,7 +375,6 @@
   "feedback.success.title": "Probleem gemeld!",
   "feedback.success.thanks": "Bedankt voor je feedback.",
   "feedback.success.viewOnGithub": "Bekijken op GitHub",
-
   "legal.eula.title": "Licentieovereenkomst",
   "legal.eula.subtitle": "Lees en accepteer om door te gaan",
   "legal.eula.scrollHint": "Scroll naar het einde om de knop Accepteren te activeren",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "Ik accepteer",
   "legal.eula.error.serverFailed": "Je acceptatie kon niet op onze server worden vastgelegd. Controleer je internetverbinding en probeer het opnieuw.",
   "legal.eula.error.generic": "Er is een fout opgetreden: {{error}}. Probeer het opnieuw.",
-
   "errors.somethingWentWrong": "Er ging iets mis",
   "errors.unexpectedError": "Er is een onverwachte fout opgetreden",
   "errors.tryAgain": "Opnieuw proberen",
-
   "errorReporting.optIn.title": "Help qliplab verbeteren",
   "errorReporting.optIn.description": "Wilt u automatisch crashrapporten versturen om ons te helpen bugs op te lossen?",
   "errorReporting.optIn.whatWeCollect": "Wat we verzamelen:",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "Nee bedankt",
   "errorReporting.optIn.enable": "Rapportage inschakelen",
   "privacy.title": "Privacybeleid",
-
   "license.status.free": "Gratis",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (Volledige toegang)",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "Aankoop is geannuleerd",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "Bedankt voor het steunen van QlipLab!",
-  "license.premium.purchaseDate": "Gekocht op {{date}}"
+  "license.premium.purchaseDate": "Gekocht op {{date}}",
+  "onboarding.hint.altD": "Alt+D om twee items te vergelijken",
+  "vault.lock.createTitle": "Kluiswachtwoord aanmaken",
+  "vault.lock.createDescription": "Kies een wachtwoord om uw gevoelige gegevens te beschermen",
+  "vault.lock.createButton": "Wachtwoord aanmaken"
 }

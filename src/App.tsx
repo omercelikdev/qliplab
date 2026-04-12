@@ -33,7 +33,7 @@ import { useTagStore } from './stores/tagStore';
 import { useLicenseStore } from './stores/licenseStore';
 import { initDatabase } from './lib/database';
 import i18n from './i18n';
-import { showWindow } from './lib/window';
+import { showWindow, hideWindow } from './lib/window';
 import { cn } from './lib/utils';
 
 const DEFAULT_LIST_WIDTH = 300;
@@ -160,6 +160,23 @@ function App() {
   useDiffMode();
   useTriggerEngine();
   useTheme();
+
+  // Global Escape handler: hide window when no popup/panel is open
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      // Don't hide if focus is in input/textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+      // Don't hide if preview/editor is open (those handle their own Escape)
+      if (previewOpen || snippetEditorOpen) return;
+      // Don't hide if on settings tab
+      if (activeTab === 'settings') return;
+      hideWindow();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [previewOpen, snippetEditorOpen, activeTab]);
 
   if (!isInitialized) {
     return (

@@ -24,12 +24,10 @@
   "common.revoke": "Cofnij",
   "common.reviewAndAccept": "Przejrzyj i zaakceptuj",
   "common.recording": "Nagrywanie...",
-
   "common.timeNow": "teraz",
   "common.timeMinutes": "{{count}}min",
   "common.timeHours": "{{count}}godz",
   "common.timeDays": "{{count}}d",
-
   "common.filter.all": "Wszystko",
   "common.filter.pinned": "Przypięte",
   "common.filter.favorites": "Ulubione",
@@ -44,7 +42,6 @@
   "common.filter.address": "Adres",
   "common.filter.personal": "Osobiste",
   "common.filter.company": "Firma",
-
   "history.emptyState.title": "Brak klipów",
   "history.emptyState.description": "Skopiuj coś, aby zacząć. Historia schowka pojawi się tutaj.",
   "history.noResults.description": "Żadne elementy nie pasują do filtrów",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "Akcje (prawy przycisk)",
   "history.deleteTitle": "Usuń klip",
   "history.deleteMessage": "Ten element zostanie trwale usunięty.",
-
   "history.menu.copy": "Kopiuj",
   "history.menu.copyHtml": "Kopiuj HTML",
   "history.menu.pastePlain": "Wklej jako tekst",
@@ -68,26 +64,21 @@
   "history.menu.pin": "Przypnij",
   "history.menu.unpin": "Odepnij",
   "history.menu.delete": "Usuń",
-
   "history.tags.label": "Tagi",
   "history.tags.newTag": "Nowy tag",
   "history.tags.placeholder": "Nazwa tagu...",
   "history.tags.deleteFromAll": "Usuń tag ze wszystkich elementów",
-
   "history.ocrTitle": "Tekst OCR",
   "history.ocrNoText": "(Nie wykryto tekstu)",
   "history.ocrFailed": "OCR nieudany: {{error}}",
-
   "history.aiConfirm": "Wysłać tę treść do {{provider}} w celu przetworzenia?\n\nNIE kontynuuj, jeśli zawiera wrażliwe dane.",
   "history.aiProcessing": "Przetwarzanie...",
-
   "snippets.emptyState.title": "Brak snippetów",
   "snippets.emptyState.description": "Utwórz swój pierwszy snippet, aby zacząć",
   "snippets.noResults.description": "Żadne snippety nie pasują do wyszukiwania",
   "snippets.newSnippet": "Nowy snippet",
   "snippets.deleteTitle": "Usuń snippet",
   "snippets.deleteMessage": "\"{{title}}\" zostanie trwale usunięty.",
-
   "snippets.editor.newSnippet": "Nowy snippet",
   "snippets.editor.editSnippet": "Edytuj snippet",
   "snippets.editor.closeEsc": "Zamknij (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "Tylko litery, cyfry, - i _",
   "snippets.editor.triggerExistsError": "Ten trigger już istnieje",
   "snippets.editor.syntaxPlainText": "Zwykły tekst",
-
   "vault.emptyState.title": "Brak elementów sejfu",
   "vault.emptyState.description": "Dodaj swój pierwszy zabezpieczony element",
   "vault.noResults.description": "Żadne elementy nie pasują do filtrów",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" zostanie trwale usunięty. Tej operacji nie można cofnąć.",
   "vault.reveal": "Pokaż",
   "vault.hide": "Ukryj",
-
   "vault.type.card": "Karta",
   "vault.type.bank": "Bank",
   "vault.type.address": "Adres",
   "vault.type.personal": "Osobiste",
   "vault.type.company": "Firma",
   "vault.type.code": "Kod",
-
   "vault.lock.title": "Sejf zablokowany",
   "vault.lock.tooManyAttempts": "Zbyt wiele prób",
   "vault.lock.enterPassword": "Wprowadź hasło główne, aby odblokować",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "Nieprawidłowe hasło",
   "vault.lock.tooManyAttemptsError": "Zbyt wiele prób",
   "vault.lock.failedAttempts": "{{count}} nieudanych prób",
-
   "vault.dialog.newTitle": "Nowy element sejfu",
   "vault.dialog.editTitle": "Edytuj element sejfu",
   "vault.dialog.titleLabel": "Tytuł",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "Zapisz w sejfie",
   "vault.dialog.suffixFormatError": "Dozwolone tylko litery, cyfry, - i _",
   "vault.dialog.triggerExistsError": "Ten trigger już istnieje",
-
   "vault.dialog.card.cardholderName": "Imię i nazwisko posiadacza",
   "vault.dialog.card.cardNumber": "Numer karty",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "Miesiąc",
   "vault.dialog.card.year": "Rok",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "Nazwa banku",
   "vault.dialog.bank.accountHolder": "Posiadacz rachunku",
-
   "vault.dialog.address.street": "Ulica",
   "vault.dialog.address.line2": "Linia adresowa 2 (opcjonalnie)",
   "vault.dialog.address.line2Placeholder": "Mieszkanie, lokal, piętro",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "Województwo (opcjonalnie)",
   "vault.dialog.address.postalCode": "Kod pocztowy (opcjonalnie)",
   "vault.dialog.address.country": "Kraj",
-
   "vault.dialog.personal.firstName": "Imię",
   "vault.dialog.personal.lastName": "Nazwisko",
   "vault.dialog.personal.email": "E-mail (opcjonalnie)",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "Dzień",
   "vault.dialog.personal.month": "Miesiąc",
   "vault.dialog.personal.year": "Rok",
-
   "vault.dialog.company.companyName": "Nazwa firmy",
   "vault.dialog.company.taxId": "NIP (opcjonalnie)",
   "vault.dialog.company.registrationNumber": "Nr rejestrowy (opcjonalnie)",
   "vault.dialog.company.website": "Strona WWW (opcjonalnie)",
   "vault.dialog.company.websitePlaceholder": "https://przykład.pl",
-
   "vault.dialog.code.codePin": "Kod / PIN",
   "vault.dialog.code.notes": "Notatki (opcjonalnie)",
-
   "settings.language.label": "Język",
   "settings.language.system": "Systemowy",
-
   "settings.theme.label": "Motyw",
   "settings.theme.light": "Jasny",
   "settings.theme.dark": "Ciemny",
   "settings.theme.system": "Systemowy",
-
   "settings.historyLimit.label": "Limit historii",
-
   "settings.autoLock.label": "Automatyczna blokada sejfu",
   "settings.autoLock.1min": "1 minuta",
   "settings.autoLock.5min": "5 minut",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "Usuń nieprzypięte elementy przy zamykaniu",
   "settings.toggle.snippetAutoExpand": "Automatyczne rozwijanie snippetów",
   "settings.toggle.snippetAutoExpandDesc": "Wpisz trigger, aby automatycznie wkleić snippet",
-
   "settings.autoCommands.label": "Automatyczne komendy",
   "settings.autoCommands.addRule": "Dodaj regułę",
   "settings.autoCommands.description": "Automatycznie przekształcaj zawartość schowka po wykryciu określonego formatu.",
   "settings.autoCommands.empty": "Brak skonfigurowanych automatycznych komend",
-
   "settings.expiration.label": "Automatyczne usuwanie starych klipów",
   "settings.expiration.never": "Nigdy",
   "settings.expiration.after7": "Po 7 dniach",
   "settings.expiration.after14": "Po 14 dniach",
   "settings.expiration.after30": "Po 30 dniach",
   "settings.expiration.after90": "Po 90 dniach",
-
   "settings.shortcut.label": "Globalny skrót",
   "settings.shortcut.recording": "Naciśnij skrót...",
   "settings.shortcut.cancelHint": "Naciśnij ESC, aby anulować",
   "settings.shortcut.recordHint": "Kliknij, aby nagrać nowy skrót",
-
   "settings.ignoredApps.label": "Ignorowane aplikacje",
   "settings.ignoredApps.description": "Schowek z tych aplikacji nie będzie przechwytywany",
   "settings.ignoredApps.addApp": "Dodaj aplikację",
   "settings.ignoredApps.close": "Zamknij",
   "settings.ignoredApps.searchPlaceholder": "Szukaj aplikacji...",
   "settings.ignoredApps.noApps": "Nie znaleziono aplikacji",
-
   "settings.ai.label": "Funkcje AI",
   "settings.ai.consentGranted": "Zgoda AI udzielona",
   "settings.ai.consentRequired": "Wymagana zgoda AI",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... lub sk-...",
   "settings.ai.apiKeyStoredLocally": "API Key jest przechowywany lokalnie i wysyłany wyłącznie do dostawcy.",
   "settings.ai.sensitiveBlocked": "Akcje AI są zablokowane dla elementów z wrażliwymi danymi. Przed wysłaniem danych wyświetlane jest potwierdzenie.",
-
   "settings.dataManagement.label": "Zarządzanie danymi",
   "settings.dataManagement.selectSections": "Wybierz sekcje do eksportu",
   "settings.dataManagement.export": "Eksportuj",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "Historia",
   "settings.dataManagement.snippets": "Snippety",
   "settings.dataManagement.vault": "Sejf",
-
   "settings.privacy.label": "Prywatność i raportowanie",
   "settings.privacy.autoErrorReporting": "Automatyczne raportowanie błędów",
   "settings.privacy.autoErrorReportingDesc": "Automatycznie wysyłaj raporty o awariach",
   "settings.privacy.reportIssue": "Zgłoś problem / Wyślij opinię",
   "settings.privacy.privacyPolicy": "Polityka prywatności",
   "settings.privacy.termsOfUse": "Warunki użytkowania",
-
   "settings.about.label": "O aplikacji",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "Wieloplatformowy menedżer schowka",
-
   "ai.summarize": "Podsumuj",
   "ai.fixGrammar": "Popraw gramatykę",
   "ai.translate": "Przetłumacz",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} odrzucił żądanie: {{message}}",
   "ai.error.generic": "Błąd {{provider}}: {{message}}",
   "ai.error.apiError": "Błąd API {{provider}} ({{status}}). Spróbuj ponownie później.",
-
   "ai.consent.title": "Zgoda na przetwarzanie danych przez AI",
   "ai.consent.warningBanner": "Funkcje AI wymagają wysłania zawartości schowka na zewnętrzne serwery. Przeczytaj uważnie przed kontynuowaniem.",
   "ai.consent.whatHappensTitle": "Co się dzieje, gdy korzystasz z funkcji AI",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "Akceptuję — Włącz AI",
   "ai.consent.error.serverFailed": "Nie udało się zapisać Twojej zgody na naszym serwerze. Sprawdź połączenie internetowe i spróbuj ponownie.",
   "ai.consent.error.generic": "Wystąpił błąd: {{error}}. Spróbuj ponownie.",
-
   "transforms.base64Encode": "Base64 zakoduj",
   "transforms.urlEncode": "URL zakoduj",
   "transforms.htmlEscape": "HTML zamień znaki",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "Zawijanie słów (80)",
   "transforms.shuffleLines": "Losuj wiersze",
   "transforms.countStats": "Statystyki",
-
   "preview.compare": "Porównaj",
   "preview.view": "Podgląd",
   "preview.image": "Obraz",
@@ -356,23 +321,19 @@
   "preview.recommended": "Zalecane",
   "preview.other": "Inne",
   "preview.noTransformsMatch": "Brak przekształceń pasujących do \"{{query}}\"",
-
   "preview.unableToLoadImage": "Nie można załadować obrazu",
   "preview.imagePixels": "{{width}} × {{height}} pikseli",
   "preview.stats.lines": "{{count}} wierszy",
   "preview.stats.words": "{{count}} słów",
   "preview.stats.chars": "{{count}} znaków",
-
   "search.history": "Szukaj klipów...",
   "search.snippets": "Szukaj snippetów...",
   "search.vault": "Szukaj w sejfie...",
   "search.settings": "Szukaj ustawień...",
-
   "sidebar.history": "Historia",
   "sidebar.snippets": "Snippety",
   "sidebar.vault": "Sejf",
   "sidebar.settings": "Ustawienia",
-
   "hintBar.nav": "nawigacja",
   "hintBar.paste": "wklej",
   "hintBar.queue": "Kolejka",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "Wybierz drugi element",
   "hintBar.clickToAddToQueue": "Kliknij elementy, aby dodać do kolejki",
   "hintBar.itemsSelected": "{{count}} elementów wybrano",
-
   "onboarding.welcome": "Witamy w QlipLab",
   "onboarding.hint.copyAnything": "Skopiuj cokolwiek — pojawi się tutaj",
   "onboarding.hint.enterToPaste": "Enter, aby wkleić do poprzedniej aplikacji",
   "onboarding.hint.arrowKeys": "Strzałki do nawigacji",
   "onboarding.hint.optionD": "Option+D, aby porównać dwa elementy",
-
   "feedback.title": "Zgłoś problem",
   "feedback.issueType": "Typ problemu",
   "feedback.type.bug": "Błąd",
@@ -416,7 +375,6 @@
   "feedback.success.title": "Problem zgłoszony!",
   "feedback.success.thanks": "Dziękujemy za Twoją opinię.",
   "feedback.success.viewOnGithub": "Zobacz na GitHub",
-
   "legal.eula.title": "Umowa licencyjna",
   "legal.eula.subtitle": "Przeczytaj i zaakceptuj, aby kontynuować",
   "legal.eula.scrollHint": "Przewiń do końca, aby aktywować przycisk Akceptuj",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "Akceptuję",
   "legal.eula.error.serverFailed": "Nie udało się zapisać Twojej akceptacji na naszym serwerze. Sprawdź połączenie internetowe i spróbuj ponownie.",
   "legal.eula.error.generic": "Wystąpił błąd: {{error}}. Spróbuj ponownie.",
-
   "errors.somethingWentWrong": "Coś poszło nie tak",
   "errors.unexpectedError": "Wystąpił nieoczekiwany błąd",
   "errors.tryAgain": "Spróbuj ponownie",
-
   "errorReporting.optIn.title": "Pomóż ulepszyć qliplab",
   "errorReporting.optIn.description": "Czy chcesz automatycznie wysyłać raporty o awariach, aby pomóc nam naprawić błędy?",
   "errorReporting.optIn.whatWeCollect": "Co zbieramy:",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "Nie, dziękuję",
   "errorReporting.optIn.enable": "Włącz raportowanie",
   "privacy.title": "Polityka prywatności",
-
   "license.status.free": "Bezpłatna",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (Pełny dostęp)",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "Zakup został anulowany",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "Dziękujemy za wsparcie QlipLab!",
-  "license.premium.purchaseDate": "Zakupiono {{date}}"
+  "license.premium.purchaseDate": "Zakupiono {{date}}",
+  "onboarding.hint.altD": "Alt+D, aby porównać dwa elementy",
+  "vault.lock.createTitle": "Utwórz hasło sejfu",
+  "vault.lock.createDescription": "Wybierz hasło, aby chronić swoje wrażliwe dane",
+  "vault.lock.createButton": "Utwórz hasło"
 }

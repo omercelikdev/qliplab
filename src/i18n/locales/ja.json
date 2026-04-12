@@ -24,12 +24,10 @@
   "common.revoke": "取り消し",
   "common.reviewAndAccept": "確認して同意",
   "common.recording": "記録中...",
-
   "common.timeNow": "今",
   "common.timeMinutes": "{{count}}分",
   "common.timeHours": "{{count}}時間",
   "common.timeDays": "{{count}}日",
-
   "common.filter.all": "すべて",
   "common.filter.pinned": "ピン留め",
   "common.filter.favorites": "お気に入り",
@@ -44,7 +42,6 @@
   "common.filter.address": "住所",
   "common.filter.personal": "個人",
   "common.filter.company": "会社",
-
   "history.emptyState.title": "クリップがありません",
   "history.emptyState.description": "何かコピーして始めましょう。クリップボードの履歴がここに表示されます。",
   "history.noResults.description": "フィルターに一致する項目がありません",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "アクション（右クリック）",
   "history.deleteTitle": "クリップを削除",
   "history.deleteMessage": "この項目は完全に削除されます。",
-
   "history.menu.copy": "コピー",
   "history.menu.copyHtml": "HTML をコピー",
   "history.menu.pastePlain": "プレーンテキストで貼り付け",
@@ -68,26 +64,21 @@
   "history.menu.pin": "ピン留め",
   "history.menu.unpin": "ピン解除",
   "history.menu.delete": "削除",
-
   "history.tags.label": "タグ",
   "history.tags.newTag": "新しいタグ",
   "history.tags.placeholder": "タグ名...",
   "history.tags.deleteFromAll": "すべての項目からタグを削除",
-
   "history.ocrTitle": "OCR テキスト",
   "history.ocrNoText": "（テキストが検出されませんでした）",
   "history.ocrFailed": "OCR 失敗：{{error}}",
-
   "history.aiConfirm": "このコンテンツを {{provider}} に送信して処理しますか？\n\n機密データが含まれている場合は送信しないでください。",
   "history.aiProcessing": "処理中...",
-
   "snippets.emptyState.title": "スニペットがありません",
   "snippets.emptyState.description": "最初のスニペットを作成して始めましょう",
   "snippets.noResults.description": "検索に一致するスニペットがありません",
   "snippets.newSnippet": "新規スニペット",
   "snippets.deleteTitle": "スニペットを削除",
   "snippets.deleteMessage": "「{{title}}」は完全に削除されます。",
-
   "snippets.editor.newSnippet": "新規スニペット",
   "snippets.editor.editSnippet": "スニペットを編集",
   "snippets.editor.closeEsc": "閉じる (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "英字、数字、- と _ のみ使用可能",
   "snippets.editor.triggerExistsError": "このトリガーは既に存在します",
   "snippets.editor.syntaxPlainText": "プレーンテキスト",
-
   "vault.emptyState.title": "ボールト内に項目がありません",
   "vault.emptyState.description": "最初のセキュア項目を追加しましょう",
   "vault.noResults.description": "フィルターに一致する項目がありません",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "「{{title}}」は完全に削除されます。この操作は取り消せません。",
   "vault.reveal": "表示",
   "vault.hide": "非表示",
-
   "vault.type.card": "カード",
   "vault.type.bank": "銀行",
   "vault.type.address": "住所",
   "vault.type.personal": "個人",
   "vault.type.company": "会社",
   "vault.type.code": "コード",
-
   "vault.lock.title": "ボールトはロックされています",
   "vault.lock.tooManyAttempts": "試行回数が多すぎます",
   "vault.lock.enterPassword": "マスターパスワードを入力して解除",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "パスワードが正しくありません",
   "vault.lock.tooManyAttemptsError": "試行回数が多すぎます",
   "vault.lock.failedAttempts": "{{count}} 回失敗",
-
   "vault.dialog.newTitle": "新規ボールト項目",
   "vault.dialog.editTitle": "ボールト項目を編集",
   "vault.dialog.titleLabel": "タイトル",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "ボールトに保存",
   "vault.dialog.suffixFormatError": "英字、数字、- と _ のみ使用可能",
   "vault.dialog.triggerExistsError": "このトリガーは既に存在します",
-
   "vault.dialog.card.cardholderName": "カード名義人",
   "vault.dialog.card.cardNumber": "カード番号",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "月",
   "vault.dialog.card.year": "年",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "銀行名",
   "vault.dialog.bank.accountHolder": "口座名義人",
-
   "vault.dialog.address.street": "番地・通り",
   "vault.dialog.address.line2": "建物名など（任意）",
   "vault.dialog.address.line2Placeholder": "マンション名、部屋番号",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "都道府県（任意）",
   "vault.dialog.address.postalCode": "郵便番号（任意）",
   "vault.dialog.address.country": "国",
-
   "vault.dialog.personal.firstName": "名",
   "vault.dialog.personal.lastName": "姓",
   "vault.dialog.personal.email": "メール（任意）",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "日",
   "vault.dialog.personal.month": "月",
   "vault.dialog.personal.year": "年",
-
   "vault.dialog.company.companyName": "会社名",
   "vault.dialog.company.taxId": "税務番号（任意）",
   "vault.dialog.company.registrationNumber": "登記番号（任意）",
   "vault.dialog.company.website": "ウェブサイト（任意）",
   "vault.dialog.company.websitePlaceholder": "https://example.com",
-
   "vault.dialog.code.codePin": "コード / PIN",
   "vault.dialog.code.notes": "メモ（任意）",
-
   "settings.language.label": "言語",
   "settings.language.system": "システム",
-
   "settings.theme.label": "テーマ",
   "settings.theme.light": "ライト",
   "settings.theme.dark": "ダーク",
   "settings.theme.system": "システム",
-
   "settings.historyLimit.label": "履歴の上限",
-
   "settings.autoLock.label": "ボールト自動ロック",
   "settings.autoLock.1min": "1分",
   "settings.autoLock.5min": "5分",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "終了時にピン留めされていない項目を削除",
   "settings.toggle.snippetAutoExpand": "スニペット自動展開",
   "settings.toggle.snippetAutoExpandDesc": "どこでもトリガーを入力するとスニペットを自動ペースト",
-
   "settings.autoCommands.label": "自動コマンド",
   "settings.autoCommands.addRule": "ルールを追加",
   "settings.autoCommands.description": "特定のフォーマットが検出されたとき、クリップボードの内容を自動的に変換します。",
   "settings.autoCommands.empty": "自動コマンドは設定されていません",
-
   "settings.expiration.label": "古いクリップを自動削除",
   "settings.expiration.never": "しない",
   "settings.expiration.after7": "7日後",
   "settings.expiration.after14": "14日後",
   "settings.expiration.after30": "30日後",
   "settings.expiration.after90": "90日後",
-
   "settings.shortcut.label": "グローバルショートカット",
   "settings.shortcut.recording": "ショートカットを入力...",
   "settings.shortcut.cancelHint": "ESC でキャンセル",
   "settings.shortcut.recordHint": "クリックして新しいショートカットを記録",
-
   "settings.ignoredApps.label": "除外アプリ",
   "settings.ignoredApps.description": "これらのアプリからのクリップボードは記録されません",
   "settings.ignoredApps.addApp": "アプリを追加",
   "settings.ignoredApps.close": "閉じる",
   "settings.ignoredApps.searchPlaceholder": "アプリを検索...",
   "settings.ignoredApps.noApps": "アプリが見つかりません",
-
   "settings.ai.label": "AI 機能",
   "settings.ai.consentGranted": "AI 同意済み",
   "settings.ai.consentRequired": "AI の同意が必要です",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... または sk-...",
   "settings.ai.apiKeyStoredLocally": "API Key はローカルに保存され、プロバイダー以外には送信されません。",
   "settings.ai.sensitiveBlocked": "機密データを含む項目では AI アクションがブロックされます。データ送信前に確認が表示されます。",
-
   "settings.dataManagement.label": "データ管理",
   "settings.dataManagement.selectSections": "エクスポートするセクションを選択",
   "settings.dataManagement.export": "エクスポート",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "履歴",
   "settings.dataManagement.snippets": "スニペット",
   "settings.dataManagement.vault": "ボールト",
-
   "settings.privacy.label": "プライバシーとレポート",
   "settings.privacy.autoErrorReporting": "自動エラー報告",
   "settings.privacy.autoErrorReportingDesc": "クラッシュレポートを自動送信",
   "settings.privacy.reportIssue": "問題を報告 / フィードバックを送信",
   "settings.privacy.privacyPolicy": "プライバシーポリシー",
   "settings.privacy.termsOfUse": "利用規約",
-
   "settings.about.label": "このアプリについて",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "クロスプラットフォーム クリップボードマネージャー",
-
   "ai.summarize": "要約",
   "ai.fixGrammar": "文法を修正",
   "ai.translate": "翻訳",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} がリクエストを拒否しました：{{message}}",
   "ai.error.generic": "{{provider}} エラー：{{message}}",
   "ai.error.apiError": "{{provider}} API エラー ({{status}})。しばらく待ってから再試行してください。",
-
   "ai.consent.title": "AI データ処理の同意",
   "ai.consent.warningBanner": "AI 機能を使用するには、クリップボードの内容を外部サーバーに送信する必要があります。続行する前によくお読みください。",
   "ai.consent.whatHappensTitle": "AI 機能を使用すると何が起こるか",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "同意する — AI を有効化",
   "ai.consent.error.serverFailed": "サーバーに同意を記録できませんでした。インターネット接続を確認してから再試行してください。",
   "ai.consent.error.generic": "エラーが発生しました：{{error}}。再試行してください。",
-
   "transforms.base64Encode": "Base64 エンコード",
   "transforms.urlEncode": "URL エンコード",
   "transforms.htmlEscape": "HTML エスケープ",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "折り返し (80)",
   "transforms.shuffleLines": "行をシャッフル",
   "transforms.countStats": "統計情報",
-
   "preview.compare": "比較",
   "preview.view": "表示",
   "preview.image": "画像",
@@ -356,23 +321,19 @@
   "preview.recommended": "おすすめ",
   "preview.other": "その他",
   "preview.noTransformsMatch": "「{{query}}」に一致する変換がありません",
-
   "preview.unableToLoadImage": "画像を読み込めません",
   "preview.imagePixels": "{{width}} × {{height}} ピクセル",
   "preview.stats.lines": "{{count}} 行",
   "preview.stats.words": "{{count}} 語",
   "preview.stats.chars": "{{count}} 文字",
-
   "search.history": "クリップを検索...",
   "search.snippets": "スニペットを検索...",
   "search.vault": "ボールトを検索...",
   "search.settings": "設定を検索...",
-
   "sidebar.history": "履歴",
   "sidebar.snippets": "スニペット",
   "sidebar.vault": "ボールト",
   "sidebar.settings": "設定",
-
   "hintBar.nav": "移動",
   "hintBar.paste": "貼り付け",
   "hintBar.queue": "キュー",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "2つ目の項目を選択",
   "hintBar.clickToAddToQueue": "項目をクリックしてキューに追加",
   "hintBar.itemsSelected": "{{count}} 件選択中",
-
   "onboarding.welcome": "QlipLab へようこそ",
   "onboarding.hint.copyAnything": "何かをコピーするとここに表示されます",
   "onboarding.hint.enterToPaste": "Enter で前のアプリに貼り付け",
   "onboarding.hint.arrowKeys": "矢印キーで移動",
   "onboarding.hint.optionD": "Option+D で2つの項目を比較",
-
   "feedback.title": "問題を報告",
   "feedback.issueType": "問題の種類",
   "feedback.type.bug": "バグ",
@@ -416,7 +375,6 @@
   "feedback.success.title": "問題が報告されました！",
   "feedback.success.thanks": "フィードバックありがとうございます。",
   "feedback.success.viewOnGithub": "GitHub で表示",
-
   "legal.eula.title": "使用許諾契約",
   "legal.eula.subtitle": "続行するには内容をご確認のうえ同意してください",
   "legal.eula.scrollHint": "最後までスクロールすると同意ボタンが有効になります",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "同意する",
   "legal.eula.error.serverFailed": "サーバーに同意を記録できませんでした。インターネット接続を確認してから再試行してください。",
   "legal.eula.error.generic": "エラーが発生しました：{{error}}。再試行してください。",
-
   "errors.somethingWentWrong": "問題が発生しました",
   "errors.unexpectedError": "予期しないエラーが発生しました",
   "errors.tryAgain": "再試行",
-
   "errorReporting.optIn.title": "qliplabの改善にご協力ください",
   "errorReporting.optIn.description": "バグ修正のためにクラッシュレポートを自動送信しますか？",
   "errorReporting.optIn.whatWeCollect": "収集する情報：",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "いいえ",
   "errorReporting.optIn.enable": "レポートを有効にする",
   "privacy.title": "プライバシーポリシー",
-
   "license.status.free": "無料",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta（フルアクセス）",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "購入がキャンセルされました",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "QlipLab をご支援いただきありがとうございます！",
-  "license.premium.purchaseDate": "{{date}} に購入済み"
+  "license.premium.purchaseDate": "{{date}} に購入済み",
+  "onboarding.hint.altD": "Alt+D で2つの項目を比較",
+  "vault.lock.createTitle": "Vaultパスワードを作成",
+  "vault.lock.createDescription": "機密データを保護するパスワードを設定してください",
+  "vault.lock.createButton": "パスワードを作成"
 }

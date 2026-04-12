@@ -24,12 +24,10 @@
   "common.revoke": "إلغاء الموافقة",
   "common.reviewAndAccept": "مراجعة وقبول",
   "common.recording": "جارٍ التسجيل...",
-
   "common.timeNow": "الآن",
   "common.timeMinutes": "{{count}}د",
   "common.timeHours": "{{count}}س",
   "common.timeDays": "{{count}}ي",
-
   "common.filter.all": "الكل",
   "common.filter.pinned": "مثبّت",
   "common.filter.favorites": "المفضلة",
@@ -44,7 +42,6 @@
   "common.filter.address": "عنوان",
   "common.filter.personal": "شخصي",
   "common.filter.company": "شركة",
-
   "history.emptyState.title": "لا توجد نسخ بعد",
   "history.emptyState.description": "انسخ شيئًا للبدء. سيظهر سجل الحافظة هنا.",
   "history.noResults.description": "لا توجد عناصر تطابق الفلاتر",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "الإجراءات (انقر بالزر الأيمن)",
   "history.deleteTitle": "حذف النسخة",
   "history.deleteMessage": "سيتم حذف هذا العنصر نهائيًا.",
-
   "history.menu.copy": "نسخ",
   "history.menu.copyHtml": "نسخ HTML",
   "history.menu.pastePlain": "لصق نص عادي",
@@ -68,26 +64,21 @@
   "history.menu.pin": "تثبيت",
   "history.menu.unpin": "إلغاء التثبيت",
   "history.menu.delete": "حذف",
-
   "history.tags.label": "الوسوم",
   "history.tags.newTag": "وسم جديد",
   "history.tags.placeholder": "اسم الوسم...",
   "history.tags.deleteFromAll": "حذف الوسم من جميع العناصر",
-
   "history.ocrTitle": "نص OCR",
   "history.ocrNoText": "(لم يتم اكتشاف نص)",
   "history.ocrFailed": "فشل OCR: {{error}}",
-
   "history.aiConfirm": "هل تريد إرسال هذا المحتوى إلى {{provider}} للمعالجة؟\n\nلا تتابع إذا كان يحتوي على بيانات حساسة.",
   "history.aiProcessing": "جارٍ المعالجة...",
-
   "snippets.emptyState.title": "لا توجد قصاصات بعد",
   "snippets.emptyState.description": "أنشئ أول قصاصة للبدء",
   "snippets.noResults.description": "لا توجد قصاصات تطابق بحثك",
   "snippets.newSnippet": "قصاصة جديدة",
   "snippets.deleteTitle": "حذف القصاصة",
   "snippets.deleteMessage": "سيتم حذف \"{{title}}\" نهائيًا.",
-
   "snippets.editor.newSnippet": "قصاصة جديدة",
   "snippets.editor.editSnippet": "تعديل القصاصة",
   "snippets.editor.closeEsc": "إغلاق (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "يُسمح فقط بالأحرف والأرقام و - و _",
   "snippets.editor.triggerExistsError": "هذا المشغّل موجود بالفعل",
   "snippets.editor.syntaxPlainText": "نص عادي",
-
   "vault.emptyState.title": "لا توجد عناصر في الخزنة",
   "vault.emptyState.description": "أضف أول عنصر آمن",
   "vault.noResults.description": "لا توجد عناصر تطابق الفلاتر",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "سيتم حذف \"{{title}}\" نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
   "vault.reveal": "إظهار",
   "vault.hide": "إخفاء",
-
   "vault.type.card": "بطاقة",
   "vault.type.bank": "بنك",
   "vault.type.address": "عنوان",
   "vault.type.personal": "شخصي",
   "vault.type.company": "شركة",
   "vault.type.code": "رمز",
-
   "vault.lock.title": "الخزنة مقفلة",
   "vault.lock.tooManyAttempts": "محاولات كثيرة جدًا",
   "vault.lock.enterPassword": "أدخل كلمة المرور الرئيسية لفتح القفل",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "كلمة مرور خاطئة",
   "vault.lock.tooManyAttemptsError": "محاولات كثيرة جدًا",
   "vault.lock.failedAttempts": "{{count}} محاولة فاشلة",
-
   "vault.dialog.newTitle": "عنصر خزنة جديد",
   "vault.dialog.editTitle": "تعديل عنصر الخزنة",
   "vault.dialog.titleLabel": "العنوان",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "حفظ في الخزنة",
   "vault.dialog.suffixFormatError": "يُسمح فقط بالأحرف والأرقام و - و _",
   "vault.dialog.triggerExistsError": "هذا المشغّل موجود بالفعل",
-
   "vault.dialog.card.cardholderName": "اسم حامل البطاقة",
   "vault.dialog.card.cardNumber": "رقم البطاقة",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "الشهر",
   "vault.dialog.card.year": "السنة",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "اسم البنك",
   "vault.dialog.bank.accountHolder": "صاحب الحساب",
-
   "vault.dialog.address.street": "الشارع",
   "vault.dialog.address.line2": "سطر العنوان 2 (اختياري)",
   "vault.dialog.address.line2Placeholder": "شقة، جناح، طابق",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "المحافظة / المنطقة (اختياري)",
   "vault.dialog.address.postalCode": "الرمز البريدي (اختياري)",
   "vault.dialog.address.country": "البلد",
-
   "vault.dialog.personal.firstName": "الاسم الأول",
   "vault.dialog.personal.lastName": "اسم العائلة",
   "vault.dialog.personal.email": "البريد الإلكتروني (اختياري)",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "اليوم",
   "vault.dialog.personal.month": "الشهر",
   "vault.dialog.personal.year": "السنة",
-
   "vault.dialog.company.companyName": "اسم الشركة",
   "vault.dialog.company.taxId": "الرقم الضريبي (اختياري)",
   "vault.dialog.company.registrationNumber": "رقم السجل (اختياري)",
   "vault.dialog.company.website": "الموقع الإلكتروني (اختياري)",
   "vault.dialog.company.websitePlaceholder": "https://example.com",
-
   "vault.dialog.code.codePin": "الرمز / PIN",
   "vault.dialog.code.notes": "ملاحظات (اختياري)",
-
   "settings.language.label": "اللغة",
   "settings.language.system": "النظام",
-
   "settings.theme.label": "المظهر",
   "settings.theme.light": "فاتح",
   "settings.theme.dark": "داكن",
   "settings.theme.system": "النظام",
-
   "settings.historyLimit.label": "حد السجل",
-
   "settings.autoLock.label": "القفل التلقائي للخزنة",
   "settings.autoLock.1min": "دقيقة واحدة",
   "settings.autoLock.5min": "5 دقائق",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "حذف العناصر غير المثبتة عند الإغلاق",
   "settings.toggle.snippetAutoExpand": "توسيع القصاصات تلقائيًا",
   "settings.toggle.snippetAutoExpandDesc": "اكتب المشغّل في أي مكان للصق القصاصة تلقائيًا",
-
   "settings.autoCommands.label": "الأوامر التلقائية",
   "settings.autoCommands.addRule": "إضافة قاعدة",
   "settings.autoCommands.description": "تحويل محتوى الحافظة تلقائيًا عند اكتشاف تنسيق معين.",
   "settings.autoCommands.empty": "لا توجد أوامر تلقائية مُعدّة",
-
   "settings.expiration.label": "حذف النسخ القديمة تلقائيًا",
   "settings.expiration.never": "أبدًا",
   "settings.expiration.after7": "بعد 7 أيام",
   "settings.expiration.after14": "بعد 14 يومًا",
   "settings.expiration.after30": "بعد 30 يومًا",
   "settings.expiration.after90": "بعد 90 يومًا",
-
   "settings.shortcut.label": "الاختصار العام",
   "settings.shortcut.recording": "اضغط الاختصار...",
   "settings.shortcut.cancelHint": "اضغط ESC للإلغاء",
   "settings.shortcut.recordHint": "انقر لتسجيل اختصار جديد",
-
   "settings.ignoredApps.label": "التطبيقات المتجاهلة",
   "settings.ignoredApps.description": "لن يتم التقاط النسخ من هذه التطبيقات",
   "settings.ignoredApps.addApp": "إضافة تطبيق",
   "settings.ignoredApps.close": "إغلاق",
   "settings.ignoredApps.searchPlaceholder": "بحث عن تطبيق...",
   "settings.ignoredApps.noApps": "لم يتم العثور على تطبيقات",
-
   "settings.ai.label": "ميزات الذكاء الاصطناعي",
   "settings.ai.consentGranted": "تم منح موافقة الذكاء الاصطناعي",
   "settings.ai.consentRequired": "مطلوب موافقة الذكاء الاصطناعي",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... أو sk-...",
   "settings.ai.apiKeyStoredLocally": "يتم تخزين مفتاح API محليًا ولا يُرسل إلى أي مكان سوى المزوّد.",
   "settings.ai.sensitiveBlocked": "يتم حظر إجراءات الذكاء الاصطناعي للعناصر التي تحتوي على بيانات حساسة. يظهر تأكيد قبل إرسال أي بيانات.",
-
   "settings.dataManagement.label": "إدارة البيانات",
   "settings.dataManagement.selectSections": "اختر الأقسام للتصدير",
   "settings.dataManagement.export": "تصدير",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "السجل",
   "settings.dataManagement.snippets": "القصاصات",
   "settings.dataManagement.vault": "الخزنة",
-
   "settings.privacy.label": "الخصوصية والتقارير",
   "settings.privacy.autoErrorReporting": "إبلاغ تلقائي عن الأخطاء",
   "settings.privacy.autoErrorReportingDesc": "إرسال تقارير الأعطال تلقائيًا",
   "settings.privacy.reportIssue": "الإبلاغ عن مشكلة / إرسال ملاحظات",
   "settings.privacy.privacyPolicy": "سياسة الخصوصية",
   "settings.privacy.termsOfUse": "شروط الاستخدام",
-
   "settings.about.label": "حول",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "مدير حافظة متعدد المنصات",
-
   "ai.summarize": "تلخيص",
   "ai.fixGrammar": "تصحيح القواعد",
   "ai.translate": "ترجمة",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "رفض {{provider}} الطلب: {{message}}",
   "ai.error.generic": "خطأ {{provider}}: {{message}}",
   "ai.error.apiError": "خطأ API لـ {{provider}} ({{status}}). يرجى المحاولة لاحقًا.",
-
   "ai.consent.title": "موافقة معالجة بيانات الذكاء الاصطناعي",
   "ai.consent.warningBanner": "تتطلب ميزات الذكاء الاصطناعي إرسال محتوى حافظتك إلى خوادم خارجية. يرجى القراءة بعناية قبل المتابعة.",
   "ai.consent.whatHappensTitle": "ماذا يحدث عند استخدام ميزات الذكاء الاصطناعي",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "أوافق — تفعيل الذكاء الاصطناعي",
   "ai.consent.error.serverFailed": "تعذّر تسجيل موافقتك على خادمنا. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.",
   "ai.consent.error.generic": "حدث خطأ: {{error}}. يرجى المحاولة مرة أخرى.",
-
   "transforms.base64Encode": "ترميز Base64",
   "transforms.urlEncode": "ترميز URL",
   "transforms.htmlEscape": "تهريب HTML",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "التفاف الكلمات (80)",
   "transforms.shuffleLines": "خلط الأسطر",
   "transforms.countStats": "الإحصائيات",
-
   "preview.compare": "مقارنة",
   "preview.view": "عرض",
   "preview.image": "صورة",
@@ -356,23 +321,19 @@
   "preview.recommended": "موصى به",
   "preview.other": "أخرى",
   "preview.noTransformsMatch": "لا توجد تحويلات تطابق \"{{query}}\"",
-
   "preview.unableToLoadImage": "تعذّر تحميل الصورة",
   "preview.imagePixels": "{{width}} × {{height}} بكسل",
   "preview.stats.lines": "{{count}} سطر",
   "preview.stats.words": "{{count}} كلمة",
   "preview.stats.chars": "{{count}} حرف",
-
   "search.history": "بحث في النسخ...",
   "search.snippets": "بحث في القصاصات...",
   "search.vault": "بحث في الخزنة...",
   "search.settings": "بحث في الإعدادات...",
-
   "sidebar.history": "السجل",
   "sidebar.snippets": "القصاصات",
   "sidebar.vault": "الخزنة",
   "sidebar.settings": "الإعدادات",
-
   "hintBar.nav": "تنقل",
   "hintBar.paste": "لصق",
   "hintBar.queue": "طابور",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "اختر العنصر الثاني",
   "hintBar.clickToAddToQueue": "انقر على العناصر لإضافتها إلى الطابور",
   "hintBar.itemsSelected": "تم اختيار {{count}} عنصر",
-
   "onboarding.welcome": "مرحبًا بك في QlipLab",
   "onboarding.hint.copyAnything": "انسخ أي شيء — يظهر هنا",
   "onboarding.hint.enterToPaste": "Enter للصق في التطبيق السابق",
   "onboarding.hint.arrowKeys": "مفاتيح الأسهم للتنقل",
   "onboarding.hint.optionD": "Option+D لمقارنة عنصرين",
-
   "feedback.title": "الإبلاغ عن مشكلة",
   "feedback.issueType": "نوع المشكلة",
   "feedback.type.bug": "خلل",
@@ -416,7 +375,6 @@
   "feedback.success.title": "تم الإبلاغ عن المشكلة!",
   "feedback.success.thanks": "شكرًا لملاحظاتك.",
   "feedback.success.viewOnGithub": "عرض على GitHub",
-
   "legal.eula.title": "اتفاقية الترخيص",
   "legal.eula.subtitle": "يرجى القراءة والقبول للمتابعة",
   "legal.eula.scrollHint": "مرر إلى النهاية لتفعيل زر القبول",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "أوافق",
   "legal.eula.error.serverFailed": "تعذّر تسجيل قبولك على خادمنا. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.",
   "legal.eula.error.generic": "حدث خطأ: {{error}}. يرجى المحاولة مرة أخرى.",
-
   "errors.somethingWentWrong": "حدث خطأ ما",
   "errors.unexpectedError": "حدث خطأ غير متوقع",
   "errors.tryAgain": "حاول مرة أخرى",
-
   "errorReporting.optIn.title": "ساعد في تحسين qliplab",
   "errorReporting.optIn.description": "هل تريد إرسال تقارير الأعطال تلقائيًا لمساعدتنا في إصلاح الأخطاء؟",
   "errorReporting.optIn.whatWeCollect": "ما نجمعه:",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "لا شكرًا",
   "errorReporting.optIn.enable": "تفعيل الإبلاغ",
   "privacy.title": "سياسة الخصوصية",
-
   "license.status.free": "مجاني",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (وصول كامل)",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "تم إلغاء الشراء",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "شكرًا لدعمك QlipLab!",
-  "license.premium.purchaseDate": "تم الشراء في {{date}}"
+  "license.premium.purchaseDate": "تم الشراء في {{date}}",
+  "onboarding.hint.altD": "Alt+D لمقارنة عنصرين",
+  "vault.lock.createTitle": "إنشاء كلمة مرور الخزنة",
+  "vault.lock.createDescription": "اختر كلمة مرور لحماية بياناتك الحساسة",
+  "vault.lock.createButton": "إنشاء كلمة المرور"
 }

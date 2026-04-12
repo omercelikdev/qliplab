@@ -80,20 +80,34 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            Analyze this issue and implement a fix:
+            Analyze this issue and implement a fix. Follow CLAUDE.md rules strictly.
 
+            WORKFLOW:
             1. Understand the issue and identify affected code
-            2. Create a fix on a new branch (fix/issue-{number} or feat/issue-{number})
-            3. Write regression tests for any bug fix
-            4. Write unit tests for any new function in src/lib/
-            5. Ensure all existing tests still pass (npx vitest run)
-            6. Ensure TypeScript compiles (npx tsc --noEmit)
-            7. If UI strings are added, use t('key') and add to ALL 15 locale files
-            8. Use logical CSS properties for RTL support
-            9. Ensure cross-platform compatibility (macOS, Windows, Linux)
-            10. Open a PR with the fix, referencing this issue
+            2. Check git log to see if this was previously fixed and reverted
+            3. Create a fix on a new branch (fix/issue-{number} or feat/issue-{number})
+            4. Write regression tests for EVERY bug fix in src/lib/*.test.ts
+            5. Write unit tests for any new function in src/lib/
+            6. Run npx vitest run — ALL tests must pass
+            7. Run npx tsc --noEmit — ZERO errors
 
-            CRITICAL: Do NOT break any existing functionality. Run the full test suite before creating the PR.
+            i18n RULES (MANDATORY):
+            - Every UI string MUST use t('key') from useTranslation()
+            - Add keys to ALL 15 locale files: en, tr, ar, de, fr, es, pt, zh, ja, ko, ru, it, hi, nl, pl
+            - Files: src/i18n/locales/{locale}.json
+            - Never hardcode UI text in components
+
+            CODE RULES:
+            - Use logical CSS: ps-/pe- (not pl-/pr-), ms-/me-, text-start/text-end
+            - Cross-platform: macOS + Windows + Linux
+            - No any types, no console.log in production
+            - Export DEFAULT_SETTINGS from settingsStore if testing defaults
+
+            FINAL STEPS:
+            10. Open a PR referencing this issue (Closes #{number})
+            11. Include test results in PR description
+
+            CRITICAL: Do NOT break existing functionality. Run full test suite before PR.
           claude_args: |
             --max-turns 30
 

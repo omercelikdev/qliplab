@@ -24,12 +24,10 @@
   "common.revoke": "Revoke",
   "common.reviewAndAccept": "Review & Accept",
   "common.recording": "Recording...",
-
   "common.timeNow": "now",
   "common.timeMinutes": "{{count}}m",
   "common.timeHours": "{{count}}h",
   "common.timeDays": "{{count}}d",
-
   "common.filter.all": "All",
   "common.filter.pinned": "Pinned",
   "common.filter.favorites": "Favorites",
@@ -44,7 +42,6 @@
   "common.filter.address": "Address",
   "common.filter.personal": "Personal",
   "common.filter.company": "Company",
-
   "history.emptyState.title": "No clips yet",
   "history.emptyState.description": "Copy something to get started. Your clipboard history will appear here.",
   "history.noResults.description": "No items match your filters",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "Actions (right-click)",
   "history.deleteTitle": "Delete Clip",
   "history.deleteMessage": "This item will be permanently deleted.",
-
   "history.menu.copy": "Copy",
   "history.menu.copyHtml": "Copy HTML",
   "history.menu.pastePlain": "Paste Plain",
@@ -68,26 +64,21 @@
   "history.menu.pin": "Pin",
   "history.menu.unpin": "Unpin",
   "history.menu.delete": "Delete",
-
   "history.tags.label": "Tags",
   "history.tags.newTag": "New tag",
   "history.tags.placeholder": "Tag name...",
   "history.tags.deleteFromAll": "Delete tag from all items",
-
   "history.ocrTitle": "OCR Text",
   "history.ocrNoText": "(No text detected)",
   "history.ocrFailed": "OCR failed: {{error}}",
-
   "history.aiConfirm": "Send this content to {{provider}} for processing?\n\nDo NOT proceed if this contains sensitive data.",
   "history.aiProcessing": "Processing...",
-
   "snippets.emptyState.title": "No snippets yet",
   "snippets.emptyState.description": "Create your first snippet to get started",
   "snippets.noResults.description": "No snippets match your search",
   "snippets.newSnippet": "New Snippet",
   "snippets.deleteTitle": "Delete Snippet",
   "snippets.deleteMessage": "\"{{title}}\" will be permanently deleted.",
-
   "snippets.editor.newSnippet": "New Snippet",
   "snippets.editor.editSnippet": "Edit Snippet",
   "snippets.editor.closeEsc": "Close (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "Only letters, numbers, - and _",
   "snippets.editor.triggerExistsError": "Trigger already exists",
   "snippets.editor.syntaxPlainText": "Plain Text",
-
   "vault.emptyState.title": "No vault items",
   "vault.emptyState.description": "Add your first secure item",
   "vault.noResults.description": "No items match your filters",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" will be permanently deleted. This cannot be undone.",
   "vault.reveal": "Reveal",
   "vault.hide": "Hide",
-
   "vault.type.card": "Card",
   "vault.type.bank": "Bank",
   "vault.type.address": "Address",
   "vault.type.personal": "Personal",
   "vault.type.company": "Company",
   "vault.type.code": "Code",
-
   "vault.lock.title": "Vault Locked",
   "vault.lock.tooManyAttempts": "Too Many Attempts",
   "vault.lock.enterPassword": "Enter master password to unlock",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "Incorrect password",
   "vault.lock.tooManyAttemptsError": "Too many attempts",
   "vault.lock.failedAttempts": "{{count}} failed attempts",
-
   "vault.dialog.newTitle": "New Vault Item",
   "vault.dialog.editTitle": "Edit Vault Item",
   "vault.dialog.titleLabel": "Title",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "Save to Vault",
   "vault.dialog.suffixFormatError": "Only letters, numbers, - and _ allowed",
   "vault.dialog.triggerExistsError": "This trigger already exists",
-
   "vault.dialog.card.cardholderName": "Cardholder Name",
   "vault.dialog.card.cardNumber": "Card Number",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "Month",
   "vault.dialog.card.year": "Year",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "Bank Name",
   "vault.dialog.bank.accountHolder": "Account Holder",
-
   "vault.dialog.address.street": "Street",
   "vault.dialog.address.line2": "Address Line 2 (optional)",
   "vault.dialog.address.line2Placeholder": "Apt, Suite, Floor",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "State / Province (optional)",
   "vault.dialog.address.postalCode": "Postal Code (optional)",
   "vault.dialog.address.country": "Country",
-
   "vault.dialog.personal.firstName": "First Name",
   "vault.dialog.personal.lastName": "Last Name",
   "vault.dialog.personal.email": "Email (optional)",
@@ -169,32 +152,25 @@
   "vault.dialog.personal.day": "Day",
   "vault.dialog.personal.month": "Month",
   "vault.dialog.personal.year": "Year",
-
   "vault.dialog.company.companyName": "Company Name",
   "vault.dialog.company.taxId": "Tax ID (optional)",
   "vault.dialog.company.registrationNumber": "Registration No. (optional)",
   "vault.dialog.company.website": "Website (optional)",
   "vault.dialog.company.websitePlaceholder": "https://example.com",
-
   "vault.dialog.code.codePin": "Code / PIN",
   "vault.dialog.code.notes": "Notes (optional)",
-
   "settings.language.label": "Language",
   "settings.language.system": "System",
-
   "settings.theme.label": "Theme",
   "settings.theme.light": "Light",
   "settings.theme.dark": "Dark",
   "settings.theme.system": "System",
-
   "settings.historyLimit.label": "History Limit",
-
   "settings.autoLock.label": "Vault Auto-lock",
   "settings.autoLock.1min": "1 minute",
   "settings.autoLock.5min": "5 minutes",
   "settings.autoLock.15min": "15 minutes",
   "settings.autoLock.never": "Never",
-
   "settings.toggle.launchOnLogin": "Launch on login",
   "settings.toggle.launchOnLoginDesc": "Start QlipLab automatically when you log in",
   "settings.toggle.sensitiveDetection": "Detect sensitive data",
@@ -205,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "Delete non-pinned items on close",
   "settings.toggle.snippetAutoExpand": "Snippet auto-expand",
   "settings.toggle.snippetAutoExpandDesc": "Type a trigger anywhere to auto-paste snippet",
-
   "settings.autoCommands.label": "Auto-Commands",
   "settings.autoCommands.addRule": "Add Rule",
   "settings.autoCommands.description": "Automatically transform clipboard content when a specific format is detected.",
   "settings.autoCommands.empty": "No auto-commands configured",
-
   "settings.expiration.label": "Auto-delete old clips",
   "settings.expiration.never": "Never",
   "settings.expiration.after7": "After 7 days",
   "settings.expiration.after14": "After 14 days",
   "settings.expiration.after30": "After 30 days",
   "settings.expiration.after90": "After 90 days",
-
   "settings.shortcut.label": "Global Shortcut",
   "settings.shortcut.recording": "Press shortcut...",
   "settings.shortcut.cancelHint": "Press ESC to cancel",
   "settings.shortcut.recordHint": "Click to record a new shortcut",
-
   "settings.ignoredApps.label": "Ignored Apps",
   "settings.ignoredApps.description": "Clipboard from these apps won't be captured",
   "settings.ignoredApps.addApp": "Add app",
   "settings.ignoredApps.close": "Close",
   "settings.ignoredApps.searchPlaceholder": "Search apps...",
   "settings.ignoredApps.noApps": "No apps found",
-
   "settings.ai.label": "AI Features",
   "settings.ai.consentGranted": "AI Consent Granted",
   "settings.ai.consentRequired": "AI Consent Required",
@@ -238,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... or sk-...",
   "settings.ai.apiKeyStoredLocally": "API key is stored locally and never sent anywhere except the provider.",
   "settings.ai.sensitiveBlocked": "AI actions are blocked for items containing sensitive data. A confirmation is shown before any data is sent.",
-
   "settings.dataManagement.label": "Data Management",
   "settings.dataManagement.selectSections": "Select sections to export",
   "settings.dataManagement.export": "Export",
@@ -250,18 +220,15 @@
   "settings.dataManagement.history": "History",
   "settings.dataManagement.snippets": "Snippets",
   "settings.dataManagement.vault": "Vault",
-
   "settings.privacy.label": "Privacy & Reporting",
   "settings.privacy.autoErrorReporting": "Auto Error Reporting",
   "settings.privacy.autoErrorReportingDesc": "Automatically send crash reports",
   "settings.privacy.reportIssue": "Report Issue / Send Feedback",
   "settings.privacy.privacyPolicy": "Privacy Policy",
   "settings.privacy.termsOfUse": "Terms of Use",
-
   "settings.about.label": "About",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "Cross-platform clipboard manager",
-
   "ai.summarize": "Summarize",
   "ai.fixGrammar": "Fix Grammar",
   "ai.translate": "Translate",
@@ -275,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} rejected the request: {{message}}",
   "ai.error.generic": "{{provider}} error: {{message}}",
   "ai.error.apiError": "{{provider}} API error ({{status}}). Please try again later.",
-
   "ai.consent.title": "AI Data Processing Consent",
   "ai.consent.warningBanner": "AI features require sending your clipboard content to external servers. Please read carefully before proceeding.",
   "ai.consent.whatHappensTitle": "What happens when you use AI features",
@@ -292,7 +258,6 @@
   "ai.consent.accept": "I Accept — Enable AI",
   "ai.consent.error.serverFailed": "Could not record your consent on our server. Please check your internet connection and try again.",
   "ai.consent.error.generic": "An error occurred: {{error}}. Please try again.",
-
   "transforms.base64Encode": "Base64 Encode",
   "transforms.urlEncode": "URL Encode",
   "transforms.htmlEscape": "HTML Escape",
@@ -338,7 +303,6 @@
   "transforms.wordWrap80": "Word Wrap (80)",
   "transforms.shuffleLines": "Shuffle Lines",
   "transforms.countStats": "Count Stats",
-
   "preview.compare": "Compare",
   "preview.view": "View",
   "preview.image": "Image",
@@ -357,23 +321,19 @@
   "preview.recommended": "Recommended",
   "preview.other": "Other",
   "preview.noTransformsMatch": "No transforms match \"{{query}}\"",
-
   "preview.unableToLoadImage": "Unable to load image",
   "preview.imagePixels": "{{width}} × {{height}} pixels",
   "preview.stats.lines": "{{count}} lines",
   "preview.stats.words": "{{count}} words",
   "preview.stats.chars": "{{count}} chars",
-
   "search.history": "Search clips...",
   "search.snippets": "Search snippets...",
   "search.vault": "Search vault...",
   "search.settings": "Search settings...",
-
   "sidebar.history": "History",
   "sidebar.snippets": "Snippets",
   "sidebar.vault": "Vault",
   "sidebar.settings": "Settings",
-
   "hintBar.nav": "nav",
   "hintBar.paste": "paste",
   "hintBar.queue": "Queue",
@@ -386,13 +346,11 @@
   "hintBar.selectSecondItem": "Select second item",
   "hintBar.clickToAddToQueue": "Click items to add to queue",
   "hintBar.itemsSelected": "{{count}} items selected",
-
   "onboarding.welcome": "Welcome to QlipLab",
   "onboarding.hint.copyAnything": "Copy anything — it appears here",
   "onboarding.hint.enterToPaste": "Enter to paste to previous app",
   "onboarding.hint.arrowKeys": "Arrow keys to navigate",
   "onboarding.hint.optionD": "Option+D to compare two items",
-
   "feedback.title": "Report Issue",
   "feedback.issueType": "Issue Type",
   "feedback.type.bug": "Bug",
@@ -417,7 +375,6 @@
   "feedback.success.title": "Issue Reported!",
   "feedback.success.thanks": "Thank you for your feedback.",
   "feedback.success.viewOnGithub": "View on GitHub",
-
   "legal.eula.title": "License Agreement",
   "legal.eula.subtitle": "Please read and accept to continue",
   "legal.eula.scrollHint": "Scroll to the end to enable the Accept button",
@@ -426,11 +383,9 @@
   "legal.eula.accept": "I Accept",
   "legal.eula.error.serverFailed": "Could not record your acceptance on our server. Please check your internet connection and try again.",
   "legal.eula.error.generic": "An error occurred: {{error}}. Please try again.",
-
   "errors.somethingWentWrong": "Something went wrong",
   "errors.unexpectedError": "An unexpected error occurred",
   "errors.tryAgain": "Try again",
-
   "errorReporting.optIn.title": "Help Improve qliplab",
   "errorReporting.optIn.description": "Would you like to automatically send crash reports to help us fix bugs?",
   "errorReporting.optIn.whatWeCollect": "What we collect:",
@@ -444,9 +399,7 @@
   "errorReporting.optIn.changeAnytime": "You can change this anytime in Settings.",
   "errorReporting.optIn.decline": "No Thanks",
   "errorReporting.optIn.enable": "Enable Reporting",
-
   "privacy.title": "Privacy Policy",
-
   "license.status.free": "Free",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (Full Access)",
@@ -484,5 +437,9 @@
   "license.error.purchaseCancelled": "Purchase was cancelled",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "Thank you for supporting QlipLab!",
-  "license.premium.purchaseDate": "Purchased on {{date}}"
+  "license.premium.purchaseDate": "Purchased on {{date}}",
+  "onboarding.hint.altD": "Alt+D to compare two items",
+  "vault.lock.createTitle": "Create Vault Password",
+  "vault.lock.createDescription": "Choose a password to protect your sensitive data",
+  "vault.lock.createButton": "Create Password"
 }

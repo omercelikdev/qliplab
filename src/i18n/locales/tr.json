@@ -24,12 +24,10 @@
   "common.revoke": "İptal Et",
   "common.reviewAndAccept": "İncele ve Kabul Et",
   "common.recording": "Kaydediliyor...",
-
   "common.timeNow": "şimdi",
   "common.timeMinutes": "{{count}}dk",
   "common.timeHours": "{{count}}sa",
   "common.timeDays": "{{count}}g",
-
   "common.filter.all": "Tümü",
   "common.filter.pinned": "Sabitlenmiş",
   "common.filter.favorites": "Favoriler",
@@ -44,7 +42,6 @@
   "common.filter.address": "Adres",
   "common.filter.personal": "Kişisel",
   "common.filter.company": "Şirket",
-
   "history.emptyState.title": "Henüz kayıt yok",
   "history.emptyState.description": "Bir şey kopyalayarak başlayın. Pano geçmişiniz burada görünecek.",
   "history.noResults.description": "Filtrelere uyan öğe bulunamadı",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "İşlemler (sağ tık)",
   "history.deleteTitle": "Kaydı Sil",
   "history.deleteMessage": "Bu öğe kalıcı olarak silinecektir.",
-
   "history.menu.copy": "Kopyala",
   "history.menu.copyHtml": "HTML Kopyala",
   "history.menu.pastePlain": "Düz Metin Yapıştır",
@@ -68,26 +64,21 @@
   "history.menu.pin": "Sabitle",
   "history.menu.unpin": "Sabitlemeden Çıkar",
   "history.menu.delete": "Sil",
-
   "history.tags.label": "Etiketler",
   "history.tags.newTag": "Yeni etiket",
   "history.tags.placeholder": "Etiket adı...",
   "history.tags.deleteFromAll": "Etiketi tüm öğelerden sil",
-
   "history.ocrTitle": "OCR Metni",
   "history.ocrNoText": "(Metin algılanamadı)",
   "history.ocrFailed": "OCR başarısız: {{error}}",
-
   "history.aiConfirm": "Bu içerik işlenmek üzere {{provider}} sunucularına gönderilecek.\n\nHassas veri içeriyorsa devam ETMEYİN.",
   "history.aiProcessing": "İşleniyor...",
-
   "snippets.emptyState.title": "Henüz snippet yok",
   "snippets.emptyState.description": "İlk snippet'inizi oluşturarak başlayın",
   "snippets.noResults.description": "Aramanızla eşleşen snippet bulunamadı",
   "snippets.newSnippet": "Yeni Snippet",
   "snippets.deleteTitle": "Snippet'i Sil",
   "snippets.deleteMessage": "\"{{title}}\" kalıcı olarak silinecektir.",
-
   "snippets.editor.newSnippet": "Yeni Snippet",
   "snippets.editor.editSnippet": "Snippet Düzenle",
   "snippets.editor.closeEsc": "Kapat (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "Sadece harf, rakam, - ve _ kullanılabilir",
   "snippets.editor.triggerExistsError": "Bu tetikleyici zaten mevcut",
   "snippets.editor.syntaxPlainText": "Düz Metin",
-
   "vault.emptyState.title": "Henüz kasa öğesi yok",
   "vault.emptyState.description": "İlk güvenli öğenizi ekleyin",
   "vault.noResults.description": "Filtrelere uyan öğe bulunamadı",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" kalıcı olarak silinecektir. Bu işlem geri alınamaz.",
   "vault.reveal": "Göster",
   "vault.hide": "Gizle",
-
   "vault.type.card": "Kart",
   "vault.type.bank": "Banka",
   "vault.type.address": "Adres",
   "vault.type.personal": "Kişisel",
   "vault.type.company": "Şirket",
   "vault.type.code": "Kod",
-
   "vault.lock.title": "Kasa Kilitli",
   "vault.lock.tooManyAttempts": "Çok Fazla Deneme",
   "vault.lock.enterPassword": "Kilidi açmak için ana parolayı girin",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "Yanlış parola",
   "vault.lock.tooManyAttemptsError": "Çok fazla deneme yapıldı",
   "vault.lock.failedAttempts": "{{count}} başarısız deneme",
-
   "vault.dialog.newTitle": "Yeni Kasa Öğesi",
   "vault.dialog.editTitle": "Kasa Öğesini Düzenle",
   "vault.dialog.titleLabel": "Başlık",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "Kasaya Kaydet",
   "vault.dialog.suffixFormatError": "Sadece harf, rakam, - ve _ kullanılabilir",
   "vault.dialog.triggerExistsError": "Bu tetikleyici zaten mevcut",
-
   "vault.dialog.card.cardholderName": "Kart Sahibi Adı",
   "vault.dialog.card.cardNumber": "Kart Numarası",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "Ay",
   "vault.dialog.card.year": "Yıl",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "Banka Adı",
   "vault.dialog.bank.accountHolder": "Hesap Sahibi",
-
   "vault.dialog.address.street": "Sokak",
   "vault.dialog.address.line2": "Adres Satırı 2 (isteğe bağlı)",
   "vault.dialog.address.line2Placeholder": "Daire, Kat, Blok",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "İl / Bölge (isteğe bağlı)",
   "vault.dialog.address.postalCode": "Posta Kodu (isteğe bağlı)",
   "vault.dialog.address.country": "Ülke",
-
   "vault.dialog.personal.firstName": "Ad",
   "vault.dialog.personal.lastName": "Soyad",
   "vault.dialog.personal.email": "E-posta (isteğe bağlı)",
@@ -169,32 +152,25 @@
   "vault.dialog.personal.day": "Gün",
   "vault.dialog.personal.month": "Ay",
   "vault.dialog.personal.year": "Yıl",
-
   "vault.dialog.company.companyName": "Şirket Adı",
   "vault.dialog.company.taxId": "Vergi No (isteğe bağlı)",
   "vault.dialog.company.registrationNumber": "Sicil No (isteğe bağlı)",
   "vault.dialog.company.website": "Web Sitesi (isteğe bağlı)",
   "vault.dialog.company.websitePlaceholder": "https://ornek.com",
-
   "vault.dialog.code.codePin": "Kod / PIN",
   "vault.dialog.code.notes": "Notlar (isteğe bağlı)",
-
   "settings.language.label": "Dil",
   "settings.language.system": "Sistem",
-
   "settings.theme.label": "Tema",
   "settings.theme.light": "Açık",
   "settings.theme.dark": "Koyu",
   "settings.theme.system": "Sistem",
-
   "settings.historyLimit.label": "Geçmiş Limiti",
-
   "settings.autoLock.label": "Kasa Otomatik Kilitleme",
   "settings.autoLock.1min": "1 dakika",
   "settings.autoLock.5min": "5 dakika",
   "settings.autoLock.15min": "15 dakika",
   "settings.autoLock.never": "Asla",
-
   "settings.toggle.launchOnLogin": "Oturum açıldığında başlat",
   "settings.toggle.launchOnLoginDesc": "Oturum açıldığında QlipLab otomatik başlasın",
   "settings.toggle.sensitiveDetection": "Hassas veri algılama",
@@ -205,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "Kapatıldığında sabitlenmemiş öğeleri sil",
   "settings.toggle.snippetAutoExpand": "Snippet otomatik genişletme",
   "settings.toggle.snippetAutoExpandDesc": "Herhangi bir yerde tetikleyici yazarak snippet yapıştır",
-
   "settings.autoCommands.label": "Otomatik Komutlar",
   "settings.autoCommands.addRule": "Kural Ekle",
   "settings.autoCommands.description": "Belirli bir format algılandığında pano içeriğini otomatik olarak dönüştürün.",
   "settings.autoCommands.empty": "Yapılandırılmış otomatik komut yok",
-
   "settings.expiration.label": "Eski kayıtları otomatik sil",
   "settings.expiration.never": "Asla",
   "settings.expiration.after7": "7 gün sonra",
   "settings.expiration.after14": "14 gün sonra",
   "settings.expiration.after30": "30 gün sonra",
   "settings.expiration.after90": "90 gün sonra",
-
   "settings.shortcut.label": "Genel Kısayol",
   "settings.shortcut.recording": "Kısayola basın...",
   "settings.shortcut.cancelHint": "İptal etmek için ESC'ye basın",
   "settings.shortcut.recordHint": "Yeni kısayol kaydetmek için tıklayın",
-
   "settings.ignoredApps.label": "Yoksayılan Uygulamalar",
   "settings.ignoredApps.description": "Bu uygulamalardan yapılan kopyalamalar kaydedilmez",
   "settings.ignoredApps.addApp": "Uygulama ekle",
   "settings.ignoredApps.close": "Kapat",
   "settings.ignoredApps.searchPlaceholder": "Uygulama ara...",
   "settings.ignoredApps.noApps": "Uygulama bulunamadı",
-
   "settings.ai.label": "Yapay Zeka Özellikleri",
   "settings.ai.consentGranted": "Yapay Zeka Onayı Verildi",
   "settings.ai.consentRequired": "Yapay Zeka Onayı Gerekli",
@@ -238,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... veya sk-...",
   "settings.ai.apiKeyStoredLocally": "API anahtarı yerel olarak saklanır ve sağlayıcı dışında hiçbir yere gönderilmez.",
   "settings.ai.sensitiveBlocked": "Hassas veri içeren öğelerde yapay zeka işlemleri engellenir. Veri gönderilmeden önce onay istenir.",
-
   "settings.dataManagement.label": "Veri Yönetimi",
   "settings.dataManagement.selectSections": "Dışa aktarılacak bölümleri seçin",
   "settings.dataManagement.export": "Dışa Aktar",
@@ -250,18 +220,15 @@
   "settings.dataManagement.history": "Geçmiş",
   "settings.dataManagement.snippets": "Snippet'ler",
   "settings.dataManagement.vault": "Kasa",
-
   "settings.privacy.label": "Gizlilik ve Raporlama",
   "settings.privacy.autoErrorReporting": "Otomatik Hata Raporlama",
   "settings.privacy.autoErrorReportingDesc": "Çökme raporlarını otomatik gönder",
   "settings.privacy.reportIssue": "Sorun Bildir / Geri Bildirim Gönder",
   "settings.privacy.privacyPolicy": "Gizlilik Politikası",
   "settings.privacy.termsOfUse": "Kullanım Koşulları",
-
   "settings.about.label": "Hakkında",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "Çok platformlu pano yöneticisi",
-
   "ai.summarize": "Özetle",
   "ai.fixGrammar": "Dil Bilgisi Düzelt",
   "ai.translate": "Çevir",
@@ -275,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} isteği reddetti: {{message}}",
   "ai.error.generic": "{{provider}} hatası: {{message}}",
   "ai.error.apiError": "{{provider}} API hatası ({{status}}). Lütfen daha sonra tekrar deneyin.",
-
   "ai.consent.title": "Yapay Zeka Veri İşleme Onayı",
   "ai.consent.warningBanner": "Yapay zeka özellikleri, pano içeriğinizin harici sunuculara gönderilmesini gerektirir. Devam etmeden önce lütfen dikkatle okuyun.",
   "ai.consent.whatHappensTitle": "Yapay zeka özelliklerini kullandığınızda ne olur",
@@ -292,7 +258,6 @@
   "ai.consent.accept": "Kabul Ediyorum — Yapay Zekayı Etkinleştir",
   "ai.consent.error.serverFailed": "Onayınız sunucumuza kaydedilemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.",
   "ai.consent.error.generic": "Bir hata oluştu: {{error}}. Lütfen tekrar deneyin.",
-
   "transforms.base64Encode": "Base64 Kodla",
   "transforms.urlEncode": "URL Kodla",
   "transforms.htmlEscape": "HTML Kaçış",
@@ -338,7 +303,6 @@
   "transforms.wordWrap80": "Sözcük Kaydır (80)",
   "transforms.shuffleLines": "Satırları Karıştır",
   "transforms.countStats": "İstatistikler",
-
   "preview.compare": "Karşılaştır",
   "preview.view": "Görüntüle",
   "preview.image": "Görsel",
@@ -357,23 +321,19 @@
   "preview.recommended": "Önerilen",
   "preview.other": "Diğer",
   "preview.noTransformsMatch": "\"{{query}}\" ile eşleşen dönüşüm bulunamadı",
-
   "preview.unableToLoadImage": "Görsel yüklenemedi",
   "preview.imagePixels": "{{width}} × {{height}} piksel",
   "preview.stats.lines": "{{count}} satır",
   "preview.stats.words": "{{count}} kelime",
   "preview.stats.chars": "{{count}} karakter",
-
   "search.history": "Kayıtlarda ara...",
   "search.snippets": "Snippet'lerde ara...",
   "search.vault": "Kasada ara...",
   "search.settings": "Ayarlarda ara...",
-
   "sidebar.history": "Geçmiş",
   "sidebar.snippets": "Snippet'ler",
   "sidebar.vault": "Kasa",
   "sidebar.settings": "Ayarlar",
-
   "hintBar.nav": "gezin",
   "hintBar.paste": "yapıştır",
   "hintBar.queue": "Sıra",
@@ -386,13 +346,11 @@
   "hintBar.selectSecondItem": "İkinci öğeyi seçin",
   "hintBar.clickToAddToQueue": "Sıraya eklemek için öğelere tıklayın",
   "hintBar.itemsSelected": "{{count}} öğe seçildi",
-
   "onboarding.welcome": "QlipLab'e Hoş Geldiniz",
   "onboarding.hint.copyAnything": "Bir şey kopyalayın — burada görünür",
   "onboarding.hint.enterToPaste": "Enter ile önceki uygulamaya yapıştır",
   "onboarding.hint.arrowKeys": "Ok tuşları ile gezin",
   "onboarding.hint.optionD": "Option+D ile iki öğeyi karşılaştır",
-
   "feedback.title": "Sorun Bildir",
   "feedback.issueType": "Sorun Türü",
   "feedback.type.bug": "Hata",
@@ -417,7 +375,6 @@
   "feedback.success.title": "Sorun Bildirildi!",
   "feedback.success.thanks": "Geri bildiriminiz için teşekkürler.",
   "feedback.success.viewOnGithub": "GitHub'da Görüntüle",
-
   "legal.eula.title": "Lisans Sözleşmesi",
   "legal.eula.subtitle": "Devam etmek için lütfen okuyun ve kabul edin",
   "legal.eula.scrollHint": "Kabul Et butonunu etkinleştirmek için sonuna kadar kaydırın",
@@ -426,11 +383,9 @@
   "legal.eula.accept": "Kabul Ediyorum",
   "legal.eula.error.serverFailed": "Kabulünüz sunucumuza kaydedilemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.",
   "legal.eula.error.generic": "Bir hata oluştu: {{error}}. Lütfen tekrar deneyin.",
-
   "errors.somethingWentWrong": "Bir şeyler ters gitti",
   "errors.unexpectedError": "Beklenmeyen bir hata oluştu",
   "errors.tryAgain": "Tekrar dene",
-
   "errorReporting.optIn.title": "qliplab'ı Geliştirmemize Yardımcı Olun",
   "errorReporting.optIn.description": "Hataları düzeltmemize yardımcı olmak için otomatik çökme raporları göndermek ister misiniz?",
   "errorReporting.optIn.whatWeCollect": "Topladığımız bilgiler:",
@@ -445,7 +400,6 @@
   "errorReporting.optIn.decline": "Hayır, Teşekkürler",
   "errorReporting.optIn.enable": "Raporlamayı Etkinleştir",
   "privacy.title": "Gizlilik Politikası",
-
   "license.status.free": "Ücretsiz",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (Tam Erişim)",
@@ -483,5 +437,9 @@
   "license.error.purchaseCancelled": "Satın alma iptal edildi",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "QlipLab'ı desteklediğiniz için teşekkürler!",
-  "license.premium.purchaseDate": "{{date}} tarihinde satın alındı"
+  "license.premium.purchaseDate": "{{date}} tarihinde satın alındı",
+  "onboarding.hint.altD": "Alt+D ile iki öğeyi karşılaştır",
+  "vault.lock.createTitle": "Kasa Şifresi Oluştur",
+  "vault.lock.createDescription": "Hassas verilerinizi korumak için bir şifre belirleyin",
+  "vault.lock.createButton": "Şifre Oluştur"
 }

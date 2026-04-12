@@ -24,12 +24,10 @@
   "common.revoke": "Révoquer",
   "common.reviewAndAccept": "Vérifier et accepter",
   "common.recording": "Enregistrement...",
-
   "common.timeNow": "maintenant",
   "common.timeMinutes": "{{count}}min",
   "common.timeHours": "{{count}}h",
   "common.timeDays": "{{count}}j",
-
   "common.filter.all": "Tout",
   "common.filter.pinned": "Épinglés",
   "common.filter.favorites": "Favoris",
@@ -44,7 +42,6 @@
   "common.filter.address": "Adresse",
   "common.filter.personal": "Personnel",
   "common.filter.company": "Entreprise",
-
   "history.emptyState.title": "Aucun clip pour le moment",
   "history.emptyState.description": "Copiez quelque chose pour commencer. Votre historique du presse-papiers apparaîtra ici.",
   "history.noResults.description": "Aucun élément ne correspond à vos filtres",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "Actions (clic droit)",
   "history.deleteTitle": "Supprimer le clip",
   "history.deleteMessage": "Cet élément sera définitivement supprimé.",
-
   "history.menu.copy": "Copier",
   "history.menu.copyHtml": "Copier le HTML",
   "history.menu.pastePlain": "Coller en texte brut",
@@ -68,26 +64,21 @@
   "history.menu.pin": "Épingler",
   "history.menu.unpin": "Détacher",
   "history.menu.delete": "Supprimer",
-
   "history.tags.label": "Tags",
   "history.tags.newTag": "Nouveau tag",
   "history.tags.placeholder": "Nom du tag...",
   "history.tags.deleteFromAll": "Supprimer le tag de tous les éléments",
-
   "history.ocrTitle": "Texte OCR",
   "history.ocrNoText": "(Aucun texte détecté)",
   "history.ocrFailed": "OCR échoué : {{error}}",
-
   "history.aiConfirm": "Envoyer ce contenu à {{provider}} pour traitement ?\n\nNe continuez PAS si cela contient des données sensibles.",
   "history.aiProcessing": "Traitement en cours...",
-
   "snippets.emptyState.title": "Aucun snippet pour le moment",
   "snippets.emptyState.description": "Créez votre premier snippet pour commencer",
   "snippets.noResults.description": "Aucun snippet ne correspond à votre recherche",
   "snippets.newSnippet": "Nouveau snippet",
   "snippets.deleteTitle": "Supprimer le snippet",
   "snippets.deleteMessage": "\"{{title}}\" sera définitivement supprimé.",
-
   "snippets.editor.newSnippet": "Nouveau snippet",
   "snippets.editor.editSnippet": "Modifier le snippet",
   "snippets.editor.closeEsc": "Fermer (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "Uniquement lettres, chiffres, - et _",
   "snippets.editor.triggerExistsError": "Ce déclencheur existe déjà",
   "snippets.editor.syntaxPlainText": "Texte brut",
-
   "vault.emptyState.title": "Aucun élément dans le coffre",
   "vault.emptyState.description": "Ajoutez votre premier élément sécurisé",
   "vault.noResults.description": "Aucun élément ne correspond à vos filtres",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" sera définitivement supprimé. Cette action est irréversible.",
   "vault.reveal": "Révéler",
   "vault.hide": "Masquer",
-
   "vault.type.card": "Carte",
   "vault.type.bank": "Banque",
   "vault.type.address": "Adresse",
   "vault.type.personal": "Personnel",
   "vault.type.company": "Entreprise",
   "vault.type.code": "Code",
-
   "vault.lock.title": "Coffre verrouillé",
   "vault.lock.tooManyAttempts": "Trop de tentatives",
   "vault.lock.enterPassword": "Entrez le mot de passe principal pour déverrouiller",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "Mot de passe incorrect",
   "vault.lock.tooManyAttemptsError": "Trop de tentatives",
   "vault.lock.failedAttempts": "{{count}} tentatives échouées",
-
   "vault.dialog.newTitle": "Nouvel élément du coffre",
   "vault.dialog.editTitle": "Modifier l'élément du coffre",
   "vault.dialog.titleLabel": "Titre",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "Enregistrer dans le coffre",
   "vault.dialog.suffixFormatError": "Uniquement lettres, chiffres, - et _ autorisés",
   "vault.dialog.triggerExistsError": "Ce déclencheur existe déjà",
-
   "vault.dialog.card.cardholderName": "Nom du titulaire",
   "vault.dialog.card.cardNumber": "Numéro de carte",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "Mois",
   "vault.dialog.card.year": "Année",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "Nom de la banque",
   "vault.dialog.bank.accountHolder": "Titulaire du compte",
-
   "vault.dialog.address.street": "Rue",
   "vault.dialog.address.line2": "Complément d'adresse (facultatif)",
   "vault.dialog.address.line2Placeholder": "Apt, Bureau, Étage",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "Région / Province (facultatif)",
   "vault.dialog.address.postalCode": "Code postal (facultatif)",
   "vault.dialog.address.country": "Pays",
-
   "vault.dialog.personal.firstName": "Prénom",
   "vault.dialog.personal.lastName": "Nom",
   "vault.dialog.personal.email": "E-mail (facultatif)",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "Jour",
   "vault.dialog.personal.month": "Mois",
   "vault.dialog.personal.year": "Année",
-
   "vault.dialog.company.companyName": "Nom de l'entreprise",
   "vault.dialog.company.taxId": "Numéro fiscal (facultatif)",
   "vault.dialog.company.registrationNumber": "N° d'immatriculation (facultatif)",
   "vault.dialog.company.website": "Site web (facultatif)",
   "vault.dialog.company.websitePlaceholder": "https://exemple.fr",
-
   "vault.dialog.code.codePin": "Code / PIN",
   "vault.dialog.code.notes": "Notes (facultatif)",
-
   "settings.language.label": "Langue",
   "settings.language.system": "Système",
-
   "settings.theme.label": "Thème",
   "settings.theme.light": "Clair",
   "settings.theme.dark": "Sombre",
   "settings.theme.system": "Système",
-
   "settings.historyLimit.label": "Limite de l'historique",
-
   "settings.autoLock.label": "Verrouillage auto du coffre",
   "settings.autoLock.1min": "1 minute",
   "settings.autoLock.5min": "5 minutes",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "Supprimer les éléments non épinglés à la fermeture",
   "settings.toggle.snippetAutoExpand": "Extension auto des snippets",
   "settings.toggle.snippetAutoExpandDesc": "Tapez un déclencheur n'importe où pour coller automatiquement le snippet",
-
   "settings.autoCommands.label": "Commandes automatiques",
   "settings.autoCommands.addRule": "Ajouter une règle",
   "settings.autoCommands.description": "Transformer automatiquement le contenu du presse-papiers lorsqu'un format spécifique est détecté.",
   "settings.autoCommands.empty": "Aucune commande automatique configurée",
-
   "settings.expiration.label": "Suppression auto des anciens clips",
   "settings.expiration.never": "Jamais",
   "settings.expiration.after7": "Après 7 jours",
   "settings.expiration.after14": "Après 14 jours",
   "settings.expiration.after30": "Après 30 jours",
   "settings.expiration.after90": "Après 90 jours",
-
   "settings.shortcut.label": "Raccourci global",
   "settings.shortcut.recording": "Appuyez sur un raccourci...",
   "settings.shortcut.cancelHint": "Appuyez sur ESC pour annuler",
   "settings.shortcut.recordHint": "Cliquez pour enregistrer un nouveau raccourci",
-
   "settings.ignoredApps.label": "Applications ignorées",
   "settings.ignoredApps.description": "Le presse-papiers de ces applications ne sera pas capturé",
   "settings.ignoredApps.addApp": "Ajouter une application",
   "settings.ignoredApps.close": "Fermer",
   "settings.ignoredApps.searchPlaceholder": "Rechercher des applications...",
   "settings.ignoredApps.noApps": "Aucune application trouvée",
-
   "settings.ai.label": "Fonctions IA",
   "settings.ai.consentGranted": "Consentement IA accordé",
   "settings.ai.consentRequired": "Consentement IA requis",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... ou sk-...",
   "settings.ai.apiKeyStoredLocally": "La clé API est stockée localement et n'est envoyée qu'au fournisseur.",
   "settings.ai.sensitiveBlocked": "Les actions IA sont bloquées pour les éléments contenant des données sensibles. Une confirmation est affichée avant tout envoi.",
-
   "settings.dataManagement.label": "Gestion des données",
   "settings.dataManagement.selectSections": "Sélectionnez les sections à exporter",
   "settings.dataManagement.export": "Exporter",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "Historique",
   "settings.dataManagement.snippets": "Snippets",
   "settings.dataManagement.vault": "Coffre",
-
   "settings.privacy.label": "Confidentialité et rapports",
   "settings.privacy.autoErrorReporting": "Rapports d'erreurs automatiques",
   "settings.privacy.autoErrorReportingDesc": "Envoyer automatiquement les rapports de plantage",
   "settings.privacy.reportIssue": "Signaler un problème / Envoyer un commentaire",
   "settings.privacy.privacyPolicy": "Politique de confidentialité",
   "settings.privacy.termsOfUse": "Conditions d'utilisation",
-
   "settings.about.label": "À propos",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "Gestionnaire de presse-papiers multiplateforme",
-
   "ai.summarize": "Résumer",
   "ai.fixGrammar": "Corriger la grammaire",
   "ai.translate": "Traduire",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} a rejeté la requête : {{message}}",
   "ai.error.generic": "Erreur {{provider}} : {{message}}",
   "ai.error.apiError": "Erreur API {{provider}} ({{status}}). Veuillez réessayer plus tard.",
-
   "ai.consent.title": "Consentement au traitement des données par l'IA",
   "ai.consent.warningBanner": "Les fonctions IA nécessitent l'envoi du contenu de votre presse-papiers vers des serveurs externes. Veuillez lire attentivement avant de continuer.",
   "ai.consent.whatHappensTitle": "Ce qui se passe lorsque vous utilisez les fonctions IA",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "J'accepte — Activer l'IA",
   "ai.consent.error.serverFailed": "Impossible d'enregistrer votre consentement sur notre serveur. Veuillez vérifier votre connexion internet et réessayer.",
   "ai.consent.error.generic": "Une erreur est survenue : {{error}}. Veuillez réessayer.",
-
   "transforms.base64Encode": "Encoder en Base64",
   "transforms.urlEncode": "Encoder en URL",
   "transforms.htmlEscape": "Échapper HTML",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "Retour à la ligne (80)",
   "transforms.shuffleLines": "Mélanger les lignes",
   "transforms.countStats": "Compter les statistiques",
-
   "preview.compare": "Comparer",
   "preview.view": "Aperçu",
   "preview.image": "Image",
@@ -356,23 +321,19 @@
   "preview.recommended": "Recommandé",
   "preview.other": "Autre",
   "preview.noTransformsMatch": "Aucune transformation pour \"{{query}}\"",
-
   "preview.unableToLoadImage": "Impossible de charger l'image",
   "preview.imagePixels": "{{width}} × {{height}} pixels",
   "preview.stats.lines": "{{count}} lignes",
   "preview.stats.words": "{{count}} mots",
   "preview.stats.chars": "{{count}} caractères",
-
   "search.history": "Rechercher des clips...",
   "search.snippets": "Rechercher des snippets...",
   "search.vault": "Rechercher dans le coffre...",
   "search.settings": "Rechercher les paramètres...",
-
   "sidebar.history": "Historique",
   "sidebar.snippets": "Snippets",
   "sidebar.vault": "Coffre",
   "sidebar.settings": "Paramètres",
-
   "hintBar.nav": "navigation",
   "hintBar.paste": "coller",
   "hintBar.queue": "File",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "Sélectionnez le second élément",
   "hintBar.clickToAddToQueue": "Cliquez sur les éléments pour les ajouter à la file",
   "hintBar.itemsSelected": "{{count}} éléments sélectionnés",
-
   "onboarding.welcome": "Bienvenue dans QlipLab",
   "onboarding.hint.copyAnything": "Copiez n'importe quoi — ça apparaît ici",
   "onboarding.hint.enterToPaste": "Entrée pour coller dans l'application précédente",
   "onboarding.hint.arrowKeys": "Flèches pour naviguer",
   "onboarding.hint.optionD": "Option+D pour comparer deux éléments",
-
   "feedback.title": "Signaler un problème",
   "feedback.issueType": "Type de problème",
   "feedback.type.bug": "Bug",
@@ -416,7 +375,6 @@
   "feedback.success.title": "Problème signalé !",
   "feedback.success.thanks": "Merci pour votre retour.",
   "feedback.success.viewOnGithub": "Voir sur GitHub",
-
   "legal.eula.title": "Contrat de licence",
   "legal.eula.subtitle": "Veuillez lire et accepter pour continuer",
   "legal.eula.scrollHint": "Faites défiler jusqu'en bas pour activer le bouton Accepter",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "J'accepte",
   "legal.eula.error.serverFailed": "Impossible d'enregistrer votre acceptation sur notre serveur. Veuillez vérifier votre connexion internet et réessayer.",
   "legal.eula.error.generic": "Une erreur est survenue : {{error}}. Veuillez réessayer.",
-
   "errors.somethingWentWrong": "Une erreur est survenue",
   "errors.unexpectedError": "Une erreur inattendue s'est produite",
   "errors.tryAgain": "Réessayer",
-
   "errorReporting.optIn.title": "Aidez à améliorer qliplab",
   "errorReporting.optIn.description": "Souhaitez-vous envoyer automatiquement des rapports d'erreur pour nous aider à corriger les bugs ?",
   "errorReporting.optIn.whatWeCollect": "Ce que nous collectons :",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "Non merci",
   "errorReporting.optIn.enable": "Activer les rapports",
   "privacy.title": "Politique de confidentialité",
-
   "license.status.free": "Gratuit",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (Accès complet)",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "L'achat a été annulé",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "Merci de soutenir QlipLab !",
-  "license.premium.purchaseDate": "Acheté le {{date}}"
+  "license.premium.purchaseDate": "Acheté le {{date}}",
+  "onboarding.hint.altD": "Alt+D pour comparer deux éléments",
+  "vault.lock.createTitle": "Créer un mot de passe",
+  "vault.lock.createDescription": "Choisissez un mot de passe pour protéger vos données sensibles",
+  "vault.lock.createButton": "Créer le mot de passe"
 }

@@ -42,8 +42,10 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
         return (item.data as CardData).cardNumber;
       case 'bank':
         return (item.data as BankData).iban;
-      case 'address':
-        return (item.data as AddressData).street;
+      case 'address': {
+        const a = item.data as AddressData;
+        return [a.street, a.addressLine2, a.city, a.state, a.postalCode, a.country].filter(Boolean).join(', ');
+      }
       case 'personal': {
         const d = item.data as PersonalData;
         return [d.firstName, d.lastName].filter(Boolean).join(' ');

@@ -24,12 +24,10 @@
   "common.revoke": "Revoca",
   "common.reviewAndAccept": "Rivedi e accetta",
   "common.recording": "Registrazione...",
-
   "common.timeNow": "adesso",
   "common.timeMinutes": "{{count}}min",
   "common.timeHours": "{{count}}h",
   "common.timeDays": "{{count}}g",
-
   "common.filter.all": "Tutto",
   "common.filter.pinned": "Fissati",
   "common.filter.favorites": "Preferiti",
@@ -44,7 +42,6 @@
   "common.filter.address": "Indirizzo",
   "common.filter.personal": "Personale",
   "common.filter.company": "Azienda",
-
   "history.emptyState.title": "Nessun elemento copiato",
   "history.emptyState.description": "Copi qualcosa per iniziare. La cronologia degli appunti apparirà qui.",
   "history.noResults.description": "Nessun elemento corrisponde ai filtri",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "Azioni (clic destro)",
   "history.deleteTitle": "Elimina elemento",
   "history.deleteMessage": "Questo elemento verrà eliminato definitivamente.",
-
   "history.menu.copy": "Copia",
   "history.menu.copyHtml": "Copia HTML",
   "history.menu.pastePlain": "Incolla come testo",
@@ -68,26 +64,21 @@
   "history.menu.pin": "Fissa",
   "history.menu.unpin": "Rimuovi fissaggio",
   "history.menu.delete": "Elimina",
-
   "history.tags.label": "Tag",
   "history.tags.newTag": "Nuovo tag",
   "history.tags.placeholder": "Nome tag...",
   "history.tags.deleteFromAll": "Elimina tag da tutti gli elementi",
-
   "history.ocrTitle": "Testo OCR",
   "history.ocrNoText": "(Nessun testo rilevato)",
   "history.ocrFailed": "OCR non riuscito: {{error}}",
-
   "history.aiConfirm": "Inviare questo contenuto a {{provider}} per l'elaborazione?\n\nNON procedere se contiene dati sensibili.",
   "history.aiProcessing": "Elaborazione...",
-
   "snippets.emptyState.title": "Nessun snippet",
   "snippets.emptyState.description": "Crei il Suo primo snippet per iniziare",
   "snippets.noResults.description": "Nessuno snippet corrisponde alla ricerca",
   "snippets.newSnippet": "Nuovo snippet",
   "snippets.deleteTitle": "Elimina snippet",
   "snippets.deleteMessage": "\"{{title}}\" verrà eliminato definitivamente.",
-
   "snippets.editor.newSnippet": "Nuovo snippet",
   "snippets.editor.editSnippet": "Modifica snippet",
   "snippets.editor.closeEsc": "Chiudi (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "Solo lettere, numeri, - e _",
   "snippets.editor.triggerExistsError": "Questo trigger esiste già",
   "snippets.editor.syntaxPlainText": "Testo semplice",
-
   "vault.emptyState.title": "Nessun elemento nel vault",
   "vault.emptyState.description": "Aggiunga il Suo primo elemento protetto",
   "vault.noResults.description": "Nessun elemento corrisponde ai filtri",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" verrà eliminato definitivamente. Questa azione non può essere annullata.",
   "vault.reveal": "Mostra",
   "vault.hide": "Nascondi",
-
   "vault.type.card": "Carta",
   "vault.type.bank": "Banca",
   "vault.type.address": "Indirizzo",
   "vault.type.personal": "Personale",
   "vault.type.company": "Azienda",
   "vault.type.code": "Codice",
-
   "vault.lock.title": "Vault bloccato",
   "vault.lock.tooManyAttempts": "Troppi tentativi",
   "vault.lock.enterPassword": "Inserisca la password principale per sbloccare",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "Password errata",
   "vault.lock.tooManyAttemptsError": "Troppi tentativi",
   "vault.lock.failedAttempts": "{{count}} tentativi falliti",
-
   "vault.dialog.newTitle": "Nuovo elemento vault",
   "vault.dialog.editTitle": "Modifica elemento vault",
   "vault.dialog.titleLabel": "Titolo",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "Salva nel vault",
   "vault.dialog.suffixFormatError": "Solo lettere, numeri, - e _",
   "vault.dialog.triggerExistsError": "Questo trigger esiste già",
-
   "vault.dialog.card.cardholderName": "Nome titolare",
   "vault.dialog.card.cardNumber": "Numero carta",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "Mese",
   "vault.dialog.card.year": "Anno",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "Nome banca",
   "vault.dialog.bank.accountHolder": "Titolare del conto",
-
   "vault.dialog.address.street": "Via",
   "vault.dialog.address.line2": "Indirizzo riga 2 (facoltativo)",
   "vault.dialog.address.line2Placeholder": "Interno, scala, piano",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "Provincia / Regione (facoltativo)",
   "vault.dialog.address.postalCode": "CAP (facoltativo)",
   "vault.dialog.address.country": "Paese",
-
   "vault.dialog.personal.firstName": "Nome",
   "vault.dialog.personal.lastName": "Cognome",
   "vault.dialog.personal.email": "Email (facoltativo)",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "Giorno",
   "vault.dialog.personal.month": "Mese",
   "vault.dialog.personal.year": "Anno",
-
   "vault.dialog.company.companyName": "Nome azienda",
   "vault.dialog.company.taxId": "Codice fiscale / P.IVA (facoltativo)",
   "vault.dialog.company.registrationNumber": "N. registrazione (facoltativo)",
   "vault.dialog.company.website": "Sito web (facoltativo)",
   "vault.dialog.company.websitePlaceholder": "https://esempio.com",
-
   "vault.dialog.code.codePin": "Codice / PIN",
   "vault.dialog.code.notes": "Note (facoltativo)",
-
   "settings.language.label": "Lingua",
   "settings.language.system": "Sistema",
-
   "settings.theme.label": "Tema",
   "settings.theme.light": "Chiaro",
   "settings.theme.dark": "Scuro",
   "settings.theme.system": "Sistema",
-
   "settings.historyLimit.label": "Limite cronologia",
-
   "settings.autoLock.label": "Blocco automatico vault",
   "settings.autoLock.1min": "1 minuto",
   "settings.autoLock.5min": "5 minuti",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "Elimina gli elementi non fissati alla chiusura",
   "settings.toggle.snippetAutoExpand": "Espansione automatica snippet",
   "settings.toggle.snippetAutoExpandDesc": "Digitando un trigger, lo snippet viene incollato automaticamente",
-
   "settings.autoCommands.label": "Comandi automatici",
   "settings.autoCommands.addRule": "Aggiungi regola",
   "settings.autoCommands.description": "Trasforma automaticamente il contenuto degli appunti quando viene rilevato un formato specifico.",
   "settings.autoCommands.empty": "Nessun comando automatico configurato",
-
   "settings.expiration.label": "Elimina automaticamente i vecchi elementi",
   "settings.expiration.never": "Mai",
   "settings.expiration.after7": "Dopo 7 giorni",
   "settings.expiration.after14": "Dopo 14 giorni",
   "settings.expiration.after30": "Dopo 30 giorni",
   "settings.expiration.after90": "Dopo 90 giorni",
-
   "settings.shortcut.label": "Scorciatoia globale",
   "settings.shortcut.recording": "Prema la scorciatoia...",
   "settings.shortcut.cancelHint": "Prema ESC per annullare",
   "settings.shortcut.recordHint": "Clicchi per registrare una nuova scorciatoia",
-
   "settings.ignoredApps.label": "App ignorate",
   "settings.ignoredApps.description": "Gli appunti di queste app non verranno acquisiti",
   "settings.ignoredApps.addApp": "Aggiungi app",
   "settings.ignoredApps.close": "Chiudi",
   "settings.ignoredApps.searchPlaceholder": "Cerca app...",
   "settings.ignoredApps.noApps": "Nessuna app trovata",
-
   "settings.ai.label": "Funzioni AI",
   "settings.ai.consentGranted": "Consenso AI concesso",
   "settings.ai.consentRequired": "Consenso AI richiesto",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... o sk-...",
   "settings.ai.apiKeyStoredLocally": "La API key è memorizzata localmente e non viene inviata a nessuno tranne il provider.",
   "settings.ai.sensitiveBlocked": "Le azioni AI sono bloccate per gli elementi contenenti dati sensibili. Prima dell'invio dei dati viene mostrata una conferma.",
-
   "settings.dataManagement.label": "Gestione dati",
   "settings.dataManagement.selectSections": "Selezioni le sezioni da esportare",
   "settings.dataManagement.export": "Esporta",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "Cronologia",
   "settings.dataManagement.snippets": "Snippet",
   "settings.dataManagement.vault": "Vault",
-
   "settings.privacy.label": "Privacy e segnalazioni",
   "settings.privacy.autoErrorReporting": "Segnalazione errori automatica",
   "settings.privacy.autoErrorReportingDesc": "Invia automaticamente i rapporti sugli arresti anomali",
   "settings.privacy.reportIssue": "Segnala un problema / Invia feedback",
   "settings.privacy.privacyPolicy": "Informativa sulla privacy",
   "settings.privacy.termsOfUse": "Condizioni d'uso",
-
   "settings.about.label": "Informazioni",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "Gestore appunti multipiattaforma",
-
   "ai.summarize": "Riassumi",
   "ai.fixGrammar": "Correggi grammatica",
   "ai.translate": "Traduci",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} ha rifiutato la richiesta: {{message}}",
   "ai.error.generic": "Errore {{provider}}: {{message}}",
   "ai.error.apiError": "Errore API {{provider}} ({{status}}). Riprovi più tardi.",
-
   "ai.consent.title": "Consenso al trattamento dati AI",
   "ai.consent.warningBanner": "Le funzioni AI richiedono l'invio del contenuto degli appunti a server esterni. Legga attentamente prima di procedere.",
   "ai.consent.whatHappensTitle": "Cosa succede quando si utilizzano le funzioni AI",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "Accetto — Attiva AI",
   "ai.consent.error.serverFailed": "Impossibile registrare il Suo consenso sul server. Verifichi la connessione internet e riprovi.",
   "ai.consent.error.generic": "Si è verificato un errore: {{error}}. Riprovi.",
-
   "transforms.base64Encode": "Codifica Base64",
   "transforms.urlEncode": "Codifica URL",
   "transforms.htmlEscape": "Escape HTML",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "A capo automatico (80)",
   "transforms.shuffleLines": "Mescola righe",
   "transforms.countStats": "Statistiche",
-
   "preview.compare": "Confronta",
   "preview.view": "Visualizza",
   "preview.image": "Immagine",
@@ -356,23 +321,19 @@
   "preview.recommended": "Consigliati",
   "preview.other": "Altro",
   "preview.noTransformsMatch": "Nessuna trasformazione per \"{{query}}\"",
-
   "preview.unableToLoadImage": "Impossibile caricare l'immagine",
   "preview.imagePixels": "{{width}} × {{height}} pixel",
   "preview.stats.lines": "{{count}} righe",
   "preview.stats.words": "{{count}} parole",
   "preview.stats.chars": "{{count}} caratteri",
-
   "search.history": "Cerca elementi...",
   "search.snippets": "Cerca snippet...",
   "search.vault": "Cerca nel vault...",
   "search.settings": "Cerca impostazioni...",
-
   "sidebar.history": "Cronologia",
   "sidebar.snippets": "Snippet",
   "sidebar.vault": "Vault",
   "sidebar.settings": "Impostazioni",
-
   "hintBar.nav": "naviga",
   "hintBar.paste": "incolla",
   "hintBar.queue": "Coda",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "Selezioni il secondo elemento",
   "hintBar.clickToAddToQueue": "Clicchi sugli elementi per aggiungerli alla coda",
   "hintBar.itemsSelected": "{{count}} elementi selezionati",
-
   "onboarding.welcome": "Benvenuto in QlipLab",
   "onboarding.hint.copyAnything": "Copi qualsiasi cosa — apparirà qui",
   "onboarding.hint.enterToPaste": "Invio per incollare nell'app precedente",
   "onboarding.hint.arrowKeys": "Frecce per navigare",
   "onboarding.hint.optionD": "Option+D per confrontare due elementi",
-
   "feedback.title": "Segnala un problema",
   "feedback.issueType": "Tipo di problema",
   "feedback.type.bug": "Bug",
@@ -416,7 +375,6 @@
   "feedback.success.title": "Problema segnalato!",
   "feedback.success.thanks": "Grazie per il Suo feedback.",
   "feedback.success.viewOnGithub": "Visualizza su GitHub",
-
   "legal.eula.title": "Accordo di licenza",
   "legal.eula.subtitle": "Legga e accetti per continuare",
   "legal.eula.scrollHint": "Scorra fino in fondo per attivare il pulsante Accetta",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "Accetto",
   "legal.eula.error.serverFailed": "Impossibile registrare la Sua accettazione sul server. Verifichi la connessione internet e riprovi.",
   "legal.eula.error.generic": "Si è verificato un errore: {{error}}. Riprovi.",
-
   "errors.somethingWentWrong": "Qualcosa è andato storto",
   "errors.unexpectedError": "Si è verificato un errore imprevisto",
   "errors.tryAgain": "Riprova",
-
   "errorReporting.optIn.title": "Aiuta a migliorare qliplab",
   "errorReporting.optIn.description": "Desideri inviare automaticamente rapporti sugli errori per aiutarci a correggere i bug?",
   "errorReporting.optIn.whatWeCollect": "Cosa raccogliamo:",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "No grazie",
   "errorReporting.optIn.enable": "Attiva segnalazioni",
   "privacy.title": "Informativa sulla privacy",
-
   "license.status.free": "Gratuito",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (Accesso completo)",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "L'acquisto è stato annullato",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "Grazie per aver supportato QlipLab!",
-  "license.premium.purchaseDate": "Acquistato il {{date}}"
+  "license.premium.purchaseDate": "Acquistato il {{date}}",
+  "onboarding.hint.altD": "Alt+D per confrontare due elementi",
+  "vault.lock.createTitle": "Crea password cassaforte",
+  "vault.lock.createDescription": "Scegli una password per proteggere i tuoi dati sensibili",
+  "vault.lock.createButton": "Crea password"
 }

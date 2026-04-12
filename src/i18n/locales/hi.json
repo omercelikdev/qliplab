@@ -24,12 +24,10 @@
   "common.revoke": "वापस लें",
   "common.reviewAndAccept": "समीक्षा करें और स्वीकार करें",
   "common.recording": "रिकॉर्ड हो रहा है...",
-
   "common.timeNow": "अभी",
   "common.timeMinutes": "{{count}}मि",
   "common.timeHours": "{{count}}घं",
   "common.timeDays": "{{count}}दि",
-
   "common.filter.all": "सभी",
   "common.filter.pinned": "पिन किए गए",
   "common.filter.favorites": "पसंदीदा",
@@ -44,7 +42,6 @@
   "common.filter.address": "पता",
   "common.filter.personal": "व्यक्तिगत",
   "common.filter.company": "कंपनी",
-
   "history.emptyState.title": "अभी तक कोई क्लिप नहीं",
   "history.emptyState.description": "शुरू करने के लिए कुछ कॉपी करें। आपकी क्लिपबोर्ड हिस्ट्री यहाँ दिखाई देगी।",
   "history.noResults.description": "आपके फ़िल्टर से कोई आइटम मेल नहीं खाता",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "कार्रवाइयाँ (राइट-क्लिक)",
   "history.deleteTitle": "क्लिप हटाएँ",
   "history.deleteMessage": "यह आइटम स्थायी रूप से हटा दिया जाएगा।",
-
   "history.menu.copy": "कॉपी",
   "history.menu.copyHtml": "HTML कॉपी करें",
   "history.menu.pastePlain": "सादा पेस्ट",
@@ -68,26 +64,21 @@
   "history.menu.pin": "पिन करें",
   "history.menu.unpin": "अनपिन करें",
   "history.menu.delete": "हटाएँ",
-
   "history.tags.label": "टैग",
   "history.tags.newTag": "नया टैग",
   "history.tags.placeholder": "टैग का नाम...",
   "history.tags.deleteFromAll": "सभी आइटम से टैग हटाएँ",
-
   "history.ocrTitle": "OCR टेक्स्ट",
   "history.ocrNoText": "(कोई टेक्स्ट नहीं मिला)",
   "history.ocrFailed": "OCR विफल: {{error}}",
-
   "history.aiConfirm": "इस सामग्री को प्रोसेसिंग के लिए {{provider}} को भेजें?\n\nअगर इसमें संवेदनशील डेटा है तो आगे न बढ़ें।",
   "history.aiProcessing": "प्रोसेस हो रहा है...",
-
   "snippets.emptyState.title": "अभी तक कोई स्निपेट नहीं",
   "snippets.emptyState.description": "शुरू करने के लिए अपना पहला स्निपेट बनाएँ",
   "snippets.noResults.description": "आपकी खोज से कोई स्निपेट मेल नहीं खाता",
   "snippets.newSnippet": "नया स्निपेट",
   "snippets.deleteTitle": "स्निपेट हटाएँ",
   "snippets.deleteMessage": "\"{{title}}\" स्थायी रूप से हटा दिया जाएगा।",
-
   "snippets.editor.newSnippet": "नया स्निपेट",
   "snippets.editor.editSnippet": "स्निपेट संपादित करें",
   "snippets.editor.closeEsc": "बंद करें (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "केवल अक्षर, संख्याएँ, - और _",
   "snippets.editor.triggerExistsError": "यह ट्रिगर पहले से मौजूद है",
   "snippets.editor.syntaxPlainText": "सादा टेक्स्ट",
-
   "vault.emptyState.title": "कोई वॉल्ट आइटम नहीं",
   "vault.emptyState.description": "अपना पहला सुरक्षित आइटम जोड़ें",
   "vault.noResults.description": "आपके फ़िल्टर से कोई आइटम मेल नहीं खाता",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" स्थायी रूप से हटा दिया जाएगा। यह पूर्ववत नहीं किया जा सकता।",
   "vault.reveal": "दिखाएँ",
   "vault.hide": "छुपाएँ",
-
   "vault.type.card": "कार्ड",
   "vault.type.bank": "बैंक",
   "vault.type.address": "पता",
   "vault.type.personal": "व्यक्तिगत",
   "vault.type.company": "कंपनी",
   "vault.type.code": "कोड",
-
   "vault.lock.title": "वॉल्ट लॉक है",
   "vault.lock.tooManyAttempts": "बहुत अधिक प्रयास",
   "vault.lock.enterPassword": "अनलॉक करने के लिए मास्टर पासवर्ड दर्ज करें",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "गलत पासवर्ड",
   "vault.lock.tooManyAttemptsError": "बहुत अधिक प्रयास",
   "vault.lock.failedAttempts": "{{count}} असफल प्रयास",
-
   "vault.dialog.newTitle": "नया वॉल्ट आइटम",
   "vault.dialog.editTitle": "वॉल्ट आइटम संपादित करें",
   "vault.dialog.titleLabel": "शीर्षक",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "वॉल्ट में सहेजें",
   "vault.dialog.suffixFormatError": "केवल अक्षर, संख्याएँ, - और _ की अनुमति है",
   "vault.dialog.triggerExistsError": "यह ट्रिगर पहले से मौजूद है",
-
   "vault.dialog.card.cardholderName": "कार्डधारक का नाम",
   "vault.dialog.card.cardNumber": "कार्ड नंबर",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "महीना",
   "vault.dialog.card.year": "वर्ष",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "बैंक का नाम",
   "vault.dialog.bank.accountHolder": "खाताधारक",
-
   "vault.dialog.address.street": "गली",
   "vault.dialog.address.line2": "पता पंक्ति 2 (वैकल्पिक)",
   "vault.dialog.address.line2Placeholder": "अपार्टमेंट, सुइट, मंज़िल",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "राज्य / प्रांत (वैकल्पिक)",
   "vault.dialog.address.postalCode": "पिन कोड (वैकल्पिक)",
   "vault.dialog.address.country": "देश",
-
   "vault.dialog.personal.firstName": "पहला नाम",
   "vault.dialog.personal.lastName": "उपनाम",
   "vault.dialog.personal.email": "ईमेल (वैकल्पिक)",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "दिन",
   "vault.dialog.personal.month": "महीना",
   "vault.dialog.personal.year": "वर्ष",
-
   "vault.dialog.company.companyName": "कंपनी का नाम",
   "vault.dialog.company.taxId": "Tax ID (वैकल्पिक)",
   "vault.dialog.company.registrationNumber": "पंजीकरण सं. (वैकल्पिक)",
   "vault.dialog.company.website": "वेबसाइट (वैकल्पिक)",
   "vault.dialog.company.websitePlaceholder": "https://example.com",
-
   "vault.dialog.code.codePin": "कोड / PIN",
   "vault.dialog.code.notes": "नोट्स (वैकल्पिक)",
-
   "settings.language.label": "भाषा",
   "settings.language.system": "सिस्टम",
-
   "settings.theme.label": "थीम",
   "settings.theme.light": "लाइट",
   "settings.theme.dark": "डार्क",
   "settings.theme.system": "सिस्टम",
-
   "settings.historyLimit.label": "हिस्ट्री सीमा",
-
   "settings.autoLock.label": "वॉल्ट ऑटो-लॉक",
   "settings.autoLock.1min": "1 मिनट",
   "settings.autoLock.5min": "5 मिनट",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "बंद करने पर बिना पिन किए आइटम हटाएँ",
   "settings.toggle.snippetAutoExpand": "स्निपेट ऑटो-एक्सपैंड",
   "settings.toggle.snippetAutoExpandDesc": "कहीं भी ट्रिगर टाइप करके स्निपेट ऑटो-पेस्ट करें",
-
   "settings.autoCommands.label": "ऑटो-कमांड",
   "settings.autoCommands.addRule": "नियम जोड़ें",
   "settings.autoCommands.description": "जब कोई विशेष फ़ॉर्मैट पहचाना जाए तो क्लिपबोर्ड सामग्री को स्वचालित रूप से रूपांतरित करें।",
   "settings.autoCommands.empty": "कोई ऑटो-कमांड कॉन्फ़िगर नहीं है",
-
   "settings.expiration.label": "पुरानी क्लिप स्वचालित हटाएँ",
   "settings.expiration.never": "कभी नहीं",
   "settings.expiration.after7": "7 दिन बाद",
   "settings.expiration.after14": "14 दिन बाद",
   "settings.expiration.after30": "30 दिन बाद",
   "settings.expiration.after90": "90 दिन बाद",
-
   "settings.shortcut.label": "ग्लोबल शॉर्टकट",
   "settings.shortcut.recording": "शॉर्टकट दबाएँ...",
   "settings.shortcut.cancelHint": "रद्द करने के लिए ESC दबाएँ",
   "settings.shortcut.recordHint": "नया शॉर्टकट रिकॉर्ड करने के लिए क्लिक करें",
-
   "settings.ignoredApps.label": "उपेक्षित ऐप्स",
   "settings.ignoredApps.description": "इन ऐप्स से क्लिपबोर्ड कैप्चर नहीं होगा",
   "settings.ignoredApps.addApp": "ऐप जोड़ें",
   "settings.ignoredApps.close": "बंद करें",
   "settings.ignoredApps.searchPlaceholder": "ऐप्स खोजें...",
   "settings.ignoredApps.noApps": "कोई ऐप नहीं मिला",
-
   "settings.ai.label": "AI सुविधाएँ",
   "settings.ai.consentGranted": "AI सहमति प्रदान की गई",
   "settings.ai.consentRequired": "AI सहमति आवश्यक है",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... या sk-...",
   "settings.ai.apiKeyStoredLocally": "API Key केवल स्थानीय रूप से सहेजी जाती है और प्रदाता के अलावा कहीं नहीं भेजी जाती।",
   "settings.ai.sensitiveBlocked": "संवेदनशील डेटा वाले आइटम पर AI क्रियाएँ अवरुद्ध हैं। कोई भी डेटा भेजने से पहले पुष्टि माँगी जाती है।",
-
   "settings.dataManagement.label": "डेटा प्रबंधन",
   "settings.dataManagement.selectSections": "एक्सपोर्ट के लिए अनुभाग चुनें",
   "settings.dataManagement.export": "एक्सपोर्ट",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "हिस्ट्री",
   "settings.dataManagement.snippets": "स्निपेट",
   "settings.dataManagement.vault": "वॉल्ट",
-
   "settings.privacy.label": "गोपनीयता और रिपोर्टिंग",
   "settings.privacy.autoErrorReporting": "स्वचालित त्रुटि रिपोर्टिंग",
   "settings.privacy.autoErrorReportingDesc": "क्रैश रिपोर्ट स्वचालित रूप से भेजें",
   "settings.privacy.reportIssue": "समस्या रिपोर्ट करें / फ़ीडबैक भेजें",
   "settings.privacy.privacyPolicy": "गोपनीयता नीति",
   "settings.privacy.termsOfUse": "उपयोग की शर्तें",
-
   "settings.about.label": "ऐप के बारे में",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "क्रॉस-प्लेटफ़ॉर्म क्लिपबोर्ड मैनेजर",
-
   "ai.summarize": "सारांश",
   "ai.fixGrammar": "व्याकरण सुधारें",
   "ai.translate": "अनुवाद करें",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} ने अनुरोध अस्वीकार किया: {{message}}",
   "ai.error.generic": "{{provider}} त्रुटि: {{message}}",
   "ai.error.apiError": "{{provider}} API त्रुटि ({{status}})। कृपया बाद में पुनः प्रयास करें।",
-
   "ai.consent.title": "AI डेटा प्रोसेसिंग सहमति",
   "ai.consent.warningBanner": "AI सुविधाओं के लिए आपकी क्लिपबोर्ड सामग्री बाहरी सर्वर पर भेजनी होती है। कृपया आगे बढ़ने से पहले ध्यान से पढ़ें।",
   "ai.consent.whatHappensTitle": "AI सुविधाएँ इस्तेमाल करने पर क्या होता है",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "मैं स्वीकार करता/करती हूँ — AI सक्रिय करें",
   "ai.consent.error.serverFailed": "हमारे सर्वर पर आपकी सहमति रिकॉर्ड नहीं हो सकी। कृपया अपना इंटरनेट कनेक्शन जाँचें और पुनः प्रयास करें।",
   "ai.consent.error.generic": "एक त्रुटि हुई: {{error}}। कृपया पुनः प्रयास करें।",
-
   "transforms.base64Encode": "Base64 एन्कोड",
   "transforms.urlEncode": "URL एन्कोड",
   "transforms.htmlEscape": "HTML एस्केप",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "शब्द रैप (80)",
   "transforms.shuffleLines": "पंक्तियाँ शफ़ल करें",
   "transforms.countStats": "गणना आँकड़े",
-
   "preview.compare": "तुलना करें",
   "preview.view": "देखें",
   "preview.image": "छवि",
@@ -356,23 +321,19 @@
   "preview.recommended": "अनुशंसित",
   "preview.other": "अन्य",
   "preview.noTransformsMatch": "\"{{query}}\" से कोई रूपांतरण मेल नहीं खाता",
-
   "preview.unableToLoadImage": "छवि लोड नहीं हो सकी",
   "preview.imagePixels": "{{width}} × {{height}} पिक्सल",
   "preview.stats.lines": "{{count}} पंक्तियाँ",
   "preview.stats.words": "{{count}} शब्द",
   "preview.stats.chars": "{{count}} अक्षर",
-
   "search.history": "क्लिप खोजें...",
   "search.snippets": "स्निपेट खोजें...",
   "search.vault": "वॉल्ट में खोजें...",
   "search.settings": "सेटिंग्स खोजें...",
-
   "sidebar.history": "हिस्ट्री",
   "sidebar.snippets": "स्निपेट",
   "sidebar.vault": "वॉल्ट",
   "sidebar.settings": "सेटिंग्स",
-
   "hintBar.nav": "नेविगेट",
   "hintBar.paste": "पेस्ट",
   "hintBar.queue": "कतार",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "दूसरा आइटम चुनें",
   "hintBar.clickToAddToQueue": "कतार में जोड़ने के लिए आइटम पर क्लिक करें",
   "hintBar.itemsSelected": "{{count}} आइटम चुने गए",
-
   "onboarding.welcome": "QlipLab में आपका स्वागत है",
   "onboarding.hint.copyAnything": "कुछ भी कॉपी करें — यह यहाँ दिखेगा",
   "onboarding.hint.enterToPaste": "पिछले ऐप में पेस्ट करने के लिए Enter दबाएँ",
   "onboarding.hint.arrowKeys": "नेविगेट करने के लिए Arrow Keys",
   "onboarding.hint.optionD": "दो आइटम की तुलना के लिए Option+D",
-
   "feedback.title": "समस्या रिपोर्ट करें",
   "feedback.issueType": "समस्या प्रकार",
   "feedback.type.bug": "बग",
@@ -416,7 +375,6 @@
   "feedback.success.title": "समस्या रिपोर्ट हो गई!",
   "feedback.success.thanks": "आपकी प्रतिक्रिया के लिए धन्यवाद।",
   "feedback.success.viewOnGithub": "GitHub पर देखें",
-
   "legal.eula.title": "लाइसेंस अनुबंध",
   "legal.eula.subtitle": "जारी रखने के लिए कृपया पढ़ें और स्वीकार करें",
   "legal.eula.scrollHint": "स्वीकार बटन सक्रिय करने के लिए अंत तक स्क्रॉल करें",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "मैं स्वीकार करता/करती हूँ",
   "legal.eula.error.serverFailed": "हमारे सर्वर पर आपकी स्वीकृति रिकॉर्ड नहीं हो सकी। कृपया अपना इंटरनेट कनेक्शन जाँचें और पुनः प्रयास करें।",
   "legal.eula.error.generic": "एक त्रुटि हुई: {{error}}। कृपया पुनः प्रयास करें।",
-
   "errors.somethingWentWrong": "कुछ गलत हो गया",
   "errors.unexpectedError": "एक अनपेक्षित त्रुटि हुई",
   "errors.tryAgain": "फिर से कोशिश करें",
-
   "errorReporting.optIn.title": "qliplab को बेहतर बनाने में मदद करें",
   "errorReporting.optIn.description": "क्या आप बग ठीक करने में हमारी मदद के लिए स्वचालित रूप से क्रैश रिपोर्ट भेजना चाहेंगे?",
   "errorReporting.optIn.whatWeCollect": "हम क्या एकत्र करते हैं:",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "नहीं, धन्यवाद",
   "errorReporting.optIn.enable": "रिपोर्टिंग सक्षम करें",
   "privacy.title": "गोपनीयता नीति",
-
   "license.status.free": "मुफ़्त",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (पूर्ण एक्सेस)",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "खरीदारी रद्द कर दी गई",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "QlipLab का समर्थन करने के लिए धन्यवाद!",
-  "license.premium.purchaseDate": "{{date}} को खरीदा गया"
+  "license.premium.purchaseDate": "{{date}} को खरीदा गया",
+  "onboarding.hint.altD": "दो आइटम की तुलना के लिए Alt+D",
+  "vault.lock.createTitle": "वॉल्ट पासवर्ड बनाएं",
+  "vault.lock.createDescription": "अपने संवेदनशील डेटा की सुरक्षा के लिए पासवर्ड चुनें",
+  "vault.lock.createButton": "पासवर्ड बनाएं"
 }

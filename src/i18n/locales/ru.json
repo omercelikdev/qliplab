@@ -24,12 +24,10 @@
   "common.revoke": "Отозвать",
   "common.reviewAndAccept": "Просмотреть и принять",
   "common.recording": "Запись...",
-
   "common.timeNow": "сейчас",
   "common.timeMinutes": "{{count}}мин",
   "common.timeHours": "{{count}}ч",
   "common.timeDays": "{{count}}д",
-
   "common.filter.all": "Все",
   "common.filter.pinned": "Закреплённые",
   "common.filter.favorites": "Избранное",
@@ -44,7 +42,6 @@
   "common.filter.address": "Адрес",
   "common.filter.personal": "Личное",
   "common.filter.company": "Компания",
-
   "history.emptyState.title": "Записей пока нет",
   "history.emptyState.description": "Скопируйте что-нибудь для начала. История буфера обмена появится здесь.",
   "history.noResults.description": "Нет элементов, соответствующих фильтрам",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "Действия (правый клик)",
   "history.deleteTitle": "Удалить запись",
   "history.deleteMessage": "Этот элемент будет удалён безвозвратно.",
-
   "history.menu.copy": "Копировать",
   "history.menu.copyHtml": "Копировать HTML",
   "history.menu.pastePlain": "Вставить как текст",
@@ -68,26 +64,21 @@
   "history.menu.pin": "Закрепить",
   "history.menu.unpin": "Открепить",
   "history.menu.delete": "Удалить",
-
   "history.tags.label": "Теги",
   "history.tags.newTag": "Новый тег",
   "history.tags.placeholder": "Название тега...",
   "history.tags.deleteFromAll": "Удалить тег из всех элементов",
-
   "history.ocrTitle": "OCR-текст",
   "history.ocrNoText": "(Текст не обнаружен)",
   "history.ocrFailed": "Ошибка OCR: {{error}}",
-
   "history.aiConfirm": "Отправить это содержимое в {{provider}} для обработки?\n\nНЕ продолжайте, если содержимое включает конфиденциальные данные.",
   "history.aiProcessing": "Обработка...",
-
   "snippets.emptyState.title": "Сниппетов пока нет",
   "snippets.emptyState.description": "Создайте свой первый сниппет",
   "snippets.noResults.description": "Сниппеты не найдены",
   "snippets.newSnippet": "Новый сниппет",
   "snippets.deleteTitle": "Удалить сниппет",
   "snippets.deleteMessage": "\"{{title}}\" будет удалён безвозвратно.",
-
   "snippets.editor.newSnippet": "Новый сниппет",
   "snippets.editor.editSnippet": "Редактировать сниппет",
   "snippets.editor.closeEsc": "Закрыть (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "Только буквы, цифры, - и _",
   "snippets.editor.triggerExistsError": "Такой триггер уже существует",
   "snippets.editor.syntaxPlainText": "Обычный текст",
-
   "vault.emptyState.title": "В хранилище пусто",
   "vault.emptyState.description": "Добавьте первый защищённый элемент",
   "vault.noResults.description": "Нет элементов, соответствующих фильтрам",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" будет удалён безвозвратно. Это действие нельзя отменить.",
   "vault.reveal": "Показать",
   "vault.hide": "Скрыть",
-
   "vault.type.card": "Карта",
   "vault.type.bank": "Банк",
   "vault.type.address": "Адрес",
   "vault.type.personal": "Личное",
   "vault.type.company": "Компания",
   "vault.type.code": "Код",
-
   "vault.lock.title": "Хранилище заблокировано",
   "vault.lock.tooManyAttempts": "Слишком много попыток",
   "vault.lock.enterPassword": "Введите мастер-пароль для разблокировки",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "Неверный пароль",
   "vault.lock.tooManyAttemptsError": "Слишком много попыток",
   "vault.lock.failedAttempts": "Неудачных попыток: {{count}}",
-
   "vault.dialog.newTitle": "Новый элемент",
   "vault.dialog.editTitle": "Редактировать элемент",
   "vault.dialog.titleLabel": "Название",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "Сохранить в хранилище",
   "vault.dialog.suffixFormatError": "Только буквы, цифры, - и _",
   "vault.dialog.triggerExistsError": "Такой триггер уже существует",
-
   "vault.dialog.card.cardholderName": "Имя владельца",
   "vault.dialog.card.cardNumber": "Номер карты",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "Месяц",
   "vault.dialog.card.year": "Год",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "Название банка",
   "vault.dialog.bank.accountHolder": "Владелец счёта",
-
   "vault.dialog.address.street": "Улица",
   "vault.dialog.address.line2": "Строка адреса 2 (необязательно)",
   "vault.dialog.address.line2Placeholder": "Квартира, корпус, этаж",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "Область / регион (необязательно)",
   "vault.dialog.address.postalCode": "Почтовый индекс (необязательно)",
   "vault.dialog.address.country": "Страна",
-
   "vault.dialog.personal.firstName": "Имя",
   "vault.dialog.personal.lastName": "Фамилия",
   "vault.dialog.personal.email": "Эл. почта (необязательно)",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "День",
   "vault.dialog.personal.month": "Месяц",
   "vault.dialog.personal.year": "Год",
-
   "vault.dialog.company.companyName": "Название компании",
   "vault.dialog.company.taxId": "ИНН (необязательно)",
   "vault.dialog.company.registrationNumber": "ОГРН (необязательно)",
   "vault.dialog.company.website": "Сайт (необязательно)",
   "vault.dialog.company.websitePlaceholder": "https://example.com",
-
   "vault.dialog.code.codePin": "Код / PIN",
   "vault.dialog.code.notes": "Заметки (необязательно)",
-
   "settings.language.label": "Язык",
   "settings.language.system": "Системный",
-
   "settings.theme.label": "Тема",
   "settings.theme.light": "Светлая",
   "settings.theme.dark": "Тёмная",
   "settings.theme.system": "Системная",
-
   "settings.historyLimit.label": "Лимит истории",
-
   "settings.autoLock.label": "Автоблокировка хранилища",
   "settings.autoLock.1min": "1 минута",
   "settings.autoLock.5min": "5 минут",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "Удалять незакреплённые элементы при закрытии",
   "settings.toggle.snippetAutoExpand": "Авторасширение сниппетов",
   "settings.toggle.snippetAutoExpandDesc": "Ввод триггера автоматически вставляет сниппет",
-
   "settings.autoCommands.label": "Автокоманды",
   "settings.autoCommands.addRule": "Добавить правило",
   "settings.autoCommands.description": "Автоматическое преобразование содержимого буфера обмена при обнаружении определённого формата.",
   "settings.autoCommands.empty": "Автокоманды не настроены",
-
   "settings.expiration.label": "Автоудаление старых записей",
   "settings.expiration.never": "Никогда",
   "settings.expiration.after7": "Через 7 дней",
   "settings.expiration.after14": "Через 14 дней",
   "settings.expiration.after30": "Через 30 дней",
   "settings.expiration.after90": "Через 90 дней",
-
   "settings.shortcut.label": "Глобальное сочетание клавиш",
   "settings.shortcut.recording": "Нажмите сочетание клавиш...",
   "settings.shortcut.cancelHint": "Нажмите ESC для отмены",
   "settings.shortcut.recordHint": "Нажмите, чтобы записать новое сочетание",
-
   "settings.ignoredApps.label": "Игнорируемые приложения",
   "settings.ignoredApps.description": "Буфер обмена этих приложений не будет захватываться",
   "settings.ignoredApps.addApp": "Добавить приложение",
   "settings.ignoredApps.close": "Закрыть",
   "settings.ignoredApps.searchPlaceholder": "Поиск приложений...",
   "settings.ignoredApps.noApps": "Приложения не найдены",
-
   "settings.ai.label": "Функции AI",
   "settings.ai.consentGranted": "Согласие на AI получено",
   "settings.ai.consentRequired": "Требуется согласие на AI",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... или sk-...",
   "settings.ai.apiKeyStoredLocally": "API-ключ хранится локально и не отправляется никуда, кроме провайдера.",
   "settings.ai.sensitiveBlocked": "AI-действия заблокированы для элементов с конфиденциальными данными. Перед отправкой данных отображается подтверждение.",
-
   "settings.dataManagement.label": "Управление данными",
   "settings.dataManagement.selectSections": "Выберите разделы для экспорта",
   "settings.dataManagement.export": "Экспорт",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "История",
   "settings.dataManagement.snippets": "Сниппеты",
   "settings.dataManagement.vault": "Хранилище",
-
   "settings.privacy.label": "Конфиденциальность и отчёты",
   "settings.privacy.autoErrorReporting": "Автоматические отчёты об ошибках",
   "settings.privacy.autoErrorReportingDesc": "Автоматическая отправка отчётов о сбоях",
   "settings.privacy.reportIssue": "Сообщить о проблеме / Обратная связь",
   "settings.privacy.privacyPolicy": "Политика конфиденциальности",
   "settings.privacy.termsOfUse": "Условия использования",
-
   "settings.about.label": "О приложении",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "Кроссплатформенный менеджер буфера обмена",
-
   "ai.summarize": "Резюмировать",
   "ai.fixGrammar": "Исправить грамматику",
   "ai.translate": "Перевести",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} отклонил запрос: {{message}}",
   "ai.error.generic": "Ошибка {{provider}}: {{message}}",
   "ai.error.apiError": "Ошибка API {{provider}} ({{status}}). Попробуйте позже.",
-
   "ai.consent.title": "Согласие на обработку данных AI",
   "ai.consent.warningBanner": "Функции AI требуют отправки содержимого буфера обмена на внешние серверы. Пожалуйста, внимательно прочитайте перед продолжением.",
   "ai.consent.whatHappensTitle": "Что происходит при использовании функций AI",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "Принимаю — Включить AI",
   "ai.consent.error.serverFailed": "Не удалось записать ваше согласие на сервере. Проверьте подключение к интернету и попробуйте снова.",
   "ai.consent.error.generic": "Произошла ошибка: {{error}}. Попробуйте снова.",
-
   "transforms.base64Encode": "Base64 кодирование",
   "transforms.urlEncode": "URL кодирование",
   "transforms.htmlEscape": "HTML экранирование",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "Перенос слов (80)",
   "transforms.shuffleLines": "Перемешать строки",
   "transforms.countStats": "Статистика",
-
   "preview.compare": "Сравнить",
   "preview.view": "Просмотр",
   "preview.image": "Изображение",
@@ -356,23 +321,19 @@
   "preview.recommended": "Рекомендуемые",
   "preview.other": "Другие",
   "preview.noTransformsMatch": "Нет преобразований по запросу \"{{query}}\"",
-
   "preview.unableToLoadImage": "Не удалось загрузить изображение",
   "preview.imagePixels": "{{width}} × {{height}} пикселей",
   "preview.stats.lines": "{{count}} строк",
   "preview.stats.words": "{{count}} слов",
   "preview.stats.chars": "{{count}} символов",
-
   "search.history": "Поиск записей...",
   "search.snippets": "Поиск сниппетов...",
   "search.vault": "Поиск в хранилище...",
   "search.settings": "Поиск настроек...",
-
   "sidebar.history": "История",
   "sidebar.snippets": "Сниппеты",
   "sidebar.vault": "Хранилище",
   "sidebar.settings": "Настройки",
-
   "hintBar.nav": "навигация",
   "hintBar.paste": "вставить",
   "hintBar.queue": "Очередь",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "Выберите второй элемент",
   "hintBar.clickToAddToQueue": "Нажимайте на элементы для добавления в очередь",
   "hintBar.itemsSelected": "Выбрано элементов: {{count}}",
-
   "onboarding.welcome": "Добро пожаловать в QlipLab",
   "onboarding.hint.copyAnything": "Скопируйте что угодно — оно появится здесь",
   "onboarding.hint.enterToPaste": "Enter — вставить в предыдущее приложение",
   "onboarding.hint.arrowKeys": "Стрелки для навигации",
   "onboarding.hint.optionD": "Option+D — сравнить два элемента",
-
   "feedback.title": "Сообщить о проблеме",
   "feedback.issueType": "Тип проблемы",
   "feedback.type.bug": "Ошибка",
@@ -416,7 +375,6 @@
   "feedback.success.title": "Проблема отправлена!",
   "feedback.success.thanks": "Спасибо за ваш отзыв.",
   "feedback.success.viewOnGithub": "Посмотреть на GitHub",
-
   "legal.eula.title": "Лицензионное соглашение",
   "legal.eula.subtitle": "Пожалуйста, прочитайте и примите для продолжения",
   "legal.eula.scrollHint": "Прокрутите до конца, чтобы активировать кнопку «Принять»",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "Принимаю",
   "legal.eula.error.serverFailed": "Не удалось записать ваше согласие на сервере. Проверьте подключение к интернету и попробуйте снова.",
   "legal.eula.error.generic": "Произошла ошибка: {{error}}. Попробуйте снова.",
-
   "errors.somethingWentWrong": "Что-то пошло не так",
   "errors.unexpectedError": "Произошла непредвиденная ошибка",
   "errors.tryAgain": "Повторить",
-
   "errorReporting.optIn.title": "Помогите улучшить qliplab",
   "errorReporting.optIn.description": "Хотите автоматически отправлять отчёты об ошибках, чтобы помочь нам исправлять баги?",
   "errorReporting.optIn.whatWeCollect": "Что мы собираем:",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "Нет, спасибо",
   "errorReporting.optIn.enable": "Включить отчёты",
   "privacy.title": "Политика конфиденциальности",
-
   "license.status.free": "Бесплатно",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta (Полный доступ)",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "Покупка была отменена",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "Спасибо за поддержку QlipLab!",
-  "license.premium.purchaseDate": "Приобретено {{date}}"
+  "license.premium.purchaseDate": "Приобретено {{date}}",
+  "onboarding.hint.altD": "Alt+D — сравнить два элемента",
+  "vault.lock.createTitle": "Создать пароль хранилища",
+  "vault.lock.createDescription": "Выберите пароль для защиты конфиденциальных данных",
+  "vault.lock.createButton": "Создать пароль"
 }

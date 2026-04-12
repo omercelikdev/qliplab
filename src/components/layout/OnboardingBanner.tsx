@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { X, Clipboard, ArrowUpDown, Keyboard, GitCompare } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settingsStore';
 
+const isMac = navigator.platform.toUpperCase().includes('MAC');
+
 export function OnboardingBanner() {
   const { settings, updateSetting } = useSettingsStore();
   const { t } = useTranslation();
@@ -10,6 +12,7 @@ export function OnboardingBanner() {
   if (settings.onboardingSeen) return null;
 
   const dismiss = () => updateSetting('onboardingSeen', true);
+  const diffKey = isMac ? t('onboarding.hint.optionD') : t('onboarding.hint.altD');
 
   return (
     <motion.div
@@ -25,7 +28,7 @@ export function OnboardingBanner() {
             <Hint icon={Clipboard} text={t('onboarding.hint.copyAnything')} />
             <Hint icon={Keyboard} text={t('onboarding.hint.enterToPaste')} />
             <Hint icon={ArrowUpDown} text={t('onboarding.hint.arrowKeys')} />
-            <Hint icon={GitCompare} text={t('onboarding.hint.optionD')} />
+            <Hint icon={GitCompare} text={diffKey} />
           </div>
         </div>
         <button

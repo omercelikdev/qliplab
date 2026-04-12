@@ -24,12 +24,10 @@
   "common.revoke": "撤销",
   "common.reviewAndAccept": "查看并接受",
   "common.recording": "录制中...",
-
   "common.timeNow": "刚刚",
   "common.timeMinutes": "{{count}}分钟",
   "common.timeHours": "{{count}}小时",
   "common.timeDays": "{{count}}天",
-
   "common.filter.all": "全部",
   "common.filter.pinned": "已置顶",
   "common.filter.favorites": "收藏",
@@ -44,7 +42,6 @@
   "common.filter.address": "地址",
   "common.filter.personal": "个人",
   "common.filter.company": "公司",
-
   "history.emptyState.title": "暂无剪贴内容",
   "history.emptyState.description": "复制内容即可开始使用，剪贴板历史将显示在这里。",
   "history.noResults.description": "没有匹配的项目",
@@ -59,7 +56,6 @@
   "history.actionsTooltip": "操作（右键点击）",
   "history.deleteTitle": "删除剪贴",
   "history.deleteMessage": "此项目将被永久删除。",
-
   "history.menu.copy": "复制",
   "history.menu.copyHtml": "复制 HTML",
   "history.menu.pastePlain": "粘贴纯文本",
@@ -68,26 +64,21 @@
   "history.menu.pin": "置顶",
   "history.menu.unpin": "取消置顶",
   "history.menu.delete": "删除",
-
   "history.tags.label": "标签",
   "history.tags.newTag": "新标签",
   "history.tags.placeholder": "标签名...",
   "history.tags.deleteFromAll": "从所有项目中删除此标签",
-
   "history.ocrTitle": "OCR 文本",
   "history.ocrNoText": "（未检测到文本）",
   "history.ocrFailed": "OCR 失败：{{error}}",
-
   "history.aiConfirm": "将此内容发送至 {{provider}} 进行处理？\n\n如包含敏感数据，请勿继续。",
   "history.aiProcessing": "处理中...",
-
   "snippets.emptyState.title": "暂无代码片段",
   "snippets.emptyState.description": "创建第一个代码片段以开始使用",
   "snippets.noResults.description": "没有匹配的代码片段",
   "snippets.newSnippet": "新建片段",
   "snippets.deleteTitle": "删除代码片段",
   "snippets.deleteMessage": "\"{{title}}\" 将被永久删除。",
-
   "snippets.editor.newSnippet": "新建片段",
   "snippets.editor.editSnippet": "编辑片段",
   "snippets.editor.closeEsc": "关闭 (Esc)",
@@ -99,7 +90,6 @@
   "snippets.editor.triggerFormatError": "仅允许字母、数字、- 和 _",
   "snippets.editor.triggerExistsError": "此触发词已存在",
   "snippets.editor.syntaxPlainText": "纯文本",
-
   "vault.emptyState.title": "暂无保险库项目",
   "vault.emptyState.description": "添加第一个安全项目",
   "vault.noResults.description": "没有匹配的项目",
@@ -110,14 +100,12 @@
   "vault.deleteMessage": "\"{{title}}\" 将被永久删除，此操作不可撤销。",
   "vault.reveal": "显示",
   "vault.hide": "隐藏",
-
   "vault.type.card": "银行卡",
   "vault.type.bank": "银行",
   "vault.type.address": "地址",
   "vault.type.personal": "个人",
   "vault.type.company": "公司",
   "vault.type.code": "密码",
-
   "vault.lock.title": "保险库已锁定",
   "vault.lock.tooManyAttempts": "尝试次数过多",
   "vault.lock.enterPassword": "输入主密码以解锁",
@@ -128,7 +116,6 @@
   "vault.lock.incorrectPassword": "密码错误",
   "vault.lock.tooManyAttemptsError": "尝试次数过多",
   "vault.lock.failedAttempts": "已失败 {{count}} 次",
-
   "vault.dialog.newTitle": "新建保险库项目",
   "vault.dialog.editTitle": "编辑保险库项目",
   "vault.dialog.titleLabel": "标题",
@@ -140,17 +127,14 @@
   "vault.dialog.saveToVault": "保存到保险库",
   "vault.dialog.suffixFormatError": "仅允许字母、数字、- 和 _",
   "vault.dialog.triggerExistsError": "此触发词已存在",
-
   "vault.dialog.card.cardholderName": "持卡人姓名",
   "vault.dialog.card.cardNumber": "卡号",
   "vault.dialog.card.cardNumberPlaceholder": "1234 5678 9012 3456",
   "vault.dialog.card.month": "月",
   "vault.dialog.card.year": "年",
   "vault.dialog.card.cvvPlaceholder": "123",
-
   "vault.dialog.bank.bankName": "银行名称",
   "vault.dialog.bank.accountHolder": "账户持有人",
-
   "vault.dialog.address.street": "街道",
   "vault.dialog.address.line2": "地址第二行（可选）",
   "vault.dialog.address.line2Placeholder": "公寓、套间、楼层",
@@ -158,7 +142,6 @@
   "vault.dialog.address.state": "省 / 州（可选）",
   "vault.dialog.address.postalCode": "邮编（可选）",
   "vault.dialog.address.country": "国家",
-
   "vault.dialog.personal.firstName": "名",
   "vault.dialog.personal.lastName": "姓",
   "vault.dialog.personal.email": "邮箱（可选）",
@@ -169,26 +152,20 @@
   "vault.dialog.personal.day": "日",
   "vault.dialog.personal.month": "月",
   "vault.dialog.personal.year": "年",
-
   "vault.dialog.company.companyName": "公司名称",
   "vault.dialog.company.taxId": "税号（可选）",
   "vault.dialog.company.registrationNumber": "注册号（可选）",
   "vault.dialog.company.website": "网站（可选）",
   "vault.dialog.company.websitePlaceholder": "https://example.com",
-
   "vault.dialog.code.codePin": "密码 / PIN",
   "vault.dialog.code.notes": "备注（可选）",
-
   "settings.language.label": "语言",
   "settings.language.system": "跟随系统",
-
   "settings.theme.label": "主题",
   "settings.theme.light": "浅色",
   "settings.theme.dark": "深色",
   "settings.theme.system": "跟随系统",
-
   "settings.historyLimit.label": "历史记录上限",
-
   "settings.autoLock.label": "保险库自动锁定",
   "settings.autoLock.1min": "1 分钟",
   "settings.autoLock.5min": "5 分钟",
@@ -204,31 +181,26 @@
   "settings.toggle.clearOnQuitDesc": "关闭时删除未置顶的项目",
   "settings.toggle.snippetAutoExpand": "片段自动展开",
   "settings.toggle.snippetAutoExpandDesc": "在任意位置输入触发词自动粘贴片段",
-
   "settings.autoCommands.label": "自动命令",
   "settings.autoCommands.addRule": "添加规则",
   "settings.autoCommands.description": "检测到特定格式时，自动转换剪贴板内容。",
   "settings.autoCommands.empty": "暂无自动命令",
-
   "settings.expiration.label": "自动删除旧剪贴",
   "settings.expiration.never": "从不",
   "settings.expiration.after7": "7 天后",
   "settings.expiration.after14": "14 天后",
   "settings.expiration.after30": "30 天后",
   "settings.expiration.after90": "90 天后",
-
   "settings.shortcut.label": "全局快捷键",
   "settings.shortcut.recording": "按下快捷键...",
   "settings.shortcut.cancelHint": "按 ESC 取消",
   "settings.shortcut.recordHint": "点击录制新快捷键",
-
   "settings.ignoredApps.label": "忽略的应用",
   "settings.ignoredApps.description": "不会捕获这些应用的剪贴板内容",
   "settings.ignoredApps.addApp": "添加应用",
   "settings.ignoredApps.close": "关闭",
   "settings.ignoredApps.searchPlaceholder": "搜索应用...",
   "settings.ignoredApps.noApps": "未找到应用",
-
   "settings.ai.label": "AI 功能",
   "settings.ai.consentGranted": "AI 已授权同意",
   "settings.ai.consentRequired": "需要 AI 使用授权",
@@ -237,7 +209,6 @@
   "settings.ai.apiKeyPlaceholder": "sk-ant-... 或 sk-...",
   "settings.ai.apiKeyStoredLocally": "API Key 仅存储在本地，除服务商外不会发送到任何地方。",
   "settings.ai.sensitiveBlocked": "包含敏感数据的项目将禁用 AI 操作。发送前会显示确认提示。",
-
   "settings.dataManagement.label": "数据管理",
   "settings.dataManagement.selectSections": "选择要导出的部分",
   "settings.dataManagement.export": "导出",
@@ -249,18 +220,15 @@
   "settings.dataManagement.history": "历史记录",
   "settings.dataManagement.snippets": "代码片段",
   "settings.dataManagement.vault": "保险库",
-
   "settings.privacy.label": "隐私与报告",
   "settings.privacy.autoErrorReporting": "自动错误报告",
   "settings.privacy.autoErrorReportingDesc": "自动发送崩溃报告",
   "settings.privacy.reportIssue": "报告问题 / 发送反馈",
   "settings.privacy.privacyPolicy": "隐私政策",
   "settings.privacy.termsOfUse": "使用条款",
-
   "settings.about.label": "关于",
   "settings.about.appName": "QlipLab",
   "settings.about.description": "跨平台剪贴板管理器",
-
   "ai.summarize": "总结",
   "ai.fixGrammar": "修正语法",
   "ai.translate": "翻译",
@@ -274,7 +242,6 @@
   "ai.error.badRequest": "{{provider}} 拒绝了请求：{{message}}",
   "ai.error.generic": "{{provider}} 错误：{{message}}",
   "ai.error.apiError": "{{provider}} API 错误 ({{status}})，请稍后重试。",
-
   "ai.consent.title": "AI 数据处理授权",
   "ai.consent.warningBanner": "AI 功能需要将剪贴板内容发送到外部服务器。请在继续前仔细阅读。",
   "ai.consent.whatHappensTitle": "使用 AI 功能时会发生什么",
@@ -291,7 +258,6 @@
   "ai.consent.accept": "我接受 — 启用 AI",
   "ai.consent.error.serverFailed": "无法在服务器上记录您的授权。请检查网络连接后重试。",
   "ai.consent.error.generic": "发生错误：{{error}}。请重试。",
-
   "transforms.base64Encode": "Base64 编码",
   "transforms.urlEncode": "URL 编码",
   "transforms.htmlEscape": "HTML 转义",
@@ -337,7 +303,6 @@
   "transforms.wordWrap80": "自动换行 (80)",
   "transforms.shuffleLines": "随机排列行",
   "transforms.countStats": "统计信息",
-
   "preview.compare": "对比",
   "preview.view": "查看",
   "preview.image": "图片",
@@ -356,23 +321,19 @@
   "preview.recommended": "推荐",
   "preview.other": "其他",
   "preview.noTransformsMatch": "没有匹配\"{{query}}\"的转换",
-
   "preview.unableToLoadImage": "无法加载图片",
   "preview.imagePixels": "{{width}} × {{height}} 像素",
   "preview.stats.lines": "{{count}} 行",
   "preview.stats.words": "{{count}} 词",
   "preview.stats.chars": "{{count}} 字符",
-
   "search.history": "搜索剪贴...",
   "search.snippets": "搜索片段...",
   "search.vault": "搜索保险库...",
   "search.settings": "搜索设置...",
-
   "sidebar.history": "历史",
   "sidebar.snippets": "片段",
   "sidebar.vault": "保险库",
   "sidebar.settings": "设置",
-
   "hintBar.nav": "导航",
   "hintBar.paste": "粘贴",
   "hintBar.queue": "队列",
@@ -385,13 +346,11 @@
   "hintBar.selectSecondItem": "选择第二个项目",
   "hintBar.clickToAddToQueue": "点击项目添加到队列",
   "hintBar.itemsSelected": "已选择 {{count}} 个项目",
-
   "onboarding.welcome": "欢迎使用 QlipLab",
   "onboarding.hint.copyAnything": "复制任何内容即刻显示在这里",
   "onboarding.hint.enterToPaste": "按 Enter 粘贴到上一个应用",
   "onboarding.hint.arrowKeys": "方向键导航",
   "onboarding.hint.optionD": "Option+D 对比两个项目",
-
   "feedback.title": "报告问题",
   "feedback.issueType": "问题类型",
   "feedback.type.bug": "Bug",
@@ -416,7 +375,6 @@
   "feedback.success.title": "问题已提交！",
   "feedback.success.thanks": "感谢您的反馈。",
   "feedback.success.viewOnGithub": "在 GitHub 上查看",
-
   "legal.eula.title": "许可协议",
   "legal.eula.subtitle": "请阅读并接受后继续",
   "legal.eula.scrollHint": "滚动到底部以启用接受按钮",
@@ -425,11 +383,9 @@
   "legal.eula.accept": "我接受",
   "legal.eula.error.serverFailed": "无法在服务器上记录您的接受。请检查网络连接后重试。",
   "legal.eula.error.generic": "发生错误：{{error}}。请重试。",
-
   "errors.somethingWentWrong": "出了点问题",
   "errors.unexpectedError": "发生了意外错误",
   "errors.tryAgain": "重试",
-
   "errorReporting.optIn.title": "帮助改进 qliplab",
   "errorReporting.optIn.description": "您是否愿意自动发送崩溃报告以帮助我们修复错误？",
   "errorReporting.optIn.whatWeCollect": "我们收集的信息：",
@@ -444,7 +400,6 @@
   "errorReporting.optIn.decline": "不，谢谢",
   "errorReporting.optIn.enable": "启用报告",
   "privacy.title": "隐私政策",
-
   "license.status.free": "免费",
   "license.status.premium": "Premium",
   "license.status.beta": "Beta（完整访问）",
@@ -482,5 +437,9 @@
   "license.error.purchaseCancelled": "购买已取消",
   "license.premium.title": "Premium",
   "license.premium.thankyou": "感谢您支持 QlipLab！",
-  "license.premium.purchaseDate": "购买于 {{date}}"
+  "license.premium.purchaseDate": "购买于 {{date}}",
+  "onboarding.hint.altD": "Alt+D 对比两个项目",
+  "vault.lock.createTitle": "创建保险库密码",
+  "vault.lock.createDescription": "选择一个密码来保护您的敏感数据",
+  "vault.lock.createButton": "创建密码"
 }
