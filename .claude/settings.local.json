@@ -83,6 +83,8 @@
       "Bash(magick /Users/omercelik/Repositories/qliplab-site/icon.png -resize 32x32 /Users/omercelik/Repositories/qliplab-site/favicon.ico)",
       "Bash(magick /Users/omercelik/Repositories/qliplab-site/icon.png -resize 180x180 /Users/omercelik/Repositories/qliplab-site/apple-touch-icon.png)",
       "Bash(gh issue:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh api:*)",
       "Bash(while read:*)",
       "Bash(do echo:*)",
       "Bash(1 done:*)"
