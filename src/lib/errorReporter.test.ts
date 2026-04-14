@@ -321,6 +321,41 @@ ${systemInfoFormatted}
     });
   });
 
+  // ── isKnownTransientError ────────────────────────────────────────
+  describe('isKnownTransientError', () => {
+    it('matches Get buffer error with OSError(5)', async () => {
+      const mod = await import('./errorReporter');
+      expect(mod.isKnownTransientError('Get buffer error, code = OSError(5): Access is denied.')).toBe(true);
+    });
+
+    it('matches Get text error with OSError(5)', async () => {
+      const mod = await import('./errorReporter');
+      expect(mod.isKnownTransientError('Get text error, code = OSError(5): Access is denied.')).toBe(true);
+    });
+
+    it('matches Get image error with OSError(5)', async () => {
+      const mod = await import('./errorReporter');
+      expect(mod.isKnownTransientError('Get image error, code = OSError(5)')).toBe(true);
+    });
+
+    it('matches OSError(5): Access is denied', async () => {
+      const mod = await import('./errorReporter');
+      expect(mod.isKnownTransientError('OSError(5): Access is denied')).toBe(true);
+    });
+
+    it('matches Access is denied clipboard (third pattern)', async () => {
+      const mod = await import('./errorReporter');
+      expect(mod.isKnownTransientError('Access is denied clipboard')).toBe(true);
+    });
+
+    it('does not match normal error messages', async () => {
+      const mod = await import('./errorReporter');
+      expect(mod.isKnownTransientError('Something went wrong')).toBe(false);
+      expect(mod.isKnownTransientError('Network timeout')).toBe(false);
+      expect(mod.isKnownTransientError('TypeError: undefined is not a function')).toBe(false);
+    });
+  });
+
   // ── reportError integration (module import) ──────────────────────
 
   describe('reportError', () => {
