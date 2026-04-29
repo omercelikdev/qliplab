@@ -5,10 +5,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-  # Issue analizi - label ile
-  issues:
-    types: [labeled, opened]
-
   # @claude mention - interaktif
   issue_comment:
     types: [created]
@@ -51,67 +47,6 @@ jobs:
             --max-turns 10
           additional_permissions: |
             actions: read
-
-  # ── Issue Analysis & Fix ────────────────────────────────────
-  # Triggers on: user-reported bugs/features AND auto-reported crash errors
-  # Skips: consent-log issues (EULA/AI consent records)
-  claude-issue-fix:
-    if: >
-      vars.CLAUDE_ENABLED == 'true' &&
-      github.event_name == 'issues' &&
-      !contains(toJSON(github.event.issue.labels.*.name), 'consent-log') &&
-      (
-        contains(toJSON(github.event.issue.labels.*.name), 'bug') ||
-        contains(toJSON(github.event.issue.labels.*.name), 'enhancement') ||
-        contains(toJSON(github.event.issue.labels.*.name), 'auto-reported')
-      )
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      actions: read
-      id-token: write
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: |
-            Analyze this issue and implement a fix. Follow CLAUDE.md rules strictly.
-
-            WORKFLOW:
-            1. Understand the issue and identify affected code
-            2. Check git log to see if this was previously fixed and reverted
-            3. Create a fix on a new branch (fix/issue-{number} or feat/issue-{number})
-            4. Write regression tests for EVERY bug fix in src/lib/*.test.ts
-            5. Write unit tests for any new function in src/lib/
-            6. Run npx vitest run — ALL tests must pass
-            7. Run npx tsc --noEmit — ZERO errors
-
-            i18n RULES (MANDATORY):
-            - Every UI string MUST use t('key') from useTranslation()
-            - Add keys to ALL 15 locale files: en, tr, ar, de, fr, es, pt, zh, ja, ko, ru, it, hi, nl, pl
-            - Files: src/i18n/locales/{locale}.json
-            - Never hardcode UI text in components
-
-            CODE RULES:
-            - Use logical CSS: ps-/pe- (not pl-/pr-), ms-/me-, text-start/text-end
-            - Cross-platform: macOS + Windows + Linux
-            - No any types, no console.log in production
-            - Export DEFAULT_SETTINGS from settingsStore if testing defaults
-
-            FINAL STEPS:
-            10. Open a PR referencing this issue (Closes #{number})
-            11. Include test results in PR description
-
-            CRITICAL: Do NOT break existing functionality. Run full test suite before PR.
-          claude_args: |
-            --max-turns 30
 
   # ── Interactive @claude ─────────────────────────────────────
   claude-interactive:
