@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Tresor-Passwort erstellen",
   "vault.lock.createDescription": "Wählen Sie ein Passwort zum Schutz Ihrer sensiblen Daten",
   "vault.lock.createButton": "Passwort erstellen",
-  "feedback.screenshotHint": "Um Screenshots anzuhängen, öffnen Sie nach dem Absenden den GitHub-Issue-Link und ziehen Sie Bilder dorthin."
+  "feedback.screenshotHint": "Um Screenshots anzuhängen, öffnen Sie nach dem Absenden den GitHub-Issue-Link und ziehen Sie Bilder dorthin.",
+  "license.activate.label": "Hast du einen Lizenzschlüssel?",
+  "license.activate.placeholder": "Lizenzschlüssel einfügen",
+  "license.activate.button": "Aktivieren",
+  "license.activate.activating": "Wird aktiviert…",
+  "license.activate.failed": "Aktivierung fehlgeschlagen. Prüfe Schlüssel und Verbindung.",
+  "license.deactivate.button": "Lizenz von diesem Gerät entfernen",
+  "settings.about.checkUpdates": "Nach Updates suchen",
+  "settings.about.checking": "Wird gesucht…",
+  "settings.about.downloading": "Wird heruntergeladen…",
+  "settings.about.upToDate": "Aktuell",
+  "settings.about.updateError": "Update-Suche fehlgeschlagen"
 }

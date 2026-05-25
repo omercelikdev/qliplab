@@ -36,6 +36,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_OPTIONS: "--max-old-space-size=4096"
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           args: --target universal-apple-darwin
 
@@ -45,6 +47,7 @@ jobs:
           name: macos-artifacts
           path: |
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz*
           if-no-files-found: error
 
   # ── Windows Build ───────────────────────────────────────────
@@ -74,6 +77,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_OPTIONS: "--max-old-space-size=4096"
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           args: --target x86_64-pc-windows-msvc
 
@@ -119,6 +124,7 @@ jobs:
             QlipLab_*_x64.msix
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.sig
           if-no-files-found: error
 
   # ── Linux Build ─────────────────────────────────────────────
@@ -156,6 +162,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_OPTIONS: "--max-old-space-size=4096"
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           args: --target x86_64-unknown-linux-gnu
 
@@ -166,6 +174,7 @@ jobs:
           path: |
             src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
             src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sig
           if-no-files-found: error
 
   # ── Create Release on qliplab-site ──────────────────────────
@@ -206,11 +215,35 @@ jobs:
           HEREDOC
           echo "$CHANGELOG" >> changelog.md
 
-      - name: Flatten artifacts
+      - name: Flatten artifacts and generate updater manifest
         run: |
           mkdir -p release-files
-          find artifacts -type f \( -name "*.dmg" -o -name "*.msix" -o -name "*.msi" -o -name "*.exe" -o -name "*.deb" -o -name "*.AppImage" \) -exec cp {} release-files/ \;
+          find artifacts -type f \( -name "*.dmg" -o -name "*.msix" -o -name "*.msi" -o -name "*-setup.exe" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.app.tar.gz" \) -exec cp {} release-files/ \;
+
+          # Updater manifest (latest.json). NOTE: validate on the FIRST real release —
+          # artifact filenames / target keys may need a tweak.
+          TAG="${{ steps.info.outputs.TAG }}"
+          VERSION="${{ steps.info.outputs.VERSION }}"
+          BASE="https://github.com/omercelikdev/qliplab-releases/releases/download/${TAG}"
+          mac_tar=$(find artifacts -name '*.app.tar.gz' | head -1)
+          win_exe=$(find artifacts -name '*-setup.exe' | head -1)
+          lin_app=$(find artifacts -name '*.AppImage' | head -1)
+          mac_sig=$(cat "${mac_tar}.sig" 2>/dev/null || echo "")
+          win_sig=$(cat "$(find artifacts -name '*-setup.exe.sig' | head -1)" 2>/dev/null || echo "")
+          lin_sig=$(cat "$(find artifacts -name '*.AppImage.sig' | head -1)" 2>/dev/null || echo "")
+          jq -n \
+            --arg v "$VERSION" --arg d "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg ms "$mac_sig" --arg mu "${BASE}/$(basename "$mac_tar")" \
+            --arg ws "$win_sig" --arg wu "${BASE}/$(basename "$win_exe")" \
+            --arg ls "$lin_sig" --arg lu "${BASE}/$(basename "$lin_app")" \
+            '{version:$v, pub_date:$d, platforms:{
+               "darwin-x86_64":{signature:$ms,url:$mu},
+               "darwin-aarch64":{signature:$ms,url:$mu},
+               "windows-x86_64":{signature:$ws,url:$wu},
+               "linux-x86_64":{signature:$ls,url:$lu}
+             }}' > release-files/latest.json
           ls -la release-files/
+          echo "--- latest.json ---"; cat release-files/latest.json
 
       - name: Create release on qliplab-releases
         uses: softprops/action-gh-release@v2

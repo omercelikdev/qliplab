@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Vaultパスワードを作成",
   "vault.lock.createDescription": "機密データを保護するパスワードを設定してください",
   "vault.lock.createButton": "パスワードを作成",
-  "feedback.screenshotHint": "スクリーンショットを添付するには、送信後にGitHub issueリンクを開き、画像をドラッグ＆ドロップしてください。"
+  "feedback.screenshotHint": "スクリーンショットを添付するには、送信後にGitHub issueリンクを開き、画像をドラッグ＆ドロップしてください。",
+  "license.activate.label": "ライセンスキーをお持ちですか？",
+  "license.activate.placeholder": "ライセンスキーを貼り付け",
+  "license.activate.button": "有効化",
+  "license.activate.activating": "有効化しています…",
+  "license.activate.failed": "有効化に失敗しました。キーと接続を確認してください。",
+  "license.deactivate.button": "このデバイスからライセンスを削除",
+  "settings.about.checkUpdates": "更新を確認",
+  "settings.about.checking": "確認中…",
+  "settings.about.downloading": "ダウンロード中…",
+  "settings.about.upToDate": "最新です",
+  "settings.about.updateError": "更新の確認に失敗しました"
 }

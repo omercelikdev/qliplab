@@ -21,6 +21,8 @@
     "core:webview:default",
     "core:webview:allow-create-webview-window",
     "opener:default",
+    "updater:default",
+    "process:default",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     "clipboard-manager:allow-read-image",

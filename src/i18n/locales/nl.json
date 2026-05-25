@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Kluiswachtwoord aanmaken",
   "vault.lock.createDescription": "Kies een wachtwoord om uw gevoelige gegevens te beschermen",
   "vault.lock.createButton": "Wachtwoord aanmaken",
-  "feedback.screenshotHint": "Om schermafbeeldingen toe te voegen, open de GitHub-issue-link na verzending en sleep afbeeldingen erheen."
+  "feedback.screenshotHint": "Om schermafbeeldingen toe te voegen, open de GitHub-issue-link na verzending en sleep afbeeldingen erheen.",
+  "license.activate.label": "Heb je een licentiesleutel?",
+  "license.activate.placeholder": "Plak je licentiesleutel",
+  "license.activate.button": "Activeren",
+  "license.activate.activating": "Activeren…",
+  "license.activate.failed": "Activeren mislukt. Controleer je sleutel en verbinding.",
+  "license.deactivate.button": "Licentie van dit apparaat verwijderen",
+  "settings.about.checkUpdates": "Controleren op updates",
+  "settings.about.checking": "Controleren…",
+  "settings.about.downloading": "Downloaden…",
+  "settings.about.upToDate": "Up-to-date",
+  "settings.about.updateError": "Controle op updates mislukt"
 }

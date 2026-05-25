@@ -1,30 +1,63 @@
 /**
  * qliplab-api — Cloudflare Worker
  *
- * Routes:
- *   POST /report   → create a GitHub issue (auto error reports + manual feedback)
- *   POST /consent  → store an AI/EULA consent record in D1 (legal audit, PII)
+ * Routes (all require the X-App-Token header AND are per-IP rate limited):
+ *   POST /report                               → create a GitHub issue (errors + feedback)
+ *   POST /consent                              → store an AI/EULA consent record in D1 (legal/PII)
+ *   POST /license/activate|validate|deactivate → Lemon Squeezy License API proxy
  *
- * Replaces the old Val.town vals. Code is private; GITHUB_TOKEN is a Worker
- * secret (never exposed). Consent PII lives in D1, NOT GitHub Issues.
+ * Code is private; GITHUB_TOKEN + APP_TOKEN are Worker secrets (never exposed).
+ * X-App-Token is a soft gate (extractable from the app binary) — it blocks
+ * anonymous drive-by abuse; the per-IP rate limit bounds damage regardless.
  */
 
 export interface Env {
   GITHUB_TOKEN: string;
   GITHUB_OWNER: string;
   GITHUB_REPO: string;
+  APP_TOKEN: string;
   DB: D1Database;
 }
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, X-App-Token',
   'Content-Type': 'application/json',
 } as const;
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: CORS });
+}
+
+function cap(v: string, max: number): string {
+  return v.length > max ? v.slice(0, max) : v;
+}
+
+function clientIp(req: Request): string {
+  return req.headers.get('CF-Connecting-IP') || 'unknown';
+}
+
+/** Per-IP windowed rate limit backed by D1. Returns true if allowed. */
+async function allowRequest(env: Env, ip: string): Promise<boolean> {
+  const WINDOW = 60; // seconds
+  const LIMIT = 30; // requests per window per IP
+  const now = Math.floor(Date.now() / 1000);
+  const windowStart = now - (now % WINDOW);
+  const id = `${ip}:${windowStart}`;
+  const row = await env.DB.prepare(
+    `INSERT INTO rate_limit (id, count, window_start) VALUES (?1, 1, ?2)
+     ON CONFLICT(id) DO UPDATE SET count = count + 1
+     RETURNING count`,
+  )
+    .bind(id, windowStart)
+    .first<{ count: number }>();
+  const count = row?.count ?? 1;
+  if (count === 1) {
+    // opportunistic cleanup of stale windows
+    await env.DB.prepare(`DELETE FROM rate_limit WHERE window_start < ?1`).bind(windowStart - 300).run();
+  }
+  return count <= LIMIT;
 }
 
 // ── /report — error reports + manual feedback (GitHub Issues) ─
@@ -62,10 +95,14 @@ async function handleReport(req: Request, env: Env): Promise<Response> {
     return json({ success: false, error: 'Missing title or body' }, 400);
   }
 
+  const labels = (Array.isArray(data.labels) ? data.labels : [])
+    .slice(0, 10)
+    .map((l) => cap(String(l), 50));
+
   const res = await createGitHubIssue(env, {
-    title: data.title,
-    body: data.body,
-    labels: Array.isArray(data.labels) ? data.labels : [],
+    title: cap(String(data.title), 200),
+    body: cap(String(data.body), 20000),
+    labels,
   });
 
   if (!res.ok) {
@@ -114,9 +151,9 @@ async function handleConsent(req: Request, env: Env): Promise<Response> {
 
   const termsText =
     typeof body.termsText === 'string'
-      ? body.termsText
+      ? cap(body.termsText, 8000)
       : Array.isArray(body.termsText)
-        ? JSON.stringify(body.termsText)
+        ? cap(JSON.stringify(body.termsText), 8000)
         : null;
 
   const result = await env.DB.prepare(
@@ -126,16 +163,16 @@ async function handleConsent(req: Request, env: Env): Promise<Response> {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
     .bind(
-      body.consentId,
+      cap(String(body.consentId), 64),
       body.action,
-      body.termsVersion,
+      cap(String(body.termsVersion), 32),
       termsText,
-      body.provider,
-      body.timestamp,
-      body.appVersion,
-      body.platform ?? null,
-      body.locale ?? null,
-      body.integrityHash,
+      cap(String(body.provider), 32),
+      cap(String(body.timestamp), 40),
+      cap(String(body.appVersion), 32),
+      body.platform ? cap(String(body.platform), 256) : null,
+      body.locale ? cap(String(body.locale), 32) : null,
+      cap(String(body.integrityHash), 128),
       new Date().toISOString(),
     )
     .run();
@@ -147,6 +184,85 @@ async function handleConsent(req: Request, env: Env): Promise<Response> {
   return json({ success: true, consentId: body.consentId, id: result.meta.last_row_id });
 }
 
+// ── /license/* — Lemon Squeezy License API proxy ─────────────
+
+const LS_BASE = 'https://api.lemonsqueezy.com/v1/licenses';
+
+interface LicensePayload {
+  key?: string;
+  instanceName?: string;
+  instanceId?: string;
+}
+
+interface LsResponse {
+  activated?: boolean;
+  valid?: boolean;
+  deactivated?: boolean;
+  error?: string | null;
+  instance?: { id: string } | null;
+  license_key?: { status?: string; expires_at?: string | null };
+}
+
+async function lsCall(action: string, params: Record<string, string>): Promise<LsResponse> {
+  const res = await fetch(`${LS_BASE}/${action}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams(params).toString(),
+  });
+  return (await res.json()) as LsResponse;
+}
+
+async function handleLicenseActivate(req: Request): Promise<Response> {
+  const { key, instanceName } = (await req.json()) as LicensePayload;
+  if (!key || !instanceName) {
+    return json({ success: false, error: 'Missing key or instanceName' }, 400);
+  }
+  const data = await lsCall('activate', {
+    license_key: cap(key, 100),
+    instance_name: cap(instanceName, 100),
+  });
+  return json({
+    success: true,
+    valid: data.activated === true,
+    instanceId: data.instance?.id ?? null,
+    status: data.license_key?.status ?? null,
+    expiresAt: data.license_key?.expires_at ?? null,
+    error: data.error ?? null,
+  });
+}
+
+async function handleLicenseValidate(req: Request): Promise<Response> {
+  const { key, instanceId } = (await req.json()) as LicensePayload;
+  if (!key) {
+    return json({ success: false, error: 'Missing key' }, 400);
+  }
+  const params: Record<string, string> = { license_key: cap(key, 100) };
+  if (instanceId) params.instance_id = cap(instanceId, 100);
+  const data = await lsCall('validate', params);
+  return json({
+    success: true,
+    valid: data.valid === true,
+    status: data.license_key?.status ?? null,
+    expiresAt: data.license_key?.expires_at ?? null,
+    error: data.error ?? null,
+  });
+}
+
+async function handleLicenseDeactivate(req: Request): Promise<Response> {
+  const { key, instanceId } = (await req.json()) as LicensePayload;
+  if (!key || !instanceId) {
+    return json({ success: false, error: 'Missing key or instanceId' }, 400);
+  }
+  const data = await lsCall('deactivate', {
+    license_key: cap(key, 100),
+    instance_id: cap(instanceId, 100),
+  });
+  return json({ success: true, deactivated: data.deactivated === true, error: data.error ?? null });
+}
+
 // ── Router ───────────────────────────────────────────────────
 
 export default {
@@ -156,10 +272,23 @@ export default {
       return json({ error: 'Method not allowed' }, 405);
     }
 
+    // Soft auth gate: reject anonymous callers that don't carry the app token.
+    if (req.headers.get('X-App-Token') !== env.APP_TOKEN) {
+      return json({ success: false, error: 'Unauthorized' }, 401);
+    }
+
+    // Per-IP rate limit (bounds abuse even if the token is extracted).
+    if (!(await allowRequest(env, clientIp(req)))) {
+      return json({ success: false, error: 'Rate limit exceeded' }, 429);
+    }
+
     const { pathname } = new URL(req.url);
     try {
       if (pathname === '/report' || pathname === '/issue') return await handleReport(req, env);
       if (pathname === '/consent') return await handleConsent(req, env);
+      if (pathname === '/license/activate') return await handleLicenseActivate(req);
+      if (pathname === '/license/validate') return await handleLicenseValidate(req);
+      if (pathname === '/license/deactivate') return await handleLicenseDeactivate(req);
       return json({ error: 'Not found' }, 404);
     } catch {
       return json({ success: false, error: 'Server error' }, 500);

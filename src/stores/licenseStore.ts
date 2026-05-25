@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { Store } from '@tauri-apps/plugin-store';
-import { invoke } from '@tauri-apps/api/core';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import type { EntitlementState, PremiumFeature } from '@/types/license';
+import { CONFIG } from '@/lib/config';
 import {
   isBeta,
   canUseFeature,
@@ -11,29 +12,52 @@ import {
   type FeatureContext,
 } from '@/lib/license';
 
+interface StoredLicense {
+  key: string;
+  instanceId: string;
+  entitlement: EntitlementState;
+}
+
 interface LicenseState {
   entitlement: EntitlementState;
   isLoading: boolean;
-  isPurchasing: boolean;
+  isActivating: boolean;
   error: string | null;
 
   checkEntitlement: () => Promise<void>;
-  purchasePremium: () => Promise<boolean>;
-  restorePurchases: () => Promise<boolean>;
+  activateLicense: (key: string) => Promise<boolean>;
+  deactivateLicense: () => Promise<void>;
+  openPurchasePage: () => Promise<void>;
   canUse: (feature: PremiumFeature, context?: FeatureContext) => boolean;
   getLimit: (feature: PremiumFeature) => number | null;
 }
 
-let licenseStore: Store | null = null;
+let store: Store | null = null;
+async function getStore(): Promise<Store> {
+  if (!store) store = await Store.load('license.json');
+  return store;
+}
+
+function makeInstanceName(): string {
+  const platform = typeof navigator !== 'undefined' && navigator.platform ? navigator.platform : 'desktop';
+  return `QlipLab (${platform})`;
+}
+
+interface LicenseApiResponse {
+  success?: boolean;
+  valid?: boolean;
+  instanceId?: string | null;
+  error?: string | null;
+}
 
 export const useLicenseStore = create<LicenseState>((set, get) => ({
   entitlement: isBeta() ? BETA_ENTITLEMENT : DEFAULT_ENTITLEMENT,
   isLoading: !isBeta(),
-  isPurchasing: false,
+  isActivating: false,
   error: null,
 
   checkEntitlement: async () => {
-    // Beta mode: always full access, no need to check store
+    // Beta builds (v0.x): full access, no license needed.
     if (isBeta()) {
       set({ entitlement: BETA_ENTITLEMENT, isLoading: false });
       return;
@@ -41,76 +65,115 @@ export const useLicenseStore = create<LicenseState>((set, get) => ({
 
     set({ isLoading: true, error: null });
 
+    let saved: StoredLicense | null = null;
     try {
-      // Try platform IAP first
-      const result = await invoke<string>('check_entitlement');
-      const entitlement: EntitlementState = JSON.parse(result);
-
-      // Cache for offline use
-      licenseStore = await Store.load('license.json');
-      await licenseStore.set('entitlement', entitlement);
-      await licenseStore.save();
-
-      set({ entitlement, isLoading: false });
+      const s = await getStore();
+      saved = (await s.get<StoredLicense>('license')) ?? null;
     } catch {
-      // Fallback to cached entitlement (offline support)
-      try {
-        licenseStore = await Store.load('license.json');
-        const cached = await licenseStore.get('entitlement') as EntitlementState | null;
-        if (cached) {
-          set({ entitlement: cached, isLoading: false });
-        } else {
-          set({ entitlement: DEFAULT_ENTITLEMENT, isLoading: false });
-        }
-      } catch {
+      saved = null;
+    }
+
+    // No stored key → free tier.
+    if (!saved?.key || !saved?.instanceId) {
+      set({ entitlement: DEFAULT_ENTITLEMENT, isLoading: false });
+      return;
+    }
+
+    try {
+      const res = await fetch(`${CONFIG.LICENSE_API_URL}/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-App-Token': CONFIG.APP_TOKEN },
+        body: JSON.stringify({ key: saved.key, instanceId: saved.instanceId }),
+      });
+      const data = (await res.json()) as LicenseApiResponse;
+
+      if (res.ok && data.success && data.valid) {
+        const entitlement: EntitlementState = {
+          isPremium: true,
+          purchaseDate: saved.entitlement?.purchaseDate ?? null,
+          productId: saved.entitlement?.productId ?? null,
+          source: 'license_key',
+        };
+        const s = await getStore();
+        await s.set('license', { ...saved, entitlement });
+        await s.save();
+        set({ entitlement, isLoading: false });
+      } else {
+        // Key revoked/invalid → drop to free.
         set({ entitlement: DEFAULT_ENTITLEMENT, isLoading: false });
       }
+    } catch {
+      // Offline: trust the last cached entitlement (grace).
+      set({ entitlement: saved.entitlement ?? DEFAULT_ENTITLEMENT, isLoading: false });
     }
   },
 
-  purchasePremium: async () => {
-    set({ isPurchasing: true, error: null });
+  activateLicense: async (key: string) => {
+    const trimmed = key.trim();
+    if (!trimmed) {
+      set({ error: 'empty' });
+      return false;
+    }
 
+    set({ isActivating: true, error: null });
     try {
-      const result = await invoke<string>('purchase_premium');
-      const entitlement: EntitlementState = JSON.parse(result);
+      const res = await fetch(`${CONFIG.LICENSE_API_URL}/activate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-App-Token': CONFIG.APP_TOKEN },
+        body: JSON.stringify({ key: trimmed, instanceName: makeInstanceName() }),
+      });
+      const data = (await res.json()) as LicenseApiResponse;
 
-      // Cache the purchase
-      if (!licenseStore) {
-        licenseStore = await Store.load('license.json');
+      if (res.ok && data.success && data.valid && data.instanceId) {
+        const entitlement: EntitlementState = {
+          isPremium: true,
+          purchaseDate: new Date().toISOString(),
+          productId: null,
+          source: 'license_key',
+        };
+        const s = await getStore();
+        await s.set('license', {
+          key: trimmed,
+          instanceId: data.instanceId,
+          entitlement,
+        } satisfies StoredLicense);
+        await s.save();
+        set({ entitlement, isActivating: false });
+        return true;
       }
-      await licenseStore.set('entitlement', entitlement);
-      await licenseStore.save();
 
-      set({ entitlement, isPurchasing: false });
-      return entitlement.isPremium;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      set({ isPurchasing: false, error: message });
+      set({ isActivating: false, error: 'failed' });
+      return false;
+    } catch {
+      set({ isActivating: false, error: 'failed' });
       return false;
     }
   },
 
-  restorePurchases: async () => {
-    set({ isLoading: true, error: null });
-
+  deactivateLicense: async () => {
     try {
-      const result = await invoke<string>('restore_purchases');
-      const entitlement: EntitlementState = JSON.parse(result);
-
-      // Cache the restored purchase
-      if (!licenseStore) {
-        licenseStore = await Store.load('license.json');
+      const s = await getStore();
+      const saved = (await s.get<StoredLicense>('license')) ?? null;
+      if (saved?.key && saved?.instanceId) {
+        await fetch(`${CONFIG.LICENSE_API_URL}/deactivate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-App-Token': CONFIG.APP_TOKEN },
+          body: JSON.stringify({ key: saved.key, instanceId: saved.instanceId }),
+        }).catch(() => {});
       }
-      await licenseStore.set('entitlement', entitlement);
-      await licenseStore.save();
+      await s.delete('license');
+      await s.save();
+    } catch {
+      // best-effort
+    }
+    set({ entitlement: DEFAULT_ENTITLEMENT, error: null });
+  },
 
-      set({ entitlement, isLoading: false });
-      return entitlement.isPremium;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      set({ isLoading: false, error: message });
-      return false;
+  openPurchasePage: async () => {
+    try {
+      await openUrl(CONFIG.PURCHASE_URL);
+    } catch {
+      // ignore
     }
   },
 

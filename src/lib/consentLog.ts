@@ -131,7 +131,7 @@ class ValTownGitHubBackend implements ConsentBackend {
   async send(record: ConsentRecord): Promise<{ success: boolean; ref?: string }> {
     const res = await fetch(this.url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-App-Token': CONFIG.APP_TOKEN },
       body: JSON.stringify({
         consentId: record.id,
         action: record.action,

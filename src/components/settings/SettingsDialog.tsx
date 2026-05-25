@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info, Sparkles, RotateCcw, Crown } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info, Sparkles, Crown } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { EulaViewerDialog } from '@/components/legal/EulaViewerDialog';
@@ -8,6 +8,7 @@ import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
 import { PrivacyPolicyDialog } from '@/components/settings/PrivacyPolicyDialog';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
+import { CheckUpdatesButton } from '@/components/settings/CheckUpdatesButton';
 import { recordConsent } from '@/lib/consentLog';
 import { exportData, importData, type ExportSection } from '@/lib/exportImport';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
@@ -381,6 +382,9 @@ export function SettingsPanel() {
                 <div className="text-[10px] text-muted-foreground">v{CONFIG.APP_VERSION}</div>
                 <div className="text-[10px] text-muted-foreground">
                   {t('settings.about.description')}
+                </div>
+                <div className="pt-1">
+                  <CheckUpdatesButton />
                 </div>
               </div>
             </div>
@@ -935,13 +939,20 @@ function IgnoredAppsList({
 function PremiumSection() {
   const { t } = useTranslation();
   const entitlement = useLicenseStore((state) => state.entitlement);
-  const isPurchasing = useLicenseStore((state) => state.isPurchasing);
+  const isActivating = useLicenseStore((state) => state.isActivating);
   const error = useLicenseStore((state) => state.error);
-  const purchasePremium = useLicenseStore((state) => state.purchasePremium);
-  const restorePurchases = useLicenseStore((state) => state.restorePurchases);
+  const activateLicense = useLicenseStore((state) => state.activateLicense);
+  const deactivateLicense = useLicenseStore((state) => state.deactivateLicense);
+  const openPurchasePage = useLicenseStore((state) => state.openPurchasePage);
+  const [keyInput, setKeyInput] = useState('');
 
   const beta = isBeta();
   const premium = entitlement.isPremium && !beta;
+
+  const handleActivate = async () => {
+    const ok = await activateLicense(keyInput);
+    if (ok) setKeyInput('');
+  };
 
   return (
     <div className="space-y-3">
@@ -961,13 +972,20 @@ function PremiumSection() {
       </div>
 
       {premium && (
-        <div className="p-3 rounded-md border border-green-500/20 bg-green-500/5 text-xs space-y-1">
+        <div className="p-3 rounded-md border border-green-500/20 bg-green-500/5 text-xs space-y-2">
           <p className="font-medium text-green-600 dark:text-green-400">{t('license.premium.thankyou')}</p>
           {entitlement.purchaseDate && (
             <p className="text-muted-foreground">
               {t('license.premium.purchaseDate', { date: new Date(entitlement.purchaseDate).toLocaleDateString() })}
             </p>
           )}
+          <button
+            onClick={deactivateLicense}
+            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-destructive cursor-pointer"
+          >
+            <Trash2 className="w-3 h-3" />
+            {t('license.deactivate.button')}
+          </button>
         </div>
       )}
 
@@ -978,7 +996,7 @@ function PremiumSection() {
       )}
 
       {!premium && !beta && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <p className="text-[11px] text-muted-foreground">
             {t('license.upgrade.description')}
           </p>
@@ -991,25 +1009,36 @@ function PremiumSection() {
             ))}
           </div>
           <button
-            onClick={purchasePremium}
-            disabled={isPurchasing}
+            onClick={openPurchasePage}
             className={cn(
               'w-full py-2 text-xs font-medium rounded-lg transition-colors cursor-pointer',
-              'bg-accent text-accent-foreground hover:bg-accent/90',
-              isPurchasing && 'opacity-50 cursor-not-allowed'
+              'bg-accent text-accent-foreground hover:bg-accent/90'
             )}
           >
-            {isPurchasing ? t('license.upgrade.purchasing') : t('license.upgrade.button')}
+            {t('license.upgrade.button')}
           </button>
-          <button
-            onClick={restorePurchases}
-            disabled={isPurchasing}
-            className="w-full flex items-center justify-center gap-1 py-1.5 text-[11px] text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            <RotateCcw className="w-3 h-3" />
-            {t('license.restore.button')}
-          </button>
-          {error && <p className="text-[11px] text-destructive">{error}</p>}
+
+          <div className="space-y-1.5 pt-1">
+            <p className="text-[11px] font-medium text-foreground/60">{t('license.activate.label')}</p>
+            <input
+              type="text"
+              value={keyInput}
+              onChange={(e) => setKeyInput(e.target.value)}
+              placeholder={t('license.activate.placeholder')}
+              className="w-full px-2.5 py-1.5 text-[11px] rounded-md border border-foreground/10 bg-background focus:outline-none focus:border-accent/50"
+            />
+            <button
+              onClick={handleActivate}
+              disabled={isActivating || !keyInput.trim()}
+              className={cn(
+                'w-full py-1.5 text-[11px] font-medium rounded-md border border-foreground/10 transition-colors cursor-pointer hover:bg-foreground/[0.03]',
+                (isActivating || !keyInput.trim()) && 'opacity-50 cursor-not-allowed'
+              )}
+            >
+              {isActivating ? t('license.activate.activating') : t('license.activate.button')}
+            </button>
+            {error && <p className="text-[11px] text-destructive">{t('license.activate.failed')}</p>}
+          </div>
         </div>
       )}
     </div>

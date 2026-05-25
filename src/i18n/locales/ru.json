@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Создать пароль хранилища",
   "vault.lock.createDescription": "Выберите пароль для защиты конфиденциальных данных",
   "vault.lock.createButton": "Создать пароль",
-  "feedback.screenshotHint": "Чтобы прикрепить скриншоты, откройте ссылку на GitHub после отправки и перетащите изображения."
+  "feedback.screenshotHint": "Чтобы прикрепить скриншоты, откройте ссылку на GitHub после отправки и перетащите изображения.",
+  "license.activate.label": "Есть лицензионный ключ?",
+  "license.activate.placeholder": "Вставьте лицензионный ключ",
+  "license.activate.button": "Активировать",
+  "license.activate.activating": "Активация…",
+  "license.activate.failed": "Не удалось активировать. Проверьте ключ и соединение.",
+  "license.deactivate.button": "Удалить лицензию с этого устройства",
+  "settings.about.checkUpdates": "Проверить обновления",
+  "settings.about.checking": "Проверка…",
+  "settings.about.downloading": "Загрузка…",
+  "settings.about.upToDate": "Актуальная версия",
+  "settings.about.updateError": "Не удалось проверить обновления"
 }

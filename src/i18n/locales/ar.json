@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "إنشاء كلمة مرور الخزنة",
   "vault.lock.createDescription": "اختر كلمة مرور لحماية بياناتك الحساسة",
   "vault.lock.createButton": "إنشاء كلمة المرور",
-  "feedback.screenshotHint": "لإرفاق لقطات شاشة، افتح رابط المشكلة على GitHub بعد الإرسال واسحب الصور هناك."
+  "feedback.screenshotHint": "لإرفاق لقطات شاشة، افتح رابط المشكلة على GitHub بعد الإرسال واسحب الصور هناك.",
+  "license.activate.label": "هل لديك مفتاح ترخيص؟",
+  "license.activate.placeholder": "الصق مفتاح الترخيص",
+  "license.activate.button": "تفعيل",
+  "license.activate.activating": "جارٍ التفعيل…",
+  "license.activate.failed": "فشل التفعيل. تحقق من المفتاح والاتصال.",
+  "license.deactivate.button": "إزالة الترخيص من هذا الجهاز",
+  "settings.about.checkUpdates": "التحقق من التحديثات",
+  "settings.about.checking": "جارٍ التحقق…",
+  "settings.about.downloading": "جارٍ التنزيل…",
+  "settings.about.upToDate": "محدّث",
+  "settings.about.updateError": "فشل التحقق من التحديث"
 }

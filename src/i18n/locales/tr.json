@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Kasa Şifresi Oluştur",
   "vault.lock.createDescription": "Hassas verilerinizi korumak için bir şifre belirleyin",
   "vault.lock.createButton": "Şifre Oluştur",
-  "feedback.screenshotHint": "Ekran görüntüsü eklemek için, gönderim sonrası GitHub issue linkini açıp görüntüleri sürükleyip bırakın."
+  "feedback.screenshotHint": "Ekran görüntüsü eklemek için, gönderim sonrası GitHub issue linkini açıp görüntüleri sürükleyip bırakın.",
+  "license.activate.label": "Lisans anahtarın var mı?",
+  "license.activate.placeholder": "Lisans anahtarını yapıştır",
+  "license.activate.button": "Etkinleştir",
+  "license.activate.activating": "Etkinleştiriliyor…",
+  "license.activate.failed": "Etkinleştirme başarısız. Anahtarını ve bağlantını kontrol et.",
+  "license.deactivate.button": "Lisansı bu cihazdan kaldır",
+  "settings.about.checkUpdates": "Güncellemeleri denetle",
+  "settings.about.checking": "Denetleniyor…",
+  "settings.about.downloading": "İndiriliyor…",
+  "settings.about.upToDate": "Güncel",
+  "settings.about.updateError": "Güncelleme denetimi başarısız"
 }

@@ -17,7 +17,7 @@ const PREMIUM: EntitlementState = {
   isPremium: true,
   purchaseDate: '2026-03-19T00:00:00Z',
   productId: 'com.qliplab.premium',
-  source: 'storekit',
+  source: 'license_key',
 };
 
 // ─── isBeta ────────────────────────────────────────────────────

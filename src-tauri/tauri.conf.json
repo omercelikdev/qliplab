@@ -32,6 +32,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": "all",
     "resources": ["icons/32x32.png", "PrivacyInfo.xcprivacy"],
     "icon": [
@@ -55,6 +56,14 @@
       "appimage": {
         "bundleMediaFramework": true
       }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/omercelikdev/qliplab-releases/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJFQUREREFEOTQwREM5MjMKUldRanlRMlVyZDJ0TGdXNFNwWm5oSmhWa2NaMkE5Tjh4bzc1NGdWL1NjeThZU3NmRE1zN2VNMXMK"
     }
   }
 }

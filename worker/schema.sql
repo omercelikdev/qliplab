@@ -19,3 +19,11 @@ CREATE TABLE IF NOT EXISTS consent_log (
 CREATE INDEX IF NOT EXISTS idx_consent_provider   ON consent_log(provider);
 CREATE INDEX IF NOT EXISTS idx_consent_action     ON consent_log(action);
 CREATE INDEX IF NOT EXISTS idx_consent_consent_id ON consent_log(consent_id);
+
+-- Per-IP rate limiting (windowed counters)
+CREATE TABLE IF NOT EXISTS rate_limit (
+  id           TEXT PRIMARY KEY,   -- "<ip>:<window_start>"
+  count        INTEGER NOT NULL,
+  window_start INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rate_limit_window ON rate_limit(window_start);

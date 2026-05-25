@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Create Vault Password",
   "vault.lock.createDescription": "Choose a password to protect your sensitive data",
   "vault.lock.createButton": "Create Password",
-  "feedback.screenshotHint": "To attach screenshots, open the GitHub issue link after submission and drag & drop images there."
+  "feedback.screenshotHint": "To attach screenshots, open the GitHub issue link after submission and drag & drop images there.",
+  "license.activate.label": "Have a license key?",
+  "license.activate.placeholder": "Paste your license key",
+  "license.activate.button": "Activate",
+  "license.activate.activating": "Activating…",
+  "license.activate.failed": "Activation failed. Check your key and connection.",
+  "license.deactivate.button": "Remove license from this device",
+  "settings.about.checkUpdates": "Check for updates",
+  "settings.about.checking": "Checking…",
+  "settings.about.downloading": "Downloading…",
+  "settings.about.upToDate": "Up to date",
+  "settings.about.updateError": "Update check failed"
 }

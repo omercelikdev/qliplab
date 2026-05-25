@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Criar senha do cofre",
   "vault.lock.createDescription": "Escolha uma senha para proteger seus dados sensíveis",
   "vault.lock.createButton": "Criar senha",
-  "feedback.screenshotHint": "Para anexar capturas, abra o link do GitHub após enviar e arraste as imagens."
+  "feedback.screenshotHint": "Para anexar capturas, abra o link do GitHub após enviar e arraste as imagens.",
+  "license.activate.label": "Tem uma chave de licença?",
+  "license.activate.placeholder": "Cole sua chave de licença",
+  "license.activate.button": "Ativar",
+  "license.activate.activating": "Ativando…",
+  "license.activate.failed": "Falha na ativação. Verifique sua chave e conexão.",
+  "license.deactivate.button": "Remover a licença deste dispositivo",
+  "settings.about.checkUpdates": "Verificar atualizações",
+  "settings.about.checking": "Verificando…",
+  "settings.about.downloading": "Baixando…",
+  "settings.about.upToDate": "Atualizado",
+  "settings.about.updateError": "Falha ao verificar atualizações"
 }

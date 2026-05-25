@@ -141,7 +141,7 @@ export const useFeedbackStore = create<FeedbackState>((set) => ({
 
       const response = await fetch(CONFIG.ISSUE_REPORTER_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-App-Token': CONFIG.APP_TOKEN },
         body: JSON.stringify({ title, body, labels }),
       });
 

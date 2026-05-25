@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Crear contraseña",
   "vault.lock.createDescription": "Elige una contraseña para proteger tus datos sensibles",
   "vault.lock.createButton": "Crear contraseña",
-  "feedback.screenshotHint": "Para adjuntar capturas, abre el enlace de GitHub después de enviar y arrastra las imágenes allí."
+  "feedback.screenshotHint": "Para adjuntar capturas, abre el enlace de GitHub después de enviar y arrastra las imágenes allí.",
+  "license.activate.label": "¿Tienes una clave de licencia?",
+  "license.activate.placeholder": "Pega tu clave de licencia",
+  "license.activate.button": "Activar",
+  "license.activate.activating": "Activando…",
+  "license.activate.failed": "Error de activación. Comprueba tu clave y conexión.",
+  "license.deactivate.button": "Quitar la licencia de este dispositivo",
+  "settings.about.checkUpdates": "Buscar actualizaciones",
+  "settings.about.checking": "Comprobando…",
+  "settings.about.downloading": "Descargando…",
+  "settings.about.upToDate": "Actualizado",
+  "settings.about.updateError": "Error al buscar actualizaciones"
 }

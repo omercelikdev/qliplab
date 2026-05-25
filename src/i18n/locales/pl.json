@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Utwórz hasło sejfu",
   "vault.lock.createDescription": "Wybierz hasło, aby chronić swoje wrażliwe dane",
   "vault.lock.createButton": "Utwórz hasło",
-  "feedback.screenshotHint": "Aby dołączyć zrzuty ekranu, otwórz link do GitHub po wysłaniu i przeciągnij tam obrazy."
+  "feedback.screenshotHint": "Aby dołączyć zrzuty ekranu, otwórz link do GitHub po wysłaniu i przeciągnij tam obrazy.",
+  "license.activate.label": "Masz klucz licencyjny?",
+  "license.activate.placeholder": "Wklej swój klucz licencyjny",
+  "license.activate.button": "Aktywuj",
+  "license.activate.activating": "Aktywowanie…",
+  "license.activate.failed": "Aktywacja nie powiodła się. Sprawdź klucz i połączenie.",
+  "license.deactivate.button": "Usuń licencję z tego urządzenia",
+  "settings.about.checkUpdates": "Sprawdź aktualizacje",
+  "settings.about.checking": "Sprawdzanie…",
+  "settings.about.downloading": "Pobieranie…",
+  "settings.about.upToDate": "Aktualne",
+  "settings.about.updateError": "Sprawdzanie aktualizacji nie powiodło się"
 }

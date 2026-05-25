@@ -17,7 +17,7 @@ export interface FeatureDef {
   freeLimit?: number;
 }
 
-export type EntitlementSource = 'storekit' | 'windows_store' | 'beta';
+export type EntitlementSource = 'license_key' | 'beta';
 
 export interface EntitlementState {
   isPremium: boolean;

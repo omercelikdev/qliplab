@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Créer un mot de passe",
   "vault.lock.createDescription": "Choisissez un mot de passe pour protéger vos données sensibles",
   "vault.lock.createButton": "Créer le mot de passe",
-  "feedback.screenshotHint": "Pour joindre des captures d'écran, ouvrez le lien GitHub après soumission et glissez-déposez les images."
+  "feedback.screenshotHint": "Pour joindre des captures d'écran, ouvrez le lien GitHub après soumission et glissez-déposez les images.",
+  "license.activate.label": "Vous avez une clé de licence ?",
+  "license.activate.placeholder": "Collez votre clé de licence",
+  "license.activate.button": "Activer",
+  "license.activate.activating": "Activation…",
+  "license.activate.failed": "Échec de l'activation. Vérifiez votre clé et votre connexion.",
+  "license.deactivate.button": "Retirer la licence de cet appareil",
+  "settings.about.checkUpdates": "Rechercher des mises à jour",
+  "settings.about.checking": "Recherche…",
+  "settings.about.downloading": "Téléchargement…",
+  "settings.about.upToDate": "À jour",
+  "settings.about.updateError": "Échec de la vérification"
 }

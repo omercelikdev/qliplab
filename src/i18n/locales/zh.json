@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "创建保险库密码",
   "vault.lock.createDescription": "选择一个密码来保护您的敏感数据",
   "vault.lock.createButton": "创建密码",
-  "feedback.screenshotHint": "要附加截图，提交后打开GitHub issue链接并拖放图片。"
+  "feedback.screenshotHint": "要附加截图，提交后打开GitHub issue链接并拖放图片。",
+  "license.activate.label": "有许可证密钥吗？",
+  "license.activate.placeholder": "粘贴您的许可证密钥",
+  "license.activate.button": "激活",
+  "license.activate.activating": "正在激活…",
+  "license.activate.failed": "激活失败。请检查密钥和网络连接。",
+  "license.deactivate.button": "从此设备移除许可证",
+  "settings.about.checkUpdates": "检查更新",
+  "settings.about.checking": "正在检查…",
+  "settings.about.downloading": "正在下载…",
+  "settings.about.upToDate": "已是最新",
+  "settings.about.updateError": "检查更新失败"
 }

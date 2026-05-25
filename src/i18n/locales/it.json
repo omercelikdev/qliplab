@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "Crea password cassaforte",
   "vault.lock.createDescription": "Scegli una password per proteggere i tuoi dati sensibili",
   "vault.lock.createButton": "Crea password",
-  "feedback.screenshotHint": "Per allegare screenshot, apri il link GitHub dopo l'invio e trascina le immagini."
+  "feedback.screenshotHint": "Per allegare screenshot, apri il link GitHub dopo l'invio e trascina le immagini.",
+  "license.activate.label": "Hai una chiave di licenza?",
+  "license.activate.placeholder": "Incolla la tua chiave di licenza",
+  "license.activate.button": "Attiva",
+  "license.activate.activating": "Attivazione…",
+  "license.activate.failed": "Attivazione non riuscita. Controlla chiave e connessione.",
+  "license.deactivate.button": "Rimuovi la licenza da questo dispositivo",
+  "settings.about.checkUpdates": "Controlla aggiornamenti",
+  "settings.about.checking": "Controllo…",
+  "settings.about.downloading": "Download…",
+  "settings.about.upToDate": "Aggiornato",
+  "settings.about.updateError": "Controllo aggiornamenti non riuscito"
 }

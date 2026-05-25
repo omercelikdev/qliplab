@@ -442,5 +442,16 @@
   "vault.lock.createTitle": "वॉल्ट पासवर्ड बनाएं",
   "vault.lock.createDescription": "अपने संवेदनशील डेटा की सुरक्षा के लिए पासवर्ड चुनें",
   "vault.lock.createButton": "पासवर्ड बनाएं",
-  "feedback.screenshotHint": "स्क्रीनशॉट संलग्न करने के लिए, सबमिशन के बाद GitHub issue लिंक खोलें और छवियों को ड्रैग करें।"
+  "feedback.screenshotHint": "स्क्रीनशॉट संलग्न करने के लिए, सबमिशन के बाद GitHub issue लिंक खोलें और छवियों को ड्रैग करें।",
+  "license.activate.label": "क्या आपके पास लाइसेंस की है?",
+  "license.activate.placeholder": "अपनी लाइसेंस की चिपकाएँ",
+  "license.activate.button": "सक्रिय करें",
+  "license.activate.activating": "सक्रिय किया जा रहा है…",
+  "license.activate.failed": "सक्रियण विफल। अपनी की और कनेक्शन जाँचें।",
+  "license.deactivate.button": "इस डिवाइस से लाइसेंस हटाएँ",
+  "settings.about.checkUpdates": "अपडेट जाँचें",
+  "settings.about.checking": "जाँच हो रही है…",
+  "settings.about.downloading": "डाउनलोड हो रहा है…",
+  "settings.about.upToDate": "अद्यतित",
+  "settings.about.updateError": "अपडेट जाँच विफल"
 }
