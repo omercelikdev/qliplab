@@ -101,13 +101,13 @@ clipboard,manager,copy,paste,history,snippets,vault,encrypt,diff,transform,json,
 #### Support URL
 
 ```
-https://github.com/celikomr/qliplab/issues
+https://github.com/omercelikdev/qliplab/issues
 ```
 
 #### Marketing URL (opsiyonel)
 
 ```
-https://github.com/celikomr/qliplab
+https://github.com/omercelikdev/qliplab
 ```
 
 ### 1.3 Screenshots (Zorunlu)

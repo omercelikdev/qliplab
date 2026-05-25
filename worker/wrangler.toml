@@ -1,0 +1,19 @@
+name = "qliplab-api"
+main = "src/index.ts"
+compatibility_date = "2026-05-25"
+
+# Non-secret vars
+[vars]
+GITHUB_OWNER = "omercelikdev"
+GITHUB_REPO = "qliplab"
+
+# Secret (NOT stored here) — set once with:
+#   wrangler secret put GITHUB_TOKEN
+# Needs a fine-grained PAT with Issues: read/write on omercelikdev/qliplab.
+
+# D1 consent storage. Run `wrangler d1 create qliplab`, then paste the printed
+# database_id below. Apply schema with `wrangler d1 execute qliplab --remote --file=schema.sql`.
+[[d1_databases]]
+binding = "DB"
+database_name = "qliplab"
+database_id = "8a185d7e-afb5-4218-ad94-752911e397f9"

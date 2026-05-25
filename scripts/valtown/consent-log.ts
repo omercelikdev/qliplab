@@ -5,7 +5,7 @@
  *   1. Val.town → "New Val" → "HTTP" → bu kodu yapıştır → Save
  *   2. Val.town → Environment Variables:
  *      GITHUB_TOKEN = ghp_xxxxx   (mevcut token yeterli, Issues write izni olsun)
- *      GITHUB_OWNER = celikomr    (kendi username'in)
+ *      GITHUB_OWNER = omercelikdev (kendi username'in)
  *      GITHUB_REPO  = qliplab     (AYNI repo, zaten private)
  *   3. URL'i kopyala → src/lib/config.ts CONSENT_LOG_URL'e yapıştır
  *
