@@ -286,26 +286,44 @@ async function handleLicenseByOrder(req: Request, env: Env): Promise<Response> {
   if (!orderId) {
     return json({ success: false, error: 'Missing orderId' }, 400);
   }
-  const res = await fetch(
-    `https://api.lemonsqueezy.com/v1/license-keys?filter[order_id]=${encodeURIComponent(cap(String(orderId), 64))}`,
-    {
-      headers: {
-        Authorization: `Bearer ${env.LS_API_KEY}`,
-        Accept: 'application/vnd.api+json',
-      },
-    },
-  );
-  if (!res.ok) {
-    return json({ success: false, error: `LS ${res.status}` }, 502);
-  }
-  const data = (await res.json()) as {
-    data?: Array<{ attributes?: { key?: string; status?: string } }>;
+  const safeId = encodeURIComponent(cap(String(orderId), 64));
+  const headers = {
+    Authorization: `Bearer ${env.LS_API_KEY}`,
+    Accept: 'application/vnd.api+json',
   };
-  const first = data.data?.[0]?.attributes;
-  if (!first?.key) {
-    return json({ success: false, error: 'License key not found for order' }, 404);
+
+  // Approach 1: list license-keys filtered by order_id (brackets URL-encoded).
+  let res = await fetch(
+    `https://api.lemonsqueezy.com/v1/license-keys?filter%5Border_id%5D=${safeId}`,
+    { headers },
+  );
+  if (res.ok) {
+    const data = (await res.json()) as {
+      data?: Array<{ attributes?: { key?: string; status?: string } }>;
+    };
+    const first = data.data?.[0]?.attributes;
+    if (first?.key) {
+      return json({ success: true, key: first.key, status: first.status ?? null });
+    }
   }
-  return json({ success: true, key: first.key, status: first.status ?? null });
+
+  // Approach 2 (fallback): fetch the order directly with its license-keys included.
+  // Handles the case where the caller passes the LS order resource id.
+  res = await fetch(
+    `https://api.lemonsqueezy.com/v1/orders/${safeId}?include=license-keys`,
+    { headers },
+  );
+  if (res.ok) {
+    const data = (await res.json()) as {
+      included?: Array<{ type?: string; attributes?: { key?: string; status?: string } }>;
+    };
+    const lk = data.included?.find((x) => x.type === 'license-keys');
+    if (lk?.attributes?.key) {
+      return json({ success: true, key: lk.attributes.key, status: lk.attributes.status ?? null });
+    }
+  }
+
+  return json({ success: false, error: 'License key not found for order' }, 404);
 }
 
 // ── Router ───────────────────────────────────────────────────
