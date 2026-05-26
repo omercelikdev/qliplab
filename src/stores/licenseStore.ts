@@ -26,6 +26,7 @@ interface LicenseState {
 
   checkEntitlement: () => Promise<void>;
   activateLicense: (key: string) => Promise<boolean>;
+  activateByOrderId: (orderId: string) => Promise<boolean>;
   deactivateLicense: () => Promise<void>;
   openPurchasePage: () => Promise<void>;
   canUse: (feature: PremiumFeature, context?: FeatureContext) => boolean;
@@ -144,6 +145,33 @@ export const useLicenseStore = create<LicenseState>((set, get) => ({
 
       set({ isActivating: false, error: 'failed' });
       return false;
+    } catch {
+      set({ isActivating: false, error: 'failed' });
+      return false;
+    }
+  },
+
+  activateByOrderId: async (orderId: string) => {
+    const id = orderId.trim();
+    if (!id) {
+      set({ error: 'empty' });
+      return false;
+    }
+    set({ isActivating: true, error: null });
+    try {
+      const res = await fetch(`${CONFIG.LICENSE_API_URL}/by-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-App-Token': CONFIG.APP_TOKEN },
+        body: JSON.stringify({ orderId: id }),
+      });
+      const data = (await res.json()) as { success?: boolean; key?: string; error?: string };
+      if (!res.ok || !data.success || !data.key) {
+        set({ isActivating: false, error: 'failed' });
+        return false;
+      }
+      set({ isActivating: false });
+      // Re-use the standard activation flow with the fetched key
+      return await get().activateLicense(data.key);
     } catch {
       set({ isActivating: false, error: 'failed' });
       return false;

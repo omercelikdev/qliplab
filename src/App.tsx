@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { getCurrentWindow, LogicalPosition, type CloseRequestedEvent } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event';
+import { onOpenUrl, getCurrent as getCurrentDeepLink } from '@tauri-apps/plugin-deep-link';
 import { Sidebar } from './components/layout/Sidebar';
 import { SearchBar } from './components/layout/DragBar';
 import { HintBar } from './components/layout/HintBar';
@@ -106,6 +107,47 @@ function App() {
       showWindow();
     });
     return () => { unlisten.then(fn => fn()); };
+  }, []);
+
+  // Deep link handler: qliplab://activate?order_id=X (preferred) or ?key=Y (fallback)
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    const handleUrls = (urls: string[]) => {
+      for (const url of urls) {
+        try {
+          const u = new URL(url);
+          if (u.protocol !== 'qliplab:') continue;
+          const orderId = u.searchParams.get('order_id') || u.searchParams.get('orderId');
+          const key = u.searchParams.get('key');
+          if (orderId) {
+            void useLicenseStore.getState().activateByOrderId(orderId);
+          } else if (key) {
+            void useLicenseStore.getState().activateLicense(key);
+          }
+          // Bring window to front so the user sees the activation result
+          void showWindow();
+        } catch {
+          // ignore malformed URL
+        }
+      }
+    };
+
+    // Cold start: app launched with a URL
+    getCurrentDeepLink().then((urls) => {
+      if (urls && urls.length > 0) handleUrls(urls);
+    }).catch(() => {});
+
+    // Warm (macOS): listen via deep-link plugin while app is running
+    onOpenUrl(handleUrls).then((fn) => { unlisten = fn; }).catch(() => {});
+
+    // Warm (Linux/Windows): single-instance forwards URL args via this event
+    const unlistenSecond = listen<string>('deep-link-url', (e) => handleUrls([e.payload]));
+
+    return () => {
+      unlisten?.();
+      unlistenSecond.then(fn => fn());
+    };
   }, []);
 
   // Clear unpinned history on quit if setting is enabled

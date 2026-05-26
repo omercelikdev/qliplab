@@ -16,6 +16,8 @@ export interface Env {
   GITHUB_OWNER: string;
   GITHUB_REPO: string;
   APP_TOKEN: string;
+  /** Lemon Squeezy API key (needed only for /license/by-order). */
+  LS_API_KEY?: string;
   DB: D1Database;
 }
 
@@ -263,6 +265,49 @@ async function handleLicenseDeactivate(req: Request): Promise<Response> {
   return json({ success: true, deactivated: data.deactivated === true, error: data.error ?? null });
 }
 
+/**
+ * Look up the license key for an order. Used by the deep-link auto-activation
+ * flow: app receives qliplab://activate?order_id=X, calls this to fetch the
+ * key (which LS does NOT put in the redirect URL for security), then activates.
+ *
+ * Requires LS_API_KEY (different from the public /license endpoints).
+ */
+async function handleLicenseByOrder(req: Request, env: Env): Promise<Response> {
+  if (!env.LS_API_KEY) {
+    return json({ success: false, error: 'LS_API_KEY not configured' }, 500);
+  }
+  let orderId: string | null = null;
+  try {
+    const body = (await req.json()) as { orderId?: string; order_id?: string };
+    orderId = body.orderId ?? body.order_id ?? null;
+  } catch {
+    // body parse failed — orderId stays null, validation below handles it
+  }
+  if (!orderId) {
+    return json({ success: false, error: 'Missing orderId' }, 400);
+  }
+  const res = await fetch(
+    `https://api.lemonsqueezy.com/v1/license-keys?filter[order_id]=${encodeURIComponent(cap(String(orderId), 64))}`,
+    {
+      headers: {
+        Authorization: `Bearer ${env.LS_API_KEY}`,
+        Accept: 'application/vnd.api+json',
+      },
+    },
+  );
+  if (!res.ok) {
+    return json({ success: false, error: `LS ${res.status}` }, 502);
+  }
+  const data = (await res.json()) as {
+    data?: Array<{ attributes?: { key?: string; status?: string } }>;
+  };
+  const first = data.data?.[0]?.attributes;
+  if (!first?.key) {
+    return json({ success: false, error: 'License key not found for order' }, 404);
+  }
+  return json({ success: true, key: first.key, status: first.status ?? null });
+}
+
 // ── Router ───────────────────────────────────────────────────
 
 export default {
@@ -289,6 +334,7 @@ export default {
       if (pathname === '/license/activate') return await handleLicenseActivate(req);
       if (pathname === '/license/validate') return await handleLicenseValidate(req);
       if (pathname === '/license/deactivate') return await handleLicenseDeactivate(req);
+      if (pathname === '/license/by-order') return await handleLicenseByOrder(req, env);
       return json({ error: 'Not found' }, 404);
     } catch {
       return json({ success: false, error: 'Server error' }, 500);
