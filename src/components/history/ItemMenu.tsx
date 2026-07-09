@@ -17,7 +17,6 @@ import type { AiAction } from '@/lib/ai';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { useTagStore } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
-import { useLicenseStore } from '@/stores/licenseStore';
 import type { ClipboardItem } from '@/types/clipboard';
 
 interface ItemMenuProps {
@@ -151,10 +150,9 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
   const handleDelete = () => { deleteItem(item.id); onClose(); };
   const handlePin = () => { togglePin(item.id); onClose(); };
 
-  const canUse = useLicenseStore((state) => state.canUse);
-  const aiAvailable = canUse('ai_actions') && isAiConfigured() && item.contentType === 'text' && !item.isSensitive;
-  const ocrAvailable = canUse('ocr');
-  const htmlPasteAvailable = canUse('html_paste');
+  const aiAvailable = isAiConfigured() && item.contentType === 'text' && !item.isSensitive;
+  const ocrAvailable = true;
+  const htmlPasteAvailable = true;
 
   const getTransformItems = () => {
     switch (item.detectedFormat) {

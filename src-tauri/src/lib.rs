@@ -1400,23 +1400,15 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--hidden"])))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_drag::init())
-        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             // Second instance tried to launch — show the existing window instead
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.set_focus();
-            }
-            // Forward deep-link URLs to JS (covers Linux/Windows warm second-launch
-            // case; macOS goes through NSApplication and the deep-link plugin)
-            for arg in argv.iter().skip(1) {
-                if arg.starts_with("qliplab://") {
-                    let _ = app.emit("deep-link-url", arg.clone());
-                }
             }
         }));
 

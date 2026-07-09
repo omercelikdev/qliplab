@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info, Sparkles, Crown } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { EulaViewerDialog } from '@/components/legal/EulaViewerDialog';
@@ -13,10 +13,8 @@ import { recordConsent } from '@/lib/consentLog';
 import { exportData, importData, type ExportSection } from '@/lib/exportImport';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { CONFIG } from '@/lib/config';
-import { useLicenseStore } from '@/stores/licenseStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSnippetStore } from '@/stores/snippetStore';
-import { PREMIUM_FEATURES, isBeta } from '@/lib/license';
 import { cn } from '@/lib/utils';
 
 const THEME_LABELS: Record<string, string> = {
@@ -62,22 +60,15 @@ export function SettingsPanel() {
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.theme.label')}</label>
               <div className="flex gap-2">
-                {(['light', 'dark', 'system'] as const).map((themeOption) => {
-                  const canUseThemes = useLicenseStore.getState().canUse('themes');
-                  const isLocked = !canUseThemes && themeOption !== 'system';
-                  return (
+                {(['light', 'dark', 'system'] as const).map((themeOption) => (
                     <button
                       key={themeOption}
-                      onClick={() => !isLocked && updateSetting('theme', themeOption)}
-                      disabled={isLocked}
+                      onClick={() => updateSetting('theme', themeOption)}
                       className={cn(
-                        'flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border transition-colors',
-                        isLocked
-                          ? 'border-border opacity-40 cursor-not-allowed'
-                          : 'cursor-pointer',
-                        !isLocked && settings.theme === themeOption
+                        'flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border transition-colors cursor-pointer',
+                        settings.theme === themeOption
                           ? 'border-accent bg-accent/10 text-accent'
-                          : !isLocked ? 'border-border hover:bg-surface-hover' : ''
+                          : 'border-border hover:bg-surface-hover'
                       )}
                     >
                       {themeOption === 'light' && <Sun className="w-3.5 h-3.5" />}
@@ -85,8 +76,7 @@ export function SettingsPanel() {
                       {themeOption === 'system' && <Monitor className="w-3.5 h-3.5" />}
                       {t(THEME_LABELS[themeOption])}
                     </button>
-                  );
-                })}
+                ))}
               </div>
             </div>
 
@@ -225,14 +215,6 @@ export function SettingsPanel() {
                 onChange={(apps) => updateSetting('ignoredApps', apps)}
               />
             </div>
-
-            {/* Premium — hidden during beta, show when v1.0+ with working IAP */}
-            {!isBeta() && (
-              <>
-                <div className="dotted-separator" />
-                <PremiumSection />
-              </>
-            )}
 
             {/* AI Settings */}
             <div className="dotted-separator" />
@@ -930,115 +912,6 @@ function IgnoredAppsList({
               </button>
             </span>
           ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PremiumSection() {
-  const { t } = useTranslation();
-  const entitlement = useLicenseStore((state) => state.entitlement);
-  const isActivating = useLicenseStore((state) => state.isActivating);
-  const error = useLicenseStore((state) => state.error);
-  const activateLicense = useLicenseStore((state) => state.activateLicense);
-  const deactivateLicense = useLicenseStore((state) => state.deactivateLicense);
-  const openPurchasePage = useLicenseStore((state) => state.openPurchasePage);
-  const [keyInput, setKeyInput] = useState('');
-
-  const beta = isBeta();
-  const premium = entitlement.isPremium && !beta;
-
-  const handleActivate = async () => {
-    const ok = await activateLicense(keyInput);
-    if (ok) setKeyInput('');
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Crown className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">
-          {t('license.premium.title')}
-        </span>
-        <span className={cn(
-          'px-1.5 py-0.5 text-[10px] font-medium rounded',
-          beta ? 'bg-blue-500/10 text-blue-500' :
-          premium ? 'bg-green-500/10 text-green-500' :
-          'bg-foreground/5 text-muted-foreground'
-        )}>
-          {beta ? t('license.status.beta') : premium ? t('license.status.premium') : t('license.status.free')}
-        </span>
-      </div>
-
-      {premium && (
-        <div className="p-3 rounded-md border border-green-500/20 bg-green-500/5 text-xs space-y-2">
-          <p className="font-medium text-green-600 dark:text-green-400">{t('license.premium.thankyou')}</p>
-          {entitlement.purchaseDate && (
-            <p className="text-muted-foreground">
-              {t('license.premium.purchaseDate', { date: new Date(entitlement.purchaseDate).toLocaleDateString() })}
-            </p>
-          )}
-          <button
-            onClick={deactivateLicense}
-            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-destructive cursor-pointer"
-          >
-            <Trash2 className="w-3 h-3" />
-            {t('license.deactivate.button')}
-          </button>
-        </div>
-      )}
-
-      {beta && (
-        <p className="text-[11px] text-muted-foreground">
-          {t('license.upgrade.description')}
-        </p>
-      )}
-
-      {!premium && !beta && (
-        <div className="space-y-3">
-          <p className="text-[11px] text-muted-foreground">
-            {t('license.upgrade.description')}
-          </p>
-          <div className="space-y-1">
-            {Object.values(PREMIUM_FEATURES).map((def) => (
-              <div key={def.id} className="flex items-center gap-2 text-[11px]">
-                <Sparkles className="w-3 h-3 text-accent shrink-0" />
-                <span>{t(def.labelKey)}</span>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={openPurchasePage}
-            className={cn(
-              'w-full py-2 text-xs font-medium rounded-lg transition-colors cursor-pointer',
-              'bg-accent text-accent-foreground hover:bg-accent/90'
-            )}
-          >
-            {t('license.upgrade.button')}
-          </button>
-
-          <div className="space-y-1.5 pt-1">
-            <p className="text-[11px] font-medium text-foreground/60">{t('license.activate.label')}</p>
-            <input
-              type="text"
-              value={keyInput}
-              onChange={(e) => setKeyInput(e.target.value)}
-              placeholder={t('license.activate.placeholder')}
-              className="w-full px-2.5 py-1.5 text-[11px] rounded-md border border-foreground/10 bg-background focus:outline-none focus:border-accent/50"
-            />
-            <button
-              onClick={handleActivate}
-              disabled={isActivating || !keyInput.trim()}
-              className={cn(
-                'w-full py-1.5 text-[11px] font-medium rounded-md border border-foreground/10 transition-colors cursor-pointer hover:bg-foreground/[0.03]',
-                (isActivating || !keyInput.trim()) && 'opacity-50 cursor-not-allowed'
-              )}
-            >
-              {isActivating ? t('license.activate.activating') : t('license.activate.button')}
-            </button>
-            {error && <p className="text-[11px] text-destructive">{t('license.activate.failed')}</p>}
-          </div>
         </div>
       )}
     </div>

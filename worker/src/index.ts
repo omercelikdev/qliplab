@@ -2,9 +2,8 @@
  * qliplab-api — Cloudflare Worker
  *
  * Routes (all require the X-App-Token header AND are per-IP rate limited):
- *   POST /report                               → create a GitHub issue (errors + feedback)
- *   POST /consent                              → store an AI/EULA consent record in D1 (legal/PII)
- *   POST /license/activate|validate|deactivate → Lemon Squeezy License API proxy
+ *   POST /report   → create a GitHub issue (errors + feedback)
+ *   POST /consent  → store an AI/EULA consent record in D1 (legal/PII)
  *
  * Code is private; GITHUB_TOKEN + APP_TOKEN are Worker secrets (never exposed).
  * X-App-Token is a soft gate (extractable from the app binary) — it blocks
@@ -16,8 +15,6 @@ export interface Env {
   GITHUB_OWNER: string;
   GITHUB_REPO: string;
   APP_TOKEN: string;
-  /** Lemon Squeezy API key (needed only for /license/by-order). */
-  LS_API_KEY?: string;
   DB: D1Database;
 }
 
@@ -186,146 +183,6 @@ async function handleConsent(req: Request, env: Env): Promise<Response> {
   return json({ success: true, consentId: body.consentId, id: result.meta.last_row_id });
 }
 
-// ── /license/* — Lemon Squeezy License API proxy ─────────────
-
-const LS_BASE = 'https://api.lemonsqueezy.com/v1/licenses';
-
-interface LicensePayload {
-  key?: string;
-  instanceName?: string;
-  instanceId?: string;
-}
-
-interface LsResponse {
-  activated?: boolean;
-  valid?: boolean;
-  deactivated?: boolean;
-  error?: string | null;
-  instance?: { id: string } | null;
-  license_key?: { status?: string; expires_at?: string | null };
-}
-
-async function lsCall(action: string, params: Record<string, string>): Promise<LsResponse> {
-  const res = await fetch(`${LS_BASE}/${action}`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams(params).toString(),
-  });
-  return (await res.json()) as LsResponse;
-}
-
-async function handleLicenseActivate(req: Request): Promise<Response> {
-  const { key, instanceName } = (await req.json()) as LicensePayload;
-  if (!key || !instanceName) {
-    return json({ success: false, error: 'Missing key or instanceName' }, 400);
-  }
-  const data = await lsCall('activate', {
-    license_key: cap(key, 100),
-    instance_name: cap(instanceName, 100),
-  });
-  return json({
-    success: true,
-    valid: data.activated === true,
-    instanceId: data.instance?.id ?? null,
-    status: data.license_key?.status ?? null,
-    expiresAt: data.license_key?.expires_at ?? null,
-    error: data.error ?? null,
-  });
-}
-
-async function handleLicenseValidate(req: Request): Promise<Response> {
-  const { key, instanceId } = (await req.json()) as LicensePayload;
-  if (!key) {
-    return json({ success: false, error: 'Missing key' }, 400);
-  }
-  const params: Record<string, string> = { license_key: cap(key, 100) };
-  if (instanceId) params.instance_id = cap(instanceId, 100);
-  const data = await lsCall('validate', params);
-  return json({
-    success: true,
-    valid: data.valid === true,
-    status: data.license_key?.status ?? null,
-    expiresAt: data.license_key?.expires_at ?? null,
-    error: data.error ?? null,
-  });
-}
-
-async function handleLicenseDeactivate(req: Request): Promise<Response> {
-  const { key, instanceId } = (await req.json()) as LicensePayload;
-  if (!key || !instanceId) {
-    return json({ success: false, error: 'Missing key or instanceId' }, 400);
-  }
-  const data = await lsCall('deactivate', {
-    license_key: cap(key, 100),
-    instance_id: cap(instanceId, 100),
-  });
-  return json({ success: true, deactivated: data.deactivated === true, error: data.error ?? null });
-}
-
-/**
- * Look up the license key for an order. Used by the deep-link auto-activation
- * flow: app receives qliplab://activate?order_id=X, calls this to fetch the
- * key (which LS does NOT put in the redirect URL for security), then activates.
- *
- * Requires LS_API_KEY (different from the public /license endpoints).
- */
-async function handleLicenseByOrder(req: Request, env: Env): Promise<Response> {
-  if (!env.LS_API_KEY) {
-    return json({ success: false, error: 'LS_API_KEY not configured' }, 500);
-  }
-  let orderId: string | null = null;
-  try {
-    const body = (await req.json()) as { orderId?: string; order_id?: string };
-    orderId = body.orderId ?? body.order_id ?? null;
-  } catch {
-    // body parse failed — orderId stays null, validation below handles it
-  }
-  if (!orderId) {
-    return json({ success: false, error: 'Missing orderId' }, 400);
-  }
-  const safeId = encodeURIComponent(cap(String(orderId), 64));
-  const headers = {
-    Authorization: `Bearer ${env.LS_API_KEY}`,
-    Accept: 'application/vnd.api+json',
-  };
-
-  // Approach 1: list license-keys filtered by order_id (brackets URL-encoded).
-  let res = await fetch(
-    `https://api.lemonsqueezy.com/v1/license-keys?filter%5Border_id%5D=${safeId}`,
-    { headers },
-  );
-  if (res.ok) {
-    const data = (await res.json()) as {
-      data?: Array<{ attributes?: { key?: string; status?: string } }>;
-    };
-    const first = data.data?.[0]?.attributes;
-    if (first?.key) {
-      return json({ success: true, key: first.key, status: first.status ?? null });
-    }
-  }
-
-  // Approach 2 (fallback): fetch the order directly with its license-keys included.
-  // Handles the case where the caller passes the LS order resource id.
-  res = await fetch(
-    `https://api.lemonsqueezy.com/v1/orders/${safeId}?include=license-keys`,
-    { headers },
-  );
-  if (res.ok) {
-    const data = (await res.json()) as {
-      included?: Array<{ type?: string; attributes?: { key?: string; status?: string } }>;
-    };
-    const lk = data.included?.find((x) => x.type === 'license-keys');
-    if (lk?.attributes?.key) {
-      return json({ success: true, key: lk.attributes.key, status: lk.attributes.status ?? null });
-    }
-  }
-
-  return json({ success: false, error: 'License key not found for order' }, 404);
-}
-
 // ── Router ───────────────────────────────────────────────────
 
 export default {
@@ -349,10 +206,6 @@ export default {
     try {
       if (pathname === '/report' || pathname === '/issue') return await handleReport(req, env);
       if (pathname === '/consent') return await handleConsent(req, env);
-      if (pathname === '/license/activate') return await handleLicenseActivate(req);
-      if (pathname === '/license/validate') return await handleLicenseValidate(req);
-      if (pathname === '/license/deactivate') return await handleLicenseDeactivate(req);
-      if (pathname === '/license/by-order') return await handleLicenseByOrder(req, env);
       return json({ error: 'Not found' }, 404);
     } catch {
       return json({ success: false, error: 'Server error' }, 500);

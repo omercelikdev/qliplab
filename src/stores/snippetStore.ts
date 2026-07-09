@@ -3,7 +3,6 @@ import { getDatabase } from '@/lib/database';
 import { expandWindowForPreview, shrinkWindowFromPreview } from '@/lib/window';
 import type { Snippet, SnippetCategory } from '@/types/snippet';
 import type { SnippetRow, SnippetCategoryRow } from '@/types/database';
-import { useLicenseStore } from '@/stores/licenseStore';
 
 interface SnippetState {
   snippets: Snippet[];
@@ -94,12 +93,6 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
 
   createSnippet: async (snippet) => {
     try {
-      // Check snippet limit for free tier
-      const licenseState = useLicenseStore.getState();
-      if (!licenseState.canUse('snippet_unlimited', { snippetCount: get().snippets.length })) {
-        return;
-      }
-
       const db = getDatabase();
       const id = crypto.randomUUID();
       const now = new Date().toISOString();

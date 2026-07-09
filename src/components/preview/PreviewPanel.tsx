@@ -17,7 +17,6 @@ import { Image } from '@tauri-apps/api/image';
 import { hideWriteAndPaste } from '@/lib/window';
 import { renderMarkdown } from '@/lib/markdownRenderer';
 import DOMPurify from 'dompurify';
-import { useLicenseStore } from '@/stores/licenseStore';
 import { cn } from '@/lib/utils';
 
 const MonacoDiffEditor = lazy(() =>
@@ -260,7 +259,7 @@ export function PreviewPanel() {
         <PipelineBar
           steps={pipelineSteps}
           detectedFormat={pipelineSteps.length > 0 ? detectFormat(editedContent) : (sourceItem?.detectedFormat ?? 'plain')}
-          canChain={useLicenseStore.getState().canUse('transform_chaining')}
+          canChain={true}
           onRemoveStep={removePipelineStep}
           onAddStep={async (transformId) => {
             const def = getTransformById(transformId);

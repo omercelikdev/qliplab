@@ -4,7 +4,6 @@ import { Code, Braces, Globe, Pin, PinOff, Trash2, Pencil, FileText, Terminal, T
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
 import { expandVariables } from '@/lib/snippetVariables';
-import { useLicenseStore } from '@/stores/licenseStore';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Snippet } from '@/types/snippet';
@@ -48,8 +47,7 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
   const deleteSnippet = useSnippetStore((state) => state.deleteSnippet);
 
   const handleClick = async () => {
-    const canExpandVars = useLicenseStore.getState().canUse('snippet_variables');
-    const content = canExpandVars ? await expandVariables(snippet.content) : snippet.content;
+    const content = await expandVariables(snippet.content);
     await hideWriteAndPaste(async () => {
       await writeText(content);
     });

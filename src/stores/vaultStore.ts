@@ -4,7 +4,6 @@ import { useSettingsStore } from '@/stores/settingsStore';
 import { encrypt, decrypt, decryptStrict, hashPassword, verifyPassword } from '@/lib/encryption';
 import type { VaultItem, VaultItemType, VaultItemData } from '@/types/vault';
 import type { VaultItemRow, VaultSettingsRow } from '@/types/database';
-import { useLicenseStore } from '@/stores/licenseStore';
 
 // SECURITY: Session password with auto-clear timeout
 let sessionPassword: string | null = null;
@@ -271,12 +270,6 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     try {
       const password = sessionPassword;
       if (!password) return;
-
-      // Check vault item limit for free tier
-      const licenseState = useLicenseStore.getState();
-      if (!licenseState.canUse('vault_unlimited', { vaultItemCount: get().items.length })) {
-        return;
-      }
 
       // Reset auto-lock timer on activity
       resetAutoLockTimer(() => get().lock());
