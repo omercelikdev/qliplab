@@ -1,15 +1,11 @@
 /**
- * Consent Audit System
+ * Consent Audit System (local-only)
  *
- * 3-layer proof of consent:
- *   1. Local audit log  — consent-audit.json, SHA-256 integrity hash
- *   2. Remote backend    — pluggable: GitHub Issues (default), Supabase, etc.
- *   3. Code evidence     — consent UI requires 3 explicit checkboxes per CONSENT_TERMS
- *
- * MIGRATION GUIDE (backend switch):
- *   1. Create new backend implementing ConsentBackend interface
- *   2. Change getRemoteBackend() in this file
- *   3. Done. Local log + consent UI stay the same.
+ * QlipLab is free & open source and AI features use the user's OWN API key —
+ * data goes directly from the user's machine to the AI provider under the
+ * user's own account. We therefore keep consent as a LOCAL record only
+ * (on the user's device) for transparency; nothing is sent to or stored on
+ * any QlipLab server.
  */
 
 import { Store } from '@tauri-apps/plugin-store';
@@ -32,7 +28,7 @@ export interface ConsentRecord {
   action: 'grant' | 'revoke';
   termsVersion: string;
   termsText: readonly string[] | string;
-  provider: 'anthropic' | 'openai' | 'gemini' | 'eula';
+  provider: 'anthropic' | 'openai' | 'gemini';
   timestamp: string;
   appVersion: string;
   platform: string;
@@ -40,32 +36,16 @@ export interface ConsentRecord {
   integrityHash: string;
 }
 
-/**
- * Backend interface — implement this to add a new storage backend.
- *
- * Current:  ValTownGitHubBackend (Val.town proxy → GitHub Issues)
- * Future:   SupabaseBackend, PlanetScaleBackend, etc.
- */
-export interface ConsentBackend {
-  send(record: ConsentRecord): Promise<{ success: boolean; ref?: string }>;
-}
-
 // ─── Public API ──────────────────────────────────────────────
 
 /**
- * Record a consent event with full audit trail.
- * Stores locally AND sends to remote backend.
- *
- * IMPORTANT: Server receipt is REQUIRED for 'grant' actions.
- * If the server fails to record consent, the function throws
- * and consent must NOT be granted. This ensures we always have
- * server-side proof of consent.
- *
- * 'revoke' actions are best-effort on the server side.
+ * Record a consent event locally (on the user's own device).
+ * Never fails the caller — a failed local write is swallowed so consent
+ * flow is never blocked by disk issues.
  */
 export async function recordConsent(
   action: 'grant' | 'revoke',
-  provider: 'anthropic' | 'openai' | 'gemini' | 'eula',
+  provider: 'anthropic' | 'openai' | 'gemini',
   opts?: { termsVersion?: string; termsText?: string },
 ): Promise<ConsentRecord> {
   const partial: Omit<ConsentRecord, 'integrityHash'> = {
@@ -83,26 +63,7 @@ export async function recordConsent(
   const integrityHash = await computeHash(hashPayload(partial));
   const record: ConsentRecord = { ...partial, integrityHash };
 
-  // Layer 1: Local (always, regardless of server result)
   await saveToLocalLog(record);
-
-  // Layer 2: Remote — REQUIRED for grants, best-effort for revokes
-  // In development, skip server calls (local log is still written above)
-  if (!import.meta.env.DEV) {
-    const backend = getRemoteBackend();
-
-    if (action === 'grant') {
-      // Grant MUST be recorded on server — no server receipt = no consent
-      const result = await backend.send(record);
-      if (!result.success) {
-        throw new Error('CONSENT_SERVER_FAILED');
-      }
-    } else {
-      // Revoke is best-effort on server
-      backend.send(record).catch(() => {});
-    }
-  }
-
   return record;
 }
 
@@ -121,78 +82,6 @@ export async function verifyRecord(record: ConsentRecord): Promise<boolean> {
   const { integrityHash, ...rest } = record;
   const expected = await computeHash(hashPayload(rest as Omit<ConsentRecord, 'integrityHash'>));
   return expected === integrityHash;
-}
-
-// ─── Backend: Val.town → GitHub Issues (current) ────────────
-
-class ValTownGitHubBackend implements ConsentBackend {
-  constructor(private url: string) {}
-
-  async send(record: ConsentRecord): Promise<{ success: boolean; ref?: string }> {
-    const res = await fetch(this.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-App-Token': CONFIG.APP_TOKEN },
-      body: JSON.stringify({
-        consentId: record.id,
-        action: record.action,
-        termsVersion: record.termsVersion,
-        termsText: record.termsText,
-        provider: record.provider,
-        timestamp: record.timestamp,
-        appVersion: record.appVersion,
-        platform: record.platform,
-        locale: record.locale,
-        integrityHash: record.integrityHash,
-      }),
-    });
-
-    if (!res.ok) return { success: false };
-
-    const data = await res.json();
-    return { success: true, ref: data.issueNumber?.toString() };
-  }
-}
-
-// ─── Backend: Supabase (future, ready to drop in) ───────────
-//
-// class SupabaseBackend implements ConsentBackend {
-//   constructor(private url: string, private anonKey: string) {}
-//
-//   async send(record: ConsentRecord) {
-//     const res = await fetch(`${this.url}/rest/v1/consent_log`, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'apikey': this.anonKey,
-//         'Authorization': `Bearer ${this.anonKey}`,
-//       },
-//       body: JSON.stringify({
-//         id: record.id,
-//         action: record.action,
-//         terms_version: record.termsVersion,
-//         terms_text: record.termsText,
-//         provider: record.provider,
-//         timestamp: record.timestamp,
-//         app_version: record.appVersion,
-//         platform: record.platform,
-//         locale: record.locale,
-//         integrity_hash: record.integrityHash,
-//       }),
-//     });
-//     return { success: res.ok };
-//   }
-// }
-
-// ─── Backend selector ────────────────────────────────────────
-//
-// MIGRATION: Sadece bu fonksiyonu değiştir, başka hiçbir yere dokunma.
-//
-
-function getRemoteBackend(): ConsentBackend {
-  return new ValTownGitHubBackend(CONFIG.CONSENT_LOG_URL);
-
-  // Future (tek satır değiştir):
-  // return new SupabaseBackend(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 }
 
 // ─── Internal helpers ────────────────────────────────────────
@@ -231,6 +120,6 @@ async function saveToLocalLog(record: ConsentRecord): Promise<void> {
     await store.set('log', existing);
     await store.save();
   } catch {
-    // Audit log write failed
+    // Audit log write failed — non-fatal
   }
 }

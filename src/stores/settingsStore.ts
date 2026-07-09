@@ -32,9 +32,6 @@ export interface AppSettings {
   windowY: number | null;
   windowWidth: number | null;
   windowHeight: number | null;
-  eulaAccepted: boolean;
-  eulaAcceptedVersion: string;
-  eulaAcceptedAt: string;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -60,9 +57,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   windowY: null,
   windowWidth: null,
   windowHeight: null,
-  eulaAccepted: false,
-  eulaAcceptedVersion: '',
-  eulaAcceptedAt: '',
 };
 
 let store: Store | null = null;

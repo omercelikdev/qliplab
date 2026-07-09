@@ -35,22 +35,16 @@ export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) 
     setError(null);
 
     try {
-      // Record consent — server receipt is REQUIRED
-      // If server fails, this throws and consent is NOT granted
+      // Record consent locally (transparency — never sent to any server).
       const providerKey = useSettingsStore.getState().settings.aiProvider;
       await recordConsent('grant', providerKey);
 
-      // Only reaches here if server confirmed
       await updateSetting('aiConsentAccepted', true);
       await updateSetting('aiConsentDate', new Date().toISOString());
       onAccept();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      if (msg === 'CONSENT_SERVER_FAILED') {
-        setError(t('ai.consent.error.serverFailed'));
-      } else {
-        setError(t('ai.consent.error.generic', { error: msg }));
-      }
+      setError(t('ai.consent.error.generic', { error: msg }));
     } finally {
       setIsSubmitting(false);
     }

@@ -15,19 +15,18 @@
 | Snippets | SQLite | None |
 | Vault items | SQLite (`encrypted_data` column) | AES-256-GCM |
 | Settings | Tauri Store (`settings.json`) | None |
-| Consent audit | Tauri Store (`consent-audit.json`) | None (integrity hash) |
+| AI consent (local-only) | Tauri Store (`consent-audit.json`) | None (integrity hash) |
 | Master password | Never stored (only salted hash) | SHA-256 + salt |
 
 ### Network Security
 - **CSP enabled** in `tauri.conf.json` with restricted `connect-src`
 - **Allowed external connections:**
-  - Val.town issue reporter endpoint
-  - Val.town consent log endpoint
-  - Anthropic API (AI features, user-initiated)
-  - OpenAI API (AI features, user-initiated)
+  - Cloudflare Worker issue reporter endpoint (`qliplab-api.omercelikdev.workers.dev`)
+  - Anthropic / OpenAI / Google Gemini APIs (AI features, user-initiated, user's own key)
   - jsdelivr CDN (Monaco editor)
 - **No telemetry** — no background data collection
-- **All consent/report endpoints** are proxied through Val.town (no direct GitHub token exposure)
+- **No server-side consent/agreement storage** — AI consent is stored locally only
+- **Report endpoint** is proxied through the Cloudflare Worker (no direct GitHub token exposure)
 
 ### App Sandbox (macOS)
 Enabled via `Entitlements.plist`:
@@ -52,24 +51,22 @@ Vault unlock attempts are rate-limited with exponential backoff:
 
 ## Consent & Legal
 
-### EULA (End User License Agreement)
-- Shown on first launch, blocks app until accepted
-- Must scroll to end before "I Accept" button is enabled
-- Acceptance recorded: local audit log + server (GitHub issue)
-- Server confirmation required — no internet = cannot accept
-- Stored in `settings.json`: `eulaAccepted`, `eulaAcceptedVersion`, `eulaAcceptedAt`
-- One-time only — not shown again after acceptance
+### Terms of Use (open source, no gate)
+- QlipLab is licensed under Apache-2.0 (see `LICENSE`)
+- No first-launch EULA gate; a viewable Terms/disclaimer is available in
+  Settings → Terms of Use (`EulaViewerDialog`)
+- Nothing is recorded to any server
 
-### AI Data Processing Consent
+### AI Data Processing Consent (local-only)
 - Required before using any AI feature
 - 3 explicit checkboxes must be checked
-- Server confirmation required
+- Recorded **locally only** with a SHA-256 integrity hash (`consent-audit.json`)
+- Never transmitted to any QlipLab server
 - Can be revoked anytime in Settings
-- Recorded with SHA-256 integrity hash
 
 ### Error Reporting
 - Opt-in only (default OFF)
-- Shown after EULA acceptance on first launch
+- Shown on first launch
 - Can be toggled anytime in Settings
 - Rate limited: 10/hour, 50/day
 - No clipboard/vault/personal data sent
@@ -117,7 +114,7 @@ if (import.meta.env.DEV) return; // skip in development
 Applied to:
 - `errorReporter.ts` — auto error reports
 - `feedbackStore.ts` — manual issue reports
-- `consentLog.ts` — server-side consent logging (local log still works)
+- `consentLog.ts` — local-only AI consent record (no server call)
 
 ---
 
@@ -155,11 +152,11 @@ Applied to:
 - [x] CSP with restricted connect-src
 - [x] HTTPS only for all external connections
 - [x] No direct GitHub token in client
-- [x] Consent requires server confirmation
+- [x] No server-side consent/agreement storage (AI consent is local-only)
 
 ### Compliance
-- [x] EULA with server-recorded acceptance
-- [x] AI consent with 3 explicit checkboxes
+- [x] Apache-2.0 licensed; Terms/disclaimer viewable in-app (no gate)
+- [x] AI consent with 3 explicit checkboxes (local-only record)
 - [x] Error reporting opt-in (not opt-out)
 - [x] Privacy Policy accessible in-app
 - [x] PrivacyInfo.xcprivacy for App Store

@@ -11,7 +11,7 @@ Cross-platform clipboard manager. Tauri v2 + React 19 + TypeScript.
 - [Stores](docs/STORES.md) - Zustand state management
 - [Tauri Backend](docs/TAURI.md) - Rust/Tauri implementation
 - [Security](docs/SECURITY.md) - Encryption, audit, App Store compliance
-- [Reporting](docs/REPORTING.md) - Issue/consent system, labels
+- [Reporting](docs/REPORTING.md) - Issue reporting system (bug/feedback → GitHub Issues)
 - [Publishing](docs/PUBLISHING.md) - App Store submission guide
 - [Development](docs/DEVELOPMENT.md) - Dev commands & workflow
 
@@ -79,7 +79,7 @@ qliplab/
 │   │   ├── window.ts         # hideAndPaste, toggleWindow
 │   │   ├── errorReporter.ts  # Auto error reporting
 │   │   ├── systemInfo.ts     # System info for reports
-│   │   └── config.ts         # Val.town URL, app version
+│   │   └── config.ts         # Worker API URL, app version
 │   ├── stores/
 │   │   ├── appStore.ts       # UI state, tabs, diff mode, search
 │   │   ├── historyStore.ts   # Clipboard history
@@ -186,7 +186,7 @@ fn simulate_paste() -> Result<(), String>       // AppleScript: keystroke "v" us
 
 ### Manual Reporting
 - Settings → "Report Issue / Send Feedback"
-- Creates GitHub issue via Val.town proxy
+- Creates GitHub issue via the Cloudflare Worker proxy (`qliplab-api.omercelikdev.workers.dev`)
 
 ### Auto Error Reporting (Opt-in)
 - ErrorBoundary catches React errors
@@ -197,8 +197,9 @@ fn simulate_paste() -> Result<(), String>       // AppleScript: keystroke "v" us
 **Config**: `src/lib/config.ts`
 ```typescript
 export const CONFIG = {
-  ISSUE_REPORTER_URL: 'https://celikomr--xxx.web.val.run',
-  APP_VERSION: '0.1.0',
+  ISSUE_REPORTER_URL: 'https://qliplab-api.omercelikdev.workers.dev/report',
+  APP_TOKEN: '...', // soft anti-abuse gate for the Worker
+  APP_VERSION: '0.1.x',
 };
 ```
 

@@ -3,11 +3,10 @@
  *
  * Routes (all require the X-App-Token header AND are per-IP rate limited):
  *   POST /report   → create a GitHub issue (errors + feedback)
- *   POST /consent  → store an AI/EULA consent record in D1 (legal/PII)
  *
- * Code is private; GITHUB_TOKEN + APP_TOKEN are Worker secrets (never exposed).
+ * GITHUB_TOKEN + APP_TOKEN are Worker secrets (set via wrangler, never in the repo).
  * X-App-Token is a soft gate (extractable from the app binary) — it blocks
- * anonymous drive-by abuse; the per-IP rate limit bounds damage regardless.
+ * anonymous drive-by abuse; the per-IP rate limit (D1-backed) bounds damage regardless.
  */
 
 export interface Env {
@@ -112,77 +111,6 @@ async function handleReport(req: Request, env: Env): Promise<Response> {
   return json({ success: true, issueNumber: issue.number, issueUrl: issue.html_url });
 }
 
-// ── /consent — AI/EULA consent audit (D1, legal + PII) ───────
-
-interface ConsentPayload {
-  consentId?: string;
-  action?: 'grant' | 'revoke';
-  termsVersion?: string;
-  termsText?: string | string[];
-  provider?: string;
-  timestamp?: string;
-  appVersion?: string;
-  platform?: string;
-  locale?: string;
-  integrityHash?: string;
-}
-
-async function handleConsent(req: Request, env: Env): Promise<Response> {
-  const body = (await req.json()) as ConsentPayload;
-
-  const required: (keyof ConsentPayload)[] = [
-    'consentId',
-    'action',
-    'termsVersion',
-    'provider',
-    'timestamp',
-    'appVersion',
-    'integrityHash',
-  ];
-  for (const f of required) {
-    if (!body[f]) {
-      return json({ success: false, error: `Missing: ${f}` }, 400);
-    }
-  }
-  if (body.action !== 'grant' && body.action !== 'revoke') {
-    return json({ success: false, error: 'Invalid action' }, 400);
-  }
-
-  const termsText =
-    typeof body.termsText === 'string'
-      ? cap(body.termsText, 8000)
-      : Array.isArray(body.termsText)
-        ? cap(JSON.stringify(body.termsText), 8000)
-        : null;
-
-  const result = await env.DB.prepare(
-    `INSERT INTO consent_log
-       (consent_id, action, terms_version, terms_text, provider, timestamp,
-        app_version, platform, locale, integrity_hash, server_received)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  )
-    .bind(
-      cap(String(body.consentId), 64),
-      body.action,
-      cap(String(body.termsVersion), 32),
-      termsText,
-      cap(String(body.provider), 32),
-      cap(String(body.timestamp), 40),
-      cap(String(body.appVersion), 32),
-      body.platform ? cap(String(body.platform), 256) : null,
-      body.locale ? cap(String(body.locale), 32) : null,
-      cap(String(body.integrityHash), 128),
-      new Date().toISOString(),
-    )
-    .run();
-
-  if (!result.success) {
-    return json({ success: false, error: 'DB write failed' }, 502);
-  }
-
-  return json({ success: true, consentId: body.consentId, id: result.meta.last_row_id });
-}
-
 // ── Router ───────────────────────────────────────────────────
 
 export default {
@@ -205,7 +133,6 @@ export default {
     const { pathname } = new URL(req.url);
     try {
       if (pathname === '/report' || pathname === '/issue') return await handleReport(req, env);
-      if (pathname === '/consent') return await handleConsent(req, env);
       return json({ error: 'Not found' }, 404);
     } catch {
       return json({ success: false, error: 'Server error' }, 500);
