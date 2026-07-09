@@ -2,15 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>com.apple.application-identifier</key>
-    <string>78Q3K3UH7U.com.qliplab.app</string>
-    <key>com.apple.security.app-sandbox</key>
+    <!-- Developer ID / notarized distribution (NOT App Store).
+         No app-sandbox: QlipLab needs Accessibility for Ditto-like auto-paste
+         and a global shortcut, which the sandbox forbids. Hardened runtime is
+         required for notarization; the entries below keep the WKWebView JIT and
+         Tauri's bundled libraries working under it. -->
+    <key>com.apple.security.cs.allow-jit</key>
     <true/>
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
     <true/>
-    <key>com.apple.security.network.client</key>
-    <true/>
-    <key>com.apple.security.files.user-selected.read-write</key>
+    <key>com.apple.security.cs.disable-library-validation</key>
     <true/>
 </dict>
 </plist>
