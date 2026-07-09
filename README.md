@@ -70,4 +70,9 @@ npm run tauri:build:linux  # Linux x64
 
 ## License
 
-Proprietary — All Rights Reserved. See [LICENSE](LICENSE) for details.
+Licensed under the [Apache License 2.0](LICENSE). You are free to use, modify,
+and distribute this software, including for commercial purposes, provided you
+retain the copyright and license notices.
+
+"QlipLab" and its logo are trademarks of the author and are not licensed for use
+on derivative or redistributed builds without permission.
