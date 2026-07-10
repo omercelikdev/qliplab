@@ -4,7 +4,6 @@ import { Clipboard, Search, Tag, X } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
 import { getSourceApps } from '@/lib/database';
-import { QUICK_PASTE_MAX } from '@/lib/quickPaste';
 import { useAppStore, FORMAT_FILTER_GROUPS } from '@/stores/appStore';
 import type { FormatFilterGroup } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
@@ -15,6 +14,7 @@ import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { getImageBase64ForClipboard } from '@/lib/imageUtils';
 import { useTagStore } from '@/stores/tagStore';
 import { barEndInset } from '@/lib/platform';
+import { SelectMenu } from '@/components/ui/SelectMenu';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -217,24 +217,23 @@ export function HistoryList() {
           </button>
         ))}
 
-        {/* Source app filter — the column and its index already existed, nothing surfaced them */}
+        {/* Source app filter — custom dropdown so the selection is the app's
+            accent, not the macOS system blue a native <select> popup paints. */}
         {sourceApps.length > 0 && (
-          <select
+          <SelectMenu
             value={sourceAppFilter ?? ''}
-            onChange={(e) => setSourceAppFilter(e.target.value || null)}
-            aria-label={t('history.filterByApp')}
-            title={t('history.filterByApp')}
-            className={cn(
-              'ms-auto shrink-0 max-w-[120px] ps-1.5 pe-0.5 py-0.5 text-[11px] rounded-md bg-transparent',
+            onChange={(v) => setSourceAppFilter(v || null)}
+            ariaLabel={t('history.filterByApp')}
+            options={[
+              { value: '', label: t('history.allApps') },
+              ...sourceApps.map((app) => ({ value: app, label: app })),
+            ]}
+            triggerClassName={cn(
+              'ms-auto shrink-0 max-w-[120px] flex items-center gap-1 ps-1.5 pe-1 py-0.5 text-[11px] rounded-md bg-transparent',
               'cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
               sourceAppFilter ? 'text-accent font-medium' : 'text-muted-foreground'
             )}
-          >
-            <option value="">{t('history.allApps')}</option>
-            {sourceApps.map((app) => (
-              <option key={app} value={app}>{app}</option>
-            ))}
-          </select>
+          />
         )}
       </div>
 
@@ -338,7 +337,6 @@ export function HistoryList() {
                 isQueueMode={isQueueMode}
                 queuePosition={isQueueMode ? (() => { const idx = pasteQueue.findIndex(q => q.id === item.id); return idx >= 0 ? idx + 1 : null; })() : null}
                 isMenuOpen={openMenuItemId === item.id}
-                quickPasteNumber={!isDiffMode && !isQueueMode && index < QUICK_PASTE_MAX ? index + 1 : null}
                 searchQuery={searchQuery}
                 onOpenMenu={handleOpenMenu}
                 onCloseMenu={handleCloseMenu}

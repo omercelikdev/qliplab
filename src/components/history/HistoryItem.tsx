@@ -114,8 +114,6 @@ interface HistoryItemProps {
   queuePosition: number | null;
   isMenuOpen: boolean;
   searchQuery?: string;
-  /** 1-based quick-paste shortcut for this row, or null when it has none. */
-  quickPasteNumber?: number | null;
   onOpenMenu: (id: string) => void;
   onCloseMenu: () => void;
   onDiffSelect: (id: string) => void;
@@ -133,7 +131,6 @@ export const HistoryItem = memo(function HistoryItem({
   queuePosition,
   isMenuOpen,
   searchQuery = '',
-  quickPasteNumber = null,
   onOpenMenu,
   onCloseMenu,
   onDiffSelect,
@@ -341,18 +338,6 @@ export const HistoryItem = memo(function HistoryItem({
       onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
-      {/* Quick-paste number: nobody uses a shortcut they cannot see. */}
-      {quickPasteNumber !== null && (
-        <span
-          aria-hidden
-          className={cn(
-            'w-2.5 -ms-1 shrink-0 text-end font-mono text-[9px] tabular-nums leading-none transition-colors duration-100',
-            isSelected || isHovered ? 'text-foreground/45' : 'text-foreground/20'
-          )}
-        >
-          {quickPasteNumber}
-        </span>
-      )}
       {item.contentType === 'image' ? (
         isCurrentlyPasting ? (
           <Loader2 className="w-3.5 h-3.5 text-blue-500 shrink-0 animate-spin" />
