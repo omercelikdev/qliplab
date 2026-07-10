@@ -72,5 +72,29 @@ describe('buildWhereClause', () => {
       const { where } = buildWhereClause({ ...base, searchQuery: "'; DROP TABLE clipboard_history;--" });
       expect(where).not.toContain('DROP TABLE');
     });
+
+    // Regression: a single LIKE '%select users%' required the words to be
+    // adjacent, so it never matched "SELECT id FROM users".
+    it('requires every token, in any order', () => {
+      const { where, args } = buildWhereClause({ ...base, searchQuery: 'select users' });
+      expect(where.match(/content LIKE \?/g)).toHaveLength(2);
+      expect(args).toEqual(['%select%', '%users%']);
+    });
+
+    it('adds the image exclusion once, not per token', () => {
+      const { where } = buildWhereClause({ ...base, searchQuery: 'a b c' });
+      expect(where.match(/content_type != 'image'/g)).toHaveLength(1);
+    });
+
+    it('ignores a whitespace-only query', () => {
+      const { where, args } = buildWhereClause({ ...base, searchQuery: '   ' });
+      expect(where).toBe('');
+      expect(args).toEqual([]);
+    });
+
+    it('keeps source app before the search tokens in the arg list', () => {
+      const { args } = buildWhereClause({ ...base, sourceApp: 'Terminal', searchQuery: 'from users' });
+      expect(args).toEqual(['Terminal', '%from%', '%users%']);
+    });
   });
 });

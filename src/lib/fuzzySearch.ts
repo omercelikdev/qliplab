@@ -1,5 +1,10 @@
-// Search scoring: substring match first, then word-initial fuzzy as fallback.
-// Returns a score (higher = better match) or -1 if no match.
+// Despite the name, scoring is substring-only: a query that is not a contiguous
+// substring of the target scores -1 and the item is dropped. The word-initial
+// fallback below exists solely for highlighting, never for matching.
+//
+// Ranking, highest first: match at the start, then at a word boundary, then
+// anywhere. Used for snippets and vault items, which are small enough to score
+// in memory. Clipboard history is filtered in SQL instead (see searchQuery.ts).
 
 export function fuzzyScore(query: string, target: string): number {
   const q = query.toLowerCase();

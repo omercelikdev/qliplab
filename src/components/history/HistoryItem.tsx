@@ -15,6 +15,7 @@ import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { shouldMaskContent } from '@/lib/sensitiveMask';
+import { highlightRanges, tokenizeSearchQuery } from '@/lib/searchQuery';
 import { useTagStore } from '@/stores/tagStore';
 import type { Tag } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
@@ -80,17 +81,25 @@ function formatRelativeTime(date: Date): string {
   return i18n.t('common.timeNow');
 }
 
+/** Highlight every search token, not just the query taken as one substring. */
 function highlightMatch(text: string, query: string): React.ReactNode {
   if (!query || query.length < 2) return text;
-  const idx = text.toLowerCase().indexOf(query.toLowerCase());
-  if (idx === -1) return text;
-  return (
-    <>
-      {text.slice(0, idx)}
-      <mark className="bg-accent/30 text-inherit rounded-sm">{text.slice(idx, idx + query.length)}</mark>
-      {text.slice(idx + query.length)}
-    </>
-  );
+  const ranges = highlightRanges(text, tokenizeSearchQuery(query));
+  if (ranges.length === 0) return text;
+
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  ranges.forEach(({ start, end }, i) => {
+    if (start > cursor) parts.push(text.slice(cursor, start));
+    parts.push(
+      <mark key={i} className="bg-accent/30 text-inherit rounded-sm">
+        {text.slice(start, end)}
+      </mark>
+    );
+    cursor = end;
+  });
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return <>{parts}</>;
 }
 
 interface HistoryItemProps {

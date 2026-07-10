@@ -153,6 +153,7 @@ export function getDatabase() {
 import type { ClipboardHistoryRow } from '@/types/database';
 import { FORMAT_FILTER_GROUPS, CATEGORIZED_FORMATS } from '@/stores/appStore';
 import type { FormatFilterGroup } from '@/stores/appStore';
+import { tokenizeSearchQuery, escapeLikePattern } from '@/lib/searchQuery';
 
 export interface HistoryQueryParams {
   formatFilter: FormatFilterGroup;
@@ -196,12 +197,16 @@ export function buildWhereClause(
     args.push(params.sourceApp);
   }
 
-  // Search — only text items, case-insensitive LIKE
-  if (params.searchQuery) {
-    // Escape LIKE wildcards so literal % and _ in search are matched exactly
-    const escaped = params.searchQuery.replace(/[%_]/g, '\\$&');
-    conditions.push(`(content_type != 'image' AND content LIKE ? ESCAPE '\\')`);
-    args.push(`%${escaped}%`);
+  // Search — only text items, case-insensitive LIKE.
+  // Every token must appear somewhere in the content, in any order, so
+  // "select users" finds "SELECT id FROM users".
+  const tokens = tokenizeSearchQuery(params.searchQuery);
+  if (tokens.length > 0) {
+    conditions.push(`content_type != 'image'`);
+    for (const token of tokens) {
+      conditions.push(`content LIKE ? ESCAPE '\\'`);
+      args.push(`%${escapeLikePattern(token)}%`);
+    }
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
