@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, ShieldAlert, FileText, Plus, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { EulaViewerDialog } from '@/components/legal/EulaViewerDialog';
@@ -11,6 +11,7 @@ import { CheckUpdatesButton } from '@/components/settings/CheckUpdatesButton';
 import { exportData, importData, type ExportSection } from '@/lib/exportImport';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { CONFIG } from '@/lib/config';
+import { isFrontmostAppSupported } from '@/lib/capabilities';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { cn } from '@/lib/utils';
@@ -43,10 +44,15 @@ export function SettingsPanel() {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isEulaOpen, setIsEulaOpen] = useState(false);
+  const [frontmostAppSupported, setFrontmostAppSupported] = useState<boolean | null>(null);
 
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
+
+  useEffect(() => {
+    isFrontmostAppSupported().then(setFrontmostAppSupported).catch(() => {});
+  }, []);
 
   return (
     <>
@@ -207,6 +213,16 @@ export function SettingsPanel() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.ignoredApps.label')}</label>
               <p className="text-[10px] text-muted-foreground">{t('settings.ignoredApps.description')}</p>
+              {/* Without a frontmost-app name this list matches nothing. Say so
+                  rather than let the user believe an app is being excluded. */}
+              {frontmostAppSupported === false && (
+                <div className="flex gap-2 p-2 rounded-md border border-amber-500/30 bg-amber-500/[0.07]">
+                  <ShieldAlert className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                    {t('settings.ignoredApps.unsupported')}
+                  </p>
+                </div>
+              )}
               <IgnoredAppsList
                 apps={settings.ignoredApps}
                 onChange={(apps) => updateSetting('ignoredApps', apps)}

@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "Suffix",
   "snippets.editor.saveChanges": "Änderungen speichern",
   "snippets.editor.createSnippet": "Snippet erstellen",
-  "snippets.editor.unsavedChanges": "Sie haben ungespeicherte Änderungen. Verwerfen?",
   "snippets.editor.triggerFormatError": "Nur Buchstaben, Zahlen, - und _",
   "snippets.editor.triggerExistsError": "Trigger existiert bereits",
   "snippets.editor.syntaxPlainText": "Klartext",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Schnell einfügen",
   "history.sensitiveHidden": "Vertraulich — zum Anzeigen darüberfahren",
   "history.allApps": "Alle Apps",
-  "history.filterByApp": "Nach Quell-App filtern"
+  "history.filterByApp": "Nach Quell-App filtern",
+  "snippets.editor.discardTitle": "Änderungen verwerfen?",
+  "snippets.editor.discardMessage": "Ihre nicht gespeicherten Änderungen an diesem Snippet gehen verloren.",
+  "snippets.editor.discard": "Verwerfen",
+  "settings.ignoredApps.unsupported": "Ihre Desktop-Sitzung gibt die aktive App nicht preis, daher hat diese Liste keine Wirkung. Unter Linux ist eine X11-Sitzung mit xdotool oder xprop nötig."
 }

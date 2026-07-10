@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "sufixo",
   "snippets.editor.saveChanges": "Salvar Alterações",
   "snippets.editor.createSnippet": "Criar Snippet",
-  "snippets.editor.unsavedChanges": "Você tem alterações não salvas. Descartar?",
   "snippets.editor.triggerFormatError": "Apenas letras, números, - e _",
   "snippets.editor.triggerExistsError": "Esse gatilho já existe",
   "snippets.editor.syntaxPlainText": "Texto Simples",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Colar rápido",
   "history.sensitiveHidden": "Sensível — passe o mouse para revelar",
   "history.allApps": "Todos os apps",
-  "history.filterByApp": "Filtrar por app de origem"
+  "history.filterByApp": "Filtrar por app de origem",
+  "snippets.editor.discardTitle": "Descartar alterações?",
+  "snippets.editor.discardMessage": "Suas alterações não salvas neste snippet serão perdidas.",
+  "snippets.editor.discard": "Descartar",
+  "settings.ignoredApps.unsupported": "Sua sessão de desktop não revela o app em primeiro plano, então esta lista não tem efeito. No Linux é preciso uma sessão X11 com xdotool ou xprop."
 }

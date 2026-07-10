@@ -310,10 +310,88 @@ fn get_frontmost_app() -> Result<String, String> {
     Ok(String::new())
 }
 
+/// Sentinel returned when the desktop session gives us no way to see which app
+/// is in front. Wayland has no portable API for it; X11 needs xdotool or xprop.
+#[cfg(target_os = "linux")]
+pub const FRONTMOST_APP_UNSUPPORTED: &str = "FRONTMOST_APP_UNSUPPORTED";
+
+/// Best-effort active-window class on X11.
+///
+/// Returning `Err` rather than an empty string matters: the ignored-apps list
+/// compares against this name, and an empty name silently matches nothing, so
+/// a user who excluded their password manager would still be capturing from it.
+#[cfg(target_os = "linux")]
+fn linux_frontmost_app() -> Result<String, String> {
+    use std::process::Command;
+
+    // xdotool is the direct route and reports the class name we want.
+    if let Ok(out) = Command::new("xdotool")
+        .args(["getactivewindow", "getwindowclassname"])
+        .output()
+    {
+        if out.status.success() {
+            let name = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            if !name.is_empty() {
+                return Ok(name);
+            }
+        }
+    }
+
+    // xprop is far more commonly installed. Read the active window id, then its
+    // WM_CLASS, whose last quoted field is the human-facing class.
+    let root = Command::new("xprop")
+        .args(["-root", "_NET_ACTIVE_WINDOW"])
+        .output()
+        .map_err(|_| FRONTMOST_APP_UNSUPPORTED.to_string())?;
+    if !root.status.success() {
+        return Err(FRONTMOST_APP_UNSUPPORTED.to_string());
+    }
+    let root_out = String::from_utf8_lossy(&root.stdout);
+    let win_id = root_out
+        .split_whitespace()
+        .last()
+        .filter(|id| id.starts_with("0x"))
+        .ok_or_else(|| FRONTMOST_APP_UNSUPPORTED.to_string())?;
+
+    let class = Command::new("xprop")
+        .args(["-id", win_id, "WM_CLASS"])
+        .output()
+        .map_err(|_| FRONTMOST_APP_UNSUPPORTED.to_string())?;
+    if !class.status.success() {
+        return Err(FRONTMOST_APP_UNSUPPORTED.to_string());
+    }
+    let class_out = String::from_utf8_lossy(&class.stdout);
+    class_out
+        .rsplit('"')
+        .nth(1)
+        .map(|s| s.to_string())
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| FRONTMOST_APP_UNSUPPORTED.to_string())
+}
+
 #[cfg(target_os = "linux")]
 #[tauri::command]
 fn get_frontmost_app() -> Result<String, String> {
-    Ok(String::new())
+    linux_frontmost_app()
+}
+
+/// Whether this platform can tell us which app is in front. macOS and Windows
+/// always can; on Linux it depends on the session (X11 + xdotool/xprop).
+/// The ignored-apps setting is meaningless when this is false, so the UI says so.
+#[tauri::command]
+fn frontmost_app_supported() -> bool {
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    {
+        true
+    }
+    #[cfg(target_os = "linux")]
+    {
+        linux_frontmost_app().is_ok()
+    }
+    #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
+    {
+        false
+    }
 }
 
 /// Show panel on current space (macOS)
@@ -1448,12 +1526,14 @@ fn list_running_apps() -> Result<Vec<(String, bool)>, String> {
     // List .desktop files
     let mut all_apps: Vec<(String, bool)> = Vec::new();
     let mut seen = HashSet::new();
-    let app_dirs = vec![
+    let mut app_dirs = vec![
         std::path::PathBuf::from("/usr/share/applications"),
         std::path::PathBuf::from("/usr/local/share/applications"),
     ];
+    // The per-user directory was never actually added, so anything the user
+    // installed themselves was missing from the ignored-apps picker.
     if let Ok(home) = std::env::var("HOME") {
-        let _ = app_dirs.clone(); // just for the push below
+        app_dirs.push(std::path::PathBuf::from(home).join(".local/share/applications"));
     }
 
     for dir in &app_dirs {
@@ -1528,6 +1608,7 @@ pub fn run() {
             accessibility_granted,
             request_accessibility_permission,
             open_accessibility_settings,
+            frontmost_app_supported,
             list_running_apps,
             write_temp_image
         ])

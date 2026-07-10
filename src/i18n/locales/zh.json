@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "后缀",
   "snippets.editor.saveChanges": "保存更改",
   "snippets.editor.createSnippet": "创建片段",
-  "snippets.editor.unsavedChanges": "有未保存的更改，确定放弃吗？",
   "snippets.editor.triggerFormatError": "仅允许字母、数字、- 和 _",
   "snippets.editor.triggerExistsError": "此触发词已存在",
   "snippets.editor.syntaxPlainText": "纯文本",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "快速粘贴",
   "history.sensitiveHidden": "敏感内容 — 悬停以显示",
   "history.allApps": "所有应用",
-  "history.filterByApp": "按来源应用筛选"
+  "history.filterByApp": "按来源应用筛选",
+  "snippets.editor.discardTitle": "放弃更改？",
+  "snippets.editor.discardMessage": "此代码片段未保存的更改将会丢失。",
+  "snippets.editor.discard": "放弃",
+  "settings.ignoredApps.unsupported": "当前桌面会话无法获知前台应用，因此此列表不起作用。在 Linux 上需要 X11 会话并安装 xdotool 或 xprop。"
 }

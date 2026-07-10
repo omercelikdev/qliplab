@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "sufiks",
   "snippets.editor.saveChanges": "Zapisz zmiany",
   "snippets.editor.createSnippet": "Utwórz snippet",
-  "snippets.editor.unsavedChanges": "Masz niezapisane zmiany. Odrzucić?",
   "snippets.editor.triggerFormatError": "Tylko litery, cyfry, - i _",
   "snippets.editor.triggerExistsError": "Ten trigger już istnieje",
   "snippets.editor.syntaxPlainText": "Zwykły tekst",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Szybkie wklejanie",
   "history.sensitiveHidden": "Poufne — najedź, aby pokazać",
   "history.allApps": "Wszystkie aplikacje",
-  "history.filterByApp": "Filtruj wg aplikacji źródłowej"
+  "history.filterByApp": "Filtruj wg aplikacji źródłowej",
+  "snippets.editor.discardTitle": "Odrzucić zmiany?",
+  "snippets.editor.discardMessage": "Niezapisane zmiany w tym fragmencie zostaną utracone.",
+  "snippets.editor.discard": "Odrzuć",
+  "settings.ignoredApps.unsupported": "Twoja sesja pulpitu nie ujawnia aktywnej aplikacji, więc ta lista nie działa. W Linuksie potrzebna jest sesja X11 z xdotool lub xprop."
 }

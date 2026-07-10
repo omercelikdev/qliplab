@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "प्रत्यय",
   "snippets.editor.saveChanges": "बदलाव सहेजें",
   "snippets.editor.createSnippet": "स्निपेट बनाएँ",
-  "snippets.editor.unsavedChanges": "आपके बिना सहेजे बदलाव हैं। छोड़ दें?",
   "snippets.editor.triggerFormatError": "केवल अक्षर, संख्याएँ, - और _",
   "snippets.editor.triggerExistsError": "यह ट्रिगर पहले से मौजूद है",
   "snippets.editor.syntaxPlainText": "सादा टेक्स्ट",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "त्वरित पेस्ट",
   "history.sensitiveHidden": "संवेदनशील — देखने के लिए होवर करें",
   "history.allApps": "सभी ऐप्स",
-  "history.filterByApp": "स्रोत ऐप से फ़िल्टर करें"
+  "history.filterByApp": "स्रोत ऐप से फ़िल्टर करें",
+  "snippets.editor.discardTitle": "बदलाव छोड़ें?",
+  "snippets.editor.discardMessage": "इस स्निपेट में सहेजे नहीं गए बदलाव खो जाएंगे।",
+  "snippets.editor.discard": "छोड़ें",
+  "settings.ignoredApps.unsupported": "आपका डेस्कटॉप सत्र यह नहीं बताता कि कौन सा ऐप सामने है, इसलिए यह सूची निष्प्रभावी है। Linux पर xdotool या xprop के साथ X11 सत्र चाहिए।"
 }

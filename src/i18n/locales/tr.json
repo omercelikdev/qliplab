@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "sonek",
   "snippets.editor.saveChanges": "Değişiklikleri Kaydet",
   "snippets.editor.createSnippet": "Snippet Oluştur",
-  "snippets.editor.unsavedChanges": "Kaydedilmemiş değişiklikleriniz var. Vazgeçilsin mi?",
   "snippets.editor.triggerFormatError": "Sadece harf, rakam, - ve _ kullanılabilir",
   "snippets.editor.triggerExistsError": "Bu tetikleyici zaten mevcut",
   "snippets.editor.syntaxPlainText": "Düz Metin",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Hızlı yapıştır",
   "history.sensitiveHidden": "Hassas — görmek için üzerine gel",
   "history.allApps": "Tüm uygulamalar",
-  "history.filterByApp": "Kaynak uygulamaya göre filtrele"
+  "history.filterByApp": "Kaynak uygulamaya göre filtrele",
+  "snippets.editor.discardTitle": "Değişiklikler atılsın mı?",
+  "snippets.editor.discardMessage": "Bu snippet’teki kaydedilmemiş değişiklikler kaybolacak.",
+  "snippets.editor.discard": "At",
+  "settings.ignoredApps.unsupported": "Masaüstü oturumun öndeki uygulamayı bildirmiyor, bu yüzden bu liste etkisiz. Linux’ta X11 oturumu ve xdotool ya da xprop gerekir."
 }

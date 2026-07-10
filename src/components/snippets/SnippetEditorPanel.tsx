@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, type ComponentType } from 'r
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X, FileText } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { AVAILABLE_VARIABLES } from '@/lib/snippetVariables';
@@ -84,6 +85,7 @@ export function SnippetEditorPanel() {
   const [triggerSuffix, setTriggerSuffix] = useState('');
   const [content, setContent] = useState('');
   const [syntax, setSyntax] = useState('plain');
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const isEditMode = Boolean(editingSnippet);
   const triggerPrefix = SNIPPET_SYNTAX_PREFIX[syntax] ?? ';txt:';
@@ -99,12 +101,15 @@ export function SnippetEditorPanel() {
       syntax !== (editingSnippet?.syntax ?? 'plain')
     : title.length > 0 || content.length > 0 || triggerSuffix.length > 0;
 
+  // A styled dialog rather than window.confirm, which blocks the renderer and
+  // looks like it belongs to the OS instead of the app.
   const confirmClose = useCallback(() => {
     if (isDirty) {
-      if (!window.confirm(t('snippets.editor.unsavedChanges'))) return;
+      setShowDiscardConfirm(true);
+      return;
     }
     closeEditor();
-  }, [isDirty, closeEditor, t]);
+  }, [isDirty, closeEditor]);
 
   useEffect(() => {
     if (editingSnippet) {
@@ -311,6 +316,15 @@ export function SnippetEditorPanel() {
           {isEditMode ? t('snippets.editor.saveChanges') : t('snippets.editor.createSnippet')}
         </button>
       </div>
+
+      <ConfirmDialog
+        isOpen={showDiscardConfirm}
+        title={t('snippets.editor.discardTitle')}
+        message={t('snippets.editor.discardMessage')}
+        confirmLabel={t('snippets.editor.discard')}
+        onConfirm={() => { setShowDiscardConfirm(false); closeEditor(); }}
+        onCancel={() => setShowDiscardConfirm(false)}
+      />
     </motion.div>
   );
 }

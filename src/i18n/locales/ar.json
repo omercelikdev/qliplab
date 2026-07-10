@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "لاحقة",
   "snippets.editor.saveChanges": "حفظ التغييرات",
   "snippets.editor.createSnippet": "إنشاء قصاصة",
-  "snippets.editor.unsavedChanges": "لديك تغييرات غير محفوظة. هل تريد التجاهل؟",
   "snippets.editor.triggerFormatError": "يُسمح فقط بالأحرف والأرقام و - و _",
   "snippets.editor.triggerExistsError": "هذا المشغّل موجود بالفعل",
   "snippets.editor.syntaxPlainText": "نص عادي",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "لصق سريع",
   "history.sensitiveHidden": "حساس — مرّر للكشف",
   "history.allApps": "كل التطبيقات",
-  "history.filterByApp": "تصفية حسب التطبيق المصدر"
+  "history.filterByApp": "تصفية حسب التطبيق المصدر",
+  "snippets.editor.discardTitle": "تجاهل التغييرات؟",
+  "snippets.editor.discardMessage": "ستفقد التغييرات غير المحفوظة في هذا المقتطف.",
+  "snippets.editor.discard": "تجاهل",
+  "settings.ignoredApps.unsupported": "جلسة سطح المكتب لا تكشف عن التطبيق الأمامي، لذا لا تأثير لهذه القائمة. على لينكس يتطلب ذلك جلسة X11 مع xdotool أو xprop."
 }

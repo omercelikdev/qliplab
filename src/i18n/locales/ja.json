@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "サフィックス",
   "snippets.editor.saveChanges": "変更を保存",
   "snippets.editor.createSnippet": "スニペットを作成",
-  "snippets.editor.unsavedChanges": "未保存の変更があります。破棄しますか？",
   "snippets.editor.triggerFormatError": "英字、数字、- と _ のみ使用可能",
   "snippets.editor.triggerExistsError": "このトリガーは既に存在します",
   "snippets.editor.syntaxPlainText": "プレーンテキスト",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "クイックペースト",
   "history.sensitiveHidden": "機密情報 — カーソルを合わせると表示",
   "history.allApps": "すべてのアプリ",
-  "history.filterByApp": "コピー元アプリで絞り込む"
+  "history.filterByApp": "コピー元アプリで絞り込む",
+  "snippets.editor.discardTitle": "変更を破棄しますか？",
+  "snippets.editor.discardMessage": "このスニペットの未保存の変更は失われます。",
+  "snippets.editor.discard": "破棄",
+  "settings.ignoredApps.unsupported": "デスクトップセッションが最前面のアプリを通知しないため、このリストは機能しません。Linux では xdotool か xprop を備えた X11 セッションが必要です。"
 }

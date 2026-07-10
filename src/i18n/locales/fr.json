@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "suffixe",
   "snippets.editor.saveChanges": "Enregistrer les modifications",
   "snippets.editor.createSnippet": "Créer le snippet",
-  "snippets.editor.unsavedChanges": "Vous avez des modifications non enregistrées. Abandonner ?",
   "snippets.editor.triggerFormatError": "Uniquement lettres, chiffres, - et _",
   "snippets.editor.triggerExistsError": "Ce déclencheur existe déjà",
   "snippets.editor.syntaxPlainText": "Texte brut",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Collage rapide",
   "history.sensitiveHidden": "Sensible — survolez pour révéler",
   "history.allApps": "Toutes les apps",
-  "history.filterByApp": "Filtrer par application source"
+  "history.filterByApp": "Filtrer par application source",
+  "snippets.editor.discardTitle": "Abandonner les modifications ?",
+  "snippets.editor.discardMessage": "Vos modifications non enregistrées de cet extrait seront perdues.",
+  "snippets.editor.discard": "Abandonner",
+  "settings.ignoredApps.unsupported": "Votre session de bureau ne révèle pas l’application au premier plan : cette liste n’a aucun effet. Sous Linux, il faut une session X11 avec xdotool ou xprop."
 }

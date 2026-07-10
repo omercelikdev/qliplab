@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "achtervoegsel",
   "snippets.editor.saveChanges": "Wijzigingen opslaan",
   "snippets.editor.createSnippet": "Snippet aanmaken",
-  "snippets.editor.unsavedChanges": "Je hebt niet-opgeslagen wijzigingen. Verwerpen?",
   "snippets.editor.triggerFormatError": "Alleen letters, cijfers, - en _",
   "snippets.editor.triggerExistsError": "Deze trigger bestaat al",
   "snippets.editor.syntaxPlainText": "Platte tekst",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Snel plakken",
   "history.sensitiveHidden": "Gevoelig — beweeg de muis om te tonen",
   "history.allApps": "Alle apps",
-  "history.filterByApp": "Filteren op bron-app"
+  "history.filterByApp": "Filteren op bron-app",
+  "snippets.editor.discardTitle": "Wijzigingen negeren?",
+  "snippets.editor.discardMessage": "Je niet-opgeslagen wijzigingen in dit snippet gaan verloren.",
+  "snippets.editor.discard": "Negeren",
+  "settings.ignoredApps.unsupported": "Je desktopsessie onthult niet welke app op de voorgrond is, dus deze lijst heeft geen effect. Op Linux is een X11-sessie met xdotool of xprop nodig."
 }

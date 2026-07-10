@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "sufijo",
   "snippets.editor.saveChanges": "Guardar cambios",
   "snippets.editor.createSnippet": "Crear snippet",
-  "snippets.editor.unsavedChanges": "Tiene cambios sin guardar. ¿Descartar?",
   "snippets.editor.triggerFormatError": "Solo letras, números, - y _",
   "snippets.editor.triggerExistsError": "Este disparador ya existe",
   "snippets.editor.syntaxPlainText": "Texto plano",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Pegado rápido",
   "history.sensitiveHidden": "Sensible: pasa el cursor para ver",
   "history.allApps": "Todas las apps",
-  "history.filterByApp": "Filtrar por app de origen"
+  "history.filterByApp": "Filtrar por app de origen",
+  "snippets.editor.discardTitle": "¿Descartar cambios?",
+  "snippets.editor.discardMessage": "Se perderán los cambios sin guardar de este fragmento.",
+  "snippets.editor.discard": "Descartar",
+  "settings.ignoredApps.unsupported": "Tu sesión de escritorio no revela la app en primer plano, así que esta lista no tiene efecto. En Linux requiere una sesión X11 con xdotool o xprop."
 }

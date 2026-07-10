@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "суффикс",
   "snippets.editor.saveChanges": "Сохранить изменения",
   "snippets.editor.createSnippet": "Создать сниппет",
-  "snippets.editor.unsavedChanges": "Есть несохранённые изменения. Отменить?",
   "snippets.editor.triggerFormatError": "Только буквы, цифры, - и _",
   "snippets.editor.triggerExistsError": "Такой триггер уже существует",
   "snippets.editor.syntaxPlainText": "Обычный текст",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Быстрая вставка",
   "history.sensitiveHidden": "Конфиденциально — наведите, чтобы показать",
   "history.allApps": "Все приложения",
-  "history.filterByApp": "Фильтр по приложению-источнику"
+  "history.filterByApp": "Фильтр по приложению-источнику",
+  "snippets.editor.discardTitle": "Отменить изменения?",
+  "snippets.editor.discardMessage": "Несохранённые изменения этого сниппета будут потеряны.",
+  "snippets.editor.discard": "Отменить",
+  "settings.ignoredApps.unsupported": "Ваша сессия рабочего стола не сообщает активное приложение, поэтому список не действует. В Linux нужна сессия X11 с xdotool или xprop."
 }

@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "suffix",
   "snippets.editor.saveChanges": "Save Changes",
   "snippets.editor.createSnippet": "Create Snippet",
-  "snippets.editor.unsavedChanges": "You have unsaved changes. Discard?",
   "snippets.editor.triggerFormatError": "Only letters, numbers, - and _",
   "snippets.editor.triggerExistsError": "Trigger already exists",
   "snippets.editor.syntaxPlainText": "Plain Text",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "Quick paste",
   "history.sensitiveHidden": "Sensitive — hover to reveal",
   "history.allApps": "All apps",
-  "history.filterByApp": "Filter by source app"
+  "history.filterByApp": "Filter by source app",
+  "snippets.editor.discardTitle": "Discard changes?",
+  "snippets.editor.discardMessage": "Your unsaved changes to this snippet will be lost.",
+  "snippets.editor.discard": "Discard",
+  "settings.ignoredApps.unsupported": "Your desktop session doesn’t reveal which app is in front, so this list has no effect. On Linux this needs an X11 session with xdotool or xprop installed."
 }

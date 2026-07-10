@@ -84,7 +84,6 @@
   "snippets.editor.suffixPlaceholder": "접미사",
   "snippets.editor.saveChanges": "변경 사항 저장",
   "snippets.editor.createSnippet": "스니펫 만들기",
-  "snippets.editor.unsavedChanges": "저장하지 않은 변경 사항이 있습니다. 버리시겠습니까?",
   "snippets.editor.triggerFormatError": "영문자, 숫자, - 및 _만 사용 가능",
   "snippets.editor.triggerExistsError": "이미 존재하는 트리거입니다",
   "snippets.editor.syntaxPlainText": "일반 텍스트",
@@ -376,5 +375,9 @@
   "hintBar.quickPaste": "빠른 붙여넣기",
   "history.sensitiveHidden": "민감한 정보 — 마우스를 올리면 표시",
   "history.allApps": "모든 앱",
-  "history.filterByApp": "출처 앱으로 필터링"
+  "history.filterByApp": "출처 앱으로 필터링",
+  "snippets.editor.discardTitle": "변경 사항을 버릴까요?",
+  "snippets.editor.discardMessage": "이 스니펫의 저장하지 않은 변경 사항이 사라집니다.",
+  "snippets.editor.discard": "버리기",
+  "settings.ignoredApps.unsupported": "데스크톱 세션이 앞에 있는 앱을 알려주지 않아 이 목록은 적용되지 않습니다. Linux에서는 xdotool 또는 xprop이 설치된 X11 세션이 필요합니다."
 }
