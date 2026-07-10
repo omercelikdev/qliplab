@@ -4,6 +4,7 @@ import { Clipboard, Search, Tag, X } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
 import { getSourceApps } from '@/lib/database';
+import { QUICK_PASTE_MAX } from '@/lib/quickPaste';
 import { useAppStore, FORMAT_FILTER_GROUPS } from '@/stores/appStore';
 import type { FormatFilterGroup } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
@@ -200,7 +201,7 @@ export function HistoryList() {
             key={key}
             onClick={() => setFormatFilter(key)}
             className={cn(
-              'px-2 py-0.5 text-[11px] rounded-md whitespace-nowrap transition-colors cursor-pointer no-drag focus-visible:ring-2 focus-visible:ring-accent',
+              'px-2 py-0.5 text-[10px] rounded-md whitespace-nowrap transition-colors cursor-pointer no-drag focus-visible:ring-2 focus-visible:ring-accent',
               formatFilter === key
                 ? 'bg-accent text-accent-foreground'
                 : 'text-muted-foreground hover:bg-surface-hover'
@@ -306,13 +307,13 @@ export function HistoryList() {
           <div key={item.id}>
             {index === 0 && pinnedCount > 0 && (
               <div className="flex items-center gap-2 px-1 pt-1 pb-1.5">
-                <span className="text-[10px] uppercase tracking-[0.05em] font-semibold text-foreground/45 shrink-0">{t('common.pinned')}</span>
+                <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/45 shrink-0">{t('common.pinned')}</span>
                 <div className="flex-1 dotted-separator" />
               </div>
             )}
             {index === pinnedCount && pinnedCount > 0 && (
               <div className="flex items-center gap-2 px-1 pt-1.5 pb-1.5">
-                <span className="text-[10px] uppercase tracking-[0.05em] font-semibold text-foreground/45 shrink-0">{t('common.recent')}</span>
+                <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/45 shrink-0">{t('common.recent')}</span>
                 <div className="flex-1 dotted-separator" />
               </div>
             )}
@@ -331,6 +332,7 @@ export function HistoryList() {
                 isQueueMode={isQueueMode}
                 queuePosition={isQueueMode ? (() => { const idx = pasteQueue.findIndex(q => q.id === item.id); return idx >= 0 ? idx + 1 : null; })() : null}
                 isMenuOpen={openMenuItemId === item.id}
+                quickPasteNumber={!isDiffMode && !isQueueMode && index < QUICK_PASTE_MAX ? index + 1 : null}
                 searchQuery={searchQuery}
                 onOpenMenu={handleOpenMenu}
                 onCloseMenu={handleCloseMenu}

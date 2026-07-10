@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { getCurrentWindow, LogicalPosition, type CloseRequestedEvent } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event';
 import { Sidebar } from './components/layout/Sidebar';
@@ -44,6 +44,7 @@ function App() {
   const { activeTab } = useAppStore();
   const { loadItems } = useHistoryStore();
   const { loadSettings } = useSettingsStore();
+  const windowOpenCount = useAppStore((s) => s.windowOpenCount);
   const { isOpen: previewOpen } = usePreviewStore();
   const { editorOpen: snippetEditorOpen } = useSnippetStore();
   const showSidePanel = activeTab !== 'settings' && (previewOpen || snippetEditorOpen);
@@ -149,7 +150,8 @@ function App() {
     ensureOffscreenWhenHidden();
   }, []);
 
-  // Blur search field when window gains focus (so arrow keys work)
+  // Start on the list, not the search box: Escape then closes the panel, and
+  // DragBar focuses the input as soon as the user types a printable character.
   useEffect(() => {
     const window = getCurrentWindow();
     const unlisten = window.onFocusChanged(({ payload: focused }) => {
@@ -179,9 +181,22 @@ function App() {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
-      // Don't hide if focus is in input/textarea
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+
+      // Escape from the search box clears the query first, and only closes the
+      // panel once it is empty. Typing focuses that box, so without this the
+      // user would be stranded with no way to dismiss the window.
+      if (target.hasAttribute('data-search-input')) {
+        if (useAppStore.getState().searchQuery) {
+          useAppStore.getState().setSearchQuery('');
+          return;
+        }
+        target.blur();
+      } else if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        // Other fields keep Escape for themselves.
+        return;
+      }
+
       // Don't hide if preview/editor is open (those handle their own Escape)
       if (previewOpen || snippetEditorOpen) return;
       // Don't hide if on settings tab
@@ -203,7 +218,15 @@ function App() {
   return (
     <ErrorBoundary>
       <ResizeBorder />
-      <div className={cn('h-screen w-screen flex overflow-hidden', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}>
+      {/* Re-keyed on every summon so the panel eases in instead of snapping.
+          The NSPanel itself cannot animate, but its contents can. */}
+      <motion.div
+        key={windowOpenCount}
+        initial={{ opacity: 0, scale: 0.985 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
+        className={cn('h-screen w-screen flex overflow-hidden', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}
+      >
         {/* Left Sidebar with Brand */}
         <Sidebar />
 
@@ -246,7 +269,7 @@ function App() {
           </div>
           <HintBar />
         </div>
-      </div>
+      </motion.div>
 
       <ErrorReportingOptIn isOpen={showOptIn} onClose={() => setShowOptIn(false)} />
     </ErrorBoundary>

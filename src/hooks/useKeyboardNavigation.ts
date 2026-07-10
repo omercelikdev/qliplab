@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useAppStore } from '@/stores/appStore';
 import { quickPasteIndex } from '@/lib/quickPaste';
+import { blocksListNavigation, toNavigationTarget } from '@/lib/keyboardNav';
 
 const isMac = navigator.platform.toUpperCase().includes('MAC');
 
@@ -56,11 +57,9 @@ export function useKeyboardNavigation({
         return;
       }
 
-      // Don't handle if focus is in an input or editor
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-        return;
-      }
+      // The search box keeps focus so the user can type straight away; arrows
+      // and Enter still drive the list. Any other field keeps its own keys.
+      if (blocksListNavigation(toNavigationTarget(e.target as HTMLElement))) return;
 
       switch (e.key) {
         case 'ArrowDown':

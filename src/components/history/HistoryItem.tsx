@@ -112,6 +112,8 @@ interface HistoryItemProps {
   queuePosition: number | null;
   isMenuOpen: boolean;
   searchQuery?: string;
+  /** 1-based quick-paste shortcut for this row, or null when it has none. */
+  quickPasteNumber?: number | null;
   onOpenMenu: (id: string) => void;
   onCloseMenu: () => void;
   onDiffSelect: (id: string) => void;
@@ -129,6 +131,7 @@ export const HistoryItem = memo(function HistoryItem({
   queuePosition,
   isMenuOpen,
   searchQuery = '',
+  quickPasteNumber = null,
   onOpenMenu,
   onCloseMenu,
   onDiffSelect,
@@ -313,7 +316,7 @@ export const HistoryItem = memo(function HistoryItem({
       aria-selected={isSelected}
       aria-label={item.contentType === 'image' ? t('history.imageClip') : item.content.slice(0, 80)}
       className={cn(
-        'relative flex items-center gap-2 h-9 px-2.5 rounded-md cursor-pointer',
+        'relative flex items-center gap-2 h-8 px-2.5 rounded-md cursor-pointer',
         'transition-[background-color] duration-100 ease-out',
         'active:scale-[0.98] active:transition-transform',
         isHovered || isMenuOpen
@@ -331,6 +334,18 @@ export const HistoryItem = memo(function HistoryItem({
       onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
+      {/* Quick-paste number: nobody uses a shortcut they cannot see. */}
+      {quickPasteNumber !== null && (
+        <span
+          aria-hidden
+          className={cn(
+            'w-2.5 -ms-1 shrink-0 text-end font-mono text-[9px] tabular-nums leading-none transition-colors duration-100',
+            isSelected || isHovered ? 'text-foreground/45' : 'text-foreground/20'
+          )}
+        >
+          {quickPasteNumber}
+        </span>
+      )}
       {item.contentType === 'image' ? (
         isCurrentlyPasting ? (
           <Loader2 className="w-3.5 h-3.5 text-blue-500 shrink-0 animate-spin" />
@@ -343,7 +358,7 @@ export const HistoryItem = memo(function HistoryItem({
       {/* Category badge with icon */}
       {badgeLabel && badgeGroup && BadgeIcon && (
         <span className={cn(
-          'inline-flex items-center gap-[3px] text-[10px] font-semibold tracking-[0.02em] px-[5px] py-[1px] rounded shrink-0 leading-4',
+          'inline-flex items-center gap-[3px] text-[9px] font-semibold tracking-[0.02em] px-[5px] py-[1px] rounded shrink-0 leading-4',
           BADGE_STYLES[badgeGroup]
         )}>
           <BadgeIcon className="w-2.5 h-2.5" />
@@ -353,7 +368,7 @@ export const HistoryItem = memo(function HistoryItem({
       {/* HTML badge (separate, web group) */}
       {item.htmlContent && !badgeLabel && (
         <span className={cn(
-          'inline-flex items-center gap-[3px] text-[10px] font-semibold tracking-[0.02em] px-[5px] py-[1px] rounded shrink-0 leading-4',
+          'inline-flex items-center gap-[3px] text-[9px] font-semibold tracking-[0.02em] px-[5px] py-[1px] rounded shrink-0 leading-4',
           BADGE_STYLES.web
         )}>
           <Globe className="w-2.5 h-2.5" />
@@ -369,20 +384,20 @@ export const HistoryItem = memo(function HistoryItem({
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <img
             src={imageData.dataUrl}
-            alt="Clipboard image"
+            alt={t('history.imageClip')}
             className={cn(
-              "h-5 w-auto max-w-[60px] rounded object-cover transition-opacity",
-              isCurrentlyPasting && "opacity-50"
+              'h-5 w-auto max-w-[60px] rounded object-cover transition-opacity',
+              isCurrentlyPasting && 'opacity-50'
             )}
           />
-          <span className="text-[13px] text-foreground/55 truncate">
+          <span className="text-xs text-foreground/55 truncate">
             {isCurrentlyPasting ? t('common.pasting') : t('common.image')}
           </span>
         </div>
       ) : (
         <span className={cn(
-          'flex-1 min-w-0 truncate text-[13px] flex items-center gap-1.5',
-          isMonospace && 'font-mono text-[12px]'
+          'flex-1 min-w-0 truncate text-xs flex items-center gap-1.5',
+          isMonospace && 'font-mono text-[11px]'
         )}>
           {item.detectedFormat === 'color' && (
             <span
@@ -419,10 +434,10 @@ export const HistoryItem = memo(function HistoryItem({
       )}
       {/* Source app — dimmer than content */}
       {item.sourceApp && !isHovered && !isMenuOpen && (
-        <span className="text-[10px] text-foreground/45 shrink-0 max-w-[54px] truncate">{item.sourceApp}</span>
+        <span className="text-[9px] text-foreground/45 shrink-0 max-w-[50px] truncate">{item.sourceApp}</span>
       )}
       {/* Timestamp — dimmest */}
-      <span className="text-[11px] text-foreground/45 shrink-0 w-8 text-end">{formatRelativeTime(item.createdAt)}</span>
+      <span className="text-[10px] text-foreground/45 shrink-0 w-7 text-end">{formatRelativeTime(item.createdAt)}</span>
       {!isDiffMode && !isQueueMode && (
         <div className={cn(
           'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
