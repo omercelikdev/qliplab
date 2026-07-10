@@ -90,46 +90,15 @@ jobs:
         with:
           args: --target x86_64-pc-windows-msvc
 
-      - name: Get version from tag
-        id: version
-        shell: bash
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
-
-      - name: Prepare MSIX package
-        shell: pwsh
-        run: |
-          $buildDir = "src-tauri/target/x86_64-pc-windows-msvc/release"
-          $msixDir = "msix-package"
-          $assetsDir = "$msixDir/Assets"
-
-          New-Item -ItemType Directory -Force -Path $assetsDir
-
-          Copy-Item "$buildDir/QlipLab.exe" "$msixDir/"
-          Get-ChildItem "$buildDir/*.dll" | ForEach-Object {
-            Copy-Item $_.FullName "$msixDir/"
-          }
-
-          Copy-Item "src-tauri/icons/Square44x44Logo.png" "$assetsDir/"
-          Copy-Item "src-tauri/icons/Square150x150Logo.png" "$assetsDir/"
-          Copy-Item "src-tauri/icons/Square310x310Logo.png" "$assetsDir/"
-          Copy-Item "src-tauri/icons/Square71x71Logo.png" "$assetsDir/"
-          Copy-Item "src-tauri/icons/Wide310x150Logo.png" "$assetsDir/"
-          Copy-Item "src-tauri/icons/StoreLogo.png" "$assetsDir/"
-          Copy-Item "src-tauri/AppxManifest.xml" "$msixDir/"
-
-      - name: Create MSIX package
-        shell: pwsh
-        run: |
-          $version = "${{ steps.version.outputs.VERSION }}"
-          $sdkPath = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -Recurse | Sort-Object -Descending | Select-Object -First 1
-          & $sdkPath.FullName pack /d "msix-package" /p "QlipLab_${version}_x64.msix" /o
+      # Windows code signing: currently unsigned (SmartScreen shows
+      # "More info → Run anyway"). To enable, sign the NSIS installer here
+      # (e.g. Azure Trusted Signing action) before uploading artifacts.
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-artifacts
           path: |
-            QlipLab_*_x64.msix
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.sig
@@ -226,7 +195,7 @@ jobs:
       - name: Flatten artifacts and generate updater manifest
         run: |
           mkdir -p release-files
-          find artifacts -type f \( -name "*.dmg" -o -name "*.msix" -o -name "*.msi" -o -name "*-setup.exe" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.app.tar.gz" \) -exec cp {} release-files/ \;
+          find artifacts -type f \( -name "*.dmg" -o -name "*.msi" -o -name "*-setup.exe" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.app.tar.gz" \) -exec cp {} release-files/ \;
 
           # Updater manifest (latest.json). NOTE: validate on the FIRST real release —
           # artifact filenames / target keys may need a tweak.
