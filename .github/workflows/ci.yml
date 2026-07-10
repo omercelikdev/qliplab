@@ -32,7 +32,7 @@ jobs:
         run: npx vitest run
 
   rust-check:
-    name: Rust Check
+    name: Rust Check (Linux)
     runs-on: ubuntu-latest
 
     steps:
@@ -57,3 +57,44 @@ jobs:
       - name: Cargo check
         working-directory: src-tauri
         run: cargo check
+
+  # Platform-specific Rust code (#[cfg(target_os = ...)]) only compiles on its
+  # own host, so Linux alone cannot catch Windows/macOS breakage. Release builds
+  # run on tags — too late. Check both here on every push.
+  rust-check-windows:
+    name: Rust Check (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Cargo check
+        working-directory: src-tauri
+        run: cargo check --target x86_64-pc-windows-msvc
+
+  rust-check-macos:
+    name: Rust Check (macOS)
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Cargo check
+        working-directory: src-tauri
+        run: cargo check --target aarch64-apple-darwin
