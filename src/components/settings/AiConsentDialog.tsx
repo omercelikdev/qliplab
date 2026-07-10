@@ -4,13 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldAlert, ExternalLink, CheckSquare, Square, Loader2, AlertTriangle } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { recordConsent, CONSENT_TERMS, CONSENT_TERMS_VERSION } from '@/lib/consentLog';
+import type { AiProviderLabel } from '@/lib/ai';
 import { cn } from '@/lib/utils';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onAccept: () => void;
-  provider: 'Anthropic' | 'OpenAI' | 'Google Gemini';
+  provider: AiProviderLabel;
 }
 
 export function AiConsentDialog({ isOpen, onClose, onAccept, provider }: Props) {

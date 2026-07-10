@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "QlipLab can't paste into other apps until you allow it in System Settings. Your clips are still copied to the clipboard.",
   "permissions.accessibility.openSettings": "Open Settings",
   "permissions.accessibility.recheck": "Re-check",
-  "permissions.accessibility.dismiss": "Dismiss"
+  "permissions.accessibility.dismiss": "Dismiss",
+  "common.clearSearch": "Clear search"
 }

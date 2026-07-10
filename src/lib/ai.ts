@@ -3,6 +3,21 @@ import { isSensitive } from '@/lib/formatDetector';
 
 export type AiAction = 'summarize' | 'fix_grammar' | 'translate' | 'explain_code' | 'rewrite_formal' | 'rewrite_casual';
 
+export type AiProviderId = 'anthropic' | 'openai' | 'gemini';
+export type AiProviderLabel = 'Anthropic' | 'OpenAI' | 'Google Gemini';
+
+/** Human-facing provider names. Shown wherever we tell the user where their
+ *  clipboard content is about to be sent — so it must never be wrong. */
+export const AI_PROVIDER_LABELS: Record<AiProviderId, AiProviderLabel> = {
+  anthropic: 'Anthropic',
+  openai: 'OpenAI',
+  gemini: 'Google Gemini',
+};
+
+export function aiProviderLabel(provider: AiProviderId): AiProviderLabel {
+  return AI_PROVIDER_LABELS[provider];
+}
+
 const ACTION_PROMPTS: Record<AiAction, string> = {
   summarize: 'Summarize the following text concisely. Return only the summary, no preamble.',
   fix_grammar: 'Fix the grammar and spelling in the following text. Return only the corrected text, no explanations.',

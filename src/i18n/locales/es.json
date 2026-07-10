@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "QlipLab no puede pegar en otras apps hasta que lo permitas en Ajustes del Sistema. Tus elementos se copian igualmente al portapapeles.",
   "permissions.accessibility.openSettings": "Abrir Ajustes",
   "permissions.accessibility.recheck": "Volver a comprobar",
-  "permissions.accessibility.dismiss": "Descartar"
+  "permissions.accessibility.dismiss": "Descartar",
+  "common.clearSearch": "Borrar búsqueda"
 }

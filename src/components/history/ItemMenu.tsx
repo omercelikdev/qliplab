@@ -12,7 +12,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { hideWriteAndPaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { isAiConfigured, isAiConsentGiven, runAiAction, AI_ACTIONS } from '@/lib/ai';
+import { isAiConfigured, isAiConsentGiven, runAiAction, AI_ACTIONS, aiProviderLabel } from '@/lib/ai';
 import type { AiAction } from '@/lib/ai';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { useTagStore } from '@/stores/tagStore';
@@ -132,8 +132,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
       return;
     }
 
-    const p = useSettingsStore.getState().settings.aiProvider;
-    const provider = p === 'anthropic' ? 'Anthropic' : p === 'gemini' ? 'Google Gemini' : 'OpenAI';
+    const provider = aiProviderLabel(useSettingsStore.getState().settings.aiProvider);
     const confirmed = window.confirm(t('history.aiConfirm', { provider }));
     if (!confirmed) return;
 
@@ -243,7 +242,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
 
   const transformItems = getTransformItems();
 
-  const aiProvider = useSettingsStore.getState().settings.aiProvider === 'anthropic' ? 'Anthropic' : 'OpenAI';
+  const aiProvider = aiProviderLabel(useSettingsStore.getState().settings.aiProvider);
 
   if (!isOpen && !showAiConsent) return null;
 
@@ -254,7 +253,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
         isOpen={showAiConsent}
         onClose={() => { setShowAiConsent(false); setPendingAiAction(null); }}
         onAccept={handleAiConsentAccepted}
-        provider={aiProvider as 'Anthropic' | 'OpenAI'}
+        provider={aiProvider}
       />
     )}
     {isOpen && createPortal(

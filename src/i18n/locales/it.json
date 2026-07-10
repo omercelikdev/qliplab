@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "QlipLab non può incollare in altre app finché non lo consenti in Impostazioni di Sistema. Gli elementi vengono comunque copiati negli appunti.",
   "permissions.accessibility.openSettings": "Apri Impostazioni",
   "permissions.accessibility.recheck": "Controlla di nuovo",
-  "permissions.accessibility.dismiss": "Ignora"
+  "permissions.accessibility.dismiss": "Ignora",
+  "common.clearSearch": "Cancella ricerca"
 }

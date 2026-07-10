@@ -5,6 +5,9 @@ import { usePreviewStore } from '@/stores/previewStore';
 import { startPasteQueue } from '@/lib/window';
 import { cn } from '@/lib/utils';
 
+// Windows/Linux have no ⌥ key — showing the Mac glyph there is just noise.
+const isMac = navigator.platform.toUpperCase().includes('MAC');
+
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
     <kbd className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[3px] bg-surface border border-border/40 rounded-[3px] text-[10px] font-mono font-medium text-foreground/40 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
@@ -139,7 +142,7 @@ export function HintBar() {
         >
           <GitCompareArrows className="w-3.5 h-3.5" />
           <span>{t('hintBar.diff')}</span>
-          <Kbd>⌥D</Kbd>
+          <Kbd>{isMac ? '⌥D' : 'Alt+D'}</Kbd>
         </button>
       </div>
     </div>

@@ -114,6 +114,10 @@ const SENSITIVE_PATTERNS = [
   /\b(AKIA[0-9A-Z]{16})\b/,
   /\b(xox[bpas]-[a-zA-Z0-9-]{10,})\b/,
   /\b(SG\.[a-zA-Z0-9_-]{22}\.[a-zA-Z0-9_-]{43})\b/,
+  // JWTs are bearer credentials — a copied session token is as sensitive as a
+  // password. Header and payload are base64url-encoded JSON objects, so both
+  // segments begin with "eyJ".
+  /\beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]+/,
 ];
 
 export function detectFormat(content: string): DetectedFormat {

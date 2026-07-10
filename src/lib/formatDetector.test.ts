@@ -147,6 +147,19 @@ describe('isSensitive', () => {
     expect(isSensitive('-----BEGIN PRIVATE KEY-----\nMIIE...')).toBe(true);
   });
 
+  // Regression: JWTs were detected as a *format* but never flagged sensitive,
+  // so a copied session token showed in plain text with no warning.
+  it('detects JWTs as sensitive bearer credentials', () => {
+    const jwt =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U';
+    expect(isSensitive(jwt)).toBe(true);
+    expect(isSensitive(`Authorization: Bearer ${jwt}`)).toBe(true);
+  });
+
+  it('does not flag ordinary base64 that merely starts with eyJ-like text', () => {
+    expect(isSensitive('eyJustSomeText')).toBe(false);
+  });
+
   it('detects CVV/PIN', () => {
     expect(isSensitive('CVV: 123')).toBe(true);
     expect(isSensitive('PIN: 4567')).toBe(true);

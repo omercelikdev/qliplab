@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "QlipLab nie może wkleić do innych aplikacji, dopóki nie zezwolisz na to w Ustawieniach systemowych. Zawartość nadal jest kopiowana do schowka.",
   "permissions.accessibility.openSettings": "Otwórz Ustawienia",
   "permissions.accessibility.recheck": "Sprawdź ponownie",
-  "permissions.accessibility.dismiss": "Odrzuć"
+  "permissions.accessibility.dismiss": "Odrzuć",
+  "common.clearSearch": "Wyczyść wyszukiwanie"
 }

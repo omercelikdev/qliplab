@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "QlipLab kann erst in andere Apps einfügen, wenn Sie es in den Systemeinstellungen erlauben. Ihre Clips werden weiterhin in die Zwischenablage kopiert.",
   "permissions.accessibility.openSettings": "Einstellungen öffnen",
   "permissions.accessibility.recheck": "Erneut prüfen",
-  "permissions.accessibility.dismiss": "Ausblenden"
+  "permissions.accessibility.dismiss": "Ausblenden",
+  "common.clearSearch": "Suche löschen"
 }

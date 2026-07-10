@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "시스템 설정에서 허용하기 전까지 QlipLab은 다른 앱에 붙여넣을 수 없습니다. 내용은 클립보드에 복사됩니다.",
   "permissions.accessibility.openSettings": "설정 열기",
   "permissions.accessibility.recheck": "다시 확인",
-  "permissions.accessibility.dismiss": "닫기"
+  "permissions.accessibility.dismiss": "닫기",
+  "common.clearSearch": "검색 지우기"
 }

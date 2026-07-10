@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "システム設定で許可するまで、QlipLab は他のアプリにペーストできません。内容はクリップボードにコピーされます。",
   "permissions.accessibility.openSettings": "設定を開く",
   "permissions.accessibility.recheck": "再確認",
-  "permissions.accessibility.dismiss": "閉じる"
+  "permissions.accessibility.dismiss": "閉じる",
+  "common.clearSearch": "検索をクリア"
 }

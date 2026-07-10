@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "O QlipLab não pode colar em outros apps até que você permita nas Configurações do Sistema. Seus itens continuam sendo copiados para a área de transferência.",
   "permissions.accessibility.openSettings": "Abrir Configurações",
   "permissions.accessibility.recheck": "Verificar novamente",
-  "permissions.accessibility.dismiss": "Dispensar"
+  "permissions.accessibility.dismiss": "Dispensar",
+  "common.clearSearch": "Limpar busca"
 }

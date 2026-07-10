@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "QlipLab не сможет вставлять в другие приложения, пока вы не разрешите это в Системных настройках. Содержимое всё равно копируется в буфер обмена.",
   "permissions.accessibility.openSettings": "Открыть настройки",
   "permissions.accessibility.recheck": "Проверить снова",
-  "permissions.accessibility.dismiss": "Скрыть"
+  "permissions.accessibility.dismiss": "Скрыть",
+  "common.clearSearch": "Очистить поиск"
 }

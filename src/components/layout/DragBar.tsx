@@ -1,15 +1,8 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, X } from 'lucide-react';
-import { useAppStore, Tab } from '@/stores/appStore';
+import { useAppStore } from '@/stores/appStore';
 import { hideWindow } from '@/lib/window';
-
-const PLACEHOLDERS: Record<Tab, string> = {
-  history: 'Search clips...',
-  snippets: 'Search snippets...',
-  vault: 'Search vault...',
-  settings: 'Search settings...',
-};
 
 const DEBOUNCE_MS = 120;
 
@@ -82,18 +75,18 @@ export function SearchBar() {
         <input
           ref={inputRef}
           type="text"
-          placeholder={PLACEHOLDERS[activeTab]}
+          placeholder={t(`search.${activeTab}`)}
           value={localValue}
           onChange={(e) => handleChange(e.target.value.slice(0, 200))}
           maxLength={200}
-          aria-label={PLACEHOLDERS[activeTab]}
+          aria-label={t(`search.${activeTab}`)}
           data-search-input
-          className="flex-1 bg-transparent outline-none text-xs placeholder:text-foreground/25 cursor-text"
+          className="flex-1 bg-transparent outline-none text-xs placeholder:text-foreground/45 cursor-text"
         />
         {localValue && (
           <button
             onClick={handleClear}
-            aria-label="Clear search"
+            aria-label={t('common.clearSearch')}
             className="p-0.5 hover:bg-surface-hover rounded cursor-pointer"
           >
             <X className="w-3 h-3 text-muted-foreground" />

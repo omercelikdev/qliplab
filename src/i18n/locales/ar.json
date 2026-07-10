@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "لا يمكن لـ QlipLab اللصق في التطبيقات الأخرى حتى تسمح بذلك في إعدادات النظام. سيظل المحتوى منسوخًا إلى الحافظة.",
   "permissions.accessibility.openSettings": "فتح الإعدادات",
   "permissions.accessibility.recheck": "إعادة الفحص",
-  "permissions.accessibility.dismiss": "تجاهل"
+  "permissions.accessibility.dismiss": "تجاهل",
+  "common.clearSearch": "مسح البحث"
 }

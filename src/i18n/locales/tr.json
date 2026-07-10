@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "Sistem Ayarları’ndan izin vermeden QlipLab diğer uygulamalara yapıştıramaz. İçerik yine de panoya kopyalanır.",
   "permissions.accessibility.openSettings": "Ayarları Aç",
   "permissions.accessibility.recheck": "Yeniden denetle",
-  "permissions.accessibility.dismiss": "Kapat"
+  "permissions.accessibility.dismiss": "Kapat",
+  "common.clearSearch": "Aramayı temizle"
 }

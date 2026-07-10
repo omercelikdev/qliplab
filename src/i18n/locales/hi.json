@@ -405,5 +405,6 @@
   "permissions.accessibility.description": "जब तक आप सिस्टम सेटिंग्स में अनुमति नहीं देते, QlipLab अन्य ऐप्स में पेस्ट नहीं कर सकता। आपकी सामग्री फिर भी क्लिपबोर्ड पर कॉपी होती है।",
   "permissions.accessibility.openSettings": "सेटिंग्स खोलें",
   "permissions.accessibility.recheck": "फिर से जाँचें",
-  "permissions.accessibility.dismiss": "खारिज करें"
+  "permissions.accessibility.dismiss": "खारिज करें",
+  "common.clearSearch": "खोज साफ़ करें"
 }
