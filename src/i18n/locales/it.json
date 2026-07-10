@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "Scartare le modifiche?",
   "snippets.editor.discardMessage": "Le modifiche non salvate di questo snippet andranno perse.",
   "snippets.editor.discard": "Scarta",
-  "settings.ignoredApps.unsupported": "La tua sessione desktop non rivela l’app in primo piano, quindi questo elenco non ha effetto. Su Linux serve una sessione X11 con xdotool o xprop."
+  "settings.ignoredApps.unsupported": "La tua sessione desktop non rivela l’app in primo piano, quindi questo elenco non ha effetto. Su Linux serve una sessione X11 con xdotool o xprop.",
+  "preview.suggested": "Suggeriti",
+  "preview.recent": "Recenti",
+  "preview.transformResultPreview": "Anteprima risultato"
 }

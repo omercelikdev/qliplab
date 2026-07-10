@@ -1,11 +1,11 @@
 import { useRef, useCallback, useEffect, Suspense, lazy, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon, Code, Eye, Plus, ChevronRight } from 'lucide-react';
+import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon, Code, Eye, Plus, ChevronRight, Search, Lock, Unlock, Sparkles, ArrowRightLeft, Hash, CaseSensitive, AlignLeft, Clock, Star } from 'lucide-react';
 import { usePreviewStore, getMonacoLanguage } from '@/stores/previewStore';
 import type { PipelineStep } from '@/stores/previewStore';
-import { getTransformById, getRecommendedTransforms } from '@/lib/transformRegistry';
-import type { TransformDef } from '@/lib/transformRegistry';
+import { getTransformById, buildTransformGroups, flattenGroups } from '@/lib/transformRegistry';
+import { getRecentTransformIds, pushRecentTransform } from '@/lib/recentTransforms';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { EditorView } from './EditorView';
 import { ImageView } from './ImageView';
@@ -259,11 +259,13 @@ export function PreviewPanel() {
         <PipelineBar
           steps={pipelineSteps}
           detectedFormat={pipelineSteps.length > 0 ? detectFormat(editedContent) : (sourceItem?.detectedFormat ?? 'plain')}
+          sourceContent={editedContent}
           canChain={true}
           onRemoveStep={removePipelineStep}
           onAddStep={async (transformId) => {
             const def = getTransformById(transformId);
             if (!def) return;
+            pushRecentTransform(transformId);
             const input = editedContent;
             const output = await def.apply(input);
             addPipelineStep(transformId, def.label, output);
@@ -362,6 +364,7 @@ function EditorStats({ content, isImage }: { content: string; isImage?: boolean 
 function PipelineBar({
   steps,
   detectedFormat,
+  sourceContent,
   canChain,
   onRemoveStep,
   onAddStep,
@@ -371,6 +374,7 @@ function PipelineBar({
 }: {
   steps: PipelineStep[];
   detectedFormat: string;
+  sourceContent: string;
   canChain: boolean;
   onRemoveStep: (index: number) => void;
   onAddStep: (transformId: string) => void;
@@ -421,6 +425,7 @@ function PipelineBar({
       {showPicker && (
         <TransformPicker
           detectedFormat={detectedFormat}
+          sourceContent={sourceContent}
           onSelect={(id) => {
             onAddStep(id);
             onClosePicker();
@@ -432,18 +437,50 @@ function PipelineBar({
   );
 }
 
+/** One lucide icon per transform category, so the list is scannable at a glance
+ *  the way the rest of the app's format badges are. */
+const CATEGORY_ICON: Record<string, React.ElementType> = {
+  Encode: Lock,
+  Decode: Unlock,
+  Format: Sparkles,
+  Convert: ArrowRightLeft,
+  Hash: Hash,
+  Case: CaseSensitive,
+  Text: AlignLeft,
+};
+
+/** Localized header for a group. Category keys are a technical taxonomy
+ *  (Encode, Hash, …) and stay literal like the format badges elsewhere. */
+function groupHeader(key: string, t: (k: string) => string): string {
+  if (key === 'suggested') return t('preview.suggested');
+  if (key === 'recent') return t('preview.recent');
+  if (key === 'results') return '';
+  return key;
+}
+
+function groupIcon(key: string): React.ElementType {
+  if (key === 'recent') return Clock;
+  if (key === 'suggested') return Star;
+  return CATEGORY_ICON[key] ?? AlignLeft;
+}
+
 function TransformPicker({
   detectedFormat,
+  sourceContent,
   onSelect,
   onClose,
 }: {
   detectedFormat: string;
+  sourceContent: string;
   onSelect: (transformId: string) => void;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [preview, setPreview] = useState<string | null>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Close on click outside
   useEffect(() => {
@@ -462,81 +499,148 @@ function TransformPicker({
     };
   }, [onClose]);
 
-  const { recommended, others } = useMemo(
-    () => getRecommendedTransforms(detectedFormat as import('@/types/clipboard').DetectedFormat),
-    [detectedFormat]
+  const recentIds = useMemo(() => getRecentTransformIds(), []);
+  const groups = useMemo(
+    () => buildTransformGroups(detectedFormat as import('@/types/clipboard').DetectedFormat, recentIds, filter),
+    [detectedFormat, recentIds, filter]
   );
+  // Flat order drives keyboard navigation and the active highlight.
+  const flat = useMemo(() => flattenGroups(groups), [groups]);
 
-  const filterList = (list: TransformDef[]) => {
-    if (!filter) return list;
-    const q = filter.toLowerCase();
-    return list.filter(t => t.label.toLowerCase().includes(q) || t.category.toLowerCase().includes(q));
+  // Snap the highlight back to the top whenever the visible list changes.
+  useEffect(() => { setActiveIndex(0); }, [filter]);
+  useEffect(() => {
+    if (activeIndex >= flat.length) setActiveIndex(Math.max(0, flat.length - 1));
+  }, [flat.length, activeIndex]);
+
+  const activeId = flat[activeIndex]?.id ?? null;
+
+  // Live-preview the highlighted transform against the real content. Transforms
+  // can be async and can throw on unsuitable input, so guard and ignore stale
+  // results when the highlight moves on before this one resolves.
+  useEffect(() => {
+    const def = flat[activeIndex];
+    if (!def) { setPreview(null); return; }
+    let cancelled = false;
+    setPreview(null);
+    Promise.resolve()
+      .then(() => def.apply(sourceContent))
+      .then((out) => { if (!cancelled) setPreview(firstLine(out)); })
+      .catch(() => { if (!cancelled) setPreview(null); });
+    return () => { cancelled = true; };
+  }, [activeId, sourceContent]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the highlighted row scrolled into view under keyboard control.
+  useEffect(() => {
+    const el = listRef.current?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`);
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, flat.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeId) onSelect(activeId);
+    } else if (e.key === 'Escape') {
+      // Escape closes only the picker; keep it from bubbling up and closing the
+      // whole preview panel or the window with it.
+      e.preventDefault();
+      e.stopPropagation();
+      onClose();
+    }
   };
 
-  const filteredRecommended = filterList(recommended);
-  const filteredOthers = filterList(others);
+  // Running index across groups so mouse hover and keyboard share one highlight.
+  let runningIndex = -1;
 
   return (
     <div
       ref={pickerRef}
-      className="absolute top-full left-0 right-0 z-50 bg-surface border border-border rounded-b-lg shadow-lg max-h-[250px] overflow-y-auto"
+      className="absolute top-full left-0 z-50 mt-1 w-[520px] max-w-[calc(100vw-24px)] rounded-xl bg-popover border border-popover-border shadow-[0_12px_40px_rgb(0_0_0/0.16)] dark:shadow-[0_12px_40px_rgb(0_0_0/0.55)] overflow-hidden"
     >
-      <div className="sticky top-0 bg-surface p-2 border-b border-border/50">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-popover-border/70">
+        <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
         <input
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={t('preview.searchTransforms')}
-          className="w-full px-2 py-1 text-xs bg-background border border-border rounded outline-none focus:ring-1 focus:ring-accent"
+          className="flex-1 bg-transparent text-xs outline-none placeholder:text-foreground/40"
           autoFocus
         />
       </div>
-      <div className="p-1">
-        {/* Recommended transforms for this format */}
-        {filteredRecommended.length > 0 && (
-          <div>
-            <div className="px-2 py-1 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              {t('preview.recommended')}
-            </div>
-            {filteredRecommended.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => onSelect(t.id)}
-                className="w-full text-start px-2 py-1 text-xs hover:bg-surface-hover rounded transition-colors cursor-pointer"
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        )}
 
-        {/* Other available transforms */}
-        {filteredOthers.length > 0 && (
-          <div>
-            {filteredRecommended.length > 0 && <div className="h-px bg-border/50 my-1" />}
-            <div className="px-2 py-1 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              {t('preview.other')}
-            </div>
-            {filteredOthers.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => onSelect(t.id)}
-                className="w-full text-start px-2 py-1 text-xs hover:bg-surface-hover rounded transition-colors cursor-pointer text-muted-foreground"
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {filteredRecommended.length === 0 && filteredOthers.length === 0 && (
-          <div className="p-3 text-center text-xs text-muted-foreground">
+      <div ref={listRef} className="max-h-[300px] overflow-y-auto p-1.5">
+        {flat.length === 0 ? (
+          <div className="p-4 text-center text-xs text-muted-foreground">
             {t('preview.noTransformsMatch', { query: filter })}
           </div>
+        ) : (
+          groups.map((group) => {
+            const GroupIcon = groupIcon(group.key);
+            const header = groupHeader(group.key, t);
+            return (
+              <div key={group.key} className="mb-1 last:mb-0">
+                {header && (
+                  <div className="flex items-center gap-1 px-2 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <GroupIcon className="w-2.5 h-2.5" />
+                    {header}
+                  </div>
+                )}
+                {group.transforms.map((tr) => {
+                  runningIndex += 1;
+                  const index = runningIndex;
+                  const RowIcon = groupIcon(group.key === 'recent' || group.key === 'suggested' ? group.key : tr.category);
+                  const isActive = index === activeIndex;
+                  return (
+                    <button
+                      key={`${group.key}:${tr.id}`}
+                      data-index={index}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      onClick={() => onSelect(tr.id)}
+                      className={cn(
+                        'w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-start transition-colors cursor-pointer',
+                        isActive ? 'bg-accent/12 text-foreground' : 'text-foreground/80'
+                      )}
+                    >
+                      <RowIcon className={cn('w-3.5 h-3.5 shrink-0', isActive ? 'text-accent' : 'text-muted-foreground')} />
+                      <span className="truncate">{tr.label}</span>
+                      <span className="ms-auto text-[9px] uppercase tracking-wide text-foreground/30 shrink-0">{tr.category}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })
         )}
       </div>
+
+      {/* Live preview of the highlighted transform's result. */}
+      {flat.length > 0 && (
+        <div className="flex items-center gap-2 px-3 py-1.5 border-t border-popover-border/70 bg-foreground/[0.02]">
+          <span className="text-[9px] uppercase tracking-wider text-muted-foreground shrink-0">{t('preview.transformResultPreview')}</span>
+          <span className="flex-1 min-w-0 truncate font-mono text-[11px] text-foreground/60">
+            {preview ?? '—'}
+          </span>
+          <span className="hidden sm:flex items-center gap-1 text-[9px] text-foreground/30 shrink-0">
+            <kbd className="px-1 py-px rounded bg-foreground/[0.06] font-sans">↵</kbd>
+          </span>
+        </div>
+      )}
     </div>
   );
+}
+
+/** First non-empty line of a transform result, trimmed for the preview strip. */
+function firstLine(value: string): string {
+  const line = value.split('\n').find((l) => l.trim().length > 0) ?? value;
+  return line.length > 120 ? `${line.slice(0, 120)}…` : line;
 }
 
 function RenderedPreview({ html }: { html: string }) {

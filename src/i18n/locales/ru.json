@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "Отменить изменения?",
   "snippets.editor.discardMessage": "Несохранённые изменения этого сниппета будут потеряны.",
   "snippets.editor.discard": "Отменить",
-  "settings.ignoredApps.unsupported": "Ваша сессия рабочего стола не сообщает активное приложение, поэтому список не действует. В Linux нужна сессия X11 с xdotool или xprop."
+  "settings.ignoredApps.unsupported": "Ваша сессия рабочего стола не сообщает активное приложение, поэтому список не действует. В Linux нужна сессия X11 с xdotool или xprop.",
+  "preview.suggested": "Рекомендуемые",
+  "preview.recent": "Недавние",
+  "preview.transformResultPreview": "Предпросмотр результата"
 }

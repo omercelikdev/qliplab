@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "Wijzigingen negeren?",
   "snippets.editor.discardMessage": "Je niet-opgeslagen wijzigingen in dit snippet gaan verloren.",
   "snippets.editor.discard": "Negeren",
-  "settings.ignoredApps.unsupported": "Je desktopsessie onthult niet welke app op de voorgrond is, dus deze lijst heeft geen effect. Op Linux is een X11-sessie met xdotool of xprop nodig."
+  "settings.ignoredApps.unsupported": "Je desktopsessie onthult niet welke app op de voorgrond is, dus deze lijst heeft geen effect. Op Linux is een X11-sessie met xdotool of xprop nodig.",
+  "preview.suggested": "Voorgesteld",
+  "preview.recent": "Recent",
+  "preview.transformResultPreview": "Resultaatvoorbeeld"
 }

@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "تجاهل التغييرات؟",
   "snippets.editor.discardMessage": "ستفقد التغييرات غير المحفوظة في هذا المقتطف.",
   "snippets.editor.discard": "تجاهل",
-  "settings.ignoredApps.unsupported": "جلسة سطح المكتب لا تكشف عن التطبيق الأمامي، لذا لا تأثير لهذه القائمة. على لينكس يتطلب ذلك جلسة X11 مع xdotool أو xprop."
+  "settings.ignoredApps.unsupported": "جلسة سطح المكتب لا تكشف عن التطبيق الأمامي، لذا لا تأثير لهذه القائمة. على لينكس يتطلب ذلك جلسة X11 مع xdotool أو xprop.",
+  "preview.suggested": "مقترح",
+  "preview.recent": "الأخيرة",
+  "preview.transformResultPreview": "معاينة النتيجة"
 }

@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "Değişiklikler atılsın mı?",
   "snippets.editor.discardMessage": "Bu snippet’teki kaydedilmemiş değişiklikler kaybolacak.",
   "snippets.editor.discard": "At",
-  "settings.ignoredApps.unsupported": "Masaüstü oturumun öndeki uygulamayı bildirmiyor, bu yüzden bu liste etkisiz. Linux’ta X11 oturumu ve xdotool ya da xprop gerekir."
+  "settings.ignoredApps.unsupported": "Masaüstü oturumun öndeki uygulamayı bildirmiyor, bu yüzden bu liste etkisiz. Linux’ta X11 oturumu ve xdotool ya da xprop gerekir.",
+  "preview.suggested": "Önerilen",
+  "preview.recent": "Son kullanılan",
+  "preview.transformResultPreview": "Sonuç önizlemesi"
 }

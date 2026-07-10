@@ -80,21 +80,78 @@ export function getTransformCategories(): string[] {
   return Array.from(categories);
 }
 
-/** Split transforms into recommended (for this format) and others */
-export function getRecommendedTransforms(format: DetectedFormat): {
-  recommended: TransformDef[];
-  others: TransformDef[];
-} {
-  const recommended: TransformDef[] = [];
-  const others: TransformDef[] = [];
+/**
+ * Transforms whose relevance is specific to this format.
+ *
+ * Deliberately excludes universal transforms (empty relevantFormats). Base64
+ * Encode applies to any text, but suggesting it for an SQL clip buries the one
+ * transform that actually matters — SQL Format — under a pile of noise. Only
+ * the format-specific ones earn the top "Suggested" slot.
+ */
+export function getSuggestedTransforms(format: DetectedFormat): TransformDef[] {
+  return TRANSFORM_REGISTRY.filter(
+    (t) => t.relevantFormats.length > 0 && t.relevantFormats.includes(format),
+  );
+}
 
-  for (const t of TRANSFORM_REGISTRY) {
-    if (t.relevantFormats.length === 0 || t.relevantFormats.includes(format)) {
-      recommended.push(t);
-    } else {
-      others.push(t);
-    }
+/** Space- and case-insensitive so "base 64" finds "Base64 Encode". */
+export function transformMatchesQuery(t: TransformDef, query: string): boolean {
+  const norm = (s: string) => s.toLowerCase().replace(/\s+/g, '');
+  const q = norm(query);
+  return norm(t.label).includes(q) || norm(t.category).includes(q);
+}
+
+export interface TransformGroup {
+  /** 'results' while searching, else 'recent' | 'suggested' | a category name. */
+  key: string;
+  transforms: TransformDef[];
+}
+
+/**
+ * Order the picker actually shows.
+ *
+ * Searching collapses everything into one ranked result list — a flat list is
+ * what keyboard navigation wants. Otherwise the list is grouped: what you used
+ * last, then what fits this format, then the full catalogue by category. Recent
+ * entries intentionally repeat below; they are a shortcut, not a move.
+ */
+export function buildTransformGroups(
+  format: DetectedFormat,
+  recentIds: string[],
+  query: string,
+): TransformGroup[] {
+  if (query.trim()) {
+    const results = TRANSFORM_REGISTRY.filter((t) => transformMatchesQuery(t, query));
+    return results.length ? [{ key: 'results', transforms: results }] : [];
   }
 
-  return { recommended, others };
+  const groups: TransformGroup[] = [];
+
+  const recent = recentIds
+    .map((id) => TRANSFORM_REGISTRY.find((t) => t.id === id))
+    .filter((t): t is TransformDef => t !== undefined);
+  if (recent.length) groups.push({ key: 'recent', transforms: recent });
+
+  const suggested = getSuggestedTransforms(format);
+  if (suggested.length) groups.push({ key: 'suggested', transforms: suggested });
+
+  // Everything not already suggested, grouped by category in registry order.
+  const suggestedIds = new Set(suggested.map((t) => t.id));
+  const byCategory = new Map<string, TransformDef[]>();
+  for (const t of TRANSFORM_REGISTRY) {
+    if (suggestedIds.has(t.id)) continue;
+    const bucket = byCategory.get(t.category);
+    if (bucket) bucket.push(t);
+    else byCategory.set(t.category, [t]);
+  }
+  for (const [category, transforms] of byCategory) {
+    groups.push({ key: category, transforms });
+  }
+
+  return groups;
+}
+
+/** The visible transforms in display order — what keyboard nav steps through. */
+export function flattenGroups(groups: TransformGroup[]): TransformDef[] {
+  return groups.flatMap((g) => g.transforms);
 }

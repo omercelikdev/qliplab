@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "Änderungen verwerfen?",
   "snippets.editor.discardMessage": "Ihre nicht gespeicherten Änderungen an diesem Snippet gehen verloren.",
   "snippets.editor.discard": "Verwerfen",
-  "settings.ignoredApps.unsupported": "Ihre Desktop-Sitzung gibt die aktive App nicht preis, daher hat diese Liste keine Wirkung. Unter Linux ist eine X11-Sitzung mit xdotool oder xprop nötig."
+  "settings.ignoredApps.unsupported": "Ihre Desktop-Sitzung gibt die aktive App nicht preis, daher hat diese Liste keine Wirkung. Unter Linux ist eine X11-Sitzung mit xdotool oder xprop nötig.",
+  "preview.suggested": "Vorgeschlagen",
+  "preview.recent": "Zuletzt verwendet",
+  "preview.transformResultPreview": "Ergebnisvorschau"
 }

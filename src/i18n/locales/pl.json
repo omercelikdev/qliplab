@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "Odrzucić zmiany?",
   "snippets.editor.discardMessage": "Niezapisane zmiany w tym fragmencie zostaną utracone.",
   "snippets.editor.discard": "Odrzuć",
-  "settings.ignoredApps.unsupported": "Twoja sesja pulpitu nie ujawnia aktywnej aplikacji, więc ta lista nie działa. W Linuksie potrzebna jest sesja X11 z xdotool lub xprop."
+  "settings.ignoredApps.unsupported": "Twoja sesja pulpitu nie ujawnia aktywnej aplikacji, więc ta lista nie działa. W Linuksie potrzebna jest sesja X11 z xdotool lub xprop.",
+  "preview.suggested": "Sugerowane",
+  "preview.recent": "Ostatnie",
+  "preview.transformResultPreview": "Podgląd wyniku"
 }

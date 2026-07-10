@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "¿Descartar cambios?",
   "snippets.editor.discardMessage": "Se perderán los cambios sin guardar de este fragmento.",
   "snippets.editor.discard": "Descartar",
-  "settings.ignoredApps.unsupported": "Tu sesión de escritorio no revela la app en primer plano, así que esta lista no tiene efecto. En Linux requiere una sesión X11 con xdotool o xprop."
+  "settings.ignoredApps.unsupported": "Tu sesión de escritorio no revela la app en primer plano, así que esta lista no tiene efecto. En Linux requiere una sesión X11 con xdotool o xprop.",
+  "preview.suggested": "Sugerido",
+  "preview.recent": "Recientes",
+  "preview.transformResultPreview": "Vista previa del resultado"
 }

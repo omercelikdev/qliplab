@@ -379,5 +379,8 @@
   "snippets.editor.discardTitle": "변경 사항을 버릴까요?",
   "snippets.editor.discardMessage": "이 스니펫의 저장하지 않은 변경 사항이 사라집니다.",
   "snippets.editor.discard": "버리기",
-  "settings.ignoredApps.unsupported": "데스크톱 세션이 앞에 있는 앱을 알려주지 않아 이 목록은 적용되지 않습니다. Linux에서는 xdotool 또는 xprop이 설치된 X11 세션이 필요합니다."
+  "settings.ignoredApps.unsupported": "데스크톱 세션이 앞에 있는 앱을 알려주지 않아 이 목록은 적용되지 않습니다. Linux에서는 xdotool 또는 xprop이 설치된 X11 세션이 필요합니다.",
+  "preview.suggested": "추천",
+  "preview.recent": "최근",
+  "preview.transformResultPreview": "결과 미리보기"
 }
