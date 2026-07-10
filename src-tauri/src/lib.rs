@@ -1682,7 +1682,7 @@ pub fn run() {
                     }
                 }
 
-                let _tray = tray_builder
+                tray_builder = tray_builder
                     .icon_as_template(cfg!(target_os = "macos"))
                     .menu(&menu)
                     .on_menu_event(|app, event| {
@@ -1697,14 +1697,30 @@ pub fn run() {
                             }
                             _ => {}
                         }
-                    })
-                    .on_tray_icon_event(|tray, event| {
-                        // Click on tray icon → show window (Windows/Linux behavior)
-                        if let tauri::tray::TrayIconEvent::Click { button: tauri::tray::MouseButton::Left, .. } = event {
-                            let _ = tray.app_handle().emit("tray-show", ());
-                        }
-                    })
-                    .build(app)?;
+                    });
+
+                // macOS menu-bar convention: a left-click drops the menu, and the
+                // panel opens only via the "Show" item — never on the bare click.
+                // (show_menu_on_left_click defaults to true, so no raw-click handler.)
+                #[cfg(not(target_os = "macos"))]
+                {
+                    // Windows/Linux: left-click opens the panel straight away;
+                    // right-click still drops the menu (Show / Quit).
+                    tray_builder = tray_builder
+                        .show_menu_on_left_click(false)
+                        .on_tray_icon_event(|tray, event| {
+                            if let tauri::tray::TrayIconEvent::Click {
+                                button: tauri::tray::MouseButton::Left,
+                                button_state: tauri::tray::MouseButtonState::Up,
+                                ..
+                            } = event
+                            {
+                                let _ = tray.app_handle().emit("tray-show", ());
+                            }
+                        });
+                }
+
+                let _tray = tray_builder.build(app)?;
             }
 
             // macOS: Convert window to panel for Spotlight-like behavior

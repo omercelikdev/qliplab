@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { getCurrentWindow, PhysicalPosition, type CloseRequestedEvent } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event';
 import { Sidebar } from './components/layout/Sidebar';
@@ -47,7 +47,6 @@ function App() {
   const { activeTab } = useAppStore();
   const { loadItems } = useHistoryStore();
   const { loadSettings } = useSettingsStore();
-  const windowOpenCount = useAppStore((s) => s.windowOpenCount);
   const { isOpen: previewOpen } = usePreviewStore();
   const { editorOpen: snippetEditorOpen } = useSnippetStore();
   const showSidePanel = activeTab !== 'settings' && (previewOpen || snippetEditorOpen);
@@ -244,13 +243,11 @@ function App() {
     <ErrorBoundary>
       <ResizeBorder />
       <WindowControls />
-      {/* Re-keyed on every summon so the panel eases in instead of snapping.
-          The NSPanel itself cannot animate, but its contents can. */}
-      <motion.div
-        key={windowOpenCount}
-        initial={{ opacity: 0, scale: 0.985 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
+      {/* No entrance animation: the panel is shown offscreen, positioned, then
+          revealed, so its content is already painted when it appears. Fading it
+          in on each summon re-mounted this div and blanked the content for a
+          frame — read as a flicker. */}
+      <div
         className={cn('h-screen w-screen flex overflow-hidden', 'glass rounded-lg border border-foreground/[0.04] dark:border-white/[0.03] shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]')}
       >
         {/* Left Sidebar with Brand */}
@@ -295,7 +292,7 @@ function App() {
           </div>
           <HintBar />
         </div>
-      </motion.div>
+      </div>
 
       <ErrorReportingOptIn isOpen={showOptIn} onClose={() => setShowOptIn(false)} />
     </ErrorBoundary>
