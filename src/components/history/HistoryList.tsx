@@ -219,7 +219,10 @@ export function HistoryList() {
             aria-label={t('history.filterByApp')}
             title={t('history.filterByApp')}
             className={cn(
-              'ms-auto shrink-0 max-w-[120px] ps-1.5 pe-0.5 py-0.5 text-[11px] rounded-md bg-transparent',
+              // me-[38px] lines the select up with the search field above it: the
+              // search bar's close button (w-8) plus its ms-1.5 always hold that
+              // much space, even while the button is invisible.
+              'ms-auto me-[38px] shrink-0 max-w-[120px] ps-1.5 pe-0.5 py-0.5 text-[11px] rounded-md bg-transparent',
               'cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
               sourceAppFilter ? 'text-accent font-medium' : 'text-muted-foreground'
             )}
