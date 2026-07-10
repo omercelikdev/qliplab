@@ -400,5 +400,10 @@
   "settings.about.checking": "Проверка…",
   "settings.about.downloading": "Загрузка…",
   "settings.about.upToDate": "Актуальная версия",
-  "settings.about.updateError": "Не удалось проверить обновления"
+  "settings.about.updateError": "Не удалось проверить обновления",
+  "permissions.accessibility.title": "Требуется разрешение «Универсальный доступ»",
+  "permissions.accessibility.description": "QlipLab не сможет вставлять в другие приложения, пока вы не разрешите это в Системных настройках. Содержимое всё равно копируется в буфер обмена.",
+  "permissions.accessibility.openSettings": "Открыть настройки",
+  "permissions.accessibility.recheck": "Проверить снова",
+  "permissions.accessibility.dismiss": "Скрыть"
 }

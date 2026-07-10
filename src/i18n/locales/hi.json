@@ -400,5 +400,10 @@
   "settings.about.checking": "जाँच हो रही है…",
   "settings.about.downloading": "डाउनलोड हो रहा है…",
   "settings.about.upToDate": "अद्यतित",
-  "settings.about.updateError": "अपडेट जाँच विफल"
+  "settings.about.updateError": "अपडेट जाँच विफल",
+  "permissions.accessibility.title": "एक्सेसिबिलिटी अनुमति आवश्यक है",
+  "permissions.accessibility.description": "जब तक आप सिस्टम सेटिंग्स में अनुमति नहीं देते, QlipLab अन्य ऐप्स में पेस्ट नहीं कर सकता। आपकी सामग्री फिर भी क्लिपबोर्ड पर कॉपी होती है।",
+  "permissions.accessibility.openSettings": "सेटिंग्स खोलें",
+  "permissions.accessibility.recheck": "फिर से जाँचें",
+  "permissions.accessibility.dismiss": "खारिज करें"
 }

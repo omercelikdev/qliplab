@@ -7,6 +7,7 @@ import { useSnippetStore } from '@/stores/snippetStore';
 import { useAppStore } from '@/stores/appStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { getImageBase64ForClipboard } from '@/lib/imageUtils';
+import { usePermissionStore } from '@/stores/permissionStore';
 import type { PasteQueueItem } from '@/stores/appStore';
 
 const DEFAULT_WIDTH = 560;
@@ -273,35 +274,54 @@ export async function hideWindow() {
   }
 }
 
-export async function hideAndPaste() {
+/**
+ * Auto-paste needs macOS Accessibility. Without it `simulate_paste` posts no
+ * event, so hiding the window first would leave the user staring at their
+ * editor wondering why nothing arrived. Keep the window up instead and let the
+ * permission banner explain — the clipboard still holds the content, so a
+ * manual Cmd+V works.
+ *
+ * @returns true when the content was pasted into the previous app.
+ */
+async function pasteOrExplain(): Promise<boolean> {
+  if (!(await usePermissionStore.getState().check())) return false;
+  await hideWindowCore();
+  await invoke('simulate_paste');
+  return true;
+}
+
+export async function hideAndPaste(): Promise<boolean> {
   try {
-    await hideWindowCore();
-    await invoke('simulate_paste');
+    return await pasteOrExplain();
   } catch (e) {
     console.error('[qliplab] hideAndPaste failed:', e);
+    return false;
   }
 }
 
-// Optimized version: clipboard write and window hide happen in parallel
-export async function hideWriteAndPaste(writeToClipboard: () => Promise<void>) {
+export async function hideWriteAndPaste(writeToClipboard: () => Promise<void>): Promise<boolean> {
   try {
-    const clipboardPromise = writeToClipboard();
+    // Always put the content on the clipboard, even when we cannot auto-paste.
+    await writeToClipboard();
+    if (!(await usePermissionStore.getState().check())) return false;
+
     await hideWindowCore();
-    await clipboardPromise;
     // Small buffer to ensure clipboard is fully committed at OS level before paste
     await new Promise(resolve => setTimeout(resolve, 30));
     await invoke('simulate_paste');
+    return true;
   } catch (e) {
     console.error('[qliplab] hideWriteAndPaste failed:', e);
+    return false;
   }
 }
 
 // Hide window then paste (clipboard already written)
-export async function hideAndSimulatePaste() {
+export async function hideAndSimulatePaste(): Promise<boolean> {
   try {
-    await hideWindowCore();
-    await invoke('simulate_paste');
+    return await pasteOrExplain();
   } catch (e) {
     console.error('[qliplab] hideAndSimulatePaste failed:', e);
+    return false;
   }
 }

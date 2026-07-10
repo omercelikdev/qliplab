@@ -400,5 +400,10 @@
   "settings.about.checking": "Wird gesucht…",
   "settings.about.downloading": "Wird heruntergeladen…",
   "settings.about.upToDate": "Aktuell",
-  "settings.about.updateError": "Update-Suche fehlgeschlagen"
+  "settings.about.updateError": "Update-Suche fehlgeschlagen",
+  "permissions.accessibility.title": "Bedienungshilfen-Berechtigung erforderlich",
+  "permissions.accessibility.description": "QlipLab kann erst in andere Apps einfügen, wenn Sie es in den Systemeinstellungen erlauben. Ihre Clips werden weiterhin in die Zwischenablage kopiert.",
+  "permissions.accessibility.openSettings": "Einstellungen öffnen",
+  "permissions.accessibility.recheck": "Erneut prüfen",
+  "permissions.accessibility.dismiss": "Ausblenden"
 }

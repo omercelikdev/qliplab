@@ -26,7 +26,11 @@ vi.mock('@tauri-apps/api/window', () => ({
 }));
 
 vi.mock('@tauri-apps/api/core', () => ({
-  invoke: vi.fn().mockResolvedValue(undefined),
+  // The paste helpers ask the backend for the Accessibility grant before hiding
+  // the window; default to granted so the happy path is exercised.
+  invoke: vi.fn((cmd: string) =>
+    Promise.resolve(cmd === 'accessibility_granted' ? true : undefined)
+  ),
 }));
 
 vi.mock('@tauri-apps/plugin-clipboard-manager', () => ({
@@ -224,6 +228,22 @@ describe('hideWriteAndPaste', () => {
     const writeFn = vi.fn().mockRejectedValue(new Error('clipboard fail'));
     await expect(hideWriteAndPaste(writeFn)).resolves.not.toThrow();
     consoleSpy.mockRestore();
+  });
+
+  // Regression: the window used to hide and then silently fail to paste, so the
+  // user saw the app vanish and nothing arrive. Keep it visible and report false.
+  it('keeps the window open and reports failure when Accessibility is denied', async () => {
+    // Only the permission probe is overridden; the default impl stays intact
+    // for the other suites (mockImplementation would leak across describes).
+    vi.mocked(invoke).mockImplementationOnce(() => Promise.resolve(false));
+    const writeFn = vi.fn().mockResolvedValue(undefined);
+
+    const pasted = await hideWriteAndPaste(writeFn);
+
+    expect(pasted).toBe(false);
+    expect(writeFn).toHaveBeenCalled(); // clipboard still holds the content
+    expect(invoke).not.toHaveBeenCalledWith('hide_panel');
+    expect(invoke).not.toHaveBeenCalledWith('simulate_paste');
   });
 });
 

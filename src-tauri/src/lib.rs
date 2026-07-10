@@ -125,6 +125,50 @@ extern "C" {
     fn CGRequestPostEventAccess() -> bool;
 }
 
+/// Whether the app may post synthetic keyboard events.
+///
+/// On macOS this is the Accessibility (kTCCServiceAccessibility) grant that
+/// auto-paste and snippet auto-expand both depend on. Windows and Linux paste
+/// through enigo and need no such grant, so they always report granted.
+#[tauri::command]
+fn accessibility_granted() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        unsafe { CGPreflightPostEventAccess() }
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        true
+    }
+}
+
+/// Ask macOS for Accessibility permission, showing the TCC dialog when possible.
+/// Returns the permission state after the request. No-op (true) elsewhere.
+#[tauri::command]
+fn request_accessibility_permission() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        unsafe { CGRequestPostEventAccess() }
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        true
+    }
+}
+
+/// Open the macOS Accessibility settings pane so the user can grant permission.
+#[tauri::command]
+fn open_accessibility_settings() -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 /// Post Cmd+V via CGEvent using Session tap (Maccy App Store best practice).
 /// Session tap doesn't annotate events with process info, avoiding sandbox blocking.
 #[cfg(target_os = "macos")]
@@ -1481,6 +1525,9 @@ pub fn run() {
             set_trigger_expanding,
             start_trigger_engine,
             stop_trigger_engine,
+            accessibility_granted,
+            request_accessibility_permission,
+            open_accessibility_settings,
             list_running_apps,
             write_temp_image
         ])

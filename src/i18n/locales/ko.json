@@ -400,5 +400,10 @@
   "settings.about.checking": "확인 중…",
   "settings.about.downloading": "다운로드 중…",
   "settings.about.upToDate": "최신 상태",
-  "settings.about.updateError": "업데이트 확인 실패"
+  "settings.about.updateError": "업데이트 확인 실패",
+  "permissions.accessibility.title": "손쉬운 사용 권한이 필요합니다",
+  "permissions.accessibility.description": "시스템 설정에서 허용하기 전까지 QlipLab은 다른 앱에 붙여넣을 수 없습니다. 내용은 클립보드에 복사됩니다.",
+  "permissions.accessibility.openSettings": "설정 열기",
+  "permissions.accessibility.recheck": "다시 확인",
+  "permissions.accessibility.dismiss": "닫기"
 }

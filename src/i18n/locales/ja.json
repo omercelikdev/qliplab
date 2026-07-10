@@ -400,5 +400,10 @@
   "settings.about.checking": "確認中…",
   "settings.about.downloading": "ダウンロード中…",
   "settings.about.upToDate": "最新です",
-  "settings.about.updateError": "更新の確認に失敗しました"
+  "settings.about.updateError": "更新の確認に失敗しました",
+  "permissions.accessibility.title": "アクセシビリティの許可が必要です",
+  "permissions.accessibility.description": "システム設定で許可するまで、QlipLab は他のアプリにペーストできません。内容はクリップボードにコピーされます。",
+  "permissions.accessibility.openSettings": "設定を開く",
+  "permissions.accessibility.recheck": "再確認",
+  "permissions.accessibility.dismiss": "閉じる"
 }

@@ -32,6 +32,9 @@ export interface AppSettings {
   windowY: number | null;
   windowWidth: number | null;
   windowHeight: number | null;
+  /** The window starts hidden, so on a fresh install nobody would ever see the
+   *  app (no Dock icon either). Show it once, then never force it again. */
+  firstRunShown: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -57,6 +60,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   windowY: null,
   windowWidth: null,
   windowHeight: null,
+  firstRunShown: false,
 };
 
 let store: Store | null = null;

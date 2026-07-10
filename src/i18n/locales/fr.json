@@ -400,5 +400,10 @@
   "settings.about.checking": "Recherche…",
   "settings.about.downloading": "Téléchargement…",
   "settings.about.upToDate": "À jour",
-  "settings.about.updateError": "Échec de la vérification"
+  "settings.about.updateError": "Échec de la vérification",
+  "permissions.accessibility.title": "Autorisation d'accessibilité requise",
+  "permissions.accessibility.description": "QlipLab ne peut pas coller dans d'autres applications tant que vous ne l'autorisez pas dans les Réglages Système. Vos éléments sont tout de même copiés dans le presse-papiers.",
+  "permissions.accessibility.openSettings": "Ouvrir les Réglages",
+  "permissions.accessibility.recheck": "Revérifier",
+  "permissions.accessibility.dismiss": "Ignorer"
 }

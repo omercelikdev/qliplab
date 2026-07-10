@@ -400,5 +400,10 @@
   "settings.about.checking": "Comprobando…",
   "settings.about.downloading": "Descargando…",
   "settings.about.upToDate": "Actualizado",
-  "settings.about.updateError": "Error al buscar actualizaciones"
+  "settings.about.updateError": "Error al buscar actualizaciones",
+  "permissions.accessibility.title": "Se necesita permiso de Accesibilidad",
+  "permissions.accessibility.description": "QlipLab no puede pegar en otras apps hasta que lo permitas en Ajustes del Sistema. Tus elementos se copian igualmente al portapapeles.",
+  "permissions.accessibility.openSettings": "Abrir Ajustes",
+  "permissions.accessibility.recheck": "Volver a comprobar",
+  "permissions.accessibility.dismiss": "Descartar"
 }

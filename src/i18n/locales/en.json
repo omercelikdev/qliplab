@@ -400,5 +400,10 @@
   "settings.about.checking": "Checking…",
   "settings.about.downloading": "Downloading…",
   "settings.about.upToDate": "Up to date",
-  "settings.about.updateError": "Update check failed"
+  "settings.about.updateError": "Update check failed",
+  "permissions.accessibility.title": "Accessibility permission needed",
+  "permissions.accessibility.description": "QlipLab can't paste into other apps until you allow it in System Settings. Your clips are still copied to the clipboard.",
+  "permissions.accessibility.openSettings": "Open Settings",
+  "permissions.accessibility.recheck": "Re-check",
+  "permissions.accessibility.dismiss": "Dismiss"
 }

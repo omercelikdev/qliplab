@@ -400,5 +400,10 @@
   "settings.about.checking": "Controleren…",
   "settings.about.downloading": "Downloaden…",
   "settings.about.upToDate": "Up-to-date",
-  "settings.about.updateError": "Controle op updates mislukt"
+  "settings.about.updateError": "Controle op updates mislukt",
+  "permissions.accessibility.title": "Toegankelijkheidstoestemming vereist",
+  "permissions.accessibility.description": "QlipLab kan pas in andere apps plakken als je dit toestaat in Systeeminstellingen. Je clips worden nog steeds naar het klembord gekopieerd.",
+  "permissions.accessibility.openSettings": "Instellingen openen",
+  "permissions.accessibility.recheck": "Opnieuw controleren",
+  "permissions.accessibility.dismiss": "Sluiten"
 }

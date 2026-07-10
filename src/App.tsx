@@ -8,6 +8,7 @@ import { HintBar } from './components/layout/HintBar';
 import { Splitter } from './components/layout/Splitter';
 import { ResizeBorder } from './components/layout/ResizeBorder';
 import { OnboardingBanner } from './components/layout/OnboardingBanner';
+import { AccessibilityBanner } from './components/layout/AccessibilityBanner';
 import { HistoryList } from './components/history/HistoryList';
 import { SnippetList } from './components/snippets/SnippetList';
 import { VaultList } from './components/vault/VaultList';
@@ -29,6 +30,7 @@ import { useTriggerEngine } from './hooks/useTriggerEngine';
 import { useTheme } from './hooks/useTheme';
 import { useSettingsStore } from './stores/settingsStore';
 import { useTagStore } from './stores/tagStore';
+import { usePermissionStore } from './stores/permissionStore';
 import { initDatabase } from './lib/database';
 import i18n from './i18n';
 import { showWindow, hideWindow } from './lib/window';
@@ -81,11 +83,27 @@ function App() {
         loadItems(),
         useTagStore.getState().loadTags(),
         useTagStore.getState().loadItemTags(),
+        usePermissionStore.getState().check(),
       ]);
       setIsInitialized(true);
+
+      // A fresh install starts with a hidden window and no Dock icon, so the
+      // user would see nothing at all. Show the panel once so onboarding lands.
+      if (!useSettingsStore.getState().settings.firstRunShown) {
+        await useSettingsStore.getState().updateSetting('firstRunShown', true);
+        await showWindow();
+      }
     };
     init();
   }, [loadItems, loadSettings, loadFeedbackSettings]);
+
+  // Permissions can change while the app runs (user grants them in System
+  // Settings and comes back), so re-check whenever the window regains focus.
+  useEffect(() => {
+    const onFocus = () => { void usePermissionStore.getState().check(); };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
 
   // Show opt-in dialog on first run
   useEffect(() => {
@@ -192,6 +210,7 @@ function App() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {activeTab !== 'settings' && <SearchBar />}
+          <AccessibilityBanner />
           {activeTab !== 'settings' && <OnboardingBanner />}
           <div className="flex flex-1 overflow-hidden">
             <div

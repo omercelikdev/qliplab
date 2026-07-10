@@ -400,5 +400,10 @@
   "settings.about.checking": "Sprawdzanie…",
   "settings.about.downloading": "Pobieranie…",
   "settings.about.upToDate": "Aktualne",
-  "settings.about.updateError": "Sprawdzanie aktualizacji nie powiodło się"
+  "settings.about.updateError": "Sprawdzanie aktualizacji nie powiodło się",
+  "permissions.accessibility.title": "Wymagane uprawnienie Dostępność",
+  "permissions.accessibility.description": "QlipLab nie może wkleić do innych aplikacji, dopóki nie zezwolisz na to w Ustawieniach systemowych. Zawartość nadal jest kopiowana do schowka.",
+  "permissions.accessibility.openSettings": "Otwórz Ustawienia",
+  "permissions.accessibility.recheck": "Sprawdź ponownie",
+  "permissions.accessibility.dismiss": "Odrzuć"
 }

@@ -400,5 +400,10 @@
   "settings.about.checking": "جارٍ التحقق…",
   "settings.about.downloading": "جارٍ التنزيل…",
   "settings.about.upToDate": "محدّث",
-  "settings.about.updateError": "فشل التحقق من التحديث"
+  "settings.about.updateError": "فشل التحقق من التحديث",
+  "permissions.accessibility.title": "مطلوب إذن إمكانية الوصول",
+  "permissions.accessibility.description": "لا يمكن لـ QlipLab اللصق في التطبيقات الأخرى حتى تسمح بذلك في إعدادات النظام. سيظل المحتوى منسوخًا إلى الحافظة.",
+  "permissions.accessibility.openSettings": "فتح الإعدادات",
+  "permissions.accessibility.recheck": "إعادة الفحص",
+  "permissions.accessibility.dismiss": "تجاهل"
 }

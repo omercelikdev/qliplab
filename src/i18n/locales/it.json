@@ -400,5 +400,10 @@
   "settings.about.checking": "Controllo…",
   "settings.about.downloading": "Download…",
   "settings.about.upToDate": "Aggiornato",
-  "settings.about.updateError": "Controllo aggiornamenti non riuscito"
+  "settings.about.updateError": "Controllo aggiornamenti non riuscito",
+  "permissions.accessibility.title": "Autorizzazione Accessibilità necessaria",
+  "permissions.accessibility.description": "QlipLab non può incollare in altre app finché non lo consenti in Impostazioni di Sistema. Gli elementi vengono comunque copiati negli appunti.",
+  "permissions.accessibility.openSettings": "Apri Impostazioni",
+  "permissions.accessibility.recheck": "Controlla di nuovo",
+  "permissions.accessibility.dismiss": "Ignora"
 }

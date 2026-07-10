@@ -400,5 +400,10 @@
   "settings.about.checking": "Denetleniyor…",
   "settings.about.downloading": "İndiriliyor…",
   "settings.about.upToDate": "Güncel",
-  "settings.about.updateError": "Güncelleme denetimi başarısız"
+  "settings.about.updateError": "Güncelleme denetimi başarısız",
+  "permissions.accessibility.title": "Erişilebilirlik izni gerekli",
+  "permissions.accessibility.description": "Sistem Ayarları’ndan izin vermeden QlipLab diğer uygulamalara yapıştıramaz. İçerik yine de panoya kopyalanır.",
+  "permissions.accessibility.openSettings": "Ayarları Aç",
+  "permissions.accessibility.recheck": "Yeniden denetle",
+  "permissions.accessibility.dismiss": "Kapat"
 }

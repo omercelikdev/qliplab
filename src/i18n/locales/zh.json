@@ -400,5 +400,10 @@
   "settings.about.checking": "正在检查…",
   "settings.about.downloading": "正在下载…",
   "settings.about.upToDate": "已是最新",
-  "settings.about.updateError": "检查更新失败"
+  "settings.about.updateError": "检查更新失败",
+  "permissions.accessibility.title": "需要辅助功能权限",
+  "permissions.accessibility.description": "在系统设置中授权前，QlipLab 无法粘贴到其他应用。内容仍会复制到剪贴板。",
+  "permissions.accessibility.openSettings": "打开设置",
+  "permissions.accessibility.recheck": "重新检查",
+  "permissions.accessibility.dismiss": "忽略"
 }
