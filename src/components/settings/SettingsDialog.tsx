@@ -14,6 +14,7 @@ import { CONFIG } from '@/lib/config';
 import { isFrontmostAppSupported } from '@/lib/capabilities';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSnippetStore } from '@/stores/snippetStore';
+import { codeToShortcutToken, shortcutNeedsModifier } from '@/lib/shortcutKeys';
 import { cn } from '@/lib/utils';
 
 const THEME_LABELS: Record<string, string> = {
@@ -397,19 +398,26 @@ function ShortcutSetting({
         return;
       }
 
+      // Bind to the physical key, not the typed character — the Turkish " key is
+      // physically Quote, and only ' registers. null = a modifier or unusable key.
+      const token = codeToShortcutToken(e.code);
+      if (!token) return;
+
+      const hasNonShiftModifier = e.metaKey || e.ctrlKey || e.altKey;
+      // A character key needs Ctrl/Cmd/Alt or it would fire whenever that key is
+      // typed; keep waiting rather than record a combo that clobbers typing.
+      if (shortcutNeedsModifier(token) && !hasNonShiftModifier) return;
+
       const parts: string[] = [];
       if (e.metaKey || e.ctrlKey) parts.push('CommandOrControl');
       if (e.shiftKey) parts.push('Shift');
       if (e.altKey) parts.push('Alt');
+      parts.push(token);
 
-      const key = e.key;
-      if (!['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
-        parts.push(key.length === 1 ? key.toUpperCase() : key);
-        const newShortcut = parts.join('+');
-        onChange(newShortcut);
-        setIsRecording(false);
-        setDisplay(formatShortcut(newShortcut));
-      }
+      const newShortcut = parts.join('+');
+      onChange(newShortcut);
+      setIsRecording(false);
+      setDisplay(formatShortcut(newShortcut));
     };
 
     window.addEventListener('keydown', handleKeyDown, true);
