@@ -5,6 +5,10 @@
   --color-foreground: hsl(20 14% 10%);
   --color-surface: hsl(40 20% 94%);
   --color-surface-hover: hsl(40 15% 90%);
+  /* Popovers float above the warm surface, so they read cleaner and whiter to
+     look elevated rather than blending into the row they sprang from. */
+  --color-popover: hsl(40 40% 99.5%);
+  --color-popover-border: hsl(40 12% 84%);
   --color-border: hsl(40 10% 88%);
   --color-muted-foreground: hsl(20 5% 45%);
   --color-accent: hsl(24 95% 55%);
@@ -21,6 +25,9 @@
   --color-foreground: hsl(40 20% 95%);
   --color-surface: hsl(20 10% 12%);
   --color-surface-hover: hsl(20 10% 16%);
+  /* Elevated above the row (surface 12%) so the menu clearly sits on top. */
+  --color-popover: hsl(24 9% 17%);
+  --color-popover-border: hsl(20 8% 28%);
   --color-border: hsl(20 8% 20%);
   --color-muted-foreground: hsl(30 10% 55%);
   --color-accent: hsl(24 95% 58%);

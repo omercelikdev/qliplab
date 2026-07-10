@@ -19,6 +19,7 @@ import { shouldMaskContent } from '@/lib/sensitiveMask';
 import { highlightRanges, tokenizeSearchQuery } from '@/lib/searchQuery';
 import { useTagStore } from '@/stores/tagStore';
 import type { Tag } from '@/stores/tagStore';
+import { RowActionButton } from '@/components/ui/RowActionButton';
 import { cn } from '@/lib/utils';
 import i18n from '@/i18n';
 import type { ClipboardItem, DetectedFormat } from '@/types/clipboard';
@@ -162,6 +163,9 @@ export const HistoryItem = memo(function HistoryItem({
 
   // Combined pasting state from click or keyboard
   const isCurrentlyPasting = isPasting || isPastingFromKeyboard;
+
+  // Hovering (or a pinned-open menu) swaps the metadata for the row actions.
+  const showActions = (isHovered || isMenuOpen) && !isDiffMode && !isQueueMode;
 
   // Keep secrets out of shoulder-surfing range until the row is hovered.
   const sensitiveDetectionEnabled = useSettingsStore((s) => s.settings.sensitiveDetectionEnabled);
@@ -419,60 +423,64 @@ export const HistoryItem = memo(function HistoryItem({
           </span>
         </span>
       )}
-      {/* Tags */}
-      {itemTags.length > 0 && !isHovered && !isMenuOpen && (
-        <div className="flex items-center gap-0.5 shrink-0">
-          {itemTags.slice(0, 2).map(tag => (
-            <span
-              key={tag.id}
-              className="w-2 h-2 rounded-full shrink-0"
-              style={{ backgroundColor: tag.color || '#888' }}
-              title={tag.name}
-            />
-          ))}
-          {itemTags.length > 2 && (
-            <span className="text-[8px] text-foreground/30">+{itemTags.length - 2}</span>
-          )}
-        </div>
-      )}
-      {/* Source app — dimmer than content */}
-      {item.sourceApp && !isHovered && !isMenuOpen && (
-        <span className="text-[9px] text-foreground/45 shrink-0 max-w-[50px] truncate">{item.sourceApp}</span>
-      )}
-      {/* Timestamp — dimmest */}
-      <span className="text-[10px] text-foreground/45 shrink-0 w-7 text-end">{formatRelativeTime(item.createdAt)}</span>
-      {!isDiffMode && !isQueueMode && (
+      {/* Trailing slot: the metadata and the hover actions share one space, so
+          moving between rows cross-fades in place instead of reflowing. The slot
+          reserves room for the three buttons so content never sits under them. */}
+      <div className="relative flex items-center justify-end shrink-0 h-full min-w-[76px]">
+        {/* Metadata — tags, source app, timestamp. Fades out under the actions. */}
         <div className={cn(
-          'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
-          (isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0'
+          'flex items-center gap-1.5 transition-opacity duration-150 ease-out',
+          showActions ? 'opacity-0' : 'opacity-100'
         )}>
-          <button
-              className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-grab active:cursor-grabbing"
+          {itemTags.length > 0 && (
+            <div className="flex items-center gap-0.5 shrink-0">
+              {itemTags.slice(0, 2).map(tag => (
+                <span
+                  key={tag.id}
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: tag.color || '#888' }}
+                  title={tag.name}
+                />
+              ))}
+              {itemTags.length > 2 && (
+                <span className="text-[8px] text-foreground/30">+{itemTags.length - 2}</span>
+              )}
+            </div>
+          )}
+          {item.sourceApp && (
+            <span className="text-[9px] text-foreground/45 shrink-0 max-w-[50px] truncate">{item.sourceApp}</span>
+          )}
+          <span className="text-[10px] text-foreground/45 shrink-0 w-7 text-end">{formatRelativeTime(item.createdAt)}</span>
+        </div>
+        {/* Actions — overlay the metadata, fading and easing in from the right. */}
+        {!isDiffMode && !isQueueMode && (
+          <div className={cn(
+            'absolute inset-y-0 end-0 flex items-center gap-0.5 transition-[opacity,transform] duration-150 ease-out',
+            showActions ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-1 pointer-events-none'
+          )}>
+            <RowActionButton
+              className="cursor-grab active:cursor-grabbing"
               onMouseDown={handleDragStart}
               onClick={(e) => e.stopPropagation()}
               title={item.contentType === 'image' ? t('history.dragImage') : t('history.dragText')}
             >
-              <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
-            </button>
-          <button
-            className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-            onClick={handleQuickView}
-            title={t('common.edit')}
-          >
-            <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-          <button
-            ref={menuButtonRef}
-            className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-            onMouseEnter={openMenu}
-            onMouseLeave={scheduleCloseMenu}
-            onClick={(e) => e.stopPropagation()}
-            title={t('history.actionsTooltip')}
-          >
-            <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-        </div>
-      )}
+              <GripVertical className="w-3.5 h-3.5" />
+            </RowActionButton>
+            <RowActionButton onClick={handleQuickView} title={t('common.edit')}>
+              <Pencil className="w-3.5 h-3.5" />
+            </RowActionButton>
+            <RowActionButton
+              ref={menuButtonRef}
+              onMouseEnter={openMenu}
+              onMouseLeave={scheduleCloseMenu}
+              onClick={(e) => e.stopPropagation()}
+              title={t('history.actionsTooltip')}
+            >
+              <MoreVertical className="w-3.5 h-3.5" />
+            </RowActionButton>
+          </div>
+        )}
+      </div>
       <ItemMenu
         item={item}
         isOpen={isMenuOpen && !isDiffMode}

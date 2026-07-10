@@ -8,6 +8,7 @@ import { useVaultStore } from '@/stores/vaultStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { VaultItem as VaultItemType, CardData, BankData, AddressData, PersonalData, CompanyData, CodeData } from '@/types/vault';
 import { getVaultFieldMap } from '@/lib/triggerEngine';
+import { RowActionButton } from '@/components/ui/RowActionButton';
 import { cn } from '@/lib/utils';
 
 // Type badge config — visual language consistent with HistoryItem badges
@@ -131,45 +132,29 @@ export function VaultItem({ item, isSelected = false, onEdit }: VaultItemProps) 
         </span>
       </span>
 
-      {/* Action buttons — fade in/out: Pin/Unpin, Reveal, Edit, Delete */}
+      {/* Action buttons — fade + ease in: Pin/Unpin, Reveal, Edit, Delete */}
       <div className={cn(
-        'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
-        isHovered ? 'opacity-100' : 'opacity-0'
+        'flex items-center gap-0.5 transition-[opacity,transform] duration-150 ease-out',
+        isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-1 pointer-events-none'
       )}>
-        <button
-          onClick={(e) => { e.stopPropagation(); togglePin(item.id); }}
-          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title={item.isPinned ? t('common.unpin') : t('common.pin')}
-        >
+        <RowActionButton onClick={(e) => { e.stopPropagation(); togglePin(item.id); }} title={item.isPinned ? t('common.unpin') : t('common.pin')}>
           {item.isPinned
             ? <PinOff className="w-3.5 h-3.5 text-accent" />
-            : <Pin className="w-3.5 h-3.5 text-muted-foreground" />
+            : <Pin className="w-3.5 h-3.5" />
           }
-        </button>
-        <button
-          onClick={(e) => { e.stopPropagation(); setIsRevealed(!isRevealed); }}
-          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title={isRevealed ? t('vault.hide') : t('vault.reveal')}
-        >
+        </RowActionButton>
+        <RowActionButton onClick={(e) => { e.stopPropagation(); setIsRevealed(!isRevealed); }} title={isRevealed ? t('vault.hide') : t('vault.reveal')}>
           {isRevealed
-            ? <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
-            : <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+            ? <EyeOff className="w-3.5 h-3.5" />
+            : <Eye className="w-3.5 h-3.5" />
           }
-        </button>
-        <button
-          onClick={(e) => { e.stopPropagation(); onEdit?.(item); }}
-          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title={t('common.edit')}
-        >
-          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
-        <button
-          onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
-          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center text-destructive cursor-pointer"
-          title={t('common.delete')}
-        >
+        </RowActionButton>
+        <RowActionButton onClick={(e) => { e.stopPropagation(); onEdit?.(item); }} title={t('common.edit')}>
+          <Pencil className="w-3.5 h-3.5" />
+        </RowActionButton>
+        <RowActionButton variant="destructive" onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }} title={t('common.delete')}>
           <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        </RowActionButton>
       </div>
 
       <ConfirmDialog

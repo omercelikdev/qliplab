@@ -223,7 +223,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
               maxHeight: 'calc(100vh - 8px)',
               overflowY: 'auto',
             }}
-            className="w-36 py-1 rounded-lg bg-surface border border-border shadow-lg"
+            className="w-36 p-1 rounded-xl bg-popover border border-popover-border shadow-[0_8px_30px_rgb(0_0_0/0.12)] dark:shadow-[0_8px_30px_rgb(0_0_0/0.5)]"
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
           >
@@ -238,19 +238,19 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
 
             {item.contentType === 'image' && ocrAvailable && (
               <>
-                <div className="h-px bg-border my-1" />
+                <div className="h-px bg-popover-border/70 my-1" />
                 <MenuButton icon={ScanText} label={t('history.menu.extractText')} onClick={handleOcr} />
               </>
             )}
 
-            {transformItems.length > 0 && <div className="h-px bg-border my-1" />}
+            {transformItems.length > 0 && <div className="h-px bg-popover-border/70 my-1" />}
             {transformItems.map((transformItem, i) => (
               <MenuButton key={i} icon={transformItem.icon} label={transformItem.label} onClick={() => { transformItem.action(); onClose(); }} />
             ))}
 
-            <div className="h-px bg-border my-1" />
+            <div className="h-px bg-popover-border/70 my-1" />
             <TagSubmenu itemId={item.id} />
-            <div className="h-px bg-border my-1" />
+            <div className="h-px bg-popover-border/70 my-1" />
             <MenuButton icon={item.isPinned ? PinOff : Pin} label={item.isPinned ? t('history.menu.unpin') : t('history.menu.pin')} onClick={handlePin} />
             <MenuButton icon={Trash2} label={t('history.menu.delete')} onClick={handleDelete} destructive />
           </motion.div>
@@ -266,7 +266,12 @@ function MenuButton({ icon: Icon, label, onClick, destructive }: { icon: React.E
   return (
     <button
       aria-label={label}
-      className={cn('w-full flex items-center gap-1.5 px-2.5 py-1 text-xs text-start hover:bg-surface-hover transition-colors cursor-pointer', destructive && 'text-destructive')}
+      className={cn(
+        'w-full flex items-center gap-1.5 px-2 py-1 text-xs text-start rounded-md transition-colors cursor-pointer',
+        destructive
+          ? 'text-destructive hover:bg-destructive/10'
+          : 'hover:bg-foreground/[0.05] dark:hover:bg-white/[0.06]',
+      )}
       onClick={onClick}
     >
       <Icon className="w-3.5 h-3.5" aria-hidden="true" />
@@ -326,7 +331,7 @@ function TagSubmenu({ itemId }: { itemId: string }) {
         return (
           <div key={tag.id} className="group/tag flex items-center">
             <button
-              className="flex-1 flex items-center gap-1.5 px-1 py-0.5 text-[11px] hover:bg-surface-hover rounded transition-colors cursor-pointer min-w-0"
+              className="flex-1 flex items-center gap-1.5 px-1 py-0.5 text-[11px] hover:bg-foreground/[0.05] dark:hover:bg-white/[0.06] rounded-md transition-colors cursor-pointer min-w-0"
               onClick={(e) => {
                 e.stopPropagation();
                 if (isApplied) removeTagFromItem(itemId, tag.id);
@@ -369,7 +374,7 @@ function TagSubmenu({ itemId }: { itemId: string }) {
         </div>
       ) : (
         <button
-          className="w-full flex items-center gap-1.5 px-1 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-surface-hover rounded transition-colors cursor-pointer mt-0.5"
+          className="w-full flex items-center gap-1.5 px-1 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-foreground/[0.05] dark:hover:bg-white/[0.06] rounded-md transition-colors cursor-pointer mt-0.5"
           onClick={(e) => { e.stopPropagation(); setIsAdding(true); }}
         >
           <Plus className="w-3 h-3" />

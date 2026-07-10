@@ -7,6 +7,7 @@ import { expandVariables } from '@/lib/snippetVariables';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Snippet } from '@/types/snippet';
+import { RowActionButton } from '@/components/ui/RowActionButton';
 import { cn } from '@/lib/utils';
 
 // Syntax badge config — reuses the same visual language as HistoryItem
@@ -115,35 +116,23 @@ export const SnippetItem = memo(function SnippetItem({ snippet, isSelected = fal
         <span className="text-foreground/35 ms-1.5">{snippet.content.slice(0, 100).replace(/\n/g, ' ')}</span>
       </span>
 
-      {/* Action buttons — fade in/out: Pin/Unpin, Edit, Delete */}
+      {/* Action buttons — fade + ease in: Pin/Unpin, Edit, Delete */}
       <div className={cn(
-        'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
-        isHovered ? 'opacity-100' : 'opacity-0'
+        'flex items-center gap-0.5 transition-[opacity,transform] duration-150 ease-out',
+        isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-1 pointer-events-none'
       )}>
-        <button
-          onClick={togglePin}
-          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title={snippet.isPinned ? t('common.unpin') : t('common.pin')}
-        >
+        <RowActionButton onClick={togglePin} title={snippet.isPinned ? t('common.unpin') : t('common.pin')}>
           {snippet.isPinned
             ? <PinOff className="w-3.5 h-3.5 text-accent" />
-            : <Pin className="w-3.5 h-3.5 text-muted-foreground" />
+            : <Pin className="w-3.5 h-3.5" />
           }
-        </button>
-        <button
-          onClick={handleEdit}
-          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center cursor-pointer"
-          title={t('common.edit')}
-        >
-          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
-        <button
-          onClick={handleDelete}
-          className="p-0.5 rounded hover:bg-surface transition-colors duration-100 shrink-0 w-5 h-5 flex items-center justify-center text-destructive cursor-pointer"
-          title={t('common.delete')}
-        >
+        </RowActionButton>
+        <RowActionButton onClick={handleEdit} title={t('common.edit')}>
+          <Pencil className="w-3.5 h-3.5" />
+        </RowActionButton>
+        <RowActionButton variant="destructive" onClick={handleDelete} title={t('common.delete')}>
           <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        </RowActionButton>
       </div>
 
       <ConfirmDialog
