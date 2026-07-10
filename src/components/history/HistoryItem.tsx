@@ -13,6 +13,8 @@ import { resolveResource } from '@tauri-apps/api/path';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
+import { useSettingsStore } from '@/stores/settingsStore';
+import { shouldMaskContent } from '@/lib/sensitiveMask';
 import { useTagStore } from '@/stores/tagStore';
 import type { Tag } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
@@ -147,6 +149,10 @@ export const HistoryItem = memo(function HistoryItem({
 
   // Combined pasting state from click or keyboard
   const isCurrentlyPasting = isPasting || isPastingFromKeyboard;
+
+  // Keep secrets out of shoulder-surfing range until the row is hovered.
+  const sensitiveDetectionEnabled = useSettingsStore((s) => s.settings.sensitiveDetectionEnabled);
+  const isMasked = shouldMaskContent(item.isSensitive, sensitiveDetectionEnabled, isHovered);
 
   const handleClick = async () => {
     if (isMenuOpen || isCurrentlyPasting) return;
@@ -375,7 +381,15 @@ export const HistoryItem = memo(function HistoryItem({
               style={{ backgroundColor: item.content.trim() }}
             />
           )}
-          <span className="truncate">{highlightMatch(item.content.slice(0, 200).replace(/\n/g, ' '), searchQuery)}</span>
+          <span
+            className={cn(
+              'truncate transition-[filter] duration-150',
+              isMasked && 'blur-[5px] select-none'
+            )}
+            title={isMasked ? t('history.sensitiveHidden') : undefined}
+          >
+            {highlightMatch(item.content.slice(0, 200).replace(/\n/g, ' '), searchQuery)}
+          </span>
         </span>
       )}
       {/* Tags */}

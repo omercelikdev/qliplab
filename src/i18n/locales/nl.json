@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "AI-fout",
   "hintBar.quickPaste": "Snel plakken",
   "history.aiConfirmTitle": "Naar {{provider}} sturen?",
-  "history.aiConfirmSend": "Versturen"
+  "history.aiConfirmSend": "Versturen",
+  "history.sensitiveHidden": "Gevoelig — beweeg de muis om te tonen"
 }

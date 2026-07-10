@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "خطأ في الذكاء الاصطناعي",
   "hintBar.quickPaste": "لصق سريع",
   "history.aiConfirmTitle": "إرسال إلى {{provider}}؟",
-  "history.aiConfirmSend": "إرسال"
+  "history.aiConfirmSend": "إرسال",
+  "history.sensitiveHidden": "حساس — مرّر للكشف"
 }

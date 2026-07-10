@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "Ошибка ИИ",
   "hintBar.quickPaste": "Быстрая вставка",
   "history.aiConfirmTitle": "Отправить в {{provider}}?",
-  "history.aiConfirmSend": "Отправить"
+  "history.aiConfirmSend": "Отправить",
+  "history.sensitiveHidden": "Конфиденциально — наведите, чтобы показать"
 }

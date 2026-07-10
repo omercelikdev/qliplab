@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "KI-Fehler",
   "hintBar.quickPaste": "Schnell einfügen",
   "history.aiConfirmTitle": "An {{provider}} senden?",
-  "history.aiConfirmSend": "Senden"
+  "history.aiConfirmSend": "Senden",
+  "history.sensitiveHidden": "Vertraulich — zum Anzeigen darüberfahren"
 }

@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "AI Error",
   "hintBar.quickPaste": "Quick paste",
   "history.aiConfirmTitle": "Send to {{provider}}?",
-  "history.aiConfirmSend": "Send"
+  "history.aiConfirmSend": "Send",
+  "history.sensitiveHidden": "Sensitive — hover to reveal"
 }

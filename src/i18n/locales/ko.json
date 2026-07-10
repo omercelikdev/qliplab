@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "AI 오류",
   "hintBar.quickPaste": "빠른 붙여넣기",
   "history.aiConfirmTitle": "{{provider}}(으)로 보낼까요?",
-  "history.aiConfirmSend": "보내기"
+  "history.aiConfirmSend": "보내기",
+  "history.sensitiveHidden": "민감한 정보 — 마우스를 올리면 표시"
 }

@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "AI Hatası",
   "hintBar.quickPaste": "Hızlı yapıştır",
   "history.aiConfirmTitle": "{{provider}} sağlayıcısına gönderilsin mi?",
-  "history.aiConfirmSend": "Gönder"
+  "history.aiConfirmSend": "Gönder",
+  "history.sensitiveHidden": "Hassas — görmek için üzerine gel"
 }

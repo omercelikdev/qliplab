@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "Błąd AI",
   "hintBar.quickPaste": "Szybkie wklejanie",
   "history.aiConfirmTitle": "Wysłać do {{provider}}?",
-  "history.aiConfirmSend": "Wyślij"
+  "history.aiConfirmSend": "Wyślij",
+  "history.sensitiveHidden": "Poufne — najedź, aby pokazać"
 }

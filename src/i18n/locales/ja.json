@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "AI エラー",
   "hintBar.quickPaste": "クイックペースト",
   "history.aiConfirmTitle": "{{provider}} に送信しますか？",
-  "history.aiConfirmSend": "送信"
+  "history.aiConfirmSend": "送信",
+  "history.sensitiveHidden": "機密情報 — カーソルを合わせると表示"
 }

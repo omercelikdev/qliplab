@@ -414,5 +414,6 @@
   "history.aiErrorTitle": "AI 错误",
   "hintBar.quickPaste": "快速粘贴",
   "history.aiConfirmTitle": "发送到 {{provider}}？",
-  "history.aiConfirmSend": "发送"
+  "history.aiConfirmSend": "发送",
+  "history.sensitiveHidden": "敏感内容 — 悬停以显示"
 }
