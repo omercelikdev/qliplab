@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "कम से कम {{count}} अक्षर उपयोग करें",
   "vault.lock.passwordMismatch": "पासवर्ड मेल नहीं खाते",
   "vault.lock.noRecoveryWarning": "पासवर्ड रीसेट नहीं है। भूल जाने पर वॉल्ट की सामग्री पुनर्प्राप्त नहीं की जा सकती।",
-  "history.aiErrorTitle": "AI त्रुटि"
+  "history.aiErrorTitle": "AI त्रुटि",
+  "hintBar.quickPaste": "त्वरित पेस्ट"
 }

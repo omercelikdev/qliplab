@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "Use at least {{count}} characters",
   "vault.lock.passwordMismatch": "Passwords don't match",
   "vault.lock.noRecoveryWarning": "There is no password reset. If you forget it, your vault contents cannot be recovered.",
-  "history.aiErrorTitle": "AI Error"
+  "history.aiErrorTitle": "AI Error",
+  "hintBar.quickPaste": "Quick paste"
 }

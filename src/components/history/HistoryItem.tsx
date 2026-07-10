@@ -395,7 +395,7 @@ export const HistoryItem = memo(function HistoryItem({
         <span className="text-[9px] text-foreground/35 shrink-0 max-w-[50px] truncate">{item.sourceApp}</span>
       )}
       {/* Timestamp — dimmest */}
-      <span className="text-[10px] text-foreground/25 shrink-0 w-7 text-end">{formatRelativeTime(item.createdAt)}</span>
+      <span className="text-[10px] text-foreground/45 shrink-0 w-7 text-end">{formatRelativeTime(item.createdAt)}</span>
       {!isDiffMode && !isQueueMode && (
         <div className={cn(
           'flex items-center gap-0.5 transition-opacity duration-100 ease-out',

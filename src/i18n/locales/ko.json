@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "최소 {{count}}자 이상 사용하세요",
   "vault.lock.passwordMismatch": "비밀번호가 일치하지 않습니다",
   "vault.lock.noRecoveryWarning": "비밀번호 재설정이 없습니다. 잊어버리면 보관함 내용을 복구할 수 없습니다.",
-  "history.aiErrorTitle": "AI 오류"
+  "history.aiErrorTitle": "AI 오류",
+  "hintBar.quickPaste": "빠른 붙여넣기"
 }

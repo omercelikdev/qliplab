@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "{{count}} 文字以上を使用してください",
   "vault.lock.passwordMismatch": "パスワードが一致しません",
   "vault.lock.noRecoveryWarning": "パスワードのリセットはありません。忘れると保管庫の内容は復元できません。",
-  "history.aiErrorTitle": "AI エラー"
+  "history.aiErrorTitle": "AI エラー",
+  "hintBar.quickPaste": "クイックペースト"
 }

@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "En az {{count}} karakter kullanın",
   "vault.lock.passwordMismatch": "Şifreler eşleşmiyor",
   "vault.lock.noRecoveryWarning": "Şifre sıfırlama yoktur. Unutursanız kasadaki içeriğe bir daha erişilemez.",
-  "history.aiErrorTitle": "AI Hatası"
+  "history.aiErrorTitle": "AI Hatası",
+  "hintBar.quickPaste": "Hızlı yapıştır"
 }

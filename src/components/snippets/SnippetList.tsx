@@ -125,13 +125,13 @@ export function SnippetList() {
               <div key={snippet.id}>
                 {index === 0 && pinnedCount > 0 && (
                   <div className="flex items-center gap-2 px-1 pt-1 pb-1.5">
-                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">{t('common.pinned')}</span>
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/45 shrink-0">{t('common.pinned')}</span>
                     <div className="flex-1 dotted-separator" />
                   </div>
                 )}
                 {index === pinnedCount && pinnedCount > 0 && (
                   <div className="flex items-center gap-2 px-1 pt-1.5 pb-1.5">
-                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/25 shrink-0">{t('common.recent')}</span>
+                    <span className="text-[9px] uppercase tracking-[0.05em] font-semibold text-foreground/45 shrink-0">{t('common.recent')}</span>
                     <div className="flex-1 dotted-separator" />
                   </div>
                 )}

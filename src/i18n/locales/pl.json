@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "Użyj co najmniej {{count}} znaków",
   "vault.lock.passwordMismatch": "Hasła nie są zgodne",
   "vault.lock.noRecoveryWarning": "Nie ma resetowania hasła. Jeśli je zapomnisz, zawartość sejfu będzie nie do odzyskania.",
-  "history.aiErrorTitle": "Błąd AI"
+  "history.aiErrorTitle": "Błąd AI",
+  "hintBar.quickPaste": "Szybkie wklejanie"
 }

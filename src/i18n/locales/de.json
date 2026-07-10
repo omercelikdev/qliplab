@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "Mindestens {{count}} Zeichen verwenden",
   "vault.lock.passwordMismatch": "Passwörter stimmen nicht überein",
   "vault.lock.noRecoveryWarning": "Es gibt kein Zurücksetzen des Passworts. Wenn Sie es vergessen, ist der Tresorinhalt unwiederbringlich verloren.",
-  "history.aiErrorTitle": "KI-Fehler"
+  "history.aiErrorTitle": "KI-Fehler",
+  "hintBar.quickPaste": "Schnell einfügen"
 }

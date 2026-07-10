@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "Use pelo menos {{count}} caracteres",
   "vault.lock.passwordMismatch": "As senhas não coincidem",
   "vault.lock.noRecoveryWarning": "Não há redefinição de senha. Se você esquecê-la, o conteúdo do cofre não poderá ser recuperado.",
-  "history.aiErrorTitle": "Erro de IA"
+  "history.aiErrorTitle": "Erro de IA",
+  "hintBar.quickPaste": "Colar rápido"
 }

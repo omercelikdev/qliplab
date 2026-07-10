@@ -10,7 +10,7 @@ const isMac = navigator.platform.toUpperCase().includes('MAC');
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[3px] bg-surface border border-border/40 rounded-[3px] text-[10px] font-mono font-medium text-foreground/40 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
+    <kbd className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[3px] bg-surface border border-border/40 rounded-[3px] text-[10px] font-mono font-medium text-foreground/55 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
       {children}
     </kbd>
   );
@@ -105,7 +105,7 @@ export function HintBar() {
   }
 
   return (
-    <div data-tauri-drag-region className={cn('h-9 flex items-center justify-between px-3 cursor-move drag-region', 'elevation-top text-xs text-foreground/35')}>
+    <div data-tauri-drag-region className={cn('h-9 flex items-center justify-between px-3 cursor-move drag-region', 'elevation-top text-xs text-foreground/50')}>
       {/* Left: Navigation hints */}
       <div className="flex items-center gap-3 no-drag">
         <div className="flex items-center gap-1">
@@ -117,6 +117,12 @@ export function HintBar() {
           <Kbd><CornerDownLeft className="w-2.5 h-2.5" /></Kbd>
           <span className="ms-1">{t('hintBar.paste')}</span>
         </div>
+        {activeTab === 'history' && (
+          <div className="flex items-center gap-1">
+            <Kbd>{isMac ? '⌘1–9' : 'Ctrl+1–9'}</Kbd>
+            <span className="ms-1">{t('hintBar.quickPaste')}</span>
+          </div>
+        )}
       </div>
 
       {/* Right: Actions */}

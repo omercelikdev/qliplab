@@ -411,5 +411,6 @@
   "vault.lock.passwordTooShort": "Gebruik minimaal {{count}} tekens",
   "vault.lock.passwordMismatch": "Wachtwoorden komen niet overeen",
   "vault.lock.noRecoveryWarning": "Er is geen wachtwoordherstel. Als je het vergeet, is de inhoud van de kluis onherstelbaar.",
-  "history.aiErrorTitle": "AI-fout"
+  "history.aiErrorTitle": "AI-fout",
+  "hintBar.quickPaste": "Snel plakken"
 }
