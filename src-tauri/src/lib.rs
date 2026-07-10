@@ -676,6 +676,40 @@ fn set_trigger_expanding(
     Ok(())
 }
 
+/// Trim the keystroke buffer to at most `max` **bytes**, never splitting a
+/// character.
+///
+/// `String::len()` counts bytes, so `len() - max` can land inside a multi-byte
+/// character — "ç", "日", an emoji — and `drain(..that)` panics. That panic
+/// fires inside the keyboard callback on every subsequent keystroke, so any
+/// user typing outside ASCII loses text expansion entirely.
+fn trim_keystroke_buffer(buffer: &mut String, max: usize) {
+    if buffer.len() <= max {
+        return;
+    }
+    let mut cut = buffer.len() - max;
+    while cut < buffer.len() && !buffer.is_char_boundary(cut) {
+        cut += 1;
+    }
+    buffer.drain(..cut);
+}
+
+/// Does `buffer` end with the first `prefix_bytes` bytes of `trigger`?
+///
+/// `str::get` yields None when the cut is not a character boundary, which is
+/// exactly the case `&trigger[..prefix_bytes]` would panic on.
+fn ends_with_trigger_prefix(buffer: &str, trigger: &str, prefix_bytes: usize) -> bool {
+    trigger
+        .get(..prefix_bytes)
+        .is_some_and(|prefix| buffer.ends_with(prefix))
+}
+
+/// The frontend turns this into that many backspaces, so it must count
+/// characters — not the bytes `str::len()` reports.
+fn backspace_count(text: &str) -> usize {
+    text.chars().count()
+}
+
 /// Start the keystroke watcher using CGEventTap (macOS) or enigo (Windows).
 ///
 /// Uses CGEventKeyboardGetUnicodeString to read typed characters — this is
@@ -829,11 +863,7 @@ fn start_trigger_engine(
             }
 
             ctx.buffer.push_str(&ch);
-
-            if ctx.buffer.len() > MAX_BUFFER {
-                let drain = ctx.buffer.len() - MAX_BUFFER;
-                ctx.buffer.drain(..drain);
-            }
+            trim_keystroke_buffer(&mut ctx.buffer, MAX_BUFFER);
 
             if let Ok(s) = ctx.state.lock() {
                 // Find the longest matching trigger
@@ -866,7 +896,7 @@ fn start_trigger_engine(
                         let _ = ctx.app.emit("trigger-matched", serde_json::json!({
                             "trigger": matched_trigger,
                             "sourceId": matched_id,
-                            "triggerLen": matched_len
+                            "triggerLen": backspace_count(matched_trigger)
                         }));
                         ctx.buffer.clear();
                         return;
@@ -875,19 +905,21 @@ fn start_trigger_engine(
                     // We have a pending short match. Check if typed chars so far
                     // could still lead to a longer trigger completing.
                     let pending = ctx.pending.as_ref().unwrap();
-                    // Count chars typed after the pending trigger
-                    let extra = ctx.buffer.len().saturating_sub(
-                        ctx.buffer.rfind(&pending.trigger).map_or(0, |pos| pos + pending.trigger.len())
-                    );
-                    let typed_so_far_len = pending.trigger_len + extra;
+                    // Bytes for slicing, characters for backspacing — the two
+                    // differ the moment anything outside ASCII is typed.
+                    let tail_start = ctx.buffer
+                        .rfind(&pending.trigger)
+                        .map_or(0, |pos| pos + pending.trigger.len());
+                    let extra_bytes = ctx.buffer.len() - tail_start;
+                    let extra_chars = ctx.buffer[tail_start..].chars().count();
+                    let typed_so_far_len = pending.trigger_len + extra_bytes;
 
                     // Check: does any longer trigger match the buffer as a prefix?
                     // e.g. pending=";card", buffer ends with ";card.n", trigger ";card.name" exists
                     let could_still_match = s.triggers.iter().any(|(t, _)| {
                         t.len() > pending.trigger_len
                             && t.starts_with(&pending.trigger)
-                            && typed_so_far_len <= t.len()
-                            && ctx.buffer.ends_with(&t[..typed_so_far_len])
+                            && ends_with_trigger_prefix(&ctx.buffer, t, typed_so_far_len)
                     });
 
                     if !could_still_match {
@@ -896,7 +928,7 @@ fn start_trigger_engine(
                         let _ = ctx.app.emit("trigger-matched", serde_json::json!({
                             "trigger": pending.trigger,
                             "sourceId": pending.source_id,
-                            "triggerLen": pending.trigger_len + extra
+                            "triggerLen": backspace_count(&pending.trigger) + extra_chars
                         }));
                         ctx.buffer.clear();
                         return;
@@ -1064,10 +1096,7 @@ fn start_trigger_engine(
                         }
 
                         buffer.push_str(name);
-                        if buffer.len() > MAX_BUFFER {
-                            let drain = buffer.len() - MAX_BUFFER;
-                            buffer.drain(..drain);
-                        }
+                        trim_keystroke_buffer(&mut buffer, MAX_BUFFER);
 
                         if let Ok(s) = state.lock() {
                             // Find longest matching trigger
@@ -1097,23 +1126,25 @@ fn start_trigger_engine(
                                     let _ = app.emit("trigger-matched", serde_json::json!({
                                         "trigger": matched_trigger,
                                         "sourceId": matched_id,
-                                        "triggerLen": matched_len
+                                        "triggerLen": backspace_count(matched_trigger)
                                     }));
                                     buffer.clear();
                                 }
                             } else if pending.is_some() {
                                 // Check if pending match should be flushed
                                 let p = pending.as_ref().unwrap();
-                                let extra = buffer.len().saturating_sub(
-                                    buffer.rfind(&p.trigger).map_or(0, |pos| pos + p.trigger.len())
-                                );
-                                let typed_so_far_len = p.trigger_len + extra;
+                                // Bytes for slicing, characters for backspacing.
+                                let tail_start = buffer
+                                    .rfind(&p.trigger)
+                                    .map_or(0, |pos| pos + p.trigger.len());
+                                let extra_bytes = buffer.len() - tail_start;
+                                let extra_chars = buffer[tail_start..].chars().count();
+                                let typed_so_far_len = p.trigger_len + extra_bytes;
 
                                 let could_still_match = s.triggers.iter().any(|(t, _)| {
                                     t.len() > p.trigger_len
                                         && t.starts_with(&p.trigger)
-                                        && typed_so_far_len <= t.len()
-                                        && buffer.ends_with(&t[..typed_so_far_len])
+                                        && ends_with_trigger_prefix(&buffer, t, typed_so_far_len)
                                 });
 
                                 if !could_still_match {
@@ -1121,7 +1152,7 @@ fn start_trigger_engine(
                                     let _ = app.emit("trigger-matched", serde_json::json!({
                                         "trigger": p.trigger,
                                         "sourceId": p.source_id,
-                                        "triggerLen": p.trigger_len + extra
+                                        "triggerLen": backspace_count(&p.trigger) + extra_chars
                                     }));
                                     buffer.clear();
                                 }
@@ -1707,4 +1738,86 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{backspace_count, ends_with_trigger_prefix, trim_keystroke_buffer};
+
+    #[test]
+    fn trim_keystroke_buffer_leaves_short_buffers_alone() {
+        let mut buffer = String::from("hello");
+        trim_keystroke_buffer(&mut buffer, 100);
+        assert_eq!(buffer, "hello");
+    }
+
+    #[test]
+    fn trim_keystroke_buffer_keeps_the_tail() {
+        let mut buffer = String::from("abcdefghij");
+        trim_keystroke_buffer(&mut buffer, 4);
+        assert_eq!(buffer, "ghij");
+    }
+
+    // Regression: `len()` counts bytes, so the cut index landed inside a
+    // two-byte "ç" and `drain(..)` panicked inside the keystroke callback.
+    // Every Turkish user typing more than MAX_BUFFER bytes hit this.
+    #[test]
+    fn trim_keystroke_buffer_never_splits_a_character() {
+        let mut buffer = String::from("çççç"); // 8 bytes, 4 chars
+        trim_keystroke_buffer(&mut buffer, 5);
+        // Cutting at byte 3 splits a "ç", so we round the cut up to byte 4.
+        // Rounding up keeps the result inside the budget; rounding down would
+        // exceed it.
+        assert_eq!(buffer, "çç");
+        assert!(buffer.len() <= 5);
+    }
+
+    #[test]
+    fn trim_keystroke_buffer_handles_wide_characters() {
+        let mut buffer = String::from("日本語です"); // 15 bytes, 5 chars
+        trim_keystroke_buffer(&mut buffer, 7);
+        assert_eq!(buffer, "です");
+        assert!(buffer.len() <= 7);
+    }
+
+    #[test]
+    fn trim_keystroke_buffer_survives_an_emoji_boundary() {
+        let mut buffer = String::from("ab🎉cd"); // 🎉 is 4 bytes
+        trim_keystroke_buffer(&mut buffer, 5);
+        assert_eq!(buffer, "cd");
+        assert!(buffer.len() <= 5);
+    }
+
+    #[test]
+    fn ends_with_trigger_prefix_matches_a_real_prefix() {
+        assert!(ends_with_trigger_prefix("say ;car", ";card.name", 4));
+    }
+
+    #[test]
+    fn ends_with_trigger_prefix_rejects_a_different_prefix() {
+        assert!(!ends_with_trigger_prefix("say ;cat", ";card.name", 4));
+    }
+
+    // Regression: `&trigger[..n]` panicked when n fell inside a character.
+    // A pending ";a" plus a typed "b" cut ";aç" at byte 3, mid-"ç".
+    #[test]
+    fn ends_with_trigger_prefix_refuses_to_split_a_character() {
+        assert!(!ends_with_trigger_prefix("x;ab", ";aç", 3));
+    }
+
+    #[test]
+    fn ends_with_trigger_prefix_rejects_an_out_of_range_cut() {
+        assert!(!ends_with_trigger_prefix("x;a", ";a", 99));
+    }
+
+    // Regression: the frontend turns triggerLen into that many backspaces.
+    // Sending the byte length deleted one of the user's own characters for
+    // every non-ASCII character in the trigger.
+    #[test]
+    fn backspace_count_counts_characters_not_bytes() {
+        assert_eq!(backspace_count(";imza"), 5);
+        assert_eq!(";şablon".len(), 8); // bytes
+        assert_eq!(backspace_count(";şablon"), 7); // characters
+        assert_eq!(backspace_count(";🎉"), 2);
+    }
 }

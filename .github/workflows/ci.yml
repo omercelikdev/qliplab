@@ -58,6 +58,12 @@ jobs:
         working-directory: src-tauri
         run: cargo check
 
+      # `cargo check` never builds #[cfg(test)] code, so the Rust unit tests
+      # would silently stop guarding anything.
+      - name: Cargo test
+        working-directory: src-tauri
+        run: cargo test --lib
+
   # Platform-specific Rust code (#[cfg(target_os = ...)]) only compiles on its
   # own host, so Linux alone cannot catch Windows/macOS breakage. Release builds
   # run on tags — too late. Check both here on every push.
