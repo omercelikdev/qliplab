@@ -360,7 +360,7 @@ Built-in system for reporting bugs and requesting features, plus optional automa
 ### Technical Implementation
 
 **Store**: `src/stores/feedbackStore.ts`
-- `submitIssue(data)` - Create GitHub issue via Val.town proxy
+- `submitIssue(data)` - Create GitHub issue via the Cloudflare Worker proxy
 - `setAutoErrorReporting(enabled)` - Toggle auto-reporting
 
 **Library**: `src/lib/errorReporter.ts`
@@ -371,8 +371,9 @@ Built-in system for reporting bugs and requesting features, plus optional automa
 **Config**: `src/lib/config.ts`
 ```typescript
 export const CONFIG = {
-  ISSUE_REPORTER_URL: 'https://celikomr--xxx.web.val.run',
-  APP_VERSION: '0.1.0',
+  ISSUE_REPORTER_URL: 'https://qliplab-api.omercelikdev.workers.dev/report',
+  APP_TOKEN: '...', // soft anti-abuse gate for the Worker
+  APP_VERSION: '...', // injected from package.json at build time
 };
 ```
 
@@ -395,7 +396,7 @@ export const CONFIG = {
    - Unhandled exceptions
    - React error boundaries
    - Global error events
-3. Reports via Val.town proxy (no client tokens)
+3. Reports via the Cloudflare Worker proxy (holds the GitHub token as a Worker secret)
 
 ---
 

@@ -120,11 +120,12 @@ qliplab/
 
 ### Clipboard Monitoring
 ```typescript
-// useClipboardListener.ts - polls every 500ms
-const content = await readText();
-if (content !== lastContent) {
-  await addItem({ content, detectedFormat: detectFormat(content), ... });
-}
+// useClipboardListener.ts - event-driven via tauri-plugin-clipboard (not polling)
+const unlistenText = await onTextUpdate(async (text) => {
+  await addItem({ content: text, detectedFormat: detectFormat(text), ... });
+});
+const unlistenImage = await onImageUpdate(async (base64Image) => { ... });
+// Limits: MAX_CONTENT_SIZE 5MB (text/image), MAX_HTML_SIZE 1MB
 ```
 
 ### Ditto-like Paste Flow
@@ -143,7 +144,7 @@ await invoke('simulate_paste'); // Activates prev app + Cmd+V
 
 ### Vault Encryption
 ```typescript
-// encrypt() - AES-256-GCM + PBKDF2 (100k iterations)
+// encrypt() - AES-256-GCM + PBKDF2 (210,000 iterations; legacy 100k auto-migrated on unlock)
 const salt = crypto.getRandomValues(new Uint8Array(16));
 const iv = crypto.getRandomValues(new Uint8Array(12));
 const key = await deriveKey(password, salt);
@@ -152,9 +153,11 @@ const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data
 
 ### Tauri Commands (Rust)
 ```rust
+// macOS uses direct Cocoa/CGEvent APIs (no AppleScript/osascript — avoids apple-events entitlements).
+// Windows/Linux use SetForegroundWindow/enigo. ~18 commands total in src-tauri/src/lib.rs.
 #[tauri::command]
-fn save_frontmost_app() -> Result<(), String>  // AppleScript: get frontmost app
-fn simulate_paste() -> Result<(), String>       // AppleScript: keystroke "v" using command down
+fn save_frontmost_app() -> Result<(), String>  // NSWorkspace: record the app to return focus to
+fn simulate_paste() -> Result<(), String>       // CGEvent: activate prev app + synthesize Cmd/Ctrl+V
 ```
 
 ---

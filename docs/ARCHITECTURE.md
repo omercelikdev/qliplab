@@ -114,7 +114,7 @@ qliplab/
 
 ### Clipboard Monitoring
 ```
-System Clipboard → useClipboardListener (polling 500ms)
+System Clipboard → useClipboardListener (event-driven: onTextUpdate/onImageUpdate)
                  → detectFormat() → isSensitive()
                  → historyStore.addItem()
                  → SQLite (clipboard_history table)
@@ -125,28 +125,28 @@ System Clipboard → useClipboardListener (polling 500ms)
 User clicks item → writeText() to clipboard
                  → hideWindow()
                  → invoke('simulate_paste')
-                 → Rust: activate previous app
-                 → Rust: AppleScript keystroke "v" using command down
+                 → Rust: activate previous app (NSWorkspace / SetForegroundWindow)
+                 → Rust: synthesize Cmd/Ctrl+V via CGEvent (macOS) / enigo (Win/Linux)
 ```
 
 ### Vault Encryption
 ```
 User data → JSON.stringify()
           → encrypt() with AES-256-GCM
-          → PBKDF2 key derivation (100,000 iterations)
+          → PBKDF2 key derivation (210,000 iterations; legacy 100,000 auto-migrated)
           → SQLite (encrypted_data column)
 ```
 
 ## Window Management
 
-- **Default Size**: 420x450 pixels
-- **Preview Panel Size**: 840x450 pixels (expands for transform/diff)
+- **Default Size**: 560x580 pixels (min 350x300)
+- **Preview Panel**: expands for transform/diff
 - **Window Behavior**: Hides instead of closing, toggled via global shortcut
 
 ## Security Considerations
 
 1. **Vault Encryption**: AES-256-GCM with PBKDF2 key derivation
-2. **Master Password**: SHA-256 hashed, never stored in plaintext
+2. **Master Password**: salted SHA-256 hash (`salt:hash`), constant-time compare, never stored in plaintext
 3. **Session Password**: Kept in memory only, cleared on lock/quit
 4. **Sensitive Detection**: Auto-detects passwords, API keys, IBANs, credit cards
 5. **Vault Search**: Only searches titles, not encrypted content

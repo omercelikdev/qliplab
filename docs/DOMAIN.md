@@ -188,11 +188,11 @@ interface CodeData {
 ### Vault Security Model
 
 1. **Master Password**: Required to unlock vault
-   - Hashed with SHA-256 for verification
+   - Salted SHA-256 hash (`salt:hash`) for verification, constant-time compare
    - Never stored in plaintext
 
 2. **Encryption**: AES-256-GCM
-   - Key derived via PBKDF2 (100,000 iterations)
+   - Key derived via PBKDF2 (210,000 iterations; legacy 100,000 auto-migrated on unlock)
    - Random salt (16 bytes) per encryption
    - Random IV (12 bytes) per encryption
 
@@ -338,7 +338,7 @@ CREATE TABLE vault_settings (
 ```
 User copies text anywhere
     ↓
-useClipboardListener detects change (500ms polling)
+useClipboardListener detects change (event-driven: onTextUpdate/onImageUpdate)
     ↓
 detectFormat() identifies content type
     ↓
