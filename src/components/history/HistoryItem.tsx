@@ -298,7 +298,7 @@ export const HistoryItem = memo(function HistoryItem({
       aria-selected={isSelected}
       aria-label={item.contentType === 'image' ? t('history.imageClip') : item.content.slice(0, 80)}
       className={cn(
-        'relative flex items-center gap-2 h-8 px-2.5 rounded-md cursor-pointer',
+        'relative flex items-center gap-2 h-9 px-2.5 rounded-md cursor-pointer',
         'transition-[background-color] duration-100 ease-out',
         'active:scale-[0.98] active:transition-transform',
         isHovered || isMenuOpen
@@ -328,7 +328,7 @@ export const HistoryItem = memo(function HistoryItem({
       {/* Category badge with icon */}
       {badgeLabel && badgeGroup && BadgeIcon && (
         <span className={cn(
-          'inline-flex items-center gap-[3px] text-[9px] font-semibold tracking-[0.02em] px-[5px] py-[1px] rounded shrink-0 leading-4',
+          'inline-flex items-center gap-[3px] text-[10px] font-semibold tracking-[0.02em] px-[5px] py-[1px] rounded shrink-0 leading-4',
           BADGE_STYLES[badgeGroup]
         )}>
           <BadgeIcon className="w-2.5 h-2.5" />
@@ -338,7 +338,7 @@ export const HistoryItem = memo(function HistoryItem({
       {/* HTML badge (separate, web group) */}
       {item.htmlContent && !badgeLabel && (
         <span className={cn(
-          'inline-flex items-center gap-[3px] text-[9px] font-semibold tracking-[0.02em] px-[5px] py-[1px] rounded shrink-0 leading-4',
+          'inline-flex items-center gap-[3px] text-[10px] font-semibold tracking-[0.02em] px-[5px] py-[1px] rounded shrink-0 leading-4',
           BADGE_STYLES.web
         )}>
           <Globe className="w-2.5 h-2.5" />
@@ -360,14 +360,14 @@ export const HistoryItem = memo(function HistoryItem({
               isCurrentlyPasting && "opacity-50"
             )}
           />
-          <span className="text-xs text-foreground/55 truncate">
+          <span className="text-[13px] text-foreground/55 truncate">
             {isCurrentlyPasting ? t('common.pasting') : t('common.image')}
           </span>
         </div>
       ) : (
         <span className={cn(
-          'flex-1 min-w-0 truncate text-xs flex items-center gap-1.5',
-          isMonospace && 'font-mono text-[11px]'
+          'flex-1 min-w-0 truncate text-[13px] flex items-center gap-1.5',
+          isMonospace && 'font-mono text-[12px]'
         )}>
           {item.detectedFormat === 'color' && (
             <span
@@ -396,10 +396,10 @@ export const HistoryItem = memo(function HistoryItem({
       )}
       {/* Source app — dimmer than content */}
       {item.sourceApp && !isHovered && !isMenuOpen && (
-        <span className="text-[9px] text-foreground/35 shrink-0 max-w-[50px] truncate">{item.sourceApp}</span>
+        <span className="text-[10px] text-foreground/45 shrink-0 max-w-[54px] truncate">{item.sourceApp}</span>
       )}
       {/* Timestamp — dimmest */}
-      <span className="text-[10px] text-foreground/45 shrink-0 w-7 text-end">{formatRelativeTime(item.createdAt)}</span>
+      <span className="text-[11px] text-foreground/45 shrink-0 w-8 text-end">{formatRelativeTime(item.createdAt)}</span>
       {!isDiffMode && !isQueueMode && (
         <div className={cn(
           'flex items-center gap-0.5 transition-opacity duration-100 ease-out',
