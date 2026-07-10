@@ -15,17 +15,15 @@
 | Snippets | SQLite | None |
 | Vault items | SQLite (`encrypted_data` column) | AES-256-GCM |
 | Settings | Tauri Store (`settings.json`) | None |
-| AI consent (local-only) | Tauri Store (`consent-audit.json`) | None (integrity hash) |
 | Master password | Never stored (only salted hash) | SHA-256 + salt |
 
 ### Network Security
 - **CSP enabled** in `tauri.conf.json` with restricted `connect-src`
 - **Allowed external connections:**
   - Cloudflare Worker issue reporter endpoint (`qliplab-api.omercelikdev.workers.dev`)
-  - Anthropic / OpenAI / Google Gemini APIs (AI features, user-initiated, user's own key)
   - jsdelivr CDN (Monaco editor)
 - **No telemetry** — no background data collection
-- **No server-side consent/agreement storage** — AI consent is stored locally only
+- **No clipboard content ever leaves the device** — there is no cloud component
 - **Report endpoint** is proxied through the Cloudflare Worker (no direct GitHub token exposure)
 
 ### App Sandbox (macOS)
@@ -33,7 +31,7 @@ Enabled via `Entitlements.plist`:
 | Entitlement | Purpose |
 |-------------|---------|
 | `com.apple.security.app-sandbox` | App sandboxing |
-| `com.apple.security.network.client` | Error reporting, AI APIs |
+| `com.apple.security.network.client` | Error reporting, update check |
 | `com.apple.security.automation.apple-events` | Paste simulation (Cmd+V) |
 | `com.apple.security.files.user-selected.read-write` | Export/import data |
 | `com.apple.security.cs.allow-unsigned-executable-memory` | WebView/Tauri runtime |
@@ -56,13 +54,6 @@ Vault unlock attempts are rate-limited with exponential backoff:
 - No first-launch EULA gate; a viewable Terms/disclaimer is available in
   Settings → Terms of Use (`EulaViewerDialog`)
 - Nothing is recorded to any server
-
-### AI Data Processing Consent (local-only)
-- Required before using any AI feature
-- 3 explicit checkboxes must be checked
-- Recorded **locally only** with a SHA-256 integrity hash (`consent-audit.json`)
-- Never transmitted to any QlipLab server
-- Can be revoked anytime in Settings
 
 ### Error Reporting
 - Opt-in only (default OFF)
@@ -114,7 +105,6 @@ if (import.meta.env.DEV) return; // skip in development
 Applied to:
 - `errorReporter.ts` — auto error reports
 - `feedbackStore.ts` — manual issue reports
-- `consentLog.ts` — local-only AI consent record (no server call)
 
 ---
 
@@ -141,9 +131,9 @@ Applied to:
 - [x] Sensitive data detection (API keys, passwords, tokens, PEM keys, financial data)
 
 ### Data Protection
-- [x] No clipboard content sent to external servers (except user-initiated AI)
+- [x] No clipboard content sent to external servers, ever
 - [x] Vault data encrypted at rest
-- [x] AI actions blocked for sensitive items
+- [x] Sensitive items blurred in the history list until hovered
 - [x] Export/import uses file picker (sandboxed)
 - [x] Stack trace sanitization in error reports (no absolute paths)
 - [x] Enhanced sensitive pattern detection (JSON/YAML/env formats, Slack/SendGrid/GitHub OAuth tokens)
@@ -152,11 +142,10 @@ Applied to:
 - [x] CSP with restricted connect-src
 - [x] HTTPS only for all external connections
 - [x] No direct GitHub token in client
-- [x] No server-side consent/agreement storage (AI consent is local-only)
+- [x] No consent/agreement storage of any kind (nothing to consent to)
 
 ### Compliance
 - [x] Apache-2.0 licensed; Terms/disclaimer viewable in-app (no gate)
-- [x] AI consent with 3 explicit checkboxes (local-only record)
 - [x] Error reporting opt-in (not opt-out)
 - [x] Privacy Policy accessible in-app
 - [x] PrivacyInfo.xcprivacy for App Store

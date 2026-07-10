@@ -6,9 +6,9 @@ The Worker is a stateless proxy — it holds the GitHub token as a secret and
 creates issues on the user's behalf. Nothing is stored on the Worker except a
 short-lived per-IP rate-limit counter in D1.
 
-> **No consent/EULA tracking.** QlipLab is free & open source and does not
-> record any agreement to a server. AI-data consent (see below) is stored
-> **locally only**, on the user's own device.
+> **No consent tracking of any kind.** QlipLab is free & open source, has no
+> cloud component, and never records an agreement anywhere. Clipboard content
+> never leaves the device.
 
 ---
 
@@ -69,20 +69,6 @@ context, system info (OS, app version).
 **Priority labels:** `priority: low/medium/high/critical`
 
 **Source:** `src/stores/feedbackStore.ts` → `submitIssue(data)`
-
----
-
-## AI Consent (local-only)
-
-When a user enables AI features they must accept 3 explicit terms
-(`src/components/settings/AiConsentDialog.tsx`). This is a **privacy disclosure**
-— clipboard content is sent to a third-party AI provider using the user's own
-API key. The acceptance is recorded **only on the user's device**:
-
-- `src/lib/consentLog.ts` → `recordConsent('grant' | 'revoke', provider)`
-- Stored in the local Tauri store `consent-audit.json` with a SHA-256 integrity
-  hash. Never transmitted to any QlipLab server.
-- `settingsStore` holds the effective flags `aiConsentAccepted` / `aiConsentDate`.
 
 ---
 

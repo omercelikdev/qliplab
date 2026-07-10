@@ -2,7 +2,7 @@ import { useState, useLayoutEffect, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Bot, Tag, Plus, X } from 'lucide-react';
+import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Tag, Plus, X } from 'lucide-react';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import * as transforms from '@/lib/transforms';
@@ -11,12 +11,6 @@ import { writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { invoke } from '@tauri-apps/api/core';
 import { hideWriteAndPaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
-import { useSettingsStore } from '@/stores/settingsStore';
-import { isAiConfigured, isAiConsentGiven, runAiAction, AI_ACTIONS, aiProviderLabel } from '@/lib/ai';
-import { aiErrorKey, toAiError } from '@/lib/aiError';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import type { AiAction } from '@/lib/ai';
-import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { useTagStore } from '@/stores/tagStore';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
@@ -36,9 +30,6 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
   const { deleteItem, togglePin } = useHistoryStore();
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
-  const [showAiConsent, setShowAiConsent] = useState(false);
-  const [pendingAiAction, setPendingAiAction] = useState<AiAction | null>(null);
-  const [aiConfirmAction, setAiConfirmAction] = useState<AiAction | null>(null);
 
   useLayoutEffect(() => {
     if (isOpen && anchorRef.current) {
@@ -115,45 +106,9 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
     }
     onClose();
   };
-  const executeAiAction = async (action: AiAction) => {
-    const label = AI_ACTIONS.find(a => a.id === action)?.label ?? action;
-    openTransform(item, `AI: ${label}`, t('history.aiProcessing'));
-    try {
-      const result = await runAiAction(action, item.content);
-      openTransform(item, `AI: ${label}`, result);
-    } catch (e) {
-      // Show the localized reason, not a raw exception string.
-      const provider = aiProviderLabel(useSettingsStore.getState().settings.aiProvider);
-      const err = toAiError(e, provider);
-      openTransform(item, t('history.aiErrorTitle'), t(aiErrorKey(err.code), err.params));
-    }
-  };
-
-  const handleAi = (action: AiAction) => {
-    onClose();
-
-    if (!isAiConsentGiven()) {
-      setPendingAiAction(action);
-      setShowAiConsent(true);
-      return;
-    }
-
-    // A styled dialog, not window.confirm: this is where we tell the user their
-    // clipboard content is about to leave the machine.
-    setAiConfirmAction(action);
-  };
-
-  const handleAiConsentAccepted = () => {
-    setShowAiConsent(false);
-    if (pendingAiAction) {
-      executeAiAction(pendingAiAction);
-      setPendingAiAction(null);
-    }
-  };
   const handleDelete = () => { deleteItem(item.id); onClose(); };
   const handlePin = () => { togglePin(item.id); onClose(); };
 
-  const aiAvailable = isAiConfigured() && item.contentType === 'text' && !item.isSensitive;
   const ocrAvailable = true;
   const htmlPasteAvailable = true;
 
@@ -246,33 +201,11 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
 
   const transformItems = getTransformItems();
 
-  const aiProvider = aiProviderLabel(useSettingsStore.getState().settings.aiProvider);
 
-  if (!isOpen && !showAiConsent && !aiConfirmAction) return null;
+  if (!isOpen) return null;
 
   return (
     <>
-    {showAiConsent && (
-      <AiConsentDialog
-        isOpen={showAiConsent}
-        onClose={() => { setShowAiConsent(false); setPendingAiAction(null); }}
-        onAccept={handleAiConsentAccepted}
-        provider={aiProvider}
-      />
-    )}
-    <ConfirmDialog
-      isOpen={aiConfirmAction !== null}
-      title={t('history.aiConfirmTitle', { provider: aiProvider })}
-      message={t('history.aiConfirm', { provider: aiProvider })}
-      confirmLabel={t('history.aiConfirmSend')}
-      destructive={false}
-      onConfirm={() => {
-        const action = aiConfirmAction;
-        setAiConfirmAction(null);
-        if (action) executeAiAction(action);
-      }}
-      onCancel={() => setAiConfirmAction(null)}
-    />
     {isOpen && createPortal(
       <AnimatePresence>
         {isOpen && (
@@ -314,15 +247,6 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
             {transformItems.map((transformItem, i) => (
               <MenuButton key={i} icon={transformItem.icon} label={transformItem.label} onClick={() => { transformItem.action(); onClose(); }} />
             ))}
-
-            {aiAvailable && (
-              <>
-                <div className="h-px bg-border my-1" />
-                {AI_ACTIONS.map((action) => (
-                  <MenuButton key={action.id} icon={Bot} label={action.label} onClick={() => handleAi(action.id)} />
-                ))}
-              </>
-            )}
 
             <div className="h-px bg-border my-1" />
             <TagSubmenu itemId={item.id} />

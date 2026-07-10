@@ -12,29 +12,34 @@
   "app": {
     "withGlobalTauri": true,
     "macOSPrivateApi": true,
-    "windows": [{
-      "title": "QlipLab",
-      "width": 560,
-      "height": 580,
-      "minWidth": 350,
-      "minHeight": 300,
-      "resizable": true,
-      "decorations": false,
-      "transparent": true,
-      "skipTaskbar": true,
-      "visibleOnAllWorkspaces": true,
-      "center": true,
-      "visible": false
-    }],
+    "windows": [
+      {
+        "title": "QlipLab",
+        "width": 560,
+        "height": 580,
+        "minWidth": 350,
+        "minHeight": 300,
+        "resizable": true,
+        "decorations": false,
+        "transparent": true,
+        "skipTaskbar": true,
+        "visibleOnAllWorkspaces": true,
+        "center": true,
+        "visible": false
+      }
+    ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src ipc: http://ipc.localhost https://qliplab-api.omercelikdev.workers.dev https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com; worker-src 'self' blob:"
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src ipc: http://ipc.localhost https://qliplab-api.omercelikdev.workers.dev https://cdn.jsdelivr.net; worker-src 'self' blob:"
     }
   },
   "bundle": {
     "active": true,
     "createUpdaterArtifacts": true,
     "targets": "all",
-    "resources": ["icons/32x32.png", "PrivacyInfo.xcprivacy"],
+    "resources": [
+      "icons/32x32.png",
+      "PrivacyInfo.xcprivacy"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -49,7 +54,9 @@
     },
     "windows": {
       "wix": {
-        "language": ["en-US"]
+        "language": [
+          "en-US"
+        ]
       }
     },
     "linux": {

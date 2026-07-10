@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Bot, Eye, EyeOff, ShieldCheck, ShieldX, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, FileText, Plus, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { EulaViewerDialog } from '@/components/legal/EulaViewerDialog';
 import { useFeedbackStore } from '@/stores/feedbackStore';
 import { ReportIssueDialog } from '@/components/feedback/ReportIssueDialog';
 import { PrivacyPolicyDialog } from '@/components/settings/PrivacyPolicyDialog';
-import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { CheckUpdatesButton } from '@/components/settings/CheckUpdatesButton';
-import { recordConsent } from '@/lib/consentLog';
 import { exportData, importData, type ExportSection } from '@/lib/exportImport';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { CONFIG } from '@/lib/config';
@@ -44,7 +42,6 @@ export function SettingsPanel() {
 
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
-  const [isAiConsentOpen, setIsAiConsentOpen] = useState(false);
   const [isEulaOpen, setIsEulaOpen] = useState(false);
 
   useEffect(() => {
@@ -216,86 +213,6 @@ export function SettingsPanel() {
               />
             </div>
 
-            {/* AI Settings */}
-            <div className="dotted-separator" />
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Bot className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.ai.label')}</span>
-              </div>
-
-              {/* Consent Status */}
-              <div className={cn(
-                'flex items-center justify-between p-2 rounded-md border text-xs',
-                settings.aiConsentAccepted
-                  ? 'border-green-500/30 bg-green-500/5'
-                  : 'border-yellow-500/30 bg-yellow-500/5'
-              )}>
-                <div className="flex items-center gap-2">
-                  {settings.aiConsentAccepted ? (
-                    <ShieldCheck className="w-3.5 h-3.5 text-green-500" />
-                  ) : (
-                    <ShieldX className="w-3.5 h-3.5 text-yellow-500" />
-                  )}
-                  <div>
-                    <span className="text-[11px] font-medium">
-                      {settings.aiConsentAccepted ? t('settings.ai.consentGranted') : t('settings.ai.consentRequired')}
-                    </span>
-                    {settings.aiConsentAccepted && settings.aiConsentDate && (
-                      <span className="text-[10px] text-muted-foreground ms-1.5">
-                        ({new Date(settings.aiConsentDate).toLocaleDateString()})
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {settings.aiConsentAccepted ? (
-                  <button
-                    onClick={async () => {
-                      await recordConsent('revoke', settings.aiProvider);
-                      updateSetting('aiConsentAccepted', false);
-                      updateSetting('aiConsentDate', '');
-                    }}
-                    className="px-2 py-0.5 text-[10px] text-destructive hover:bg-destructive/10 rounded transition-colors cursor-pointer"
-                  >
-                    {t('common.revoke')}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setIsAiConsentOpen(true)}
-                    className="px-2 py-0.5 text-[10px] text-accent hover:bg-accent/10 rounded transition-colors cursor-pointer"
-                  >
-                    {t('common.reviewAndAccept')}
-                  </button>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-medium">{t('settings.ai.provider')}</label>
-                <select
-                  value={settings.aiProvider}
-                  onChange={(e) => updateSetting('aiProvider', e.target.value as 'anthropic' | 'openai' | 'gemini')}
-                  className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
-                >
-                  <option value="anthropic">Anthropic (Claude)</option>
-                  <option value="openai">OpenAI (GPT)</option>
-                  <option value="gemini">Google Gemini</option>
-                </select>
-              </div>
-
-              <ApiKeyInput
-                apiKey={settings.aiApiKey}
-                onChange={(key) => updateSetting('aiApiKey', key)}
-              />
-
-              <div className="space-y-0.5">
-                <p className="text-[10px] text-muted-foreground">
-                  {t('settings.ai.apiKeyStoredLocally')}
-                </p>
-                <p className="text-[10px] text-yellow-500">
-                  {t('settings.ai.sensitiveBlocked')}
-                </p>
-              </div>
-            </div>
 
             {/* Data Management */}
             <div className="dotted-separator" />
@@ -376,12 +293,6 @@ export function SettingsPanel() {
 
       <ReportIssueDialog isOpen={isReportOpen} onClose={() => setIsReportOpen(false)} />
       <PrivacyPolicyDialog isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
-      <AiConsentDialog
-        isOpen={isAiConsentOpen}
-        onClose={() => setIsAiConsentOpen(false)}
-        onAccept={() => setIsAiConsentOpen(false)}
-        provider={settings.aiProvider === 'anthropic' ? 'Anthropic' : settings.aiProvider === 'gemini' ? 'Google Gemini' : 'OpenAI'}
-      />
       <EulaViewerDialog isOpen={isEulaOpen} onClose={() => setIsEulaOpen(false)} />
     </>
   );
@@ -418,61 +329,6 @@ function ToggleSetting({
           )}
         />
       </button>
-    </div>
-  );
-}
-
-function ApiKeyInput({
-  apiKey,
-  onChange,
-}: {
-  apiKey: string;
-  onChange: (key: string) => void;
-}) {
-  const { t } = useTranslation();
-  const [showKey, setShowKey] = useState(false);
-  const [localKey, setLocalKey] = useState(apiKey);
-
-  useEffect(() => {
-    setLocalKey(apiKey);
-  }, [apiKey]);
-
-  const handleBlur = () => {
-    if (localKey !== apiKey) {
-      onChange(localKey);
-    }
-  };
-
-  return (
-    <div className="space-y-1">
-      <label className="text-[11px] font-medium">{t('settings.ai.apiKey')}</label>
-      <div className="relative">
-        <input
-          type={showKey ? 'text' : 'password'}
-          value={localKey}
-          onChange={(e) => setLocalKey(e.target.value)}
-          onBlur={handleBlur}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleBlur();
-          }}
-          placeholder={t('settings.ai.apiKeyPlaceholder')}
-          className={cn(
-            'w-full px-3 py-1.5 pe-9 bg-surface border border-border rounded-md text-[11px] font-mono',
-            'outline-none focus:ring-2 focus:ring-accent'
-          )}
-        />
-        <button
-          type="button"
-          onClick={() => setShowKey(!showKey)}
-          className="absolute end-2 top-1/2 -translate-y-1/2 p-0.5 cursor-pointer"
-        >
-          {showKey ? (
-            <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
-          ) : (
-            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-          )}
-        </button>
-      </div>
     </div>
   );
 }

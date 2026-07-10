@@ -14,7 +14,6 @@ describe('DEFAULT_SETTINGS', () => {
     expect(DEFAULT_SETTINGS.sensitiveDetectionEnabled).toBe(true);
     expect(DEFAULT_SETTINGS.storeImages).toBe(true);
     expect(DEFAULT_SETTINGS.clearHistoryOnQuit).toBe(false);
-    expect(DEFAULT_SETTINGS.aiProvider).toBe('anthropic');
     expect(DEFAULT_SETTINGS.historyLimit).toBe(100);
   });
 });

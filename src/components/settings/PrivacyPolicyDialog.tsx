@@ -89,7 +89,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
                 <ul className="list-disc ps-4 space-y-1">
                   <li>No analytics or usage tracking</li>
                   <li>No advertising identifiers</li>
-                  <li>No clipboard content is sent by QlipLab itself (see AI Features below for user-initiated transfers)</li>
+                  <li>No clipboard content ever leaves your device</li>
                   <li>No vault passwords or encrypted data is transmitted</li>
                   <li>No personal information is collected</li>
                 </ul>
@@ -105,33 +105,27 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
               </section>
 
               <section className="space-y-1.5">
-                <h3 className="font-semibold text-foreground">AI Features (Optional, User-Initiated)</h3>
+                <h3 className="font-semibold text-foreground">Everything Runs Locally</h3>
                 <p>
-                  QlipLab offers optional AI-powered text processing (summarize, translate, fix
-                  grammar, etc.). These features are <strong>disabled by default</strong> and require:
+                  QlipLab has no cloud component. Clipboard capture, format detection, transforms,
+                  diffing, snippets, the encrypted vault, and text extraction from images (OCR) all
+                  run entirely on your machine. Nothing is uploaded, and there is no account to create.
                 </p>
-                <ul className="list-disc ps-4 space-y-1 mt-1">
-                  <li>You to provide your own API key (Anthropic or OpenAI)</li>
-                  <li>Explicit consent via a dedicated consent dialog with checkboxes</li>
-                  <li>Manual confirmation before each individual AI request</li>
-                </ul>
-                <p className="mt-2 font-medium">When you use AI features:</p>
-                <ul className="list-disc ps-4 space-y-1 mt-1">
-                  <li>Your clipboard text content is sent directly from your device to the
-                    selected AI provider's API (Anthropic or OpenAI) over encrypted HTTPS</li>
-                  <li>QlipLab does NOT act as an intermediary — data goes directly from your
-                    device to the provider</li>
-                  <li>QlipLab does NOT store, log, or have access to the data you send to AI providers</li>
-                  <li>The AI provider's own privacy policy and data retention rules apply</li>
-                </ul>
-                <p className="mt-2 font-medium">Safety measures:</p>
-                <ul className="list-disc ps-4 space-y-1 mt-1">
-                  <li>AI actions are automatically blocked for items detected as sensitive
-                    (passwords, API keys, credit cards, personal IDs)</li>
-                  <li>A confirmation dialog is shown before every AI request</li>
-                  <li>Vault-encrypted data is never accessible to AI features</li>
-                  <li>No AI processing occurs without your explicit, manual action</li>
-                </ul>
+                <p className="mt-2">
+                  The only network requests QlipLab ever makes are the ones you trigger yourself:
+                  submitting a bug report or feedback, checking for an update, and — if you opt in —
+                  sending an anonymous crash report. None of these carry clipboard, snippet or vault
+                  content.
+                </p>
+              </section>
+
+              <section className="space-y-1.5">
+                <h3 className="font-semibold text-foreground">Sensitive Content</h3>
+                <p>
+                  QlipLab detects likely secrets (passwords, API keys, tokens, credit cards, personal
+                  IDs) and blurs them in the history list until you hover the row. You can turn this
+                  off in Settings.
+                </p>
               </section>
 
               <section className="space-y-1.5">
@@ -140,12 +134,6 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
                   <li>
                     <strong>Crash reporting (opt-in)</strong> — Uses a secure endpoint to create
                     GitHub issues. No clipboard or personal data is included.
-                  </li>
-                  <li>
-                    <strong>AI providers (opt-in, user-initiated)</strong> — When you explicitly use
-                    AI features, your clipboard text is sent to Anthropic (api.anthropic.com) or
-                    OpenAI (api.openai.com) depending on your chosen provider. See their respective
-                    privacy policies for data handling details.
                   </li>
                 </ul>
                 <p className="mt-1">
@@ -160,18 +148,10 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
                     QlipLab is provided "AS IS" without warranty of any kind, express or implied.
                   </p>
                   <p>
-                    <strong>AI features:</strong> When you choose to use AI features, you are solely
-                    responsible for the content you send to third-party AI providers. QlipLab and its
-                    developers accept no liability for any data you choose to transmit to external
-                    services. AI features require your explicit consent and manual confirmation before
-                    any data is sent.
-                  </p>
-                  <p>
                     <strong>Sensitive data detection:</strong> QlipLab uses automated pattern matching
                     to detect potentially sensitive content (passwords, API keys, financial data).
                     This detection is provided as a convenience and is NOT guaranteed to catch all
-                    sensitive content. You remain responsible for reviewing content before using
-                    AI features.
+                    sensitive content. You remain responsible for what you copy and paste.
                   </p>
                   <p>
                     <strong>Encryption:</strong> Vault encryption uses industry-standard AES-256-GCM.
@@ -181,8 +161,7 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
                   <p>
                     In no event shall QlipLab or its developers be liable for any direct, indirect,
                     incidental, special, or consequential damages arising from the use of this software,
-                    including but not limited to data loss, unauthorized data disclosure, or damages
-                    resulting from the use of third-party AI services.
+                    including but not limited to data loss or unauthorized data disclosure.
                   </p>
                 </div>
               </section>
@@ -194,8 +173,6 @@ export function PrivacyPolicyDialog({ isOpen, onClose }: Props) {
                   <li>You can clear all clipboard history at any time</li>
                   <li>You can enable auto-clear on quit</li>
                   <li>You can disable crash reporting at any time</li>
-                  <li>You can revoke AI consent at any time in Settings, which disables all AI features</li>
-                  <li>You can delete your API key at any time from Settings</li>
                   <li>Uninstalling the app removes all local data</li>
                 </ul>
               </section>

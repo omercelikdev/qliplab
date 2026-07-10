@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { Store } from '@tauri-apps/plugin-store';
-import { encryptApiKey, decryptApiKey } from '@/lib/encryption';
 
 export interface AutoCommand {
   id: string;
@@ -19,10 +18,6 @@ export interface AppSettings {
   clearHistoryOnQuit: boolean;
   ignoredApps: string[];
   expirationDays: number; // 0 = never
-  aiApiKey: string;
-  aiProvider: 'anthropic' | 'openai' | 'gemini';
-  aiConsentAccepted: boolean;
-  aiConsentDate: string; // ISO date when consent was given
   snippetAutoExpand: boolean;
   onboardingSeen: boolean;
   globalShortcut: string; // e.g. 'CommandOrControl+Shift+V'
@@ -47,10 +42,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   clearHistoryOnQuit: false,
   ignoredApps: [],
   expirationDays: 0,
-  aiApiKey: '',
-  aiProvider: 'anthropic',
-  aiConsentAccepted: false,
-  aiConsentDate: '',
   snippetAutoExpand: true,
   onboardingSeen: false,
   globalShortcut: 'Alt+Q',
@@ -87,14 +78,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
           (savedSettings as Record<string, unknown>)[key] = value;
         }
       }
-      // Decrypt API key if stored encrypted
-      if (savedSettings.aiApiKey) {
-        try {
-          savedSettings.aiApiKey = await decryptApiKey(savedSettings.aiApiKey as string);
-        } catch {
-          savedSettings.aiApiKey = ''; // Corrupted key, reset
-        }
-      }
       set({ settings: { ...DEFAULT_SETTINGS, ...savedSettings }, isLoading: false });
     } catch {
       set({ isLoading: false });
@@ -104,11 +87,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   updateSetting: async (key, value) => {
     try {
       if (!store) return;
-      // Encrypt API key before persisting
-      const persistValue = key === 'aiApiKey' && typeof value === 'string'
-        ? await encryptApiKey(value)
-        : value;
-      await store.set(key, persistValue);
+      await store.set(key, value);
       await store.save();
       set((state) => ({ settings: { ...state.settings, [key]: value } }));
     } catch {
@@ -120,11 +99,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     try {
       if (!store) return;
       for (const [key, value] of Object.entries(updates)) {
-        // Encrypt API key before persisting
-        const persistValue = key === 'aiApiKey' && typeof value === 'string'
-          ? await encryptApiKey(value)
-          : value;
-        await store.set(key, persistValue);
+        await store.set(key, value);
       }
       await store.save();
       set((state) => ({ settings: { ...state.settings, ...updates } }));

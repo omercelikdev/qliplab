@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { encrypt, decrypt, decryptStrict, encryptApiKey, decryptApiKey, hashPassword, verifyPassword } from './encryption';
+import { encrypt, decrypt, decryptStrict, hashPassword, verifyPassword } from './encryption';
 
 // ─── Test 9: Vault Encryption ────────────────────────────────
 
@@ -94,33 +94,6 @@ describe('decryptStrict', () => {
 });
 
 // ─── Test: API Key Encryption ────────────────────────────────
-
-describe('encryptApiKey / decryptApiKey', () => {
-  it('roundtrips API key', async () => {
-    const key = 'sk-ant-api03-test-key-12345';
-    const encrypted = await encryptApiKey(key);
-    expect(encrypted).toMatch(/^enc:/);
-    const decrypted = await decryptApiKey(encrypted);
-    expect(decrypted).toBe(key);
-  });
-
-  it('returns empty string for empty input', async () => {
-    expect(await encryptApiKey('')).toBe('');
-    expect(await decryptApiKey('')).toBe('');
-  });
-
-  it('handles legacy plain-text keys', async () => {
-    // Legacy keys don't start with "enc:" — returned as-is
-    expect(await decryptApiKey('sk-plain-text-key')).toBe('sk-plain-text-key');
-  });
-
-  it('produces different ciphertext for same key (random IV)', async () => {
-    const key = 'sk-test';
-    const e1 = await encryptApiKey(key);
-    const e2 = await encryptApiKey(key);
-    expect(e1).not.toBe(e2);
-  });
-});
 
 // ─── Test: Edge Cases ────────────────────────────────────────
 
