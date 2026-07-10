@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { reportError } from "./lib/errorReporter";
+import { reportError, isKnownTransientError } from "./lib/errorReporter";
 import "./i18n"; // Initialize i18n before App renders
 import "./index.css";
 
@@ -59,6 +59,10 @@ window.onunhandledrejection = (event) => {
     } catch {
       error = new Error(`Unhandled rejection: ${typeof event.reason} - ${String(event.reason)}`);
     }
+  }
+  if (isKnownTransientError(error.message)) {
+    event.preventDefault();
+    return;
   }
   reportError(error, {
     action: 'unhandled_promise_rejection',

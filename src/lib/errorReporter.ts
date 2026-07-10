@@ -2,6 +2,16 @@ import { getSystemInfo, formatSystemInfoForReport } from './systemInfo';
 import { CONFIG } from './config';
 import { Store } from '@tauri-apps/plugin-store';
 
+const KNOWN_TRANSIENT_PATTERNS = [
+  /Get (?:buffer|text|image) error.*OSError\(5\)/i,
+  /OSError\(5\).*[Aa]ccess is denied/i,
+  /[Aa]ccess is denied.*clipboard/i,
+];
+
+export function isKnownTransientError(message: string): boolean {
+  return KNOWN_TRANSIENT_PATTERNS.some((pattern) => pattern.test(message));
+}
+
 const DUPLICATE_WINDOW_MS = 60000; // 1 minute
 const recentErrors = new Map<string, number>();
 
@@ -127,6 +137,9 @@ export async function reportError(
 ): Promise<void> {
   // Skip external reporting in development
   if (import.meta.env.DEV) return;
+
+  // Skip known transient OS errors (e.g. Windows clipboard access denied)
+  if (isKnownTransientError(error.message)) return;
 
   const errorKey = getErrorHash(error);
   const lastReported = recentErrors.get(errorKey);
