@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { useSnippetStore } from '@/stores/snippetStore';
@@ -17,19 +17,15 @@ export function useTriggerEngine() {
   const vaultItems = useVaultStore((s) => s.items);
   const vaultLocked = useVaultStore((s) => s.isLocked);
   const snippetAutoExpand = useSettingsStore((s) => s.settings.snippetAutoExpand);
-  const engineStarted = useRef(false);
 
-  // Start the Rust keystroke watcher once; reset flag when disabled
+  // Start/stop the Rust keystroke watcher. Rust guards against spawning a second
+  // watcher thread, so re-enabling never creates a duplicate event tap.
   useEffect(() => {
     if (!snippetAutoExpand) {
-      engineStarted.current = false;
+      invoke('stop_trigger_engine').catch(() => {});
       return;
     }
-    if (engineStarted.current) return;
-    engineStarted.current = true;
-    invoke('start_trigger_engine').catch(() => {
-      engineStarted.current = false;
-    });
+    invoke('start_trigger_engine').catch(() => {});
   }, [snippetAutoExpand]);
 
   // Keep trigger map in sync with ALL sources

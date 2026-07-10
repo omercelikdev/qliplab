@@ -1,3 +1,4 @@
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -54,6 +55,15 @@ static PREVIOUS_APP: Mutex<Option<(i32, String)>> = Mutex::new(None);
 // Store the previously active window handle (Windows)
 #[cfg(target_os = "windows")]
 static PREVIOUS_HWND: Mutex<Option<isize>> = Mutex::new(None);
+
+// The OS keystroke watcher (CGEventTap / rdev) cannot be torn down cleanly once
+// its run loop is spawned, so start it at most once per process. Without this,
+// toggling "snippet auto-expand" off and on again spawned a second watcher and
+// every trigger expanded twice.
+static TRIGGER_ENGINE_RUNNING: AtomicBool = AtomicBool::new(false);
+// Whether the running watcher should act on keystrokes. Cleared by
+// `stop_trigger_engine` so disabling the setting really does stop expansion.
+static TRIGGER_ENGINE_ENABLED: AtomicBool = AtomicBool::new(false);
 
 // --- Native Cocoa helpers (macOS) ---
 // Replace all osascript/AppleScript calls with direct Cocoa API access.
@@ -505,6 +515,20 @@ fn simulate_backspace(count: u32) -> Result<(), String> {
     Ok(())
 }
 
+/// Stop acting on keystrokes. The OS watcher thread stays alive (its run loop
+/// cannot be torn down safely), but it ignores every event until re-enabled.
+#[tauri::command]
+fn stop_trigger_engine(
+    state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
+) -> Result<(), String> {
+    TRIGGER_ENGINE_ENABLED.store(false, Ordering::SeqCst);
+    if let Ok(mut s) = state.lock() {
+        s.triggers.clear();
+    }
+    qlip_log("stop_trigger_engine: disabled");
+    Ok(())
+}
+
 /// Update the trigger map used by the keystroke watcher
 #[tauri::command]
 fn update_triggers(
@@ -541,6 +565,11 @@ fn start_trigger_engine(
     app: tauri::AppHandle,
     state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
 ) -> Result<(), String> {
+    TRIGGER_ENGINE_ENABLED.store(true, Ordering::SeqCst);
+    if TRIGGER_ENGINE_RUNNING.swap(true, Ordering::SeqCst) {
+        return Ok(()); // watcher thread already alive; just re-enabled it
+    }
+
     // Raw C FFI declarations for CGEventTap (core-graphics 0.24 doesn't expose these)
     #[allow(non_upper_case_globals)]
     mod cg {
@@ -767,6 +796,11 @@ fn start_trigger_engine(
         }
         let ctx = &mut *(user_info as *mut WatcherContext);
 
+        // Auto-expand turned off: keep the tap alive but ignore keystrokes.
+        if !TRIGGER_ENGINE_ENABLED.load(Ordering::Relaxed) && event_type != CG_EVENT_TAP_DISABLED_BY_TIMEOUT {
+            return event;
+        }
+
         // Handle tap disabled by timeout — re-enable and return
         if event_type == CG_EVENT_TAP_DISABLED_BY_TIMEOUT {
             if !ctx.tap.is_null() {
@@ -814,6 +848,8 @@ fn start_trigger_engine(
 
             if tap.is_null() {
                 qlip_log("TriggerEngine: CGEventTapCreate returned NULL — Accessibility not granted?");
+                // Allow a later start attempt once the user grants permission.
+                TRIGGER_ENGINE_RUNNING.store(false, Ordering::SeqCst);
                 return;
             }
             qlip_log("TriggerEngine: CGEventTap created successfully, starting run loop");
@@ -849,6 +885,11 @@ fn start_trigger_engine(
     app: tauri::AppHandle,
     state: tauri::State<'_, Arc<Mutex<TriggerEngineState>>>,
 ) -> Result<(), String> {
+    TRIGGER_ENGINE_ENABLED.store(true, Ordering::SeqCst);
+    if TRIGGER_ENGINE_RUNNING.swap(true, Ordering::SeqCst) {
+        return Ok(()); // watcher thread already alive; just re-enabled it
+    }
+
     let state = Arc::clone(&state);
 
     thread::spawn(move || {
@@ -864,6 +905,10 @@ fn start_trigger_engine(
         let mut pending: Option<PendingMatch> = None;
 
         let callback = move |event: rdev::Event| {
+            // Auto-expand turned off: keep the listener alive but ignore keystrokes.
+            if !TRIGGER_ENGINE_ENABLED.load(Ordering::Relaxed) {
+                return;
+            }
             match event.event_type {
                 rdev::EventType::KeyPress(key) => {
                     // Check if expanding — skip capture
@@ -1435,6 +1480,7 @@ pub fn run() {
             update_triggers,
             set_trigger_expanding,
             start_trigger_engine,
+            stop_trigger_engine,
             list_running_apps,
             write_temp_image
         ])

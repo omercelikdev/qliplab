@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { getDatabase } from '@/lib/database';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { encrypt, decrypt, decryptStrict, hashPassword, verifyPassword } from '@/lib/encryption';
+import { computeAutoLockDelayMs } from '@/lib/autoLock';
 import type { VaultItem, VaultItemType, VaultItemData } from '@/types/vault';
 import type { VaultItemRow, VaultSettingsRow } from '@/types/database';
 
@@ -61,11 +62,13 @@ async function saveBruteForceState() {
 function resetAutoLockTimer(lockFn: () => void) {
   if (autoLockTimer) {
     clearTimeout(autoLockTimer);
+    autoLockTimer = null;
   }
-  const minutes = useSettingsStore.getState().settings.autoLockMinutes;
+  const delayMs = computeAutoLockDelayMs(useSettingsStore.getState().settings.autoLockMinutes);
+  if (delayMs === null) return; // "Never" — leave the vault unlocked
   autoLockTimer = setTimeout(() => {
     lockFn();
-  }, minutes * 60 * 1000);
+  }, delayMs);
 }
 
 // Clear session password securely (as much as JS allows)

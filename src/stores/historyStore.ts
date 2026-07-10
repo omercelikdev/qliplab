@@ -6,8 +6,7 @@ import { useAppStore } from '@/stores/appStore';
 import type { ClipboardItem, ContentType, DetectedFormat } from '@/types/clipboard';
 import type { ClipboardHistoryRow } from '@/types/database';
 import type { FormatFilterGroup } from '@/stores/appStore';
-
-const PAGE_SIZE = 50;
+import { PAGE_SIZE, refreshWindowLimit, offsetAfterDelete } from '@/lib/pagination';
 
 function rowToItem(row: ClipboardHistoryRow): ClipboardItem {
   return {
@@ -35,6 +34,7 @@ interface HistoryState {
   currentSearchQuery: string;
 
   loadItems: (formatFilter?: FormatFilterGroup, searchQuery?: string) => Promise<void>;
+  refreshItems: () => Promise<void>;
   loadMore: () => Promise<void>;
   addItem: (item: Omit<ClipboardItem, 'id' | 'isPinned' | 'createdAt' | 'updatedAt'>) => Promise<string | undefined>;
   deleteItem: (id: string) => Promise<void>;
@@ -73,6 +73,35 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
     }
   },
 
+  /**
+   * Re-read the current view, keeping however many rows are already on screen.
+   * Used after a clipboard capture, which can fire while the user is browsing
+   * a list they expanded with "Load more".
+   */
+  refreshItems: async () => {
+    const { currentFormatFilter, currentSearchQuery, items } = get();
+    try {
+      const params = {
+        formatFilter: currentFormatFilter,
+        searchQuery: currentSearchQuery,
+        limit: refreshWindowLimit(items.length),
+        offset: 0,
+      };
+      const [rows, total] = await Promise.all([
+        queryHistoryItems(params),
+        countHistoryItems({ formatFilter: currentFormatFilter, searchQuery: currentSearchQuery }),
+      ]);
+      set({
+        items: rows.map(rowToItem),
+        totalCount: total,
+        currentOffset: rows.length,
+        isLoading: false,
+      });
+    } catch {
+      // Keep the current view rather than blanking it
+    }
+  },
+
   loadMore: async () => {
     const { currentOffset, currentFormatFilter, currentSearchQuery, totalCount, items, isLoadingMore } = get();
     if (currentOffset >= totalCount || isLoadingMore) return;
@@ -108,8 +137,13 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       );
       let itemId: string;
       if (existing.length > 0) {
+        // Re-copying an existing clip must resurface it: the list orders by
+        // created_at, so bump it as well or the clip stays buried.
         itemId = existing[0].id;
-        await db.execute('UPDATE clipboard_history SET updated_at = ? WHERE id = ?', [now, itemId]);
+        await db.execute(
+          'UPDATE clipboard_history SET created_at = ?, updated_at = ? WHERE id = ?',
+          [now, now, itemId]
+        );
       } else {
         itemId = id;
         await db.execute(
@@ -128,9 +162,8 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         [limit]
       );
 
-      // Reload current view
-      const { currentFormatFilter, currentSearchQuery } = get();
-      await get().loadItems(currentFormatFilter, currentSearchQuery);
+      // Refresh the current view without collapsing an expanded ("Load more") list.
+      await get().refreshItems();
       return itemId;
     } catch {
       return undefined;
@@ -141,10 +174,16 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
     try {
       const db = getDatabase();
       await db.execute('DELETE FROM clipboard_history WHERE id = ?', [id]);
-      set(state => ({
-        items: state.items.filter(i => i.id !== id),
-        totalCount: state.totalCount - 1,
-      }));
+      set(state => {
+        const wasLoaded = state.items.some(i => i.id === id);
+        return {
+          items: state.items.filter(i => i.id !== id),
+          totalCount: Math.max(0, state.totalCount - 1),
+          // Keep the "Load more" offset aligned with the shrunken table,
+          // otherwise the next page skips exactly one row.
+          currentOffset: offsetAfterDelete(state.currentOffset, wasLoaded),
+        };
+      });
 
       // Clean up related UI state
       const preview = usePreviewStore.getState();
