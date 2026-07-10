@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Ouvrir les Réglages",
   "permissions.accessibility.recheck": "Revérifier",
   "permissions.accessibility.dismiss": "Ignorer",
-  "common.clearSearch": "Effacer la recherche"
+  "common.clearSearch": "Effacer la recherche",
+  "vault.lock.confirmPlaceholder": "Confirmer le mot de passe",
+  "vault.lock.passwordTooShort": "Utilisez au moins {{count}} caractères",
+  "vault.lock.passwordMismatch": "Les mots de passe ne correspondent pas",
+  "vault.lock.noRecoveryWarning": "Il n'existe aucune réinitialisation. Si vous l'oubliez, le contenu du coffre est irrécupérable.",
+  "history.aiErrorTitle": "Erreur IA"
 }

@@ -13,6 +13,7 @@ import { hideWriteAndPaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { isAiConfigured, isAiConsentGiven, runAiAction, AI_ACTIONS, aiProviderLabel } from '@/lib/ai';
+import { aiErrorKey, toAiError } from '@/lib/aiError';
 import type { AiAction } from '@/lib/ai';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { useTagStore } from '@/stores/tagStore';
@@ -119,7 +120,10 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
       const result = await runAiAction(action, item.content);
       openTransform(item, `AI: ${label}`, result);
     } catch (e) {
-      openTransform(item, `AI: Error`, `${e}`);
+      // Show the localized reason, not a raw exception string.
+      const provider = aiProviderLabel(useSettingsStore.getState().settings.aiProvider);
+      const err = toAiError(e, provider);
+      openTransform(item, t('history.aiErrorTitle'), t(aiErrorKey(err.code), err.params));
     }
   };
 

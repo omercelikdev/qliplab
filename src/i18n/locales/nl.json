@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Instellingen openen",
   "permissions.accessibility.recheck": "Opnieuw controleren",
   "permissions.accessibility.dismiss": "Sluiten",
-  "common.clearSearch": "Zoekopdracht wissen"
+  "common.clearSearch": "Zoekopdracht wissen",
+  "vault.lock.confirmPlaceholder": "Wachtwoord bevestigen",
+  "vault.lock.passwordTooShort": "Gebruik minimaal {{count}} tekens",
+  "vault.lock.passwordMismatch": "Wachtwoorden komen niet overeen",
+  "vault.lock.noRecoveryWarning": "Er is geen wachtwoordherstel. Als je het vergeet, is de inhoud van de kluis onherstelbaar.",
+  "history.aiErrorTitle": "AI-fout"
 }

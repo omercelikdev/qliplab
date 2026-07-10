@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Ayarları Aç",
   "permissions.accessibility.recheck": "Yeniden denetle",
   "permissions.accessibility.dismiss": "Kapat",
-  "common.clearSearch": "Aramayı temizle"
+  "common.clearSearch": "Aramayı temizle",
+  "vault.lock.confirmPlaceholder": "Şifreyi doğrula",
+  "vault.lock.passwordTooShort": "En az {{count}} karakter kullanın",
+  "vault.lock.passwordMismatch": "Şifreler eşleşmiyor",
+  "vault.lock.noRecoveryWarning": "Şifre sıfırlama yoktur. Unutursanız kasadaki içeriğe bir daha erişilemez.",
+  "history.aiErrorTitle": "AI Hatası"
 }

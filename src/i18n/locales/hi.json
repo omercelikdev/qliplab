@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "सेटिंग्स खोलें",
   "permissions.accessibility.recheck": "फिर से जाँचें",
   "permissions.accessibility.dismiss": "खारिज करें",
-  "common.clearSearch": "खोज साफ़ करें"
+  "common.clearSearch": "खोज साफ़ करें",
+  "vault.lock.confirmPlaceholder": "पासवर्ड की पुष्टि करें",
+  "vault.lock.passwordTooShort": "कम से कम {{count}} अक्षर उपयोग करें",
+  "vault.lock.passwordMismatch": "पासवर्ड मेल नहीं खाते",
+  "vault.lock.noRecoveryWarning": "पासवर्ड रीसेट नहीं है। भूल जाने पर वॉल्ट की सामग्री पुनर्प्राप्त नहीं की जा सकती।",
+  "history.aiErrorTitle": "AI त्रुटि"
 }

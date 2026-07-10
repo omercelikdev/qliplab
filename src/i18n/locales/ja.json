@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "設定を開く",
   "permissions.accessibility.recheck": "再確認",
   "permissions.accessibility.dismiss": "閉じる",
-  "common.clearSearch": "検索をクリア"
+  "common.clearSearch": "検索をクリア",
+  "vault.lock.confirmPlaceholder": "パスワードを確認",
+  "vault.lock.passwordTooShort": "{{count}} 文字以上を使用してください",
+  "vault.lock.passwordMismatch": "パスワードが一致しません",
+  "vault.lock.noRecoveryWarning": "パスワードのリセットはありません。忘れると保管庫の内容は復元できません。",
+  "history.aiErrorTitle": "AI エラー"
 }

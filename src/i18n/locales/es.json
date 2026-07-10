@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Abrir Ajustes",
   "permissions.accessibility.recheck": "Volver a comprobar",
   "permissions.accessibility.dismiss": "Descartar",
-  "common.clearSearch": "Borrar búsqueda"
+  "common.clearSearch": "Borrar búsqueda",
+  "vault.lock.confirmPlaceholder": "Confirmar contraseña",
+  "vault.lock.passwordTooShort": "Usa al menos {{count}} caracteres",
+  "vault.lock.passwordMismatch": "Las contraseñas no coinciden",
+  "vault.lock.noRecoveryWarning": "No hay restablecimiento de contraseña. Si la olvidas, el contenido de la caja fuerte no se podrá recuperar.",
+  "history.aiErrorTitle": "Error de IA"
 }

@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "فتح الإعدادات",
   "permissions.accessibility.recheck": "إعادة الفحص",
   "permissions.accessibility.dismiss": "تجاهل",
-  "common.clearSearch": "مسح البحث"
+  "common.clearSearch": "مسح البحث",
+  "vault.lock.confirmPlaceholder": "تأكيد كلمة المرور",
+  "vault.lock.passwordTooShort": "استخدم {{count}} أحرف على الأقل",
+  "vault.lock.passwordMismatch": "كلمتا المرور غير متطابقتين",
+  "vault.lock.noRecoveryWarning": "لا توجد إعادة تعيين لكلمة المرور. إذا نسيتها، فلا يمكن استرداد محتويات الخزنة.",
+  "history.aiErrorTitle": "خطأ في الذكاء الاصطناعي"
 }

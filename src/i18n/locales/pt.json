@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Abrir Configurações",
   "permissions.accessibility.recheck": "Verificar novamente",
   "permissions.accessibility.dismiss": "Dispensar",
-  "common.clearSearch": "Limpar busca"
+  "common.clearSearch": "Limpar busca",
+  "vault.lock.confirmPlaceholder": "Confirmar senha",
+  "vault.lock.passwordTooShort": "Use pelo menos {{count}} caracteres",
+  "vault.lock.passwordMismatch": "As senhas não coincidem",
+  "vault.lock.noRecoveryWarning": "Não há redefinição de senha. Se você esquecê-la, o conteúdo do cofre não poderá ser recuperado.",
+  "history.aiErrorTitle": "Erro de IA"
 }

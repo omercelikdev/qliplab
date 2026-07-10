@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Lock, Eye, EyeOff, ShieldAlert, Plus } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { getDatabase } from '@/lib/database';
+import { validateNewVaultPassword, MIN_VAULT_PASSWORD_LENGTH } from '@/lib/vaultPassword';
 import { cn } from '@/lib/utils';
 import type { VaultSettingsRow } from '@/types/database';
 
 export function VaultLock() {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(0);
@@ -58,6 +60,22 @@ export function VaultLock() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Creating the master password is irreversible — there is no reset path,
+    // so a typo here would lock the user out of their own vault forever.
+    if (isFirstTime) {
+      const problem = validateNewVaultPassword(password, confirmation);
+      if (problem === 'tooShort') {
+        setError(t('vault.lock.passwordTooShort', { count: MIN_VAULT_PASSWORD_LENGTH }));
+        return;
+      }
+      if (problem === 'mismatch') {
+        setError(t('vault.lock.passwordMismatch'));
+        setConfirmation('');
+        return;
+      }
+    }
+
     const result = await unlock(password);
     if (result === 'locked_out') {
       setError(t('vault.lock.tooManyAttemptsError'));
@@ -65,6 +83,7 @@ export function VaultLock() {
       setError(t('vault.lock.incorrectPassword'));
     }
     setPassword('');
+    setConfirmation('');
   };
 
   return (
@@ -113,7 +132,29 @@ export function VaultLock() {
             )}
           </button>
         </div>
+        {isFirstTime && (
+          <input
+            type={showPassword ? 'text' : 'password'}
+            value={confirmation}
+            onChange={(e) => setConfirmation(e.target.value)}
+            placeholder={t('vault.lock.confirmPlaceholder')}
+            aria-label={t('vault.lock.confirmPlaceholder')}
+            className={cn(
+              'w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm',
+              'outline-none focus:ring-2 focus:ring-accent',
+              error && 'border-destructive'
+            )}
+          />
+        )}
         {error && <p className="text-sm text-destructive">{error}</p>}
+        {isFirstTime && (
+          <div className="flex gap-2 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/[0.07]">
+            <ShieldAlert className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-px" />
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              {t('vault.lock.noRecoveryWarning')}
+            </p>
+          </div>
+        )}
         <button
           type="submit"
           disabled={isLockedOut}

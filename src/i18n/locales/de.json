@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Einstellungen öffnen",
   "permissions.accessibility.recheck": "Erneut prüfen",
   "permissions.accessibility.dismiss": "Ausblenden",
-  "common.clearSearch": "Suche löschen"
+  "common.clearSearch": "Suche löschen",
+  "vault.lock.confirmPlaceholder": "Passwort bestätigen",
+  "vault.lock.passwordTooShort": "Mindestens {{count}} Zeichen verwenden",
+  "vault.lock.passwordMismatch": "Passwörter stimmen nicht überein",
+  "vault.lock.noRecoveryWarning": "Es gibt kein Zurücksetzen des Passworts. Wenn Sie es vergessen, ist der Tresorinhalt unwiederbringlich verloren.",
+  "history.aiErrorTitle": "KI-Fehler"
 }

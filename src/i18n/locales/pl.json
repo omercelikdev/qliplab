@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Otwórz Ustawienia",
   "permissions.accessibility.recheck": "Sprawdź ponownie",
   "permissions.accessibility.dismiss": "Odrzuć",
-  "common.clearSearch": "Wyczyść wyszukiwanie"
+  "common.clearSearch": "Wyczyść wyszukiwanie",
+  "vault.lock.confirmPlaceholder": "Potwierdź hasło",
+  "vault.lock.passwordTooShort": "Użyj co najmniej {{count}} znaków",
+  "vault.lock.passwordMismatch": "Hasła nie są zgodne",
+  "vault.lock.noRecoveryWarning": "Nie ma resetowania hasła. Jeśli je zapomnisz, zawartość sejfu będzie nie do odzyskania.",
+  "history.aiErrorTitle": "Błąd AI"
 }

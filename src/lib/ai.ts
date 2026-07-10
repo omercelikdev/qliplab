@@ -1,5 +1,6 @@
 import { useSettingsStore } from '@/stores/settingsStore';
 import { isSensitive } from '@/lib/formatDetector';
+import { AiError, classifyApiError } from '@/lib/aiError';
 
 export type AiAction = 'summarize' | 'fix_grammar' | 'translate' | 'explain_code' | 'rewrite_formal' | 'rewrite_casual';
 
@@ -48,13 +49,13 @@ export function isAiConsentGiven(): boolean {
 export async function runAiAction(action: AiAction, content: string): Promise<string> {
   // SECURITY: Block AI for sensitive content (defence in depth)
   if (isSensitive(content)) {
-    throw new Error('This content appears to contain sensitive data (passwords, keys, financial info). AI actions are blocked for your security.');
+    throw new AiError('sensitiveBlocked');
   }
 
   const { aiApiKey, aiProvider } = useSettingsStore.getState().settings;
 
   if (!aiApiKey) {
-    throw new Error('AI API key not configured. Go to Settings to add your API key.');
+    throw new AiError('noApiKey');
   }
 
   const systemPrompt = ACTION_PROMPTS[action];
@@ -66,32 +67,6 @@ export async function runAiAction(action: AiAction, content: string): Promise<st
   } else {
     return callOpenAI(aiApiKey, systemPrompt, content);
   }
-}
-
-/** Parse API error responses into user-friendly messages */
-function formatApiError(provider: string, status: number, body: string): string {
-  // Try to extract a clean message from JSON error responses
-  try {
-    const json = JSON.parse(body);
-    const msg = json.error?.message || json.message || '';
-
-    if (status === 429) {
-      return `${provider} rate limit exceeded. Please wait a moment and try again.`;
-    }
-    if (status === 401 || status === 403) {
-      return `${provider} API key is invalid or expired. Check your key in Settings.`;
-    }
-    if (status === 400) {
-      return `${provider} rejected the request: ${msg.slice(0, 150) || 'Bad request'}`;
-    }
-    if (msg) {
-      return `${provider} error: ${msg.slice(0, 150)}`;
-    }
-  } catch {
-    // Not JSON, use status code
-  }
-
-  return `${provider} API error (${status}). Please try again later.`;
 }
 
 async function callAnthropic(apiKey: string, systemPrompt: string, content: string): Promise<string> {
@@ -112,7 +87,7 @@ async function callAnthropic(apiKey: string, systemPrompt: string, content: stri
   });
 
   if (!response.ok) {
-    throw new Error(formatApiError('Anthropic', response.status, await response.text()));
+    throw classifyApiError('Anthropic', response.status, await response.text());
   }
 
   const data = await response.json();
@@ -133,7 +108,7 @@ async function callGemini(apiKey: string, systemPrompt: string, content: string)
   );
 
   if (!response.ok) {
-    throw new Error(formatApiError('Gemini', response.status, await response.text()));
+    throw classifyApiError('Gemini', response.status, await response.text());
   }
 
   const data = await response.json();
@@ -158,7 +133,7 @@ async function callOpenAI(apiKey: string, systemPrompt: string, content: string)
   });
 
   if (!response.ok) {
-    throw new Error(formatApiError('OpenAI', response.status, await response.text()));
+    throw classifyApiError('OpenAI', response.status, await response.text());
   }
 
   const data = await response.json();

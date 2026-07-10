@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Open Settings",
   "permissions.accessibility.recheck": "Re-check",
   "permissions.accessibility.dismiss": "Dismiss",
-  "common.clearSearch": "Clear search"
+  "common.clearSearch": "Clear search",
+  "vault.lock.confirmPlaceholder": "Confirm password",
+  "vault.lock.passwordTooShort": "Use at least {{count}} characters",
+  "vault.lock.passwordMismatch": "Passwords don't match",
+  "vault.lock.noRecoveryWarning": "There is no password reset. If you forget it, your vault contents cannot be recovered.",
+  "history.aiErrorTitle": "AI Error"
 }

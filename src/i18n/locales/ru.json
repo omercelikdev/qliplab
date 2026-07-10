@@ -406,5 +406,10 @@
   "permissions.accessibility.openSettings": "Открыть настройки",
   "permissions.accessibility.recheck": "Проверить снова",
   "permissions.accessibility.dismiss": "Скрыть",
-  "common.clearSearch": "Очистить поиск"
+  "common.clearSearch": "Очистить поиск",
+  "vault.lock.confirmPlaceholder": "Подтвердите пароль",
+  "vault.lock.passwordTooShort": "Используйте не менее {{count}} символов",
+  "vault.lock.passwordMismatch": "Пароли не совпадают",
+  "vault.lock.noRecoveryWarning": "Сброс пароля невозможен. Если вы его забудете, содержимое хранилища будет утеряно навсегда.",
+  "history.aiErrorTitle": "Ошибка ИИ"
 }
