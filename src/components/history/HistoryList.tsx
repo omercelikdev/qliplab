@@ -15,6 +15,7 @@ import { getImageBase64ForClipboard } from '@/lib/imageUtils';
 import { useTagStore } from '@/stores/tagStore';
 import { barEndInset } from '@/lib/platform';
 import { SelectMenu } from '@/components/ui/SelectMenu';
+import { useModifierHeld } from '@/hooks/useModifierHeld';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -49,6 +50,8 @@ export function HistoryList() {
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [pastingItemId, setPastingItemId] = useState<string | null>(null);
   const [sourceApps, setSourceApps] = useState<string[]>([]);
+  // Reveals the ⌘1…⌘9 quick-paste hints on the rows while the modifier is held.
+  const modifierHeld = useModifierHeld();
 
   // Reload from SQL when filter/search changes
   useEffect(() => {
@@ -337,6 +340,8 @@ export function HistoryList() {
                 isQueueMode={isQueueMode}
                 queuePosition={isQueueMode ? (() => { const idx = pasteQueue.findIndex(q => q.id === item.id); return idx >= 0 ? idx + 1 : null; })() : null}
                 isMenuOpen={openMenuItemId === item.id}
+                quickPasteNumber={!isDiffMode && !isQueueMode && index < 9 ? index + 1 : null}
+                modifierHeld={modifierHeld}
                 searchQuery={searchQuery}
                 onOpenMenu={handleOpenMenu}
                 onCloseMenu={handleCloseMenu}

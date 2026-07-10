@@ -13,7 +13,7 @@ import { resolveResource } from '@tauri-apps/api/path';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
-import { isMac } from '@/lib/platform';
+import { isMac, getModifierKey } from '@/lib/platform';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { shouldMaskContent } from '@/lib/sensitiveMask';
 import { highlightRanges, tokenizeSearchQuery } from '@/lib/searchQuery';
@@ -114,6 +114,10 @@ interface HistoryItemProps {
   queuePosition: number | null;
   isMenuOpen: boolean;
   searchQuery?: string;
+  /** 1-based quick-paste shortcut for this row (rows 1-9), or null. */
+  quickPasteNumber?: number | null;
+  /** Whether the quick-paste modifier is currently held (reveals the hint). */
+  modifierHeld?: boolean;
   onOpenMenu: (id: string) => void;
   onCloseMenu: () => void;
   onDiffSelect: (id: string) => void;
@@ -131,6 +135,8 @@ export const HistoryItem = memo(function HistoryItem({
   queuePosition,
   isMenuOpen,
   searchQuery = '',
+  quickPasteNumber = null,
+  modifierHeld = false,
   onOpenMenu,
   onCloseMenu,
   onDiffSelect,
@@ -163,6 +169,10 @@ export const HistoryItem = memo(function HistoryItem({
 
   // Hovering (or a pinned-open menu) swaps the metadata for the row actions.
   const showActions = (isHovered || isMenuOpen) && !isDiffMode && !isQueueMode;
+  // Holding the modifier reveals this row's quick-paste hint (⌘1…⌘9), which
+  // takes the trailing slot over both metadata and hover actions.
+  const showQuickPaste = modifierHeld && quickPasteNumber !== null && !isDiffMode && !isQueueMode;
+  const quickPasteModifier = getModifierKey();
 
   // Keep secrets out of shoulder-surfing range until the row is hovered.
   const sensitiveDetectionEnabled = useSettingsStore((s) => s.settings.sensitiveDetectionEnabled);
@@ -412,10 +422,11 @@ export const HistoryItem = memo(function HistoryItem({
           moving between rows cross-fades in place instead of reflowing. The slot
           reserves room for the three buttons so content never sits under them. */}
       <div className="relative flex items-center justify-end shrink-0 h-full min-w-[76px]">
-        {/* Metadata — tags, source app, timestamp. Fades out under the actions. */}
+        {/* Metadata — tags, source app, timestamp. Fades out under the actions
+            or the quick-paste hint. */}
         <div className={cn(
           'flex items-center gap-1.5 transition-opacity duration-150 ease-out',
-          showActions ? 'opacity-0' : 'opacity-100'
+          showActions || showQuickPaste ? 'opacity-0' : 'opacity-100'
         )}>
           {itemTags.length > 0 && (
             <div className="flex items-center gap-0.5 shrink-0">
@@ -437,11 +448,27 @@ export const HistoryItem = memo(function HistoryItem({
           )}
           <span className="text-[10px] text-foreground/45 shrink-0 w-7 text-end">{formatRelativeTime(item.createdAt)}</span>
         </div>
+        {/* Quick-paste hint — ⌘N, revealed while the modifier is held. Takes the
+            slot over metadata and actions, since the user is about to paste. */}
+        {quickPasteNumber !== null && (
+          <div
+            aria-hidden
+            className={cn(
+              'absolute inset-y-0 end-0 flex items-center pointer-events-none transition-opacity duration-100 ease-out',
+              showQuickPaste ? 'opacity-100' : 'opacity-0'
+            )}
+          >
+            <span className="flex items-center gap-0.5 h-5 px-1.5 rounded-md bg-accent/15 text-accent text-[10px] font-semibold font-mono tabular-nums">
+              <span>{quickPasteModifier}</span>
+              <span>{quickPasteNumber}</span>
+            </span>
+          </div>
+        )}
         {/* Actions — overlay the metadata, fading and easing in from the right. */}
         {!isDiffMode && !isQueueMode && (
           <div className={cn(
             'absolute inset-y-0 end-0 flex items-center gap-0.5 transition-[opacity,transform] duration-150 ease-out',
-            showActions ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-1 pointer-events-none'
+            showActions && !showQuickPaste ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-1 pointer-events-none'
           )}>
             <RowActionButton
               className="cursor-grab active:cursor-grabbing"
