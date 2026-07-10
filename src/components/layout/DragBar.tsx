@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, X } from 'lucide-react';
 import { useAppStore } from '@/stores/appStore';
-import { hideWindow } from '@/lib/window';
+import { barEndInset } from '@/lib/platform';
 
 const DEBOUNCE_MS = 120;
 
@@ -65,7 +65,11 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div data-tauri-drag-region className="group/bar h-11 flex items-center px-3 pt-2 cursor-move drag-region">
+    <div
+      data-tauri-drag-region
+      style={{ paddingInlineEnd: barEndInset() }}
+      className="h-11 flex items-center ps-3 pt-2 cursor-move drag-region"
+    >
       <div
         role="search"
         className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag transition-shadow duration-150 ease-out focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent/40"
@@ -93,14 +97,6 @@ export function SearchBar() {
           </button>
         )}
       </div>
-      {/* Close — invisible by default, appears on hover */}
-      <button
-        onClick={() => hideWindow()}
-        title={t('common.close')}
-        className="ms-1.5 w-8 h-8 flex items-center justify-center rounded-md opacity-0 group-hover/bar:opacity-100 hover:!bg-foreground/[0.06] dark:hover:!bg-white/[0.08] transition-all cursor-pointer no-drag shrink-0"
-      >
-        <X className="w-3.5 h-3.5 text-foreground/30 hover:text-foreground/60" />
-      </button>
     </div>
   );
 }

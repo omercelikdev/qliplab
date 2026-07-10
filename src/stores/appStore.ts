@@ -71,8 +71,12 @@ interface AppState {
   pasteQueue: PasteQueueItem[];
   windowOpenCount: number; // Incremented each time window opens to trigger resets
   openMenuItemId: string | null; // Only one item menu open at a time
+  /** A clip is being dragged into another app, which by definition hands focus
+   *  to that app. Dismissing on focus loss then would cancel the drop. */
+  isDraggingOut: boolean;
 
   setActiveTab: (tab: Tab) => void;
+  setDraggingOut: (dragging: boolean) => void;
   setPreviewOpen: (open: boolean) => void;
   setTheme: (theme: Theme) => void;
   setSearchQuery: (query: string) => void;
@@ -107,6 +111,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   pasteQueue: [],
   windowOpenCount: 0,
   openMenuItemId: null,
+  isDraggingOut: false,
+
+  setDraggingOut: (dragging) => set({ isDraggingOut: dragging }),
 
   setActiveTab: (tab) => {
     if (get().activeTab === tab) return;

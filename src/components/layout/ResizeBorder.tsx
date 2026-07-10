@@ -48,22 +48,23 @@ export function ResizeBorder() {
         className="fixed right-0 top-4 bottom-4 w-[6px] cursor-ew-resize z-[9999]"
       />
 
-      {/* Corners - 16px hit area */}
+      {/* Corners - 16px hit area. Above the Windows caption button (z-10001)
+          so the top-right corner still resizes. */}
       <ResizeEdge
         direction="NorthWest"
-        className="fixed top-0 left-0 w-4 h-4 cursor-nwse-resize z-[10000]"
+        className="fixed top-0 left-0 w-4 h-4 cursor-nwse-resize z-[10002]"
       />
       <ResizeEdge
         direction="NorthEast"
-        className="fixed top-0 right-0 w-4 h-4 cursor-nesw-resize z-[10000]"
+        className="fixed top-0 right-0 w-4 h-4 cursor-nesw-resize z-[10002]"
       />
       <ResizeEdge
         direction="SouthWest"
-        className="fixed bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-[10000]"
+        className="fixed bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-[10002]"
       />
       <ResizeEdge
         direction="SouthEast"
-        className="fixed bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-[10000]"
+        className="fixed bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-[10002]"
       />
     </>
   );

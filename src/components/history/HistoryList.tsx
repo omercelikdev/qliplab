@@ -14,6 +14,7 @@ import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { getImageBase64ForClipboard } from '@/lib/imageUtils';
 import { useTagStore } from '@/stores/tagStore';
+import { barEndInset } from '@/lib/platform';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -194,8 +195,13 @@ export function HistoryList() {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Format filter bar — draggable except buttons */}
-      <div data-tauri-drag-region className="flex items-center gap-1 px-3 py-1.5 shrink-0 overflow-x-auto elevation-bottom cursor-move drag-region">
+      {/* Format filter bar — draggable except buttons. The end inset matches the
+          search bar above, so the app filter lines up with the search field. */}
+      <div
+        data-tauri-drag-region
+        style={{ paddingInlineEnd: barEndInset() }}
+        className="flex items-center gap-1 ps-3 py-1.5 shrink-0 overflow-x-auto elevation-bottom cursor-move drag-region"
+      >
         {filterGroups.map(([key, { label }]) => (
           <button
             key={key}
@@ -219,10 +225,7 @@ export function HistoryList() {
             aria-label={t('history.filterByApp')}
             title={t('history.filterByApp')}
             className={cn(
-              // me-[38px] lines the select up with the search field above it: the
-              // search bar's close button (w-8) plus its ms-1.5 always hold that
-              // much space, even while the button is invisible.
-              'ms-auto me-[38px] shrink-0 max-w-[120px] ps-1.5 pe-0.5 py-0.5 text-[11px] rounded-md bg-transparent',
+              'ms-auto shrink-0 max-w-[120px] ps-1.5 pe-0.5 py-0.5 text-[11px] rounded-md bg-transparent',
               'cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
               sourceAppFilter ? 'text-accent font-medium' : 'text-muted-foreground'
             )}

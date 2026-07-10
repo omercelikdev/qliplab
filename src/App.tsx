@@ -7,6 +7,7 @@ import { SearchBar } from './components/layout/DragBar';
 import { HintBar } from './components/layout/HintBar';
 import { Splitter } from './components/layout/Splitter';
 import { ResizeBorder } from './components/layout/ResizeBorder';
+import { WindowControls } from './components/layout/WindowControls';
 import { OnboardingBanner } from './components/layout/OnboardingBanner';
 import { AccessibilityBanner } from './components/layout/AccessibilityBanner';
 import { HistoryList } from './components/history/HistoryList';
@@ -35,6 +36,7 @@ import { initDatabase } from './lib/database';
 import i18n from './i18n';
 import { showWindow, hideWindow } from './lib/window';
 import { PARK_X, PARK_Y } from './lib/windowGeometry';
+import { shouldHideOnFocusChange } from './lib/dismiss';
 import { cn } from './lib/utils';
 
 const DEFAULT_LIST_WIDTH = 300;
@@ -151,18 +153,40 @@ function App() {
     ensureOffscreenWhenHidden();
   }, []);
 
-  // Start on the list, not the search box: Escape then closes the panel, and
-  // DragBar focuses the input as soon as the user types a printable character.
+  // A summoned panel gets out of the way when you click elsewhere — Spotlight,
+  // Raycast and the Windows Win+V flyout all behave this way, and it is what
+  // makes a close button unnecessary. shouldHideOnFocusChange holds the
+  // exceptions: dragging a clip out, and the native app-filter dropdown.
+  //
+  // Gaining focus also blurs the search box so the panel starts on the list.
+  // Escape then closes it, and DragBar refocuses the input on the first
+  // printable character the user types.
   useEffect(() => {
-    const window = getCurrentWindow();
-    const unlisten = window.onFocusChanged(({ payload: focused }) => {
+    const appWindow = getCurrentWindow();
+    let hasFocusedOnce = false;
+
+    const unlisten = appWindow.onFocusChanged(async ({ payload: focused }) => {
       if (focused) {
+        hasFocusedOnce = true;
         // Small delay to let focus settle, then blur any input
         setTimeout(() => {
           if (document.activeElement instanceof HTMLInputElement) {
             document.activeElement.blur();
           }
         }, 10);
+        return;
+      }
+
+      const hide = shouldHideOnFocusChange({
+        focused,
+        isVisible: await appWindow.isVisible(),
+        hasFocusedOnce,
+        isDraggingOut: useAppStore.getState().isDraggingOut,
+        activeElementTag: document.activeElement?.tagName ?? null,
+      });
+      if (hide) {
+        hasFocusedOnce = false;
+        await hideWindow();
       }
     });
 
@@ -200,13 +224,13 @@ function App() {
 
       // Don't hide if preview/editor is open (those handle their own Escape)
       if (previewOpen || snippetEditorOpen) return;
-      // Don't hide if on settings tab
-      if (activeTab === 'settings') return;
+      // The settings tab hides the search bar, so Escape is the only way out of
+      // it besides the global shortcut. Text fields already returned above.
       hideWindow();
     };
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
-  }, [previewOpen, snippetEditorOpen, activeTab]);
+  }, [previewOpen, snippetEditorOpen]);
 
   if (!isInitialized) {
     return (
@@ -219,6 +243,7 @@ function App() {
   return (
     <ErrorBoundary>
       <ResizeBorder />
+      <WindowControls />
       {/* Re-keyed on every summon so the panel eases in instead of snapping.
           The NSPanel itself cannot animate, but its contents can. */}
       <motion.div

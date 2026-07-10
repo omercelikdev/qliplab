@@ -13,6 +13,7 @@ import { resolveResource } from '@tauri-apps/api/path';
 import { hideWriteAndPaste, hideAndSimulatePaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useAppStore } from '@/stores/appStore';
+import { isMac } from '@/lib/platform';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { shouldMaskContent } from '@/lib/sensitiveMask';
 import { highlightRanges, tokenizeSearchQuery } from '@/lib/searchQuery';
@@ -253,10 +254,11 @@ export const HistoryItem = memo(function HistoryItem({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
+    // The drop target steals focus; keep the panel from dismissing itself.
+    useAppStore.getState().setDraggingOut(true);
     try {
-      const isMac = navigator.platform.includes('Mac');
-      const textType = isMac ? 'public.utf8-plain-text' : 'text/plain';
-      const htmlType = isMac ? 'public.html' : 'text/html';
+      const textType = isMac() ? 'public.utf8-plain-text' : 'text/plain';
+      const htmlType = isMac() ? 'public.html' : 'text/html';
       const iconPath = await resolveResource('icons/32x32.png');
 
       if (item.contentType === 'image') {
@@ -284,6 +286,7 @@ export const HistoryItem = memo(function HistoryItem({
       // Drag failed
     } finally {
       setIsDragging(false);
+      useAppStore.getState().setDraggingOut(false);
     }
   }, [item.content, item.htmlContent, item.contentType]);
 
