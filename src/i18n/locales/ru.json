@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "Ваша сессия рабочего стола не сообщает активное приложение, поэтому список не действует. В Linux нужна сессия X11 с xdotool или xprop.",
   "preview.suggested": "Рекомендуемые",
   "preview.recent": "Недавние",
-  "preview.transformResultPreview": "Предпросмотр результата"
+  "preview.transformResultPreview": "Предпросмотр результата",
+  "settings.shortcut.labelSecondary": "Второй ярлык"
 }

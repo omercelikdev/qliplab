@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "Twoja sesja pulpitu nie ujawnia aktywnej aplikacji, więc ta lista nie działa. W Linuksie potrzebna jest sesja X11 z xdotool lub xprop.",
   "preview.suggested": "Sugerowane",
   "preview.recent": "Ostatnie",
-  "preview.transformResultPreview": "Podgląd wyniku"
+  "preview.transformResultPreview": "Podgląd wyniku",
+  "settings.shortcut.labelSecondary": "Drugi skrót"
 }

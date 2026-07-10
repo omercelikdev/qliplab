@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "Masaüstü oturumun öndeki uygulamayı bildirmiyor, bu yüzden bu liste etkisiz. Linux’ta X11 oturumu ve xdotool ya da xprop gerekir.",
   "preview.suggested": "Önerilen",
   "preview.recent": "Son kullanılan",
-  "preview.transformResultPreview": "Sonuç önizlemesi"
+  "preview.transformResultPreview": "Sonuç önizlemesi",
+  "settings.shortcut.labelSecondary": "İkinci kısayol"
 }

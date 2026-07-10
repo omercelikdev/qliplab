@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "आपका डेस्कटॉप सत्र यह नहीं बताता कि कौन सा ऐप सामने है, इसलिए यह सूची निष्प्रभावी है। Linux पर xdotool या xprop के साथ X11 सत्र चाहिए।",
   "preview.suggested": "सुझाए गए",
   "preview.recent": "हाल के",
-  "preview.transformResultPreview": "परिणाम पूर्वावलोकन"
+  "preview.transformResultPreview": "परिणाम पूर्वावलोकन",
+  "settings.shortcut.labelSecondary": "द्वितीयक शॉर्टकट"
 }

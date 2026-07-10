@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "La tua sessione desktop non rivela l’app in primo piano, quindi questo elenco non ha effetto. Su Linux serve una sessione X11 con xdotool o xprop.",
   "preview.suggested": "Suggeriti",
   "preview.recent": "Recenti",
-  "preview.transformResultPreview": "Anteprima risultato"
+  "preview.transformResultPreview": "Anteprima risultato",
+  "settings.shortcut.labelSecondary": "Scorciatoia secondaria"
 }

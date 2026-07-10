@@ -5,46 +5,55 @@ import { toggleWindow } from '@/lib/window';
 
 export function useGlobalShortcut() {
   const globalShortcut = useSettingsStore((s) => s.settings.globalShortcut);
+  const globalShortcut2 = useSettingsStore((s) => s.settings.globalShortcut2);
   const isLoading = useSettingsStore((s) => s.isLoading);
-  const currentShortcut = useRef<string | null>(null);
+  // Shortcuts currently registered, so we can release exactly those on change.
+  const registered = useRef<string[]>([]);
 
   useEffect(() => {
     // Don't register until settings are loaded
     if (isLoading) return;
 
-    const setupShortcut = async () => {
-      // Unregister previous shortcut if it exists
-      if (currentShortcut.current) {
+    const setupShortcuts = async () => {
+      // Release whatever we registered last time
+      for (const shortcut of registered.current) {
         try {
-          await unregister(currentShortcut.current);
+          await unregister(shortcut);
         } catch {
           // Might not be registered
         }
-        currentShortcut.current = null;
       }
+      registered.current = [];
 
-      // Register new shortcut
-      if (!globalShortcut) return;
+      // Both slots toggle the window; skip empties and de-dupe so the same combo
+      // in both slots doesn't double-register (which would error).
+      const wanted = [globalShortcut, globalShortcut2]
+        .map((s) => s?.trim())
+        .filter((s): s is string => !!s);
+      const unique = Array.from(new Set(wanted));
 
-      try {
-        await register(globalShortcut, async (event) => {
-          if (event.state === 'Pressed') {
-            await toggleWindow();
-          }
-        });
-        currentShortcut.current = globalShortcut;
-      } catch (e) {
-        console.error(`[qliplab] Failed to register shortcut "${globalShortcut}":`, e);
+      for (const shortcut of unique) {
+        try {
+          await register(shortcut, async (event) => {
+            if (event.state === 'Pressed') {
+              await toggleWindow();
+            }
+          });
+          registered.current.push(shortcut);
+        } catch (e) {
+          // One bad shortcut must not stop the other from registering.
+          console.error(`[qliplab] Failed to register shortcut "${shortcut}":`, e);
+        }
       }
     };
 
-    setupShortcut();
+    setupShortcuts();
 
     return () => {
-      if (currentShortcut.current) {
-        unregister(currentShortcut.current).catch(() => {});
-        currentShortcut.current = null;
+      for (const shortcut of registered.current) {
+        unregister(shortcut).catch(() => {});
       }
+      registered.current = [];
     };
-  }, [globalShortcut, isLoading]);
+  }, [globalShortcut, globalShortcut2, isLoading]);
 }

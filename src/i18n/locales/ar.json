@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "جلسة سطح المكتب لا تكشف عن التطبيق الأمامي، لذا لا تأثير لهذه القائمة. على لينكس يتطلب ذلك جلسة X11 مع xdotool أو xprop.",
   "preview.suggested": "مقترح",
   "preview.recent": "الأخيرة",
-  "preview.transformResultPreview": "معاينة النتيجة"
+  "preview.transformResultPreview": "معاينة النتيجة",
+  "settings.shortcut.labelSecondary": "اختصار ثانوي"
 }

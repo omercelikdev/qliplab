@@ -20,7 +20,10 @@ export interface AppSettings {
   expirationDays: number; // 0 = never
   snippetAutoExpand: boolean;
   onboardingSeen: boolean;
-  globalShortcut: string; // e.g. 'CommandOrControl+Shift+V'
+  globalShortcut: string; // primary, e.g. 'CommandOrControl+Shift+V'
+  /** Optional second toggle shortcut. Empty string = unset. Defaults to
+   *  Ditto's Ctrl+` so migrants keep their muscle memory. */
+  globalShortcut2: string;
   autoCommands: AutoCommand[];
   launchOnLogin: boolean;
   windowX: number | null;
@@ -44,7 +47,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   expirationDays: 0,
   snippetAutoExpand: true,
   onboardingSeen: false,
-  globalShortcut: 'Alt+Q',
+  // Alt+Q collided with typing '@' on Turkish keyboards (AltGr+Q), so the
+  // default is a safe combo; Ctrl+` mirrors Ditto as the secondary.
+  globalShortcut: 'CommandOrControl+Shift+V',
+  globalShortcut2: 'Control+`',
   autoCommands: [],
   launchOnLogin: false,
   windowX: null,

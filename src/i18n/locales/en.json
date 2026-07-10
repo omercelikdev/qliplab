@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "Your desktop session doesn’t reveal which app is in front, so this list has no effect. On Linux this needs an X11 session with xdotool or xprop installed.",
   "preview.suggested": "Suggested",
   "preview.recent": "Recent",
-  "preview.transformResultPreview": "Result preview"
+  "preview.transformResultPreview": "Result preview",
+  "settings.shortcut.labelSecondary": "Secondary shortcut"
 }

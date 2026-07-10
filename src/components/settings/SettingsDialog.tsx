@@ -203,10 +203,17 @@ export function SettingsPanel() {
               </select>
             </div>
 
-            {/* Global Shortcut */}
+            {/* Global Shortcut — two slots so a short primary and a familiar
+                second (Ditto's Ctrl+`) can coexist. */}
             <ShortcutSetting
               shortcut={settings.globalShortcut}
               onChange={(s) => updateSetting('globalShortcut', s)}
+            />
+            <ShortcutSetting
+              label={t('settings.shortcut.labelSecondary')}
+              shortcut={settings.globalShortcut2}
+              onChange={(s) => updateSetting('globalShortcut2', s)}
+              onClear={() => updateSetting('globalShortcut2', '')}
             />
 
             {/* Ignored Apps */}
@@ -352,19 +359,27 @@ function ToggleSetting({
 function ShortcutSetting({
   shortcut,
   onChange,
+  label,
+  onClear,
 }: {
   shortcut: string;
   onChange: (s: string) => void;
+  label?: string;
+  onClear?: () => void;
 }) {
   const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [display, setDisplay] = useState('');
 
+  const isMacPlatform = navigator.platform.includes('Mac');
   const formatShortcut = (s: string) => {
+    if (!s) return '';
     return s
-      .replace('CommandOrControl', navigator.platform.includes('Mac') ? 'Cmd' : 'Ctrl')
-      .replace('Shift', 'Shift')
-      .replace('Alt', navigator.platform.includes('Mac') ? 'Option' : 'Alt')
+      .replace('CommandOrControl', isMacPlatform ? 'Cmd' : 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Control', isMacPlatform ? 'Control' : 'Ctrl')
+      .replace('Alt', isMacPlatform ? 'Option' : 'Alt')
+      .replace('Backquote', '`')
       .replace(/\+/g, ' + ');
   };
 
@@ -410,20 +425,31 @@ function ShortcutSetting({
       <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">
         <div className="flex items-center gap-1.5">
           <Keyboard className="w-3.5 h-3.5" />
-          {t('settings.shortcut.label')}
+          {label ?? t('settings.shortcut.label')}
         </div>
       </label>
-      <button
-        className={cn(
-          'w-full px-3 py-1.5 text-xs rounded-md border text-start font-mono transition-colors cursor-pointer',
-          isRecording
-            ? 'border-accent bg-accent/10 text-accent animate-pulse'
-            : 'border-border bg-surface hover:bg-surface-hover'
+      <div className="flex items-center gap-1.5">
+        <button
+          className={cn(
+            'flex-1 px-3 py-1.5 text-xs rounded-md border text-start font-mono transition-colors cursor-pointer',
+            isRecording
+              ? 'border-accent bg-accent/10 text-accent animate-pulse'
+              : 'border-border bg-surface hover:bg-surface-hover'
+          )}
+          onClick={() => setIsRecording(!isRecording)}
+        >
+          {isRecording ? t('settings.shortcut.recording') : (display || '—')}
+        </button>
+        {onClear && shortcut && !isRecording && (
+          <button
+            onClick={() => { onClear(); setDisplay(''); }}
+            aria-label={t('common.clearSearch')}
+            className="shrink-0 w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-destructive hover:bg-surface-hover transition-colors cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         )}
-        onClick={() => setIsRecording(!isRecording)}
-      >
-        {isRecording ? t('settings.shortcut.recording') : display}
-      </button>
+      </div>
       <p className="text-[10px] text-muted-foreground">
         {isRecording ? t('settings.shortcut.cancelHint') : t('settings.shortcut.recordHint')}
       </p>

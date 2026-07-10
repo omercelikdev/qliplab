@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "デスクトップセッションが最前面のアプリを通知しないため、このリストは機能しません。Linux では xdotool か xprop を備えた X11 セッションが必要です。",
   "preview.suggested": "おすすめ",
   "preview.recent": "最近",
-  "preview.transformResultPreview": "結果プレビュー"
+  "preview.transformResultPreview": "結果プレビュー",
+  "settings.shortcut.labelSecondary": "2つ目のショートカット"
 }

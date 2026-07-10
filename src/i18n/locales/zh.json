@@ -382,5 +382,6 @@
   "settings.ignoredApps.unsupported": "当前桌面会话无法获知前台应用，因此此列表不起作用。在 Linux 上需要 X11 会话并安装 xdotool 或 xprop。",
   "preview.suggested": "推荐",
   "preview.recent": "最近",
-  "preview.transformResultPreview": "结果预览"
+  "preview.transformResultPreview": "结果预览",
+  "settings.shortcut.labelSecondary": "第二快捷键"
 }
