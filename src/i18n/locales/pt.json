@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "As senhas não coincidem",
   "vault.lock.noRecoveryWarning": "Não há redefinição de senha. Se você esquecê-la, o conteúdo do cofre não poderá ser recuperado.",
   "hintBar.quickPaste": "Colar rápido",
-  "history.sensitiveHidden": "Sensível — passe o mouse para revelar"
+  "history.sensitiveHidden": "Sensível — passe o mouse para revelar",
+  "history.allApps": "Todos os apps",
+  "history.filterByApp": "Filtrar por app de origem"
 }

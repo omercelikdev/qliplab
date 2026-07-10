@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "비밀번호가 일치하지 않습니다",
   "vault.lock.noRecoveryWarning": "비밀번호 재설정이 없습니다. 잊어버리면 보관함 내용을 복구할 수 없습니다.",
   "hintBar.quickPaste": "빠른 붙여넣기",
-  "history.sensitiveHidden": "민감한 정보 — 마우스를 올리면 표시"
+  "history.sensitiveHidden": "민감한 정보 — 마우스를 올리면 표시",
+  "history.allApps": "모든 앱",
+  "history.filterByApp": "출처 앱으로 필터링"
 }

@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Wachtwoorden komen niet overeen",
   "vault.lock.noRecoveryWarning": "Er is geen wachtwoordherstel. Als je het vergeet, is de inhoud van de kluis onherstelbaar.",
   "hintBar.quickPaste": "Snel plakken",
-  "history.sensitiveHidden": "Gevoelig — beweeg de muis om te tonen"
+  "history.sensitiveHidden": "Gevoelig — beweeg de muis om te tonen",
+  "history.allApps": "Alle apps",
+  "history.filterByApp": "Filteren op bron-app"
 }

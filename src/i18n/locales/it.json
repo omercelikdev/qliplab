@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Le password non coincidono",
   "vault.lock.noRecoveryWarning": "Non esiste alcun reimpostazione della password. Se la dimentichi, il contenuto della cassaforte non sarà recuperabile.",
   "hintBar.quickPaste": "Incolla rapido",
-  "history.sensitiveHidden": "Sensibile — passa il mouse per rivelare"
+  "history.sensitiveHidden": "Sensibile — passa il mouse per rivelare",
+  "history.allApps": "Tutte le app",
+  "history.filterByApp": "Filtra per app di origine"
 }

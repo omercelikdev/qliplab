@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Les mots de passe ne correspondent pas",
   "vault.lock.noRecoveryWarning": "Il n'existe aucune réinitialisation. Si vous l'oubliez, le contenu du coffre est irrécupérable.",
   "hintBar.quickPaste": "Collage rapide",
-  "history.sensitiveHidden": "Sensible — survolez pour révéler"
+  "history.sensitiveHidden": "Sensible — survolez pour révéler",
+  "history.allApps": "Toutes les apps",
+  "history.filterByApp": "Filtrer par application source"
 }

@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "पासवर्ड मेल नहीं खाते",
   "vault.lock.noRecoveryWarning": "पासवर्ड रीसेट नहीं है। भूल जाने पर वॉल्ट की सामग्री पुनर्प्राप्त नहीं की जा सकती।",
   "hintBar.quickPaste": "त्वरित पेस्ट",
-  "history.sensitiveHidden": "संवेदनशील — देखने के लिए होवर करें"
+  "history.sensitiveHidden": "संवेदनशील — देखने के लिए होवर करें",
+  "history.allApps": "सभी ऐप्स",
+  "history.filterByApp": "स्रोत ऐप से फ़िल्टर करें"
 }

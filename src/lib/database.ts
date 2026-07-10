@@ -157,11 +157,16 @@ import type { FormatFilterGroup } from '@/stores/appStore';
 export interface HistoryQueryParams {
   formatFilter: FormatFilterGroup;
   searchQuery: string;
+  /** Restrict to clips copied from this app. null = every app. */
+  sourceApp?: string | null;
   limit: number;
   offset: number;
 }
 
-function buildWhereClause(params: HistoryQueryParams): { where: string; args: (string | number)[] } {
+/** Exported for tests: the SQL must stay parameterized and the filters must compose. */
+export function buildWhereClause(
+  params: Omit<HistoryQueryParams, 'limit' | 'offset'>,
+): { where: string; args: (string | number)[] } {
   const conditions: string[] = [];
   const args: (string | number)[] = [];
 
@@ -185,6 +190,12 @@ function buildWhereClause(params: HistoryQueryParams): { where: string; args: (s
     }
   }
 
+  // Source app filter — uses idx_source_app
+  if (params.sourceApp) {
+    conditions.push('source_app = ?');
+    args.push(params.sourceApp);
+  }
+
   // Search — only text items, case-insensitive LIKE
   if (params.searchQuery) {
     // Escape LIKE wildcards so literal % and _ in search are matched exactly
@@ -197,6 +208,20 @@ function buildWhereClause(params: HistoryQueryParams): { where: string; args: (s
   return { where, args };
 }
 
+/**
+ * Distinct apps that clips were copied from, most-used first.
+ * `source_app` is empty on Linux (see `get_frontmost_app`), so those rows are skipped.
+ */
+export async function getSourceApps(): Promise<string[]> {
+  const db = getDatabase();
+  const rows = await db.select<{ source_app: string }[]>(
+    `SELECT source_app FROM clipboard_history
+     WHERE source_app IS NOT NULL AND source_app != ''
+     GROUP BY source_app ORDER BY COUNT(*) DESC, source_app ASC`
+  );
+  return rows.map((r) => r.source_app);
+}
+
 export async function queryHistoryItems(params: HistoryQueryParams): Promise<ClipboardHistoryRow[]> {
   const db = getDatabase();
   const { where, args } = buildWhereClause(params);
@@ -207,7 +232,7 @@ export async function queryHistoryItems(params: HistoryQueryParams): Promise<Cli
 
 export async function countHistoryItems(params: Omit<HistoryQueryParams, 'limit' | 'offset'>): Promise<number> {
   const db = getDatabase();
-  const { where, args } = buildWhereClause({ ...params, limit: 0, offset: 0 });
+  const { where, args } = buildWhereClause(params);
   const result = await db.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM clipboard_history ${where}`, args);
   return result[0]?.count ?? 0;
 }

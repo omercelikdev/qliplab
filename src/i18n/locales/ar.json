@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "كلمتا المرور غير متطابقتين",
   "vault.lock.noRecoveryWarning": "لا توجد إعادة تعيين لكلمة المرور. إذا نسيتها، فلا يمكن استرداد محتويات الخزنة.",
   "hintBar.quickPaste": "لصق سريع",
-  "history.sensitiveHidden": "حساس — مرّر للكشف"
+  "history.sensitiveHidden": "حساس — مرّر للكشف",
+  "history.allApps": "كل التطبيقات",
+  "history.filterByApp": "تصفية حسب التطبيق المصدر"
 }

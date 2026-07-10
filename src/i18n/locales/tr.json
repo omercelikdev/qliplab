@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Şifreler eşleşmiyor",
   "vault.lock.noRecoveryWarning": "Şifre sıfırlama yoktur. Unutursanız kasadaki içeriğe bir daha erişilemez.",
   "hintBar.quickPaste": "Hızlı yapıştır",
-  "history.sensitiveHidden": "Hassas — görmek için üzerine gel"
+  "history.sensitiveHidden": "Hassas — görmek için üzerine gel",
+  "history.allApps": "Tüm uygulamalar",
+  "history.filterByApp": "Kaynak uygulamaya göre filtrele"
 }

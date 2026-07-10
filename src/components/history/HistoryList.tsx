@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Clipboard, Search, Tag, X } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
+import { getSourceApps } from '@/lib/database';
 import { useAppStore, FORMAT_FILTER_GROUPS } from '@/stores/appStore';
 import type { FormatFilterGroup } from '@/stores/appStore';
 import { usePreviewStore } from '@/stores/previewStore';
@@ -27,6 +28,7 @@ export function HistoryList() {
   const activeTab = useAppStore((state) => state.activeTab);
   const isDiffMode = useAppStore((state) => state.isDiffMode);
   const formatFilter = useAppStore((state) => state.formatFilter);
+  const sourceAppFilter = useAppStore((state) => state.sourceAppFilter);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const isQueueMode = useAppStore((state) => state.isQueueMode);
   const pasteQueue = useAppStore((state) => state.pasteQueue);
@@ -37,18 +39,36 @@ export function HistoryList() {
 
   // Stable action references — never trigger re-render
   const { loadItems, loadMore } = useHistoryStore.getState();
-  const { setFormatFilter, toggleQueueItem, addToDiffSelection, setOpenMenuItemId } = useAppStore.getState();
+  const { setFormatFilter, setSourceAppFilter, toggleQueueItem, addToDiffSelection, setOpenMenuItemId } = useAppStore.getState();
   const { openView } = usePreviewStore.getState();
   const { setActiveTagFilter, deleteTag } = useTagStore.getState();
 
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [pastingItemId, setPastingItemId] = useState<string | null>(null);
+  const [sourceApps, setSourceApps] = useState<string[]>([]);
 
   // Reload from SQL when filter/search changes
   useEffect(() => {
-    loadItems(formatFilter, searchQuery);
-  }, [formatFilter, searchQuery, loadItems]);
+    loadItems(formatFilter, searchQuery, sourceAppFilter);
+  }, [formatFilter, searchQuery, sourceAppFilter, loadItems]);
+
+  // The set of apps grows as the user copies from new places; refresh it when
+  // the window reopens rather than on every keystroke.
+  useEffect(() => {
+    let cancelled = false;
+    getSourceApps()
+      .then((apps) => { if (!cancelled) setSourceApps(apps); })
+      .catch(() => { /* filter simply stays hidden */ });
+    return () => { cancelled = true; };
+  }, [totalCount]);
+
+  // A filtered-out app can disappear (its last clip deleted); don't strand the filter.
+  useEffect(() => {
+    if (sourceAppFilter && sourceApps.length > 0 && !sourceApps.includes(sourceAppFilter)) {
+      setSourceAppFilter(null);
+    }
+  }, [sourceApps, sourceAppFilter, setSourceAppFilter]);
 
   // Stable callbacks for HistoryItem (never change reference)
   const handleOpenMenu = useCallback((id: string) => {
@@ -150,7 +170,8 @@ export function HistoryList() {
     );
   }
 
-  if (totalCount === 0 && !searchQuery && formatFilter === 'all') {
+  // "No clips yet" only when nothing is filtered — otherwise it reads as data loss.
+  if (totalCount === 0 && !searchQuery && formatFilter === 'all' && !sourceAppFilter) {
     return (
       <div className="h-full flex items-center justify-center p-6">
         <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
@@ -179,7 +200,7 @@ export function HistoryList() {
             key={key}
             onClick={() => setFormatFilter(key)}
             className={cn(
-              'px-2 py-0.5 text-[10px] rounded-md whitespace-nowrap transition-colors cursor-pointer no-drag',
+              'px-2 py-0.5 text-[11px] rounded-md whitespace-nowrap transition-colors cursor-pointer no-drag focus-visible:ring-2 focus-visible:ring-accent',
               formatFilter === key
                 ? 'bg-accent text-accent-foreground'
                 : 'text-muted-foreground hover:bg-surface-hover'
@@ -188,6 +209,26 @@ export function HistoryList() {
             {label}
           </button>
         ))}
+
+        {/* Source app filter — the column and its index already existed, nothing surfaced them */}
+        {sourceApps.length > 0 && (
+          <select
+            value={sourceAppFilter ?? ''}
+            onChange={(e) => setSourceAppFilter(e.target.value || null)}
+            aria-label={t('history.filterByApp')}
+            title={t('history.filterByApp')}
+            className={cn(
+              'ms-auto shrink-0 max-w-[120px] ps-1.5 pe-0.5 py-0.5 text-[11px] rounded-md bg-transparent',
+              'cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
+              sourceAppFilter ? 'text-accent font-medium' : 'text-muted-foreground'
+            )}
+          >
+            <option value="">{t('history.allApps')}</option>
+            {sourceApps.map((app) => (
+              <option key={app} value={app}>{app}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Tag filter — only shown when tags exist */}

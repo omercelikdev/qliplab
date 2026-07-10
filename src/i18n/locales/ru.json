@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Пароли не совпадают",
   "vault.lock.noRecoveryWarning": "Сброс пароля невозможен. Если вы его забудете, содержимое хранилища будет утеряно навсегда.",
   "hintBar.quickPaste": "Быстрая вставка",
-  "history.sensitiveHidden": "Конфиденциально — наведите, чтобы показать"
+  "history.sensitiveHidden": "Конфиденциально — наведите, чтобы показать",
+  "history.allApps": "Все приложения",
+  "history.filterByApp": "Фильтр по приложению-источнику"
 }

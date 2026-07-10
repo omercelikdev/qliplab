@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Las contraseñas no coinciden",
   "vault.lock.noRecoveryWarning": "No hay restablecimiento de contraseña. Si la olvidas, el contenido de la caja fuerte no se podrá recuperar.",
   "hintBar.quickPaste": "Pegado rápido",
-  "history.sensitiveHidden": "Sensible: pasa el cursor para ver"
+  "history.sensitiveHidden": "Sensible: pasa el cursor para ver",
+  "history.allApps": "Todas las apps",
+  "history.filterByApp": "Filtrar por app de origen"
 }

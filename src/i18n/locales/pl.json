@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Hasła nie są zgodne",
   "vault.lock.noRecoveryWarning": "Nie ma resetowania hasła. Jeśli je zapomnisz, zawartość sejfu będzie nie do odzyskania.",
   "hintBar.quickPaste": "Szybkie wklejanie",
-  "history.sensitiveHidden": "Poufne — najedź, aby pokazać"
+  "history.sensitiveHidden": "Poufne — najedź, aby pokazać",
+  "history.allApps": "Wszystkie aplikacje",
+  "history.filterByApp": "Filtruj wg aplikacji źródłowej"
 }

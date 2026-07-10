@@ -60,6 +60,8 @@ interface AppState {
   theme: Theme;
   searchQuery: string;
   formatFilter: FormatFilterGroup;
+  /** Name of the app clips must have been copied from. null = every app. */
+  sourceAppFilter: string | null;
   vaultTypeFilter: VaultTypeFilter;
   snippetSyntaxFilter: SnippetSyntaxFilter;
   isTransformMode: boolean;
@@ -75,6 +77,7 @@ interface AppState {
   setTheme: (theme: Theme) => void;
   setSearchQuery: (query: string) => void;
   setFormatFilter: (filter: FormatFilterGroup) => void;
+  setSourceAppFilter: (app: string | null) => void;
   setVaultTypeFilter: (filter: VaultTypeFilter) => void;
   setSnippetSyntaxFilter: (filter: SnippetSyntaxFilter) => void;
   setTransformMode: (active: boolean) => void;
@@ -94,6 +97,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   theme: 'system',
   searchQuery: '',
   formatFilter: (localStorage.getItem('qlip_formatFilter') ?? 'all') as FormatFilterGroup,
+  sourceAppFilter: localStorage.getItem('qlip_sourceAppFilter') || null,
   vaultTypeFilter: (localStorage.getItem('qlip_vaultTypeFilter') ?? 'all') as VaultTypeFilter,
   snippetSyntaxFilter: (localStorage.getItem('qlip_snippetSyntaxFilter') ?? 'all') as SnippetSyntaxFilter,
   isTransformMode: false,
@@ -122,6 +126,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   setFormatFilter: (filter) => {
     set({ formatFilter: filter });
     try { localStorage.setItem('qlip_formatFilter', filter); } catch { /* noop */ }
+  },
+  setSourceAppFilter: (app) => {
+    set({ sourceAppFilter: app });
+    try {
+      if (app) localStorage.setItem('qlip_sourceAppFilter', app);
+      else localStorage.removeItem('qlip_sourceAppFilter');
+    } catch { /* noop */ }
   },
   setVaultTypeFilter: (filter) => {
     set({ vaultTypeFilter: filter });

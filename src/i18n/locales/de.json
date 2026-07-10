@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Passwörter stimmen nicht überein",
   "vault.lock.noRecoveryWarning": "Es gibt kein Zurücksetzen des Passworts. Wenn Sie es vergessen, ist der Tresorinhalt unwiederbringlich verloren.",
   "hintBar.quickPaste": "Schnell einfügen",
-  "history.sensitiveHidden": "Vertraulich — zum Anzeigen darüberfahren"
+  "history.sensitiveHidden": "Vertraulich — zum Anzeigen darüberfahren",
+  "history.allApps": "Alle Apps",
+  "history.filterByApp": "Nach Quell-App filtern"
 }

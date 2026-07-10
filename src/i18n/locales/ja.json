@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "パスワードが一致しません",
   "vault.lock.noRecoveryWarning": "パスワードのリセットはありません。忘れると保管庫の内容は復元できません。",
   "hintBar.quickPaste": "クイックペースト",
-  "history.sensitiveHidden": "機密情報 — カーソルを合わせると表示"
+  "history.sensitiveHidden": "機密情報 — カーソルを合わせると表示",
+  "history.allApps": "すべてのアプリ",
+  "history.filterByApp": "コピー元アプリで絞り込む"
 }

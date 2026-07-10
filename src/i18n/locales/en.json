@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "Passwords don't match",
   "vault.lock.noRecoveryWarning": "There is no password reset. If you forget it, your vault contents cannot be recovered.",
   "hintBar.quickPaste": "Quick paste",
-  "history.sensitiveHidden": "Sensitive — hover to reveal"
+  "history.sensitiveHidden": "Sensitive — hover to reveal",
+  "history.allApps": "All apps",
+  "history.filterByApp": "Filter by source app"
 }

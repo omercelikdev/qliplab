@@ -374,5 +374,7 @@
   "vault.lock.passwordMismatch": "两次输入的密码不一致",
   "vault.lock.noRecoveryWarning": "没有密码重置功能。一旦忘记，保险库内容将无法恢复。",
   "hintBar.quickPaste": "快速粘贴",
-  "history.sensitiveHidden": "敏感内容 — 悬停以显示"
+  "history.sensitiveHidden": "敏感内容 — 悬停以显示",
+  "history.allApps": "所有应用",
+  "history.filterByApp": "按来源应用筛选"
 }
