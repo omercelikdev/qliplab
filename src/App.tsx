@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { getCurrentWindow, LogicalPosition, type CloseRequestedEvent } from '@tauri-apps/api/window';
+import { getCurrentWindow, PhysicalPosition, type CloseRequestedEvent } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event';
 import { Sidebar } from './components/layout/Sidebar';
 import { SearchBar } from './components/layout/DragBar';
@@ -34,6 +34,7 @@ import { usePermissionStore } from './stores/permissionStore';
 import { initDatabase } from './lib/database';
 import i18n from './i18n';
 import { showWindow, hideWindow } from './lib/window';
+import { PARK_X, PARK_Y } from './lib/windowGeometry';
 import { cn } from './lib/utils';
 
 const DEFAULT_LIST_WIDTH = 300;
@@ -144,7 +145,7 @@ function App() {
       const window = getCurrentWindow();
       const visible = await window.isVisible();
       if (!visible) {
-        await window.setPosition(new LogicalPosition(-10000, -10000));
+        await window.setPosition(new PhysicalPosition(PARK_X, PARK_Y));
       }
     };
     ensureOffscreenWhenHidden();

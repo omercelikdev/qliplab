@@ -1,5 +1,23 @@
-import { getCurrentWindow, LogicalSize, LogicalPosition } from '@tauri-apps/api/window';
+import {
+  getCurrentWindow,
+  LogicalSize,
+  PhysicalPosition,
+  currentMonitor,
+  primaryMonitor,
+  availableMonitors,
+  type Window,
+} from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
+import {
+  PARK_X,
+  PARK_Y,
+  isParkedPosition,
+  centerIn,
+  clampToMonitors,
+  fitToArea,
+  primaryFirst,
+  type Rect,
+} from '@/lib/windowGeometry';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeHtmlAndText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
 import { usePreviewStore } from '@/stores/previewStore';
@@ -15,6 +33,15 @@ const DEFAULT_HEIGHT = 580;
 const PREVIEW_WIDTH = 1300;
 const PREVIEW_HEIGHT = 700;
 
+/** Panel geometry: size in logical px (stable across DPI), position in physical
+ *  px (the space monitors report, so clamping needs no scale juggling). */
+interface Geometry {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+}
+
 // Remember last window size & position so it opens where the user left it (Ditto-like)
 // Initialized from persisted settings, updated on each hide
 let _lastWidth = DEFAULT_WIDTH;
@@ -23,7 +50,14 @@ let _lastX: number | null = null;
 let _lastY: number | null = null;
 let _initialized = false;
 
-/** Load persisted window position/size from settings (once on first show) */
+/** Compact geometry captured before the preview inflated the window, or null
+ *  when the preview is closed. See `expandWindowForPreview`. */
+let _preExpand: Geometry | null = null;
+
+/** Load persisted window position/size from settings (once on first show).
+ *  windowX/windowY are physical pixels. Values written by older builds were
+ *  logical, so on a Retina display they land at half the intended offset —
+ *  still on screen, and rewritten correctly on the next hide. */
 function initFromSettings() {
   if (_initialized) return;
   _initialized = true;
@@ -58,19 +92,91 @@ async function writeQueueItem(item: PasteQueueItem) {
   }
 }
 
-/** Center window on the monitor where the cursor is (multi-monitor aware).
- *  Falls back to JS screen API if Tauri monitor query fails. */
-/** Center window on screen using JS screen API.
- *  Works on macOS, Windows, and Linux. */
-function centerOf(width: number, height: number) {
-  const sw = screen.availWidth;
-  const sh = screen.availHeight;
-  const st = (screen as unknown as { availTop?: number }).availTop ?? 0;
-  const sl = (screen as unknown as { availLeft?: number }).availLeft ?? 0;
+/** The JS `screen` API only ever describes the primary display, at its own DPI.
+ *  Tauri reports every monitor in physical pixels, which is what we place in. */
+function toRect(monitor: { workArea: { position: { x: number; y: number }; size: { width: number; height: number } } }): Rect {
   return {
-    x: sl + Math.round((sw - width) / 2),
-    y: st + Math.round((sh - height) / 2),
+    x: monitor.workArea.position.x,
+    y: monitor.workArea.position.y,
+    width: monitor.workArea.size.width,
+    height: monitor.workArea.size.height,
   };
+}
+
+/** Last-resort work area when Tauri cannot enumerate monitors. */
+function screenFallback(scaleFactor: number): Rect {
+  return {
+    x: 0,
+    y: 0,
+    width: Math.round(screen.availWidth * scaleFactor),
+    height: Math.round(screen.availHeight * scaleFactor),
+  };
+}
+
+/** Every monitor's work area, primary first so it is the clamp fallback. */
+async function workAreas(scaleFactor: number): Promise<Rect[]> {
+  try {
+    const [monitors, primary] = await Promise.all([availableMonitors(), primaryMonitor()]);
+    if (monitors.length === 0) return [screenFallback(scaleFactor)];
+    return primaryFirst(monitors.map(toRect), primary ? toRect(primary) : null);
+  } catch {
+    return [screenFallback(scaleFactor)];
+  }
+}
+
+/** Work area of the monitor the window currently sits on. */
+async function currentArea(scaleFactor: number): Promise<Rect> {
+  try {
+    const monitor = (await currentMonitor()) ?? (await primaryMonitor());
+    if (monitor) return toRect(monitor);
+  } catch {
+    // fall through
+  }
+  return screenFallback(scaleFactor);
+}
+
+/**
+ * Size the window, then put it where it belongs: back at `position` if that is
+ * still on a connected monitor, otherwise centered on the primary.
+ */
+async function placeWindow(
+  appWindow: Window,
+  geom: { width: number; height: number; x: number | null; y: number | null }
+) {
+  const scaleFactor = await appWindow.scaleFactor();
+
+  const physical = {
+    width: Math.round(geom.width * scaleFactor),
+    height: Math.round(geom.height * scaleFactor),
+  };
+  // Querying monitors hits the OS; overlap it with the resize so the summon
+  // shortcut stays snappy.
+  const [, areas] = await Promise.all([
+    appWindow.setSize(new LogicalSize(geom.width, geom.height)),
+    workAreas(scaleFactor),
+  ]);
+
+  const { x, y } = geom;
+  const position =
+    x !== null && y !== null && !isParkedPosition(x, y)
+      ? clampToMonitors({ ...physical, x, y }, areas)
+      : centerIn(areas[0], physical.width, physical.height);
+
+  await appWindow.setPosition(new PhysicalPosition(position.x, position.y));
+}
+
+/** Read the window's live geometry, or null when it reports nothing usable. */
+async function readGeometry(appWindow: Window): Promise<Geometry | null> {
+  try {
+    const scaleFactor = await appWindow.scaleFactor();
+    const [size, position] = await Promise.all([appWindow.innerSize(), appWindow.outerPosition()]);
+    const width = Math.round(size.width / scaleFactor);
+    const height = Math.round(size.height / scaleFactor);
+    if (width <= 0 || height <= 0) return null;
+    return { width, height, x: position.x, y: position.y };
+  } catch {
+    return null;
+  }
 }
 
 /** Reset UI state when hiding — no window resize, just state cleanup */
@@ -80,30 +186,52 @@ function resetUIState() {
   useAppStore.getState().setOpenMenuItemId(null);
 }
 
+/**
+ * Grow the window to hold the preview panel, remembering the compact geometry
+ * first. Opening a transform then re-opening another one calls this again while
+ * already expanded — the guard keeps that from capturing the preview's own size
+ * as the panel's size.
+ */
 export async function expandWindowForPreview() {
   try {
     const appWindow = getCurrentWindow();
+    // Capture once: a second call arrives with the window already expanded, and
+    // reading it then would record the preview's size as the panel's size.
+    if (!_preExpand) {
+      _preExpand = (await readGeometry(appWindow)) ?? {
+        width: _lastWidth,
+        height: _lastHeight,
+        x: _lastX ?? PARK_X,
+        y: _lastY ?? PARK_Y,
+      };
+    }
 
-    // Clamp preview size to fit within screen with margin
-    const margin = 40;
-    const width = Math.min(PREVIEW_WIDTH, screen.availWidth - margin);
-    const height = Math.min(PREVIEW_HEIGHT, screen.availHeight - margin);
-
-    const { x, y } = centerOf(width, height);
-    await appWindow.setSize(new LogicalSize(width, height));
-    await appWindow.setPosition(new LogicalPosition(x, y));
+    const scaleFactor = await appWindow.scaleFactor();
+    const area = await currentArea(scaleFactor);
+    // The work area is physical; the size we set is logical.
+    const margin = Math.round(40 * scaleFactor);
+    const fitted = fitToArea(
+      Math.round(PREVIEW_WIDTH * scaleFactor),
+      Math.round(PREVIEW_HEIGHT * scaleFactor),
+      area,
+      margin
+    );
+    await appWindow.setSize(
+      new LogicalSize(Math.round(fitted.width / scaleFactor), Math.round(fitted.height / scaleFactor))
+    );
+    const { x, y } = centerIn(area, fitted.width, fitted.height);
+    await appWindow.setPosition(new PhysicalPosition(x, y));
   } catch (e) {
     console.error('[qliplab] expandWindowForPreview failed:', e);
   }
 }
 
+/** Restore the panel to exactly where and how big it was before the preview. */
 export async function shrinkWindowFromPreview() {
+  const restore = _preExpand ?? { width: _lastWidth, height: _lastHeight, x: _lastX, y: _lastY };
+  _preExpand = null;
   try {
-    const appWindow = getCurrentWindow();
-    const { x, y } = centerOf(_lastWidth, _lastHeight);
-
-    await appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight));
-    await appWindow.setPosition(new LogicalPosition(x, y));
+    await placeWindow(getCurrentWindow(), restore);
   } catch (e) {
     console.error('[qliplab] shrinkWindowFromPreview failed:', e);
   }
@@ -119,20 +247,23 @@ export async function shrinkWindowFromPreview() {
  */
 async function hideWindowCore() {
   const appWindow = getCurrentWindow();
-  // Save current logical size + position so window reopens where user left it.
-  // innerSize()/outerPosition() return physical pixels — divide by scaleFactor.
-  try {
-    const sf = await appWindow.scaleFactor();
-    const size = await appWindow.innerSize();
-    const pos = await appWindow.outerPosition();
-    const logicalW = Math.round(size.width / sf);
-    const logicalH = Math.round(size.height / sf);
-    if (logicalW > 0 && logicalH > 0) {
-      _lastWidth = logicalW;
-      _lastHeight = logicalH;
+
+  // Hiding while the preview is open must not persist the preview's size: the
+  // compact panel would reopen 1300px wide and never shrink back. The geometry
+  // captured before the preview expanded is the panel's real size.
+  const expanded = _preExpand;
+  _preExpand = null;
+  const geom = expanded ?? (await readGeometry(appWindow));
+
+  if (geom) {
+    _lastWidth = geom.width;
+    _lastHeight = geom.height;
+    // Never persist the park coordinates — a hide that races another hide would
+    // otherwise save -10000 and the panel could never be summoned back.
+    if (!isParkedPosition(geom.x, geom.y)) {
+      _lastX = geom.x;
+      _lastY = geom.y;
     }
-    _lastX = Math.round(pos.x / sf);
-    _lastY = Math.round(pos.y / sf);
     // Persist to settings so position survives app restart
     useSettingsStore.getState().updateSettings({
       windowX: _lastX,
@@ -140,14 +271,13 @@ async function hideWindowCore() {
       windowWidth: _lastWidth,
       windowHeight: _lastHeight,
     });
-  } catch {
-    // Read failed, keep previous values
   }
+
   await invoke('hide_panel');
   resetUIState();
   await Promise.all([
     appWindow.hide(),
-    appWindow.setPosition(new LogicalPosition(-10000, -10000)),
+    appWindow.setPosition(new PhysicalPosition(PARK_X, PARK_Y)),
   ]);
 }
 
@@ -178,14 +308,14 @@ async function showWindowCore() {
   // Step 2: Sync Tauri internal state (no setFocus — that force-activates)
   await appWindow.show();
 
-  // Step 3+4: Restore size + position in parallel for faster show
-  const pos = (_lastX !== null && _lastY !== null)
-    ? { x: _lastX, y: _lastY }
-    : centerOf(_lastWidth, _lastHeight);
-  await Promise.all([
-    appWindow.setSize(new LogicalSize(_lastWidth, _lastHeight)),
-    appWindow.setPosition(new LogicalPosition(pos.x, pos.y)),
-  ]);
+  // Step 3+4: Restore size, then position — clamped onto a monitor that still
+  // exists, so undocking a display never strands the panel offscreen.
+  await placeWindow(appWindow, {
+    width: _lastWidth,
+    height: _lastHeight,
+    x: _lastX,
+    y: _lastY,
+  });
 
   // Step 5: Signal open for keyboard nav reset
   useAppStore.getState().signalWindowOpen();

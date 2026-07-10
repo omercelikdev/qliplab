@@ -11,6 +11,9 @@ interface ResizeEdgeProps {
 
 function ResizeEdge({ direction, className }: ResizeEdgeProps) {
   const handleMouseDown = async (e: React.MouseEvent) => {
+    // Only the primary button resizes. Without this a right-click on the border
+    // starts a resize drag on Windows instead of doing nothing.
+    if (e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
     try {
@@ -21,13 +24,7 @@ function ResizeEdge({ direction, className }: ResizeEdgeProps) {
     }
   };
 
-  return (
-    <div
-      className={className}
-      onMouseDown={handleMouseDown}
-      style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-    />
-  );
+  return <div className={className} onMouseDown={handleMouseDown} />;
 }
 
 export function ResizeBorder() {
