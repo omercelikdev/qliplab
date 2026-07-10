@@ -14,6 +14,7 @@ import { parseImageData } from '@/lib/imageUtils';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { isAiConfigured, isAiConsentGiven, runAiAction, AI_ACTIONS, aiProviderLabel } from '@/lib/ai';
 import { aiErrorKey, toAiError } from '@/lib/aiError';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { AiAction } from '@/lib/ai';
 import { AiConsentDialog } from '@/components/settings/AiConsentDialog';
 import { useTagStore } from '@/stores/tagStore';
@@ -37,6 +38,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
   const menuRef = useRef<HTMLDivElement>(null);
   const [showAiConsent, setShowAiConsent] = useState(false);
   const [pendingAiAction, setPendingAiAction] = useState<AiAction | null>(null);
+  const [aiConfirmAction, setAiConfirmAction] = useState<AiAction | null>(null);
 
   useLayoutEffect(() => {
     if (isOpen && anchorRef.current) {
@@ -136,11 +138,9 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
       return;
     }
 
-    const provider = aiProviderLabel(useSettingsStore.getState().settings.aiProvider);
-    const confirmed = window.confirm(t('history.aiConfirm', { provider }));
-    if (!confirmed) return;
-
-    executeAiAction(action);
+    // A styled dialog, not window.confirm: this is where we tell the user their
+    // clipboard content is about to leave the machine.
+    setAiConfirmAction(action);
   };
 
   const handleAiConsentAccepted = () => {
@@ -248,7 +248,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
 
   const aiProvider = aiProviderLabel(useSettingsStore.getState().settings.aiProvider);
 
-  if (!isOpen && !showAiConsent) return null;
+  if (!isOpen && !showAiConsent && !aiConfirmAction) return null;
 
   return (
     <>
@@ -260,6 +260,19 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
         provider={aiProvider}
       />
     )}
+    <ConfirmDialog
+      isOpen={aiConfirmAction !== null}
+      title={t('history.aiConfirmTitle', { provider: aiProvider })}
+      message={t('history.aiConfirm', { provider: aiProvider })}
+      confirmLabel={t('history.aiConfirmSend')}
+      destructive={false}
+      onConfirm={() => {
+        const action = aiConfirmAction;
+        setAiConfirmAction(null);
+        if (action) executeAiAction(action);
+      }}
+      onCancel={() => setAiConfirmAction(null)}
+    />
     {isOpen && createPortal(
       <AnimatePresence>
         {isOpen && (

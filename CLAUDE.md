@@ -66,7 +66,7 @@ qliplab/
 │   ├── hooks/
 │   │   ├── useClipboardListener.ts  # Polls clipboard, adds to history
 │   │   ├── useDiffMode.ts           # Option+D toggle, selection management
-│   │   ├── useGlobalShortcut.ts     # Cmd+Shift+V registration
+│   │   ├── useGlobalShortcut.ts     # global shortcut registration (default Alt+Q)
 │   │   ├── useKeyboardNavigation.ts # Arrow keys + Enter navigation
 │   │   ├── useAutostart.ts          # Launch on login
 │   │   └── useTheme.ts              # Theme application
@@ -174,8 +174,9 @@ fn simulate_paste() -> Result<(), String>       // AppleScript: keystroke "v" us
 
 | Shortcut | Action |
 |----------|--------|
-| Cmd+Shift+V | Toggle window |
-| Option+D | Toggle diff mode |
+| Alt+Q | Toggle window (default; user-configurable in Settings) |
+| Cmd/Ctrl+1…9 | Paste the Nth clip (works while typing in search) |
+| Option+D (macOS) / Alt+D | Toggle diff mode |
 | Escape | Exit diff / Close preview |
 | ↑/↓ | Navigate list |
 | Enter | Select & paste |

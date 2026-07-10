@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "問題が発生しました",
   "errors.unexpectedError": "予期しないエラーが発生しました",
   "errors.tryAgain": "再試行",
-  "errorReporting.optIn.title": "qliplabの改善にご協力ください",
+  "errorReporting.optIn.title": "QlipLabの改善にご協力ください",
   "errorReporting.optIn.description": "バグ修正のためにクラッシュレポートを自動送信しますか？",
   "errorReporting.optIn.whatWeCollect": "収集する情報：",
   "errorReporting.optIn.collectErrors": "エラーメッセージとスタックトレース",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "パスワードが一致しません",
   "vault.lock.noRecoveryWarning": "パスワードのリセットはありません。忘れると保管庫の内容は復元できません。",
   "history.aiErrorTitle": "AI エラー",
-  "hintBar.quickPaste": "クイックペースト"
+  "hintBar.quickPaste": "クイックペースト",
+  "history.aiConfirmTitle": "{{provider}} に送信しますか？",
+  "history.aiConfirmSend": "送信"
 }

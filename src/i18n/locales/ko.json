@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "문제가 발생했습니다",
   "errors.unexpectedError": "예기치 않은 오류가 발생했습니다",
   "errors.tryAgain": "다시 시도",
-  "errorReporting.optIn.title": "qliplab 개선에 도움을 주세요",
+  "errorReporting.optIn.title": "QlipLab 개선에 도움을 주세요",
   "errorReporting.optIn.description": "버그 수정을 위해 자동으로 충돌 보고서를 보내시겠습니까?",
   "errorReporting.optIn.whatWeCollect": "수집하는 정보:",
   "errorReporting.optIn.collectErrors": "오류 메시지 및 스택 트레이스",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "비밀번호가 일치하지 않습니다",
   "vault.lock.noRecoveryWarning": "비밀번호 재설정이 없습니다. 잊어버리면 보관함 내용을 복구할 수 없습니다.",
   "history.aiErrorTitle": "AI 오류",
-  "hintBar.quickPaste": "빠른 붙여넣기"
+  "hintBar.quickPaste": "빠른 붙여넣기",
+  "history.aiConfirmTitle": "{{provider}}(으)로 보낼까요?",
+  "history.aiConfirmSend": "보내기"
 }

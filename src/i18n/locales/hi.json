@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "कुछ गलत हो गया",
   "errors.unexpectedError": "एक अनपेक्षित त्रुटि हुई",
   "errors.tryAgain": "फिर से कोशिश करें",
-  "errorReporting.optIn.title": "qliplab को बेहतर बनाने में मदद करें",
+  "errorReporting.optIn.title": "QlipLab को बेहतर बनाने में मदद करें",
   "errorReporting.optIn.description": "क्या आप बग ठीक करने में हमारी मदद के लिए स्वचालित रूप से क्रैश रिपोर्ट भेजना चाहेंगे?",
   "errorReporting.optIn.whatWeCollect": "हम क्या एकत्र करते हैं:",
   "errorReporting.optIn.collectErrors": "त्रुटि संदेश और स्टैक ट्रेस",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "पासवर्ड मेल नहीं खाते",
   "vault.lock.noRecoveryWarning": "पासवर्ड रीसेट नहीं है। भूल जाने पर वॉल्ट की सामग्री पुनर्प्राप्त नहीं की जा सकती।",
   "history.aiErrorTitle": "AI त्रुटि",
-  "hintBar.quickPaste": "त्वरित पेस्ट"
+  "hintBar.quickPaste": "त्वरित पेस्ट",
+  "history.aiConfirmTitle": "{{provider}} को भेजें?",
+  "history.aiConfirmSend": "भेजें"
 }

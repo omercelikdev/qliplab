@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Что-то пошло не так",
   "errors.unexpectedError": "Произошла непредвиденная ошибка",
   "errors.tryAgain": "Повторить",
-  "errorReporting.optIn.title": "Помогите улучшить qliplab",
+  "errorReporting.optIn.title": "Помогите улучшить QlipLab",
   "errorReporting.optIn.description": "Хотите автоматически отправлять отчёты об ошибках, чтобы помочь нам исправлять баги?",
   "errorReporting.optIn.whatWeCollect": "Что мы собираем:",
   "errorReporting.optIn.collectErrors": "Сообщения об ошибках и трассировки стека",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "Пароли не совпадают",
   "vault.lock.noRecoveryWarning": "Сброс пароля невозможен. Если вы его забудете, содержимое хранилища будет утеряно навсегда.",
   "history.aiErrorTitle": "Ошибка ИИ",
-  "hintBar.quickPaste": "Быстрая вставка"
+  "hintBar.quickPaste": "Быстрая вставка",
+  "history.aiConfirmTitle": "Отправить в {{provider}}?",
+  "history.aiConfirmSend": "Отправить"
 }

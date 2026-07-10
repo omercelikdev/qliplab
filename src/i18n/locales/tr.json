@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Bir şeyler ters gitti",
   "errors.unexpectedError": "Beklenmeyen bir hata oluştu",
   "errors.tryAgain": "Tekrar dene",
-  "errorReporting.optIn.title": "qliplab'ı Geliştirmemize Yardımcı Olun",
+  "errorReporting.optIn.title": "QlipLab'ı Geliştirmemize Yardımcı Olun",
   "errorReporting.optIn.description": "Hataları düzeltmemize yardımcı olmak için otomatik çökme raporları göndermek ister misiniz?",
   "errorReporting.optIn.whatWeCollect": "Topladığımız bilgiler:",
   "errorReporting.optIn.collectErrors": "Hata mesajları ve yığın izleri",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "Şifreler eşleşmiyor",
   "vault.lock.noRecoveryWarning": "Şifre sıfırlama yoktur. Unutursanız kasadaki içeriğe bir daha erişilemez.",
   "history.aiErrorTitle": "AI Hatası",
-  "hintBar.quickPaste": "Hızlı yapıştır"
+  "hintBar.quickPaste": "Hızlı yapıştır",
+  "history.aiConfirmTitle": "{{provider}} sağlayıcısına gönderilsin mi?",
+  "history.aiConfirmSend": "Gönder"
 }

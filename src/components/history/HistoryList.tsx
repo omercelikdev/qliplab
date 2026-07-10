@@ -233,7 +233,18 @@ export function HistoryList() {
         </div>
       )}
 
-      <div ref={listRef} role="listbox" aria-label={t('history.ariaLabel')} className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div
+        ref={listRef}
+        role="listbox"
+        tabIndex={0}
+        aria-label={t('history.ariaLabel')}
+        aria-activedescendant={
+          !isDiffMode && !isQueueMode && items[selectedIndex]
+            ? `clip-${items[selectedIndex].id}`
+            : undefined
+        }
+        className="flex-1 overflow-y-auto overflow-x-hidden focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40"
+      >
       {items.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">

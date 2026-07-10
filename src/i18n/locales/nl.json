@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Er ging iets mis",
   "errors.unexpectedError": "Er is een onverwachte fout opgetreden",
   "errors.tryAgain": "Opnieuw proberen",
-  "errorReporting.optIn.title": "Help qliplab verbeteren",
+  "errorReporting.optIn.title": "Help QlipLab verbeteren",
   "errorReporting.optIn.description": "Wilt u automatisch crashrapporten versturen om ons te helpen bugs op te lossen?",
   "errorReporting.optIn.whatWeCollect": "Wat we verzamelen:",
   "errorReporting.optIn.collectErrors": "Foutmeldingen en stacktraces",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "Wachtwoorden komen niet overeen",
   "vault.lock.noRecoveryWarning": "Er is geen wachtwoordherstel. Als je het vergeet, is de inhoud van de kluis onherstelbaar.",
   "history.aiErrorTitle": "AI-fout",
-  "hintBar.quickPaste": "Snel plakken"
+  "hintBar.quickPaste": "Snel plakken",
+  "history.aiConfirmTitle": "Naar {{provider}} sturen?",
+  "history.aiConfirmSend": "Versturen"
 }

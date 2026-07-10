@@ -54,7 +54,8 @@ export function ConfirmDialog({ isOpen, title, message, confirmLabel, onConfirm,
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-sm font-semibold mb-1">{title}</h3>
-            <p className="text-xs text-muted-foreground mb-4">{message}</p>
+            {/* Messages may carry blank lines to separate a warning from the ask. */}
+            <p className="text-xs text-muted-foreground mb-4 whitespace-pre-line">{message}</p>
             <div className="flex gap-2 justify-end">
               <button
                 ref={cancelRef}

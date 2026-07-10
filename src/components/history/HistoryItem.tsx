@@ -290,6 +290,10 @@ export const HistoryItem = memo(function HistoryItem({
 
   return (
     <div
+      // Stable id so the listbox can point aria-activedescendant at the
+      // keyboard-selected row; without it a screen reader cannot tell which
+      // clip is selected, since focus never leaves the list container.
+      id={`clip-${item.id}`}
       role="option"
       aria-selected={isSelected}
       aria-label={item.contentType === 'image' ? t('history.imageClip') : item.content.slice(0, 80)}

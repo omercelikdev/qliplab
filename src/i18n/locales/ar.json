@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "حدث خطأ ما",
   "errors.unexpectedError": "حدث خطأ غير متوقع",
   "errors.tryAgain": "حاول مرة أخرى",
-  "errorReporting.optIn.title": "ساعد في تحسين qliplab",
+  "errorReporting.optIn.title": "ساعد في تحسين QlipLab",
   "errorReporting.optIn.description": "هل تريد إرسال تقارير الأعطال تلقائيًا لمساعدتنا في إصلاح الأخطاء؟",
   "errorReporting.optIn.whatWeCollect": "ما نجمعه:",
   "errorReporting.optIn.collectErrors": "رسائل الخطأ وتتبع المكدس",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "كلمتا المرور غير متطابقتين",
   "vault.lock.noRecoveryWarning": "لا توجد إعادة تعيين لكلمة المرور. إذا نسيتها، فلا يمكن استرداد محتويات الخزنة.",
   "history.aiErrorTitle": "خطأ في الذكاء الاصطناعي",
-  "hintBar.quickPaste": "لصق سريع"
+  "hintBar.quickPaste": "لصق سريع",
+  "history.aiConfirmTitle": "إرسال إلى {{provider}}؟",
+  "history.aiConfirmSend": "إرسال"
 }

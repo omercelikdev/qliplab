@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Algo deu errado",
   "errors.unexpectedError": "Ocorreu um erro inesperado",
   "errors.tryAgain": "Tentar novamente",
-  "errorReporting.optIn.title": "Ajude a melhorar o qliplab",
+  "errorReporting.optIn.title": "Ajude a melhorar o QlipLab",
   "errorReporting.optIn.description": "Gostaria de enviar automaticamente relatórios de falhas para nos ajudar a corrigir bugs?",
   "errorReporting.optIn.whatWeCollect": "O que coletamos:",
   "errorReporting.optIn.collectErrors": "Mensagens de erro e rastreamentos de pilha",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "As senhas não coincidem",
   "vault.lock.noRecoveryWarning": "Não há redefinição de senha. Se você esquecê-la, o conteúdo do cofre não poderá ser recuperado.",
   "history.aiErrorTitle": "Erro de IA",
-  "hintBar.quickPaste": "Colar rápido"
+  "hintBar.quickPaste": "Colar rápido",
+  "history.aiConfirmTitle": "Enviar para {{provider}}?",
+  "history.aiConfirmSend": "Enviar"
 }

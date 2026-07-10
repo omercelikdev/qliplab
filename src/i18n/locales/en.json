@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Something went wrong",
   "errors.unexpectedError": "An unexpected error occurred",
   "errors.tryAgain": "Try again",
-  "errorReporting.optIn.title": "Help Improve qliplab",
+  "errorReporting.optIn.title": "Help Improve QlipLab",
   "errorReporting.optIn.description": "Would you like to automatically send crash reports to help us fix bugs?",
   "errorReporting.optIn.whatWeCollect": "What we collect:",
   "errorReporting.optIn.collectErrors": "Error messages and stack traces",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "Passwords don't match",
   "vault.lock.noRecoveryWarning": "There is no password reset. If you forget it, your vault contents cannot be recovered.",
   "history.aiErrorTitle": "AI Error",
-  "hintBar.quickPaste": "Quick paste"
+  "hintBar.quickPaste": "Quick paste",
+  "history.aiConfirmTitle": "Send to {{provider}}?",
+  "history.aiConfirmSend": "Send"
 }

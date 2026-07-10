@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Coś poszło nie tak",
   "errors.unexpectedError": "Wystąpił nieoczekiwany błąd",
   "errors.tryAgain": "Spróbuj ponownie",
-  "errorReporting.optIn.title": "Pomóż ulepszyć qliplab",
+  "errorReporting.optIn.title": "Pomóż ulepszyć QlipLab",
   "errorReporting.optIn.description": "Czy chcesz automatycznie wysyłać raporty o awariach, aby pomóc nam naprawić błędy?",
   "errorReporting.optIn.whatWeCollect": "Co zbieramy:",
   "errorReporting.optIn.collectErrors": "Komunikaty o błędach i ślady stosu",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "Hasła nie są zgodne",
   "vault.lock.noRecoveryWarning": "Nie ma resetowania hasła. Jeśli je zapomnisz, zawartość sejfu będzie nie do odzyskania.",
   "history.aiErrorTitle": "Błąd AI",
-  "hintBar.quickPaste": "Szybkie wklejanie"
+  "hintBar.quickPaste": "Szybkie wklejanie",
+  "history.aiConfirmTitle": "Wysłać do {{provider}}?",
+  "history.aiConfirmSend": "Wyślij"
 }

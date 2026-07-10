@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Qualcosa è andato storto",
   "errors.unexpectedError": "Si è verificato un errore imprevisto",
   "errors.tryAgain": "Riprova",
-  "errorReporting.optIn.title": "Aiuta a migliorare qliplab",
+  "errorReporting.optIn.title": "Aiuta a migliorare QlipLab",
   "errorReporting.optIn.description": "Desideri inviare automaticamente rapporti sugli errori per aiutarci a correggere i bug?",
   "errorReporting.optIn.whatWeCollect": "Cosa raccogliamo:",
   "errorReporting.optIn.collectErrors": "Messaggi di errore e tracce dello stack",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "Le password non coincidono",
   "vault.lock.noRecoveryWarning": "Non esiste alcun reimpostazione della password. Se la dimentichi, il contenuto della cassaforte non sarà recuperabile.",
   "history.aiErrorTitle": "Errore IA",
-  "hintBar.quickPaste": "Incolla rapido"
+  "hintBar.quickPaste": "Incolla rapido",
+  "history.aiConfirmTitle": "Inviare a {{provider}}?",
+  "history.aiConfirmSend": "Invia"
 }

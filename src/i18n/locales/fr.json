@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Une erreur est survenue",
   "errors.unexpectedError": "Une erreur inattendue s'est produite",
   "errors.tryAgain": "Réessayer",
-  "errorReporting.optIn.title": "Aidez à améliorer qliplab",
+  "errorReporting.optIn.title": "Aidez à améliorer QlipLab",
   "errorReporting.optIn.description": "Souhaitez-vous envoyer automatiquement des rapports d'erreur pour nous aider à corriger les bugs ?",
   "errorReporting.optIn.whatWeCollect": "Ce que nous collectons :",
   "errorReporting.optIn.collectErrors": "Messages d'erreur et traces de pile",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "Les mots de passe ne correspondent pas",
   "vault.lock.noRecoveryWarning": "Il n'existe aucune réinitialisation. Si vous l'oubliez, le contenu du coffre est irrécupérable.",
   "history.aiErrorTitle": "Erreur IA",
-  "hintBar.quickPaste": "Collage rapide"
+  "hintBar.quickPaste": "Collage rapide",
+  "history.aiConfirmTitle": "Envoyer à {{provider}} ?",
+  "history.aiConfirmSend": "Envoyer"
 }

@@ -377,7 +377,7 @@
   "errors.somethingWentWrong": "Etwas ist schiefgelaufen",
   "errors.unexpectedError": "Ein unerwarteter Fehler ist aufgetreten",
   "errors.tryAgain": "Erneut versuchen",
-  "errorReporting.optIn.title": "Helfen Sie qliplab zu verbessern",
+  "errorReporting.optIn.title": "Helfen Sie QlipLab zu verbessern",
   "errorReporting.optIn.description": "Möchten Sie automatisch Absturzberichte senden, um uns bei der Fehlerbehebung zu helfen?",
   "errorReporting.optIn.whatWeCollect": "Was wir erfassen:",
   "errorReporting.optIn.collectErrors": "Fehlermeldungen und Stack-Traces",
@@ -412,5 +412,7 @@
   "vault.lock.passwordMismatch": "Passwörter stimmen nicht überein",
   "vault.lock.noRecoveryWarning": "Es gibt kein Zurücksetzen des Passworts. Wenn Sie es vergessen, ist der Tresorinhalt unwiederbringlich verloren.",
   "history.aiErrorTitle": "KI-Fehler",
-  "hintBar.quickPaste": "Schnell einfügen"
+  "hintBar.quickPaste": "Schnell einfügen",
+  "history.aiConfirmTitle": "An {{provider}} senden?",
+  "history.aiConfirmSend": "Senden"
 }
