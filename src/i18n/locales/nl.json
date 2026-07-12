@@ -440,5 +440,12 @@
   "history.sort.label": "Sortering",
   "history.sort.recent": "Recent",
   "history.sort.frequent": "Meest gebruikt",
-  "search.alsoIn": "Ook in:"
+  "search.alsoIn": "Ook in:",
+  "history.transform.invalidJwt": "Ongeldige JWT",
+  "history.transform.validYaml": "Geldige YAML",
+  "history.transform.invalid": "Ongeldig",
+  "vault.dialog.bank.swift": "SWIFT (optioneel)",
+  "vault.dialog.personal.countryPlaceholder": "Land",
+  "vault.dialog.personal.popular": "Populair",
+  "vault.dialog.personal.allCountries": "Alle landen"
 }

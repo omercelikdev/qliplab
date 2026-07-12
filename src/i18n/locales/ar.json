@@ -440,5 +440,12 @@
   "history.sort.label": "الترتيب",
   "history.sort.recent": "الأحدث",
   "history.sort.frequent": "الأكثر استخداماً",
-  "search.alsoIn": "أيضاً في:"
+  "search.alsoIn": "أيضاً في:",
+  "history.transform.invalidJwt": "JWT غير صالح",
+  "history.transform.validYaml": "YAML صالح",
+  "history.transform.invalid": "غير صالح",
+  "vault.dialog.bank.swift": "SWIFT (اختياري)",
+  "vault.dialog.personal.countryPlaceholder": "الدولة",
+  "vault.dialog.personal.popular": "شائع",
+  "vault.dialog.personal.allCountries": "كل الدول"
 }

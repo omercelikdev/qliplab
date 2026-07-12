@@ -126,45 +126,45 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
     switch (item.detectedFormat) {
       case 'json':
         return [
-          { icon: Sparkles, label: t('history.transform.beautify'), action: () => openTransform(item, 'Beautify JSON', transforms.beautifyJson(item.content)) },
-          { icon: Minimize2, label: t('history.transform.minify'), action: () => openTransform(item, 'Minify JSON', transforms.minifyJson(item.content)) },
+          { icon: Sparkles, label: t('history.transform.beautify'), action: () => openTransform(item, `${t('history.transform.beautify')} · JSON`, transforms.beautifyJson(item.content)) },
+          { icon: Minimize2, label: t('history.transform.minify'), action: () => openTransform(item, `${t('history.transform.minify')} · JSON`, transforms.minifyJson(item.content)) },
           { icon: ArrowRightLeft, label: t('history.transform.toYaml'), action: () => openTransform(item, 'JSON → YAML', transforms.jsonToYaml(item.content)) },
         ];
       case 'jwt':
         return [
           { icon: Unlock, label: t('history.transform.decode'), action: () => {
             const decoded = transforms.decodeJwt(item.content);
-            openTransform(item, 'Decode JWT', decoded ? JSON.stringify(decoded, null, 2) : 'Invalid JWT');
+            openTransform(item, `${t('history.transform.decode')} · JWT`, decoded ? JSON.stringify(decoded, null, 2) : t('history.transform.invalidJwt'));
           }},
         ];
       case 'base64':
         return [
-          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, 'Decode Base64', transforms.decodeBase64(item.content)) },
-          { icon: Lock, label: t('history.transform.encode'), action: () => openTransform(item, 'Encode Base64', transforms.encodeBase64(item.content)) },
+          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, `${t('history.transform.decode')} · Base64`, transforms.decodeBase64(item.content)) },
+          { icon: Lock, label: t('history.transform.encode'), action: () => openTransform(item, `${t('history.transform.encode')} · Base64`, transforms.encodeBase64(item.content)) },
         ];
       case 'url':
         return [
-          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, 'Decode URL', transforms.decodeUrl(item.content)) },
+          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, `${t('history.transform.decode')} · URL`, transforms.decodeUrl(item.content)) },
         ];
       case 'url_encoded':
         return [
-          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, 'Decode URL', transforms.decodeUrl(item.content)) },
+          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, `${t('history.transform.decode')} · URL`, transforms.decodeUrl(item.content)) },
         ];
       case 'sql':
         return [
-          { icon: Sparkles, label: t('history.transform.format'), action: () => openTransform(item, 'Format SQL', transforms.formatSql(item.content)) },
+          { icon: Sparkles, label: t('history.transform.format'), action: () => openTransform(item, `${t('history.transform.format')} · SQL`, transforms.formatSql(item.content)) },
         ];
       case 'timestamp':
         return [
-          { icon: Sparkles, label: t('history.transform.toDate'), action: () => openTransform(item, 'Timestamp to Date', transforms.timestampToDate(item.content)) },
+          { icon: Sparkles, label: t('history.transform.toDate'), action: () => openTransform(item, 'Timestamp → Date', transforms.timestampToDate(item.content)) },
         ];
       case 'yaml':
         return [
-          { icon: Sparkles, label: t('history.transform.beautify'), action: () => openTransform(item, 'Beautify YAML', transforms.beautifyYaml(item.content)) },
+          { icon: Sparkles, label: t('history.transform.beautify'), action: () => openTransform(item, `${t('history.transform.beautify')} · YAML`, transforms.beautifyYaml(item.content)) },
           { icon: ArrowRightLeft, label: t('history.transform.toJson'), action: () => openTransform(item, 'YAML → JSON', transforms.yamlToJson(item.content)) },
           { icon: Info, label: t('history.transform.validate'), action: () => {
             const result = transforms.validateYaml(item.content);
-            openTransform(item, 'Validate YAML', result.valid ? '✓ Valid YAML' : `✗ Invalid: ${result.error}`);
+            openTransform(item, `${t('history.transform.validate')} · YAML`, result.valid ? `✓ ${t('history.transform.validYaml')}` : `✗ ${t('history.transform.invalid')}: ${result.error}`);
           }},
         ];
       case 'color':
@@ -172,17 +172,17 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
           { icon: Palette, label: t('history.transform.toHex'), action: () => openTransform(item, 'Color → HEX', transforms.colorToHex(item.content)) },
           { icon: Palette, label: t('history.transform.toRgb'), action: () => openTransform(item, 'Color → RGB', transforms.colorToRgb(item.content)) },
           { icon: Palette, label: t('history.transform.toHsl'), action: () => openTransform(item, 'Color → HSL', transforms.colorToHsl(item.content)) },
-          { icon: Info, label: t('history.transform.colorInfo'), action: () => openTransform(item, 'Color Info', transforms.colorInfo(item.content)) },
+          { icon: Info, label: t('history.transform.colorInfo'), action: () => openTransform(item, t('history.transform.colorInfo'), transforms.colorInfo(item.content)) },
         ];
       case 'csv':
         return [
           { icon: ArrowRightLeft, label: t('history.transform.toJson'), action: () => openTransform(item, 'CSV → JSON', transforms.csvToJson(item.content)) },
-          { icon: Info, label: t('history.transform.csvInfo'), action: () => openTransform(item, 'CSV Info', transforms.csvInfo(item.content)) },
+          { icon: Info, label: t('history.transform.csvInfo'), action: () => openTransform(item, t('history.transform.csvInfo'), transforms.csvInfo(item.content)) },
         ];
       case 'regex':
         return [
-          { icon: Info, label: t('history.transform.regexInfo'), action: () => openTransform(item, 'Regex Info', transforms.regexInfo(item.content)) },
-          { icon: Lock, label: t('history.transform.escape'), action: () => openTransform(item, 'Escape Regex', transforms.escapeRegex(item.content)) },
+          { icon: Info, label: t('history.transform.regexInfo'), action: () => openTransform(item, t('history.transform.regexInfo'), transforms.regexInfo(item.content)) },
+          { icon: Lock, label: t('history.transform.escape'), action: () => openTransform(item, `${t('history.transform.escape')} · Regex`, transforms.escapeRegex(item.content)) },
         ];
       case 'hex':
         return [
@@ -194,14 +194,14 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
         return [
           { icon: Sparkles, label: t('history.transform.beautify'), action: async () => {
             const formatted = await transforms.beautifyJavaScript(item.content);
-            openTransform(item, 'Beautify JavaScript', formatted);
+            openTransform(item, `${t('history.transform.beautify')} · JavaScript`, formatted);
           }},
         ];
       case 'code_ts':
         return [
           { icon: Sparkles, label: t('history.transform.beautify'), action: async () => {
             const formatted = await transforms.beautifyTypeScript(item.content);
-            openTransform(item, 'Beautify TypeScript', formatted);
+            openTransform(item, `${t('history.transform.beautify')} · TypeScript`, formatted);
           }},
         ];
       default:

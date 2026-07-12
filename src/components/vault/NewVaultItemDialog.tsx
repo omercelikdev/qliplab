@@ -256,7 +256,7 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
             <Input label={t('vault.dialog.bank.bankName')} value={formData.bankName || ''} onChange={(v) => updateField('bankName', v)} maxLength={100} error={errors.bankName} />
             <Input label={t('vault.dialog.bank.accountHolder')} value={formData.accountHolder || ''} onChange={(v) => updateField('accountHolder', v)} maxLength={100} error={errors.accountHolder} />
             <Input label="IBAN" value={formData.iban || ''} onChange={(v) => updateField('iban', v)} formatter={formatIban} maxLength={42} error={errors.iban} />
-            <Input label="SWIFT (optional)" value={formData.swift || ''} onChange={(v) => updateField('swift', v)} formatter={formatSwift} maxLength={11} error={errors.swift} />
+            <Input label={t('vault.dialog.bank.swift')} value={formData.swift || ''} onChange={(v) => updateField('swift', v)} formatter={formatSwift} maxLength={11} error={errors.swift} />
           </>
         );
       case 'address':
@@ -292,13 +292,13 @@ export function NewVaultItemDialog({ isOpen, onClose, editItem }: Props) {
                   onChange={(e) => updateField('phoneCountry', e.target.value)}
                   className="w-[110px] px-2 py-2 bg-surface border border-border rounded-lg text-xs outline-none focus:ring-2 focus:ring-accent cursor-pointer shrink-0"
                 >
-                  <option value="">Country</option>
-                  <optgroup label="Popular">
+                  <option value="">{t('vault.dialog.personal.countryPlaceholder')}</option>
+                  <optgroup label={t('vault.dialog.personal.popular')}>
                     {popularCountries.map(c => (
                       <option key={c.code} value={c.code}>{getFlag(c.code)} {c.dial}</option>
                     ))}
                   </optgroup>
-                  <optgroup label="All Countries">
+                  <optgroup label={t('vault.dialog.personal.allCountries')}>
                     {otherCountries.map(c => (
                       <option key={c.code} value={c.code}>{getFlag(c.code)} {c.name} {c.dial}</option>
                     ))}

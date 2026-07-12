@@ -440,5 +440,12 @@
   "history.sort.label": "Tri",
   "history.sort.recent": "Récents",
   "history.sort.frequent": "Les plus utilisés",
-  "search.alsoIn": "Aussi dans :"
+  "search.alsoIn": "Aussi dans :",
+  "history.transform.invalidJwt": "JWT invalide",
+  "history.transform.validYaml": "YAML valide",
+  "history.transform.invalid": "Invalide",
+  "vault.dialog.bank.swift": "SWIFT (facultatif)",
+  "vault.dialog.personal.countryPlaceholder": "Pays",
+  "vault.dialog.personal.popular": "Populaires",
+  "vault.dialog.personal.allCountries": "Tous les pays"
 }

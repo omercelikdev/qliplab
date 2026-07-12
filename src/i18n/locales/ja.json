@@ -440,5 +440,12 @@
   "history.sort.label": "並び替え",
   "history.sort.recent": "最近",
   "history.sort.frequent": "よく使う",
-  "search.alsoIn": "他にも:"
+  "search.alsoIn": "他にも:",
+  "history.transform.invalidJwt": "無効な JWT",
+  "history.transform.validYaml": "有効な YAML",
+  "history.transform.invalid": "無効",
+  "vault.dialog.bank.swift": "SWIFT（任意）",
+  "vault.dialog.personal.countryPlaceholder": "国",
+  "vault.dialog.personal.popular": "人気",
+  "vault.dialog.personal.allCountries": "すべての国"
 }

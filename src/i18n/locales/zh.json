@@ -440,5 +440,12 @@
   "history.sort.label": "排序",
   "history.sort.recent": "最近",
   "history.sort.frequent": "最常用",
-  "search.alsoIn": "另见:"
+  "search.alsoIn": "另见:",
+  "history.transform.invalidJwt": "无效的 JWT",
+  "history.transform.validYaml": "有效的 YAML",
+  "history.transform.invalid": "无效",
+  "vault.dialog.bank.swift": "SWIFT（可选）",
+  "vault.dialog.personal.countryPlaceholder": "国家/地区",
+  "vault.dialog.personal.popular": "常用",
+  "vault.dialog.personal.allCountries": "所有国家/地区"
 }
