@@ -92,7 +92,7 @@ export function Sidebar() {
         >
           {isCapturePaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
           {isCapturePaused && (
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
           )}
           <span className="absolute left-full ms-2 px-2 py-1 bg-surface border border-border rounded-md text-xs font-medium whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all group-hover:delay-500 z-50 shadow-lg">
             {isCapturePaused ? t('capture.resume') : t('capture.pause')}

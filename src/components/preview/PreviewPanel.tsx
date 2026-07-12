@@ -598,7 +598,7 @@ function TransformPicker({
   return (
     <div
       ref={pickerRef}
-      className="absolute top-full left-0 z-50 mt-1 w-[520px] max-w-[calc(100vw-24px)] rounded-xl bg-popover border border-popover-border shadow-[0_12px_40px_rgb(0_0_0/0.16)] dark:shadow-[0_12px_40px_rgb(0_0_0/0.55)] overflow-hidden"
+      className="absolute top-full start-0 z-50 mt-1 w-[520px] max-w-[calc(100vw-24px)] rounded-xl bg-popover border border-popover-border shadow-[0_12px_40px_rgb(0_0_0/0.16)] dark:shadow-[0_12px_40px_rgb(0_0_0/0.55)] overflow-hidden"
     >
       <div className="flex items-center gap-2 px-3 py-2 border-b border-popover-border/70">
         <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
