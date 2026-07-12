@@ -110,7 +110,7 @@ export function HistoryList() {
 
   const remainingCount = totalCount - items.length;
 
-  const handleSelect = useCallback(async (index: number) => {
+  const handleSelect = useCallback(async (index: number, opts?: { plain?: boolean }) => {
     if (isDiffMode || isQueueMode || pastingItemId) return;
     const item = orderedItems[index];
     if (item) {
@@ -125,7 +125,8 @@ export function HistoryList() {
             setPastingItemId(null);
           }
         }
-      } else if (item.htmlContent) {
+      } else if (item.htmlContent && !opts?.plain) {
+        // Shift+Enter forces plain text; otherwise keep the rich HTML.
         await hideWriteAndPaste(async () => {
           await writeHtmlAndText(item.htmlContent!, item.content);
         });
@@ -137,9 +138,15 @@ export function HistoryList() {
     }
   }, [orderedItems, isDiffMode, isQueueMode, pastingItemId]);
 
+  const handleDeleteSelected = useCallback((index: number) => {
+    const item = orderedItems[index];
+    if (item) useHistoryStore.getState().deleteItem(item.id);
+  }, [orderedItems]);
+
   const { selectedIndex } = useKeyboardNavigation({
     itemCount: orderedItems.length,
     onSelect: handleSelect,
+    onDelete: handleDeleteSelected,
     isActive: activeTab === 'history' && !isDiffMode,
   });
 
