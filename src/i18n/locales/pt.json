@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "Recriptografando…",
   "vault.changePassword.wrongCurrent": "A senha atual está incorreta.",
   "vault.changePassword.decryptError": "Não foi possível descriptografar o cofre com esta senha. Nada foi alterado.",
-  "vault.changePassword.genericError": "Algo deu errado. Sua senha não foi alterada."
+  "vault.changePassword.genericError": "Algo deu errado. Sua senha não foi alterada.",
+  "common.clearFilters": "Limpar filtros"
 }

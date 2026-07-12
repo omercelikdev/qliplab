@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "Neu verschlüsseln…",
   "vault.changePassword.wrongCurrent": "Aktuelles Passwort ist falsch.",
   "vault.changePassword.decryptError": "Der Tresor konnte mit diesem Passwort nicht entschlüsselt werden. Es wurde nichts geändert.",
-  "vault.changePassword.genericError": "Etwas ist schiefgelaufen. Dein Passwort wurde nicht geändert."
+  "vault.changePassword.genericError": "Etwas ist schiefgelaufen. Dein Passwort wurde nicht geändert.",
+  "common.clearFilters": "Filter zurücksetzen"
 }

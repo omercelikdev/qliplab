@@ -49,7 +49,7 @@ export function Sidebar() {
           'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
           isActive
             ? 'bg-accent/15 text-accent'
-            : 'text-foreground/40 hover:text-foreground/70 hover:bg-surface-hover'
+            : 'text-foreground/55 hover:text-foreground/80 hover:bg-surface-hover'
         )}
       >
         <Icon className="w-4 h-4" />
@@ -87,7 +87,7 @@ export function Sidebar() {
             'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
             isCapturePaused
               ? 'bg-amber-500/15 text-amber-500'
-              : 'text-foreground/40 hover:text-foreground/70 hover:bg-surface-hover'
+              : 'text-foreground/55 hover:text-foreground/80 hover:bg-surface-hover'
           )}
         >
           {isCapturePaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}

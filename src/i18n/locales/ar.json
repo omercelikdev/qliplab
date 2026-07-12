@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "إعادة التشفير…",
   "vault.changePassword.wrongCurrent": "كلمة المرور الحالية غير صحيحة.",
   "vault.changePassword.decryptError": "تعذر فك تشفير الخزنة بهذه الكلمة. لم يتم تغيير أي شيء.",
-  "vault.changePassword.genericError": "حدث خطأ ما. لم يتم تغيير كلمة المرور."
+  "vault.changePassword.genericError": "حدث خطأ ما. لم يتم تغيير كلمة المرور.",
+  "common.clearFilters": "مسح عوامل التصفية"
 }

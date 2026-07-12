@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "正在重新加密…",
   "vault.changePassword.wrongCurrent": "当前密码不正确。",
   "vault.changePassword.decryptError": "无法用此密码解密保险库。未做任何更改。",
-  "vault.changePassword.genericError": "出现问题。您的密码未更改。"
+  "vault.changePassword.genericError": "出现问题。您的密码未更改。",
+  "common.clearFilters": "清除筛选"
 }

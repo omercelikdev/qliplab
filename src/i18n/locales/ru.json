@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "Повторное шифрование…",
   "vault.changePassword.wrongCurrent": "Текущий пароль неверен.",
   "vault.changePassword.decryptError": "Не удалось расшифровать хранилище этим паролем. Ничего не изменено.",
-  "vault.changePassword.genericError": "Что-то пошло не так. Пароль не изменён."
+  "vault.changePassword.genericError": "Что-то пошло не так. Пароль не изменён.",
+  "common.clearFilters": "Сбросить фильтры"
 }

@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "Ricifratura…",
   "vault.changePassword.wrongCurrent": "La password attuale non è corretta.",
   "vault.changePassword.decryptError": "Impossibile decifrare la cassaforte con questa password. Nulla è stato modificato.",
-  "vault.changePassword.genericError": "Qualcosa è andato storto. La password non è stata cambiata."
+  "vault.changePassword.genericError": "Qualcosa è andato storto. La password non è stata cambiata.",
+  "common.clearFilters": "Cancella filtri"
 }
