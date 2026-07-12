@@ -116,80 +116,80 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
     switch (item.detectedFormat) {
       case 'json':
         return [
-          { icon: Sparkles, label: 'Beautify', action: () => openTransform(item, 'Beautify JSON', transforms.beautifyJson(item.content)) },
-          { icon: Minimize2, label: 'Minify', action: () => openTransform(item, 'Minify JSON', transforms.minifyJson(item.content)) },
-          { icon: ArrowRightLeft, label: 'To YAML', action: () => openTransform(item, 'JSON → YAML', transforms.jsonToYaml(item.content)) },
+          { icon: Sparkles, label: t('history.transform.beautify'), action: () => openTransform(item, 'Beautify JSON', transforms.beautifyJson(item.content)) },
+          { icon: Minimize2, label: t('history.transform.minify'), action: () => openTransform(item, 'Minify JSON', transforms.minifyJson(item.content)) },
+          { icon: ArrowRightLeft, label: t('history.transform.toYaml'), action: () => openTransform(item, 'JSON → YAML', transforms.jsonToYaml(item.content)) },
         ];
       case 'jwt':
         return [
-          { icon: Unlock, label: 'Decode', action: () => {
+          { icon: Unlock, label: t('history.transform.decode'), action: () => {
             const decoded = transforms.decodeJwt(item.content);
             openTransform(item, 'Decode JWT', decoded ? JSON.stringify(decoded, null, 2) : 'Invalid JWT');
           }},
         ];
       case 'base64':
         return [
-          { icon: Unlock, label: 'Decode', action: () => openTransform(item, 'Decode Base64', transforms.decodeBase64(item.content)) },
-          { icon: Lock, label: 'Encode', action: () => openTransform(item, 'Encode Base64', transforms.encodeBase64(item.content)) },
+          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, 'Decode Base64', transforms.decodeBase64(item.content)) },
+          { icon: Lock, label: t('history.transform.encode'), action: () => openTransform(item, 'Encode Base64', transforms.encodeBase64(item.content)) },
         ];
       case 'url':
         return [
-          { icon: Unlock, label: 'Decode', action: () => openTransform(item, 'Decode URL', transforms.decodeUrl(item.content)) },
+          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, 'Decode URL', transforms.decodeUrl(item.content)) },
         ];
       case 'url_encoded':
         return [
-          { icon: Unlock, label: 'Decode', action: () => openTransform(item, 'Decode URL', transforms.decodeUrl(item.content)) },
+          { icon: Unlock, label: t('history.transform.decode'), action: () => openTransform(item, 'Decode URL', transforms.decodeUrl(item.content)) },
         ];
       case 'sql':
         return [
-          { icon: Sparkles, label: 'Format', action: () => openTransform(item, 'Format SQL', transforms.formatSql(item.content)) },
+          { icon: Sparkles, label: t('history.transform.format'), action: () => openTransform(item, 'Format SQL', transforms.formatSql(item.content)) },
         ];
       case 'timestamp':
         return [
-          { icon: Sparkles, label: 'To Date', action: () => openTransform(item, 'Timestamp to Date', transforms.timestampToDate(item.content)) },
+          { icon: Sparkles, label: t('history.transform.toDate'), action: () => openTransform(item, 'Timestamp to Date', transforms.timestampToDate(item.content)) },
         ];
       case 'yaml':
         return [
-          { icon: Sparkles, label: 'Beautify', action: () => openTransform(item, 'Beautify YAML', transforms.beautifyYaml(item.content)) },
-          { icon: ArrowRightLeft, label: 'To JSON', action: () => openTransform(item, 'YAML → JSON', transforms.yamlToJson(item.content)) },
-          { icon: Info, label: 'Validate', action: () => {
+          { icon: Sparkles, label: t('history.transform.beautify'), action: () => openTransform(item, 'Beautify YAML', transforms.beautifyYaml(item.content)) },
+          { icon: ArrowRightLeft, label: t('history.transform.toJson'), action: () => openTransform(item, 'YAML → JSON', transforms.yamlToJson(item.content)) },
+          { icon: Info, label: t('history.transform.validate'), action: () => {
             const result = transforms.validateYaml(item.content);
             openTransform(item, 'Validate YAML', result.valid ? '✓ Valid YAML' : `✗ Invalid: ${result.error}`);
           }},
         ];
       case 'color':
         return [
-          { icon: Palette, label: 'To HEX', action: () => openTransform(item, 'Color → HEX', transforms.colorToHex(item.content)) },
-          { icon: Palette, label: 'To RGB', action: () => openTransform(item, 'Color → RGB', transforms.colorToRgb(item.content)) },
-          { icon: Palette, label: 'To HSL', action: () => openTransform(item, 'Color → HSL', transforms.colorToHsl(item.content)) },
-          { icon: Info, label: 'Color Info', action: () => openTransform(item, 'Color Info', transforms.colorInfo(item.content)) },
+          { icon: Palette, label: t('history.transform.toHex'), action: () => openTransform(item, 'Color → HEX', transforms.colorToHex(item.content)) },
+          { icon: Palette, label: t('history.transform.toRgb'), action: () => openTransform(item, 'Color → RGB', transforms.colorToRgb(item.content)) },
+          { icon: Palette, label: t('history.transform.toHsl'), action: () => openTransform(item, 'Color → HSL', transforms.colorToHsl(item.content)) },
+          { icon: Info, label: t('history.transform.colorInfo'), action: () => openTransform(item, 'Color Info', transforms.colorInfo(item.content)) },
         ];
       case 'csv':
         return [
-          { icon: ArrowRightLeft, label: 'To JSON', action: () => openTransform(item, 'CSV → JSON', transforms.csvToJson(item.content)) },
-          { icon: Info, label: 'CSV Info', action: () => openTransform(item, 'CSV Info', transforms.csvInfo(item.content)) },
+          { icon: ArrowRightLeft, label: t('history.transform.toJson'), action: () => openTransform(item, 'CSV → JSON', transforms.csvToJson(item.content)) },
+          { icon: Info, label: t('history.transform.csvInfo'), action: () => openTransform(item, 'CSV Info', transforms.csvInfo(item.content)) },
         ];
       case 'regex':
         return [
-          { icon: Info, label: 'Regex Info', action: () => openTransform(item, 'Regex Info', transforms.regexInfo(item.content)) },
-          { icon: Lock, label: 'Escape', action: () => openTransform(item, 'Escape Regex', transforms.escapeRegex(item.content)) },
+          { icon: Info, label: t('history.transform.regexInfo'), action: () => openTransform(item, 'Regex Info', transforms.regexInfo(item.content)) },
+          { icon: Lock, label: t('history.transform.escape'), action: () => openTransform(item, 'Escape Regex', transforms.escapeRegex(item.content)) },
         ];
       case 'hex':
         return [
-          { icon: Hash, label: 'To Text', action: () => openTransform(item, 'Hex → Text', transforms.hexToText(item.content)) },
-          { icon: Binary, label: 'To Decimal', action: () => openTransform(item, 'Hex → Decimal', transforms.hexToDecimal(item.content)) },
-          { icon: Binary, label: 'To Binary', action: () => openTransform(item, 'Hex → Binary', transforms.hexToBinary(item.content)) },
+          { icon: Hash, label: t('history.transform.toText'), action: () => openTransform(item, 'Hex → Text', transforms.hexToText(item.content)) },
+          { icon: Binary, label: t('history.transform.toDecimal'), action: () => openTransform(item, 'Hex → Decimal', transforms.hexToDecimal(item.content)) },
+          { icon: Binary, label: t('history.transform.toBinary'), action: () => openTransform(item, 'Hex → Binary', transforms.hexToBinary(item.content)) },
         ];
       case 'code_js':
         return [
-          { icon: Sparkles, label: 'Beautify', action: async () => {
+          { icon: Sparkles, label: t('history.transform.beautify'), action: async () => {
             const formatted = await transforms.beautifyJavaScript(item.content);
             openTransform(item, 'Beautify JavaScript', formatted);
           }},
         ];
       case 'code_ts':
         return [
-          { icon: Sparkles, label: 'Beautify', action: async () => {
+          { icon: Sparkles, label: t('history.transform.beautify'), action: async () => {
             const formatted = await transforms.beautifyTypeScript(item.content);
             openTransform(item, 'Beautify TypeScript', formatted);
           }},
