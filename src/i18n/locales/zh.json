@@ -447,5 +447,7 @@
   "vault.dialog.bank.swift": "SWIFT（可选）",
   "vault.dialog.personal.countryPlaceholder": "国家/地区",
   "vault.dialog.personal.popular": "常用",
-  "vault.dialog.personal.allCountries": "所有国家/地区"
+  "vault.dialog.personal.allCountries": "所有国家/地区",
+  "tray.show": "显示 QlipLab",
+  "tray.quit": "退出"
 }

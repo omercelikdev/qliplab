@@ -447,5 +447,7 @@
   "vault.dialog.bank.swift": "SWIFT (वैकल्पिक)",
   "vault.dialog.personal.countryPlaceholder": "देश",
   "vault.dialog.personal.popular": "लोकप्रिय",
-  "vault.dialog.personal.allCountries": "सभी देश"
+  "vault.dialog.personal.allCountries": "सभी देश",
+  "tray.show": "QlipLab दिखाएं",
+  "tray.quit": "बाहर निकलें"
 }
