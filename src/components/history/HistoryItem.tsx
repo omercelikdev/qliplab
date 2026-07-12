@@ -1,10 +1,11 @@
 import { useState, useRef, useCallback, useMemo, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  MoreVertical, Pencil, Image as ImageIcon, Loader2, GripVertical,
+  MoreVertical, Pencil, Image as ImageIcon, Loader2, GripVertical, Pin,
   Code, Braces, Globe, Key, Hash, Clock, Palette, Type,
 } from 'lucide-react';
 import { ItemMenu } from './ItemMenu';
+import { useHistoryStore } from '@/stores/historyStore';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeImageBase64, writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { startDrag } from '@crabnebula/tauri-plugin-drag';
@@ -163,6 +164,11 @@ export const HistoryItem = memo(function HistoryItem({
     e.stopPropagation();
     onQuickView(item);
   }, [item, onQuickView]);
+
+  const handlePin = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    useHistoryStore.getState().togglePin(item.id);
+  }, [item.id]);
 
   // Combined pasting state from click or keyboard
   const isCurrentlyPasting = isPasting || isPastingFromKeyboard;
@@ -424,7 +430,7 @@ export const HistoryItem = memo(function HistoryItem({
       {/* Trailing slot: the metadata and the hover actions share one space, so
           moving between rows cross-fades in place instead of reflowing. The slot
           reserves room for the three buttons so content never sits under them. */}
-      <div className="relative flex items-center justify-end shrink-0 h-full min-w-[76px]">
+      <div className="relative flex items-center justify-end shrink-0 h-full min-w-[104px]">
         {/* Metadata — tags, source app, timestamp. Fades out under the actions
             or the quick-paste hint. */}
         <div className={cn(
@@ -480,6 +486,12 @@ export const HistoryItem = memo(function HistoryItem({
               title={item.contentType === 'image' ? t('history.dragImage') : t('history.dragText')}
             >
               <GripVertical className="w-3.5 h-3.5" />
+            </RowActionButton>
+            <RowActionButton
+              onClick={handlePin}
+              title={item.isPinned ? t('common.unpin') : t('common.pin')}
+            >
+              <Pin className={cn('w-3.5 h-3.5', item.isPinned && 'text-accent fill-accent')} />
             </RowActionButton>
             <RowActionButton onClick={handleQuickView} title={t('common.edit')}>
               <Pencil className="w-3.5 h-3.5" />
