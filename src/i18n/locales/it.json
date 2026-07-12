@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Scorciatoia secondaria",
   "capture.pause": "Sospendi cattura",
   "capture.resume": "Riprendi cattura",
-  "capture.paused": "Cattura in pausa"
+  "capture.paused": "Cattura in pausa",
+  "preview.saveEdit": "Salva le modifiche a questa clip",
+  "preview.saved": "Salvato",
+  "preview.discardTitle": "Ignorare le modifiche?",
+  "preview.discardMessage": "Hai modifiche non salvate in questa clip. Chiudere senza salvare?"
 }

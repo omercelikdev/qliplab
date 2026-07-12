@@ -1,7 +1,7 @@
 import { useRef, useCallback, useEffect, Suspense, lazy, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon, Code, Eye, Plus, ChevronRight, Search, Lock, Unlock, Sparkles, ArrowRightLeft, Hash, CaseSensitive, AlignLeft, Clock, Star } from 'lucide-react';
+import { X, Copy, ClipboardPaste, Columns2, Rows2, GitCompare, Image as ImageIcon, Code, Eye, Plus, ChevronRight, Search, Lock, Unlock, Sparkles, ArrowRightLeft, Hash, CaseSensitive, AlignLeft, Clock, Star, Save } from 'lucide-react';
 import { usePreviewStore, getMonacoLanguage } from '@/stores/previewStore';
 import type { PipelineStep } from '@/stores/previewStore';
 import { getTransformById, buildTransformGroups, flattenGroups } from '@/lib/transformRegistry';
@@ -17,6 +17,8 @@ import { Image } from '@tauri-apps/api/image';
 import { hideWriteAndPaste } from '@/lib/window';
 import { renderMarkdown } from '@/lib/markdownRenderer';
 import DOMPurify from 'dompurify';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useHistoryStore } from '@/stores/historyStore';
 import { cn } from '@/lib/utils';
 
 const MonacoDiffEditor = lazy(() =>
@@ -25,7 +27,18 @@ const MonacoDiffEditor = lazy(() =>
 
 export function PreviewPanel() {
   const { t } = useTranslation();
-  const { isOpen, mode, editedContent, transformType, sourceItem, diffItems, diffViewMode, setDiffViewMode, pipelineSteps, addPipelineStep, removePipelineStep, close } = usePreviewStore();
+  const { isOpen, mode, editedContent, transformType, sourceItem, diffItems, diffViewMode, setDiffViewMode, pipelineSteps, addPipelineStep, removePipelineStep, requestClose, confirmClose, cancelClose, markSaved } = usePreviewStore();
+  const pendingClose = usePreviewStore((s) => s.pendingClose);
+  const isDirty = mode === 'view' && !!sourceItem && sourceItem.contentType !== 'image' && editedContent !== sourceItem.content;
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
+
+  const handleSave = useCallback(async () => {
+    if (!sourceItem || !isDirty) return;
+    await useHistoryStore.getState().updateItemContent(sourceItem.id, editedContent);
+    markSaved(editedContent);
+    setSaveStatus('saved');
+    setTimeout(() => setSaveStatus('idle'), 1500);
+  }, [sourceItem, isDirty, editedContent, markSaved]);
   const { settings } = useSettingsStore();
   const panelRef = useRef<HTMLDivElement>(null);
   const [showHtmlPreview, setShowHtmlPreview] = useState(false);
@@ -245,7 +258,7 @@ export function PreviewPanel() {
           )}
 
           <button
-            onClick={close}
+            onClick={requestClose}
             className="p-1 hover:bg-surface-hover rounded transition-colors cursor-pointer"
             title={t('preview.closeEsc')}
           >
@@ -313,6 +326,22 @@ export function PreviewPanel() {
         <div className="h-10 flex items-center justify-between px-3 border-t border-border/50 bg-surface/30">
           <EditorStats content={editedContent} isImage={sourceItem?.contentType === 'image'} />
           <div className="flex items-center gap-1.5">
+            {(isDirty || saveStatus === 'saved') && (
+              <button
+                onClick={handleSave}
+                disabled={!isDirty}
+                className={cn(
+                  'flex items-center gap-1.5 px-2 py-1 text-xs rounded-md transition-colors',
+                  saveStatus === 'saved'
+                    ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default'
+                    : 'bg-surface hover:bg-surface-hover cursor-pointer'
+                )}
+                title={t('preview.saveEdit')}
+              >
+                <Save className="w-3.5 h-3.5" />
+                {saveStatus === 'saved' ? t('preview.saved') : t('common.save')}
+              </button>
+            )}
             <button
               onClick={handleCopy}
               className={cn(
@@ -339,6 +368,14 @@ export function PreviewPanel() {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        isOpen={pendingClose}
+        title={t('preview.discardTitle')}
+        message={t('preview.discardMessage')}
+        confirmLabel={t('snippets.editor.discard')}
+        onConfirm={confirmClose}
+        onCancel={cancelClose}
+      />
     </motion.div>
   );
 }

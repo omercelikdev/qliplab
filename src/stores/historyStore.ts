@@ -7,6 +7,7 @@ import type { ClipboardItem, ContentType, DetectedFormat } from '@/types/clipboa
 import type { ClipboardHistoryRow } from '@/types/database';
 import type { FormatFilterGroup } from '@/stores/appStore';
 import { PAGE_SIZE, refreshWindowLimit, offsetAfterDelete } from '@/lib/pagination';
+import { detectFormat, isSensitive } from '@/lib/formatDetector';
 
 function rowToItem(row: ClipboardHistoryRow): ClipboardItem {
   return {
@@ -41,6 +42,7 @@ interface HistoryState {
   addItem: (item: Omit<ClipboardItem, 'id' | 'isPinned' | 'createdAt' | 'updatedAt'>) => Promise<string | undefined>;
   deleteItem: (id: string) => Promise<void>;
   togglePin: (id: string) => Promise<void>;
+  updateItemContent: (id: string, content: string) => Promise<void>;
   clearAll: () => Promise<void>;
   clearUnpinned: () => Promise<void>;
   cleanupExpired: (days: number) => Promise<void>;
@@ -219,6 +221,34 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       set(state => ({ items: state.items.map(i => i.id === id ? { ...i, isPinned: newPinned } : i) }));
     } catch {
       // Toggle pin failed
+    }
+  },
+
+  /**
+   * Write an edited clip back to history. Re-detects format and sensitivity
+   * from the new text and drops any stale HTML (the plain text is now the
+   * source of truth). Leaves created_at so it keeps its place in the list.
+   */
+  updateItemContent: async (id, content) => {
+    try {
+      const db = getDatabase();
+      const item = get().items.find(i => i.id === id);
+      if (!item || item.contentType === 'image' || content === item.content) return;
+      const detectedFormat = detectFormat(content);
+      const sensitiveEnabled = useSettingsStore.getState().settings.sensitiveDetectionEnabled;
+      const sensitive = sensitiveEnabled ? isSensitive(content) : false;
+      const now = Date.now();
+      await db.execute(
+        'UPDATE clipboard_history SET content = ?, html_content = NULL, detected_format = ?, is_sensitive = ?, updated_at = ? WHERE id = ?',
+        [content, detectedFormat, sensitive ? 1 : 0, now, id],
+      );
+      set(state => ({
+        items: state.items.map(i => i.id === id
+          ? { ...i, content, htmlContent: undefined, detectedFormat, isSensitive: sensitive, updatedAt: new Date(now) }
+          : i),
+      }));
+    } catch {
+      // Update failed — keep the old content
     }
   },
 

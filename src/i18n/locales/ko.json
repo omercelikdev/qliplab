@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "보조 단축키",
   "capture.pause": "캡처 일시중지",
   "capture.resume": "캡처 재개",
-  "capture.paused": "캡처 일시중지됨"
+  "capture.paused": "캡처 일시중지됨",
+  "preview.saveEdit": "이 클립의 변경사항 저장",
+  "preview.saved": "저장됨",
+  "preview.discardTitle": "변경사항을 취소할까요?",
+  "preview.discardMessage": "이 클립에 저장하지 않은 편집이 있습니다. 저장하지 않고 닫을까요?"
 }

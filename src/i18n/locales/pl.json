@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Drugi skrót",
   "capture.pause": "Wstrzymaj przechwytywanie",
   "capture.resume": "Wznów przechwytywanie",
-  "capture.paused": "Przechwytywanie wstrzymane"
+  "capture.paused": "Przechwytywanie wstrzymane",
+  "preview.saveEdit": "Zapisz zmiany w tym wpisie",
+  "preview.saved": "Zapisano",
+  "preview.discardTitle": "Odrzucić zmiany?",
+  "preview.discardMessage": "Masz niezapisane zmiany w tym wpisie. Zamknąć bez zapisywania?"
 }

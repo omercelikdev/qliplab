@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Atajo secundario",
   "capture.pause": "Pausar captura",
   "capture.resume": "Reanudar captura",
-  "capture.paused": "Captura en pausa"
+  "capture.paused": "Captura en pausa",
+  "preview.saveEdit": "Guardar cambios en este clip",
+  "preview.saved": "Guardado",
+  "preview.discardTitle": "¿Descartar cambios?",
+  "preview.discardMessage": "Tienes ediciones sin guardar en este clip. ¿Cerrar sin guardar?"
 }

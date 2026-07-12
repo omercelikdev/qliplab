@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Atalho secundário",
   "capture.pause": "Pausar captura",
   "capture.resume": "Retomar captura",
-  "capture.paused": "Captura pausada"
+  "capture.paused": "Captura pausada",
+  "preview.saveEdit": "Salvar alterações neste clipe",
+  "preview.saved": "Salvo",
+  "preview.discardTitle": "Descartar alterações?",
+  "preview.discardMessage": "Há edições não salvas neste clipe. Fechar sem salvar?"
 }

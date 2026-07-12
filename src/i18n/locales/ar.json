@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "اختصار ثانوي",
   "capture.pause": "إيقاف الالتقاط مؤقتًا",
   "capture.resume": "استئناف الالتقاط",
-  "capture.paused": "الالتقاط متوقف مؤقتًا"
+  "capture.paused": "الالتقاط متوقف مؤقتًا",
+  "preview.saveEdit": "حفظ التغييرات على هذه القصاصة",
+  "preview.saved": "تم الحفظ",
+  "preview.discardTitle": "تجاهل التغييرات؟",
+  "preview.discardMessage": "لديك تعديلات غير محفوظة على هذه القصاصة. الإغلاق دون حفظ؟"
 }

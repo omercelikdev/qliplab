@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "第二快捷键",
   "capture.pause": "暂停捕获",
   "capture.resume": "恢复捕获",
-  "capture.paused": "捕获已暂停"
+  "capture.paused": "捕获已暂停",
+  "preview.saveEdit": "保存对此剪贴内容的更改",
+  "preview.saved": "已保存",
+  "preview.discardTitle": "放弃更改？",
+  "preview.discardMessage": "此剪贴内容有未保存的修改。不保存就关闭吗？"
 }

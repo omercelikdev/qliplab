@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Tweede sneltoets",
   "capture.pause": "Vastleggen pauzeren",
   "capture.resume": "Vastleggen hervatten",
-  "capture.paused": "Vastleggen gepauzeerd"
+  "capture.paused": "Vastleggen gepauzeerd",
+  "preview.saveEdit": "Wijzigingen in dit clip opslaan",
+  "preview.saved": "Opgeslagen",
+  "preview.discardTitle": "Wijzigingen negeren?",
+  "preview.discardMessage": "Je hebt niet-opgeslagen bewerkingen. Sluiten zonder opslaan?"
 }

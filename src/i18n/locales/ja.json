@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "2つ目のショートカット",
   "capture.pause": "キャプチャを一時停止",
   "capture.resume": "キャプチャを再開",
-  "capture.paused": "キャプチャ一時停止中"
+  "capture.paused": "キャプチャ一時停止中",
+  "preview.saveEdit": "このクリップの変更を保存",
+  "preview.saved": "保存しました",
+  "preview.discardTitle": "変更を破棄しますか？",
+  "preview.discardMessage": "このクリップに未保存の編集があります。保存せずに閉じますか？"
 }

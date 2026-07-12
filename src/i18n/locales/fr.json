@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Raccourci secondaire",
   "capture.pause": "Suspendre la capture",
   "capture.resume": "Reprendre la capture",
-  "capture.paused": "Capture suspendue"
+  "capture.paused": "Capture suspendue",
+  "preview.saveEdit": "Enregistrer les modifications de ce presse-papier",
+  "preview.saved": "Enregistré",
+  "preview.discardTitle": "Abandonner les modifications ?",
+  "preview.discardMessage": "Vous avez des modifications non enregistrées. Fermer sans enregistrer ?"
 }
