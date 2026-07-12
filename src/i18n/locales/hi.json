@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "फिर से एन्क्रिप्ट हो रहा है…",
   "vault.changePassword.wrongCurrent": "वर्तमान पासवर्ड गलत है।",
   "vault.changePassword.decryptError": "इस पासवर्ड से तिजोरी डिक्रिप्ट नहीं हो सकी। कुछ नहीं बदला गया।",
-  "vault.changePassword.genericError": "कुछ गड़बड़ हो गई। आपका पासवर्ड नहीं बदला गया।"
+  "vault.changePassword.genericError": "कुछ गड़बड़ हो गई। आपका पासवर्ड नहीं बदला गया।",
+  "common.clearFilters": "फ़िल्टर साफ़ करें"
 }

@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "Yeniden şifreleniyor…",
   "vault.changePassword.wrongCurrent": "Mevcut parola yanlış.",
   "vault.changePassword.decryptError": "Kasa bu parolayla çözülemedi. Hiçbir şey değiştirilmedi.",
-  "vault.changePassword.genericError": "Bir hata oluştu. Parolanız değiştirilmedi."
+  "vault.changePassword.genericError": "Bir hata oluştu. Parolanız değiştirilmedi.",
+  "common.clearFilters": "Filtreleri temizle"
 }

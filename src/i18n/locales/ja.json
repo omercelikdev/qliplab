@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "再暗号化中…",
   "vault.changePassword.wrongCurrent": "現在のパスワードが正しくありません。",
   "vault.changePassword.decryptError": "このパスワードでは保管庫を復号できませんでした。変更はありません。",
-  "vault.changePassword.genericError": "問題が発生しました。パスワードは変更されていません。"
+  "vault.changePassword.genericError": "問題が発生しました。パスワードは変更されていません。",
+  "common.clearFilters": "フィルターをクリア"
 }

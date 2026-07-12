@@ -41,7 +41,7 @@ export function HistoryList() {
 
   // Stable action references — never trigger re-render
   const { loadItems, loadMore } = useHistoryStore.getState();
-  const { setFormatFilter, setSourceAppFilter, toggleQueueItem, addToDiffSelection, setOpenMenuItemId } = useAppStore.getState();
+  const { setFormatFilter, setSourceAppFilter, setSearchQuery, toggleQueueItem, addToDiffSelection, setOpenMenuItemId } = useAppStore.getState();
   const { openView } = usePreviewStore.getState();
   const { setActiveTagFilter, deleteTag } = useTagStore.getState();
 
@@ -142,6 +142,14 @@ export function HistoryList() {
     const item = orderedItems[index];
     if (item) useHistoryStore.getState().deleteItem(item.id);
   }, [orderedItems]);
+
+  const hasActiveFilter = !!searchQuery || formatFilter !== 'all' || !!sourceAppFilter || !!activeTagFilter;
+  const clearFilters = useCallback(() => {
+    setSearchQuery('');
+    setFormatFilter('all');
+    setSourceAppFilter(null);
+    setActiveTagFilter(null);
+  }, [setSearchQuery, setFormatFilter, setSourceAppFilter, setActiveTagFilter]);
 
   const { selectedIndex } = useKeyboardNavigation({
     itemCount: orderedItems.length,
@@ -308,6 +316,14 @@ export function HistoryList() {
                 {t('history.noResults.description')}
               </p>
             </div>
+            {hasActiveFilter && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs text-accent hover:bg-accent/10 rounded-md transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+              >
+                <X className="w-3 h-3" /> {t('common.clearFilters')}
+              </button>
+            )}
           </div>
         </div>
       ) : (

@@ -407,5 +407,6 @@
   "vault.changePassword.saving": "Volviendo a cifrar…",
   "vault.changePassword.wrongCurrent": "La contraseña actual es incorrecta.",
   "vault.changePassword.decryptError": "No se pudo descifrar la bóveda con esta contraseña. No se cambió nada.",
-  "vault.changePassword.genericError": "Algo salió mal. Tu contraseña no se cambió."
+  "vault.changePassword.genericError": "Algo salió mal. Tu contraseña no se cambió.",
+  "common.clearFilters": "Borrar filtros"
 }
