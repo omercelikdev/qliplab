@@ -431,5 +431,6 @@
   "history.transform.toBinary": "बाइनरी में",
   "history.transform.colorInfo": "रंग जानकारी",
   "history.transform.csvInfo": "CSV जानकारी",
-  "history.transform.regexInfo": "Regex जानकारी"
+  "history.transform.regexInfo": "Regex जानकारी",
+  "commandBar.paste": "चिपकाएं"
 }

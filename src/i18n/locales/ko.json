@@ -431,5 +431,6 @@
   "history.transform.toBinary": "2진수로",
   "history.transform.colorInfo": "색상 정보",
   "history.transform.csvInfo": "CSV 정보",
-  "history.transform.regexInfo": "정규식 정보"
+  "history.transform.regexInfo": "정규식 정보",
+  "commandBar.paste": "붙여넣기"
 }

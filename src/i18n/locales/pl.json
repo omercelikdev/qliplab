@@ -431,5 +431,6 @@
   "history.transform.toBinary": "Do binarnego",
   "history.transform.colorInfo": "Info o kolorze",
   "history.transform.csvInfo": "Info o CSV",
-  "history.transform.regexInfo": "Info o regex"
+  "history.transform.regexInfo": "Info o regex",
+  "commandBar.paste": "wklej"
 }

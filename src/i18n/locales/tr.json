@@ -431,5 +431,6 @@
   "history.transform.toBinary": "İkiliye",
   "history.transform.colorInfo": "Renk bilgisi",
   "history.transform.csvInfo": "CSV bilgisi",
-  "history.transform.regexInfo": "Regex bilgisi"
+  "history.transform.regexInfo": "Regex bilgisi",
+  "commandBar.paste": "yapıştır"
 }

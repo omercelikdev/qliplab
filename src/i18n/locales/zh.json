@@ -431,5 +431,6 @@
   "history.transform.toBinary": "转二进制",
   "history.transform.colorInfo": "颜色信息",
   "history.transform.csvInfo": "CSV 信息",
-  "history.transform.regexInfo": "正则信息"
+  "history.transform.regexInfo": "正则信息",
+  "commandBar.paste": "粘贴"
 }

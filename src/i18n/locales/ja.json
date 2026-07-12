@@ -431,5 +431,6 @@
   "history.transform.toBinary": "2進数へ",
   "history.transform.colorInfo": "色情報",
   "history.transform.csvInfo": "CSV 情報",
-  "history.transform.regexInfo": "正規表現情報"
+  "history.transform.regexInfo": "正規表現情報",
+  "commandBar.paste": "貼り付け"
 }
