@@ -432,5 +432,9 @@
   "history.transform.colorInfo": "Farbinfo",
   "history.transform.csvInfo": "CSV-Info",
   "history.transform.regexInfo": "Regex-Info",
-  "commandBar.paste": "einfügen"
+  "commandBar.paste": "einfügen",
+  "history.smartAction.openUrl": "Link öffnen",
+  "history.smartAction.email": "E-Mail senden",
+  "history.smartAction.call": "Anrufen",
+  "history.smartAction.map": "In Karten öffnen"
 }

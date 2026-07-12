@@ -432,5 +432,9 @@
   "history.transform.colorInfo": "О цвете",
   "history.transform.csvInfo": "О CSV",
   "history.transform.regexInfo": "О регулярке",
-  "commandBar.paste": "вставить"
+  "commandBar.paste": "вставить",
+  "history.smartAction.openUrl": "Открыть ссылку",
+  "history.smartAction.email": "Написать письмо",
+  "history.smartAction.call": "Позвонить",
+  "history.smartAction.map": "Открыть на карте"
 }

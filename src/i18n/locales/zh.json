@@ -432,5 +432,9 @@
   "history.transform.colorInfo": "颜色信息",
   "history.transform.csvInfo": "CSV 信息",
   "history.transform.regexInfo": "正则信息",
-  "commandBar.paste": "粘贴"
+  "commandBar.paste": "粘贴",
+  "history.smartAction.openUrl": "打开链接",
+  "history.smartAction.email": "发送邮件",
+  "history.smartAction.call": "拨打",
+  "history.smartAction.map": "在地图中打开"
 }

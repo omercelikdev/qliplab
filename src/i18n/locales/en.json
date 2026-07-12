@@ -432,5 +432,9 @@
   "history.transform.colorInfo": "Color info",
   "history.transform.csvInfo": "CSV info",
   "history.transform.regexInfo": "Regex info",
-  "commandBar.paste": "paste"
+  "commandBar.paste": "paste",
+  "history.smartAction.openUrl": "Open link",
+  "history.smartAction.email": "Send email",
+  "history.smartAction.call": "Call",
+  "history.smartAction.map": "Open in Maps"
 }
