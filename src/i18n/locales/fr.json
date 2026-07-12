@@ -397,5 +397,15 @@
   "snippets.folders.label": "Dossier",
   "snippets.folders.none": "Aucun dossier",
   "snippets.folders.deleteTitle": "Supprimer le dossier ?",
-  "snippets.folders.deleteMessage": "Supprimer « {{name}} » ? Ses snippets sont conservés et sortis du dossier."
+  "snippets.folders.deleteMessage": "Supprimer « {{name}} » ? Ses snippets sont conservés et sortis du dossier.",
+  "vault.changePassword.title": "Changer le mot de passe principal",
+  "vault.changePassword.description": "Rechiffre tout votre coffre avec un nouveau mot de passe.",
+  "vault.changePassword.currentPlaceholder": "Mot de passe actuel",
+  "vault.changePassword.newPlaceholder": "Nouveau mot de passe",
+  "vault.changePassword.confirmPlaceholder": "Confirmer le nouveau mot de passe",
+  "vault.changePassword.submit": "Changer le mot de passe",
+  "vault.changePassword.saving": "Rechiffrement…",
+  "vault.changePassword.wrongCurrent": "Le mot de passe actuel est incorrect.",
+  "vault.changePassword.decryptError": "Impossible de déchiffrer le coffre avec ce mot de passe. Rien n'a été modifié.",
+  "vault.changePassword.genericError": "Une erreur s'est produite. Votre mot de passe n'a pas été changé."
 }

@@ -397,5 +397,15 @@
   "snippets.folders.label": "Pasta",
   "snippets.folders.none": "Sem pasta",
   "snippets.folders.deleteTitle": "Excluir pasta?",
-  "snippets.folders.deleteMessage": "Excluir \"{{name}}\"? Os snippets são mantidos e retirados da pasta."
+  "snippets.folders.deleteMessage": "Excluir \"{{name}}\"? Os snippets são mantidos e retirados da pasta.",
+  "vault.changePassword.title": "Alterar senha mestra",
+  "vault.changePassword.description": "Recriptografa todo o seu cofre com uma nova senha.",
+  "vault.changePassword.currentPlaceholder": "Senha atual",
+  "vault.changePassword.newPlaceholder": "Nova senha",
+  "vault.changePassword.confirmPlaceholder": "Confirmar nova senha",
+  "vault.changePassword.submit": "Alterar senha",
+  "vault.changePassword.saving": "Recriptografando…",
+  "vault.changePassword.wrongCurrent": "A senha atual está incorreta.",
+  "vault.changePassword.decryptError": "Não foi possível descriptografar o cofre com esta senha. Nada foi alterado.",
+  "vault.changePassword.genericError": "Algo deu errado. Sua senha não foi alterada."
 }

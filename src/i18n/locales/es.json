@@ -397,5 +397,15 @@
   "snippets.folders.label": "Carpeta",
   "snippets.folders.none": "Sin carpeta",
   "snippets.folders.deleteTitle": "¿Eliminar carpeta?",
-  "snippets.folders.deleteMessage": "¿Eliminar \"{{name}}\"? Sus snippets se conservan y salen de la carpeta."
+  "snippets.folders.deleteMessage": "¿Eliminar \"{{name}}\"? Sus snippets se conservan y salen de la carpeta.",
+  "vault.changePassword.title": "Cambiar contraseña maestra",
+  "vault.changePassword.description": "Vuelve a cifrar toda tu bóveda con una nueva contraseña.",
+  "vault.changePassword.currentPlaceholder": "Contraseña actual",
+  "vault.changePassword.newPlaceholder": "Nueva contraseña",
+  "vault.changePassword.confirmPlaceholder": "Confirmar nueva contraseña",
+  "vault.changePassword.submit": "Cambiar contraseña",
+  "vault.changePassword.saving": "Volviendo a cifrar…",
+  "vault.changePassword.wrongCurrent": "La contraseña actual es incorrecta.",
+  "vault.changePassword.decryptError": "No se pudo descifrar la bóveda con esta contraseña. No se cambió nada.",
+  "vault.changePassword.genericError": "Algo salió mal. Tu contraseña no se cambió."
 }

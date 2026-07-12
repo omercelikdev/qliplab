@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Lock, Search } from 'lucide-react';
+import { Plus, Lock, Search, KeyRound } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { useAppStore, VAULT_TYPE_FILTERS } from '@/stores/appStore';
 import type { VaultTypeFilter } from '@/stores/appStore';
@@ -8,6 +8,7 @@ import type { VaultItem as VaultItemType, CardData, BankData, AddressData, Perso
 import { VaultItem } from './VaultItem';
 import { VaultLock } from './VaultLock';
 import { NewVaultItemDialog } from './NewVaultItemDialog';
+import { ChangeVaultPasswordDialog } from './ChangeVaultPasswordDialog';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
@@ -25,6 +26,7 @@ export function VaultList() {
   const vaultTypeFilter = useAppStore((state) => state.vaultTypeFilter);
   const setVaultTypeFilter = useAppStore((state) => state.setVaultTypeFilter);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<VaultItemType | undefined>(undefined);
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -135,6 +137,14 @@ export function VaultList() {
         ))}
         <div className="flex-1" />
         <button
+          onClick={() => setIsChangePasswordOpen(true)}
+          aria-label={t('vault.changePassword.title')}
+          title={t('vault.changePassword.title')}
+          className="flex items-center px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground rounded-md transition-colors cursor-pointer no-drag"
+        >
+          <KeyRound className="w-2.5 h-2.5" />
+        </button>
+        <button
           onClick={lock}
           className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground rounded-md transition-colors cursor-pointer no-drag"
         >
@@ -208,6 +218,7 @@ export function VaultList() {
       </div>
 
       <NewVaultItemDialog isOpen={isDialogOpen} onClose={handleDialogClose} editItem={editingItem} />
+      <ChangeVaultPasswordDialog isOpen={isChangePasswordOpen} onClose={() => setIsChangePasswordOpen(false)} />
     </div>
   );
 }

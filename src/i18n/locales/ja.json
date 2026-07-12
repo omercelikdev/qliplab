@@ -397,5 +397,15 @@
   "snippets.folders.label": "フォルダ",
   "snippets.folders.none": "フォルダなし",
   "snippets.folders.deleteTitle": "フォルダを削除しますか？",
-  "snippets.folders.deleteMessage": "\"{{name}}\" を削除しますか？スニペットは保持され、フォルダから外されます。"
+  "snippets.folders.deleteMessage": "\"{{name}}\" を削除しますか？スニペットは保持され、フォルダから外されます。",
+  "vault.changePassword.title": "マスターパスワードを変更",
+  "vault.changePassword.description": "新しいパスワードで保管庫全体を再暗号化します。",
+  "vault.changePassword.currentPlaceholder": "現在のパスワード",
+  "vault.changePassword.newPlaceholder": "新しいパスワード",
+  "vault.changePassword.confirmPlaceholder": "新しいパスワードを確認",
+  "vault.changePassword.submit": "パスワードを変更",
+  "vault.changePassword.saving": "再暗号化中…",
+  "vault.changePassword.wrongCurrent": "現在のパスワードが正しくありません。",
+  "vault.changePassword.decryptError": "このパスワードでは保管庫を復号できませんでした。変更はありません。",
+  "vault.changePassword.genericError": "問題が発生しました。パスワードは変更されていません。"
 }

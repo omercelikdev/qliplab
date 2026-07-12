@@ -397,5 +397,15 @@
   "snippets.folders.label": "Folder",
   "snippets.folders.none": "No folder",
   "snippets.folders.deleteTitle": "Delete folder?",
-  "snippets.folders.deleteMessage": "Delete \"{{name}}\"? Its snippets are kept and moved out of the folder."
+  "snippets.folders.deleteMessage": "Delete \"{{name}}\"? Its snippets are kept and moved out of the folder.",
+  "vault.changePassword.title": "Change master password",
+  "vault.changePassword.description": "Re-encrypts your entire vault under a new password.",
+  "vault.changePassword.currentPlaceholder": "Current password",
+  "vault.changePassword.newPlaceholder": "New password",
+  "vault.changePassword.confirmPlaceholder": "Confirm new password",
+  "vault.changePassword.submit": "Change password",
+  "vault.changePassword.saving": "Re-encrypting…",
+  "vault.changePassword.wrongCurrent": "Current password is incorrect.",
+  "vault.changePassword.decryptError": "Couldn't decrypt the vault with this password. Nothing was changed.",
+  "vault.changePassword.genericError": "Something went wrong. Your password was not changed."
 }

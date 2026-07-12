@@ -397,5 +397,15 @@
   "snippets.folders.label": "Ordner",
   "snippets.folders.none": "Kein Ordner",
   "snippets.folders.deleteTitle": "Ordner löschen?",
-  "snippets.folders.deleteMessage": "„{{name}}\" löschen? Die Snippets bleiben erhalten und werden aus dem Ordner entfernt."
+  "snippets.folders.deleteMessage": "„{{name}}\" löschen? Die Snippets bleiben erhalten und werden aus dem Ordner entfernt.",
+  "vault.changePassword.title": "Master-Passwort ändern",
+  "vault.changePassword.description": "Verschlüsselt deinen gesamten Tresor mit einem neuen Passwort neu.",
+  "vault.changePassword.currentPlaceholder": "Aktuelles Passwort",
+  "vault.changePassword.newPlaceholder": "Neues Passwort",
+  "vault.changePassword.confirmPlaceholder": "Neues Passwort bestätigen",
+  "vault.changePassword.submit": "Passwort ändern",
+  "vault.changePassword.saving": "Neu verschlüsseln…",
+  "vault.changePassword.wrongCurrent": "Aktuelles Passwort ist falsch.",
+  "vault.changePassword.decryptError": "Der Tresor konnte mit diesem Passwort nicht entschlüsselt werden. Es wurde nichts geändert.",
+  "vault.changePassword.genericError": "Etwas ist schiefgelaufen. Dein Passwort wurde nicht geändert."
 }
