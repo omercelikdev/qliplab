@@ -6,6 +6,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAppStore, SNIPPET_SYNTAX_FILTERS } from '@/stores/appStore';
 import type { SnippetSyntaxFilter } from '@/stores/appStore';
 import { SnippetItem } from './SnippetItem';
+import { CrossTabSearchHints } from '@/components/layout/CrossTabSearchHints';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
@@ -180,6 +181,8 @@ export function SnippetList() {
           </button>
         )}
       </div>
+
+      <CrossTabSearchHints />
 
       <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden">
         {snippets.length === 0 ? (

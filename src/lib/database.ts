@@ -273,3 +273,16 @@ export async function countHistoryItems(params: Omit<HistoryQueryParams, 'limit'
   const result = await db.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM clipboard_history ${where}`, args);
   return result[0]?.count ?? 0;
 }
+
+/** How many snippets match a query (title or content) — for cross-tab search. */
+export async function countSnippetMatches(query: string): Promise<number> {
+  const q = query.trim();
+  if (!q) return 0;
+  const db = getDatabase();
+  const like = `%${escapeLikePattern(q)}%`;
+  const result = await db.select<{ count: number }[]>(
+    `SELECT COUNT(*) as count FROM snippets WHERE (title LIKE ? ESCAPE '\\' OR content LIKE ? ESCAPE '\\')`,
+    [like, like],
+  );
+  return result[0]?.count ?? 0;
+}

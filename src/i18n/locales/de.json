@@ -439,5 +439,6 @@
   "history.smartAction.map": "In Karten öffnen",
   "history.sort.label": "Sortierung",
   "history.sort.recent": "Neueste",
-  "history.sort.frequent": "Meistgenutzt"
+  "history.sort.frequent": "Meistgenutzt",
+  "search.alsoIn": "Auch in:"
 }

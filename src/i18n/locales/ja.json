@@ -439,5 +439,6 @@
   "history.smartAction.map": "マップで開く",
   "history.sort.label": "並び替え",
   "history.sort.recent": "最近",
-  "history.sort.frequent": "よく使う"
+  "history.sort.frequent": "よく使う",
+  "search.alsoIn": "他にも:"
 }

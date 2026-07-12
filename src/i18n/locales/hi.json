@@ -439,5 +439,6 @@
   "history.smartAction.map": "मानचित्र में खोलें",
   "history.sort.label": "क्रम",
   "history.sort.recent": "हाल के",
-  "history.sort.frequent": "सर्वाधिक उपयोग"
+  "history.sort.frequent": "सर्वाधिक उपयोग",
+  "search.alsoIn": "यहाँ भी:"
 }

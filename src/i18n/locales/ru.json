@@ -439,5 +439,6 @@
   "history.smartAction.map": "Открыть на карте",
   "history.sort.label": "Сортировка",
   "history.sort.recent": "Недавние",
-  "history.sort.frequent": "Частые"
+  "history.sort.frequent": "Частые",
+  "search.alsoIn": "Также в:"
 }

@@ -439,5 +439,6 @@
   "history.smartAction.map": "지도에서 열기",
   "history.sort.label": "정렬",
   "history.sort.recent": "최근",
-  "history.sort.frequent": "자주 사용"
+  "history.sort.frequent": "자주 사용",
+  "search.alsoIn": "다른 위치:"
 }

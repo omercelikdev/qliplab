@@ -18,6 +18,7 @@ import { SelectMenu } from '@/components/ui/SelectMenu';
 import { useModifierHeld } from '@/hooks/useModifierHeld';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { CommandResultRow } from './CommandResultRow';
+import { CrossTabSearchHints } from '@/components/layout/CrossTabSearchHints';
 import { evaluateCommand } from '@/lib/commandBar';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
@@ -350,6 +351,8 @@ export function HistoryList() {
           )}
         </div>
       )}
+
+      <CrossTabSearchHints />
 
       <div
         ref={listRef}

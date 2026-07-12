@@ -439,5 +439,6 @@
   "history.smartAction.map": "Haritada aç",
   "history.sort.label": "Sıralama",
   "history.sort.recent": "En yeni",
-  "history.sort.frequent": "En çok kullanılan"
+  "history.sort.frequent": "En çok kullanılan",
+  "search.alsoIn": "Ayrıca:"
 }

@@ -9,6 +9,7 @@ import { VaultItem } from './VaultItem';
 import { VaultLock } from './VaultLock';
 import { NewVaultItemDialog } from './NewVaultItemDialog';
 import { ChangeVaultPasswordDialog } from './ChangeVaultPasswordDialog';
+import { CrossTabSearchHints } from '@/components/layout/CrossTabSearchHints';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { hideWriteAndPaste } from '@/lib/window';
@@ -157,6 +158,8 @@ export function VaultList() {
           {t('vault.decryptFail', { count: decryptFailCount })}
         </div>
       )}
+
+      <CrossTabSearchHints />
 
       <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden">
         {filteredItems.length === 0 ? (
