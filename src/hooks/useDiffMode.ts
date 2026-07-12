@@ -10,6 +10,7 @@ export function useDiffMode() {
   const clearDiffSelection = useAppStore((state) => state.clearDiffSelection);
   const openDiff = usePreviewStore((state) => state.openDiff);
   const items = useHistoryStore((state) => state.items);
+  const activeTab = useAppStore((state) => state.activeTab);
 
   // Toggle diff mode with Alt+D
   useEffect(() => {
@@ -22,6 +23,11 @@ export function useDiffMode() {
         e.preventDefault();
 
         const currentIsDiffMode = useAppStore.getState().isDiffMode;
+        // Diff compares history clips; on other tabs there is nothing to
+        // select, so starting diff mode would just strand an empty overlay.
+        // (Still allow the toggle to turn an already-active diff mode off.)
+        if (useAppStore.getState().activeTab !== 'history' && !currentIsDiffMode) return;
+
         const { isOpen, close } = usePreviewStore.getState();
 
         // If any panel is open, close it and enter diff selection mode
@@ -67,6 +73,15 @@ export function useDiffMode() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [setDiffMode, clearDiffSelection]);
+
+  // Leaving the history tab abandons any in-progress diff selection so the
+  // user doesn't return to a stale overlay (or trigger a diff on stale items).
+  useEffect(() => {
+    if (activeTab !== 'history' && isDiffMode) {
+      setDiffMode(false);
+      clearDiffSelection();
+    }
+  }, [activeTab, isDiffMode, setDiffMode, clearDiffSelection]);
 
   // Open diff when 2 items selected
   useEffect(() => {

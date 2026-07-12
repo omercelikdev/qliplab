@@ -139,17 +139,19 @@ export function HintBar() {
             <span>{t('hintBar.queue')}</span>
           </button>
         )}
-        <button
-          onClick={handleDiffClick}
-          className={cn(
-            'flex items-center gap-1.5 px-2 py-1 rounded-md',
-            'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
-          )}
-        >
-          <GitCompareArrows className="w-3.5 h-3.5" />
-          <span>{t('hintBar.diff')}</span>
-          <Kbd>{isMac ? '⌥D' : 'Alt+D'}</Kbd>
-        </button>
+        {activeTab === 'history' && (
+          <button
+            onClick={handleDiffClick}
+            className={cn(
+              'flex items-center gap-1.5 px-2 py-1 rounded-md',
+              'hover:bg-surface-hover hover:text-foreground transition-colors cursor-pointer'
+            )}
+          >
+            <GitCompareArrows className="w-3.5 h-3.5" />
+            <span>{t('hintBar.diff')}</span>
+            <Kbd>{isMac ? '⌥D' : 'Alt+D'}</Kbd>
+          </button>
+        )}
       </div>
     </div>
   );
