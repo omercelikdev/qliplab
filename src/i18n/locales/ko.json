@@ -397,5 +397,15 @@
   "snippets.folders.label": "폴더",
   "snippets.folders.none": "폴더 없음",
   "snippets.folders.deleteTitle": "폴더를 삭제할까요?",
-  "snippets.folders.deleteMessage": "\"{{name}}\"을(를) 삭제할까요? 스니펫은 유지되고 폴더에서 빠집니다."
+  "snippets.folders.deleteMessage": "\"{{name}}\"을(를) 삭제할까요? 스니펫은 유지되고 폴더에서 빠집니다.",
+  "vault.changePassword.title": "마스터 비밀번호 변경",
+  "vault.changePassword.description": "새 비밀번호로 전체 보관함을 다시 암호화합니다.",
+  "vault.changePassword.currentPlaceholder": "현재 비밀번호",
+  "vault.changePassword.newPlaceholder": "새 비밀번호",
+  "vault.changePassword.confirmPlaceholder": "새 비밀번호 확인",
+  "vault.changePassword.submit": "비밀번호 변경",
+  "vault.changePassword.saving": "다시 암호화 중…",
+  "vault.changePassword.wrongCurrent": "현재 비밀번호가 올바르지 않습니다.",
+  "vault.changePassword.decryptError": "이 비밀번호로 보관함을 복호화할 수 없습니다. 아무것도 변경되지 않았습니다.",
+  "vault.changePassword.genericError": "문제가 발생했습니다. 비밀번호가 변경되지 않았습니다."
 }

@@ -397,5 +397,15 @@
   "snippets.folders.label": "Map",
   "snippets.folders.none": "Geen map",
   "snippets.folders.deleteTitle": "Map verwijderen?",
-  "snippets.folders.deleteMessage": "\"{{name}}\" verwijderen? De snippets blijven behouden en gaan uit de map."
+  "snippets.folders.deleteMessage": "\"{{name}}\" verwijderen? De snippets blijven behouden en gaan uit de map.",
+  "vault.changePassword.title": "Hoofdwachtwoord wijzigen",
+  "vault.changePassword.description": "Versleutelt je hele kluis opnieuw met een nieuw wachtwoord.",
+  "vault.changePassword.currentPlaceholder": "Huidig wachtwoord",
+  "vault.changePassword.newPlaceholder": "Nieuw wachtwoord",
+  "vault.changePassword.confirmPlaceholder": "Bevestig nieuw wachtwoord",
+  "vault.changePassword.submit": "Wachtwoord wijzigen",
+  "vault.changePassword.saving": "Opnieuw versleutelen…",
+  "vault.changePassword.wrongCurrent": "Huidig wachtwoord is onjuist.",
+  "vault.changePassword.decryptError": "Kan de kluis niet ontsleutelen met dit wachtwoord. Er is niets gewijzigd.",
+  "vault.changePassword.genericError": "Er ging iets mis. Je wachtwoord is niet gewijzigd."
 }

@@ -397,5 +397,15 @@
   "snippets.folders.label": "مجلد",
   "snippets.folders.none": "بدون مجلد",
   "snippets.folders.deleteTitle": "حذف المجلد؟",
-  "snippets.folders.deleteMessage": "حذف \"{{name}}\"؟ سيتم الاحتفاظ بالمقتطفات ونقلها خارج المجلد."
+  "snippets.folders.deleteMessage": "حذف \"{{name}}\"؟ سيتم الاحتفاظ بالمقتطفات ونقلها خارج المجلد.",
+  "vault.changePassword.title": "تغيير كلمة المرور الرئيسية",
+  "vault.changePassword.description": "يعيد تشفير خزنتك بالكامل بكلمة مرور جديدة.",
+  "vault.changePassword.currentPlaceholder": "كلمة المرور الحالية",
+  "vault.changePassword.newPlaceholder": "كلمة المرور الجديدة",
+  "vault.changePassword.confirmPlaceholder": "تأكيد كلمة المرور الجديدة",
+  "vault.changePassword.submit": "تغيير كلمة المرور",
+  "vault.changePassword.saving": "إعادة التشفير…",
+  "vault.changePassword.wrongCurrent": "كلمة المرور الحالية غير صحيحة.",
+  "vault.changePassword.decryptError": "تعذر فك تشفير الخزنة بهذه الكلمة. لم يتم تغيير أي شيء.",
+  "vault.changePassword.genericError": "حدث خطأ ما. لم يتم تغيير كلمة المرور."
 }

@@ -397,5 +397,15 @@
   "snippets.folders.label": "文件夹",
   "snippets.folders.none": "无文件夹",
   "snippets.folders.deleteTitle": "删除文件夹？",
-  "snippets.folders.deleteMessage": "删除\"{{name}}\"？其代码片段将保留并移出文件夹。"
+  "snippets.folders.deleteMessage": "删除\"{{name}}\"？其代码片段将保留并移出文件夹。",
+  "vault.changePassword.title": "更改主密码",
+  "vault.changePassword.description": "使用新密码重新加密整个保险库。",
+  "vault.changePassword.currentPlaceholder": "当前密码",
+  "vault.changePassword.newPlaceholder": "新密码",
+  "vault.changePassword.confirmPlaceholder": "确认新密码",
+  "vault.changePassword.submit": "更改密码",
+  "vault.changePassword.saving": "正在重新加密…",
+  "vault.changePassword.wrongCurrent": "当前密码不正确。",
+  "vault.changePassword.decryptError": "无法用此密码解密保险库。未做任何更改。",
+  "vault.changePassword.genericError": "出现问题。您的密码未更改。"
 }

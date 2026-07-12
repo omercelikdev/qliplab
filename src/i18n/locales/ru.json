@@ -397,5 +397,15 @@
   "snippets.folders.label": "Папка",
   "snippets.folders.none": "Без папки",
   "snippets.folders.deleteTitle": "Удалить папку?",
-  "snippets.folders.deleteMessage": "Удалить «{{name}}»? Сниппеты сохранятся и выйдут из папки."
+  "snippets.folders.deleteMessage": "Удалить «{{name}}»? Сниппеты сохранятся и выйдут из папки.",
+  "vault.changePassword.title": "Сменить мастер-пароль",
+  "vault.changePassword.description": "Заново шифрует всё хранилище новым паролем.",
+  "vault.changePassword.currentPlaceholder": "Текущий пароль",
+  "vault.changePassword.newPlaceholder": "Новый пароль",
+  "vault.changePassword.confirmPlaceholder": "Подтвердите новый пароль",
+  "vault.changePassword.submit": "Сменить пароль",
+  "vault.changePassword.saving": "Повторное шифрование…",
+  "vault.changePassword.wrongCurrent": "Текущий пароль неверен.",
+  "vault.changePassword.decryptError": "Не удалось расшифровать хранилище этим паролем. Ничего не изменено.",
+  "vault.changePassword.genericError": "Что-то пошло не так. Пароль не изменён."
 }

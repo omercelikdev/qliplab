@@ -397,5 +397,15 @@
   "snippets.folders.label": "Klasör",
   "snippets.folders.none": "Klasörsüz",
   "snippets.folders.deleteTitle": "Klasör silinsin mi?",
-  "snippets.folders.deleteMessage": "\"{{name}}\" silinsin mi? İçindeki snippet'ler korunur, klasörden çıkarılır."
+  "snippets.folders.deleteMessage": "\"{{name}}\" silinsin mi? İçindeki snippet'ler korunur, klasörden çıkarılır.",
+  "vault.changePassword.title": "Ana parolayı değiştir",
+  "vault.changePassword.description": "Tüm kasanız yeni bir parolayla yeniden şifrelenir.",
+  "vault.changePassword.currentPlaceholder": "Mevcut parola",
+  "vault.changePassword.newPlaceholder": "Yeni parola",
+  "vault.changePassword.confirmPlaceholder": "Yeni parolayı doğrula",
+  "vault.changePassword.submit": "Parolayı değiştir",
+  "vault.changePassword.saving": "Yeniden şifreleniyor…",
+  "vault.changePassword.wrongCurrent": "Mevcut parola yanlış.",
+  "vault.changePassword.decryptError": "Kasa bu parolayla çözülemedi. Hiçbir şey değiştirilmedi.",
+  "vault.changePassword.genericError": "Bir hata oluştu. Parolanız değiştirilmedi."
 }

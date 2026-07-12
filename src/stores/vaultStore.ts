@@ -95,7 +95,10 @@ interface VaultState {
   updateItem: (id: string, title: string, data: VaultItemData, trigger?: string) => Promise<void>;
   updateTrigger: (id: string, trigger: string | null) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<ChangePasswordResult>;
 }
+
+export type ChangePasswordResult = 'ok' | 'wrong_password' | 'decrypt_error' | 'error';
 
 export const useVaultStore = create<VaultState>((set, get) => ({
   isLocked: true,
@@ -349,6 +352,91 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       set((state) => ({ items: state.items.filter((i) => i.id !== id) }));
     } catch {
       // Delete failed
+    }
+  },
+
+  // Re-key the entire vault: decrypt every item with the old password and
+  // re-encrypt it with the new one, then swap the stored master-password hash.
+  // There is no SQL transaction (tauri-plugin-sql pools connections, so
+  // BEGIN/COMMIT can't be relied on to land on one connection), so this is
+  // engineered to be all-or-nothing manually:
+  //   1. Verify the old password before touching anything.
+  //   2. Decrypt ALL items up-front — if any item can't be decrypted, abort
+  //      before a single write, leaving the vault exactly as it was.
+  //   3. Write the re-encrypted rows; if a write throws mid-loop, roll the
+  //      already-written rows back to their original ciphertext.
+  //   4. Only after every item is safely re-encrypted, update the hash last —
+  //      so a crash before that step leaves the vault readable with the OLD
+  //      password (the rows are rolled back on any failure).
+  changePassword: async (oldPassword, newPassword) => {
+    try {
+      const db = getDatabase();
+
+      const hashRows = await db.select<VaultSettingsRow[]>(
+        "SELECT value FROM vault_settings WHERE key = 'master_password_hash'"
+      );
+      // No password set yet — nothing to change (caller shouldn't reach here).
+      if (hashRows.length === 0) return 'wrong_password';
+      if (!(await verifyPassword(oldPassword, hashRows[0].value))) return 'wrong_password';
+
+      const rows = await db.select<VaultItemRow[]>('SELECT id, encrypted_data FROM vault_items');
+
+      // Decrypt everything first; bail out intact if any item resists.
+      const decrypted: { id: string; plaintext: string; oldEncrypted: string }[] = [];
+      for (const row of rows) {
+        let plaintext: string;
+        try {
+          plaintext = await decryptStrict(row.encrypted_data, oldPassword);
+        } catch {
+          try {
+            plaintext = await decrypt(row.encrypted_data, oldPassword);
+          } catch {
+            return 'decrypt_error';
+          }
+        }
+        decrypted.push({ id: row.id, plaintext, oldEncrypted: row.encrypted_data });
+      }
+
+      // Re-encrypt all in memory before writing anything.
+      const reEncrypted: { id: string; oldEncrypted: string; newEncrypted: string }[] = [];
+      for (const d of decrypted) {
+        reEncrypted.push({
+          id: d.id,
+          oldEncrypted: d.oldEncrypted,
+          newEncrypted: await encrypt(d.plaintext, newPassword),
+        });
+      }
+
+      const written: { id: string; oldEncrypted: string }[] = [];
+      try {
+        for (const r of reEncrypted) {
+          await db.execute('UPDATE vault_items SET encrypted_data = ? WHERE id = ?', [r.newEncrypted, r.id]);
+          written.push({ id: r.id, oldEncrypted: r.oldEncrypted });
+        }
+        const newHash = await hashPassword(newPassword);
+        await db.execute(
+          "UPDATE vault_settings SET value = ? WHERE key = 'master_password_hash'",
+          [newHash]
+        );
+      } catch {
+        // Roll every written row back to its original ciphertext so the vault
+        // stays fully readable with the OLD password.
+        for (const w of written) {
+          try {
+            await db.execute('UPDATE vault_items SET encrypted_data = ? WHERE id = ?', [w.oldEncrypted, w.id]);
+          } catch {
+            // Best-effort rollback
+          }
+        }
+        return 'error';
+      }
+
+      // Rotate the live session to the new password so the vault stays unlocked.
+      sessionPassword = newPassword;
+      resetAutoLockTimer(() => get().lock());
+      return 'ok';
+    } catch {
+      return 'error';
     }
   },
 }));

@@ -397,5 +397,15 @@
   "snippets.folders.label": "Cartella",
   "snippets.folders.none": "Nessuna cartella",
   "snippets.folders.deleteTitle": "Eliminare la cartella?",
-  "snippets.folders.deleteMessage": "Eliminare \"{{name}}\"? Gli snippet vengono mantenuti e tolti dalla cartella."
+  "snippets.folders.deleteMessage": "Eliminare \"{{name}}\"? Gli snippet vengono mantenuti e tolti dalla cartella.",
+  "vault.changePassword.title": "Cambia password principale",
+  "vault.changePassword.description": "Ricifra l'intera cassaforte con una nuova password.",
+  "vault.changePassword.currentPlaceholder": "Password attuale",
+  "vault.changePassword.newPlaceholder": "Nuova password",
+  "vault.changePassword.confirmPlaceholder": "Conferma nuova password",
+  "vault.changePassword.submit": "Cambia password",
+  "vault.changePassword.saving": "Ricifratura…",
+  "vault.changePassword.wrongCurrent": "La password attuale non è corretta.",
+  "vault.changePassword.decryptError": "Impossibile decifrare la cassaforte con questa password. Nulla è stato modificato.",
+  "vault.changePassword.genericError": "Qualcosa è andato storto. La password non è stata cambiata."
 }
