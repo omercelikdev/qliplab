@@ -83,6 +83,8 @@ interface AppState {
   isCapturePaused: boolean;
 
   setActiveTab: (tab: Tab) => void;
+  /** Switch tab but preserve the search query (cross-tab search jump). */
+  goToTabWithSearch: (tab: Tab) => void;
   setDraggingOut: (dragging: boolean) => void;
   toggleCapturePaused: () => void;
   setCapturePaused: (paused: boolean) => void;
@@ -134,6 +136,19 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({
       activeTab: tab,
       searchQuery: '',
+      isDiffMode: false,
+      diffSelectedIds: [],
+      isQueueMode: false,
+      pasteQueue: [],
+      openMenuItemId: null,
+    });
+  },
+  // Like setActiveTab but keeps the current query, so a cross-tab search hint
+  // ("3 in Snippets") can carry the user's search across with one click.
+  goToTabWithSearch: (tab) => {
+    if (get().activeTab === tab) return;
+    set({
+      activeTab: tab,
       isDiffMode: false,
       diffSelectedIds: [],
       isQueueMode: false,

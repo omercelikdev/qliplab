@@ -2,9 +2,16 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@tauri-apps/plugin-sql', () => ({ default: { load: vi.fn() } }));
 
-import { buildWhereClause, buildOrderBy } from './database';
+import { buildWhereClause, buildOrderBy, countSnippetMatches } from './database';
 
 const base = { formatFilter: 'all' as const, searchQuery: '' };
+
+describe('countSnippetMatches', () => {
+  it('short-circuits to 0 for a blank query without touching the DB', async () => {
+    expect(await countSnippetMatches('')).toBe(0);
+    expect(await countSnippetMatches('   ')).toBe(0);
+  });
+});
 
 describe('buildOrderBy', () => {
   it('defaults to reverse-chronological', () => {
