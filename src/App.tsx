@@ -10,6 +10,7 @@ import { ResizeBorder } from './components/layout/ResizeBorder';
 import { WindowControls } from './components/layout/WindowControls';
 import { OnboardingBanner } from './components/layout/OnboardingBanner';
 import { AccessibilityBanner } from './components/layout/AccessibilityBanner';
+import { CapturePausedBanner } from './components/layout/CapturePausedBanner';
 import { HistoryList } from './components/history/HistoryList';
 import { SnippetList } from './components/snippets/SnippetList';
 import { VaultList } from './components/vault/VaultList';
@@ -256,6 +257,7 @@ function App() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {activeTab !== 'settings' && <SearchBar />}
+          <CapturePausedBanner />
           <AccessibilityBanner />
           {activeTab !== 'settings' && <OnboardingBanner />}
           <div className="flex flex-1 overflow-hidden">

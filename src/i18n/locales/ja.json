@@ -383,5 +383,8 @@
   "preview.suggested": "おすすめ",
   "preview.recent": "最近",
   "preview.transformResultPreview": "結果プレビュー",
-  "settings.shortcut.labelSecondary": "2つ目のショートカット"
+  "settings.shortcut.labelSecondary": "2つ目のショートカット",
+  "capture.pause": "キャプチャを一時停止",
+  "capture.resume": "キャプチャを再開",
+  "capture.paused": "キャプチャ一時停止中"
 }

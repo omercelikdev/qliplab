@@ -383,5 +383,8 @@
   "preview.suggested": "推荐",
   "preview.recent": "最近",
   "preview.transformResultPreview": "结果预览",
-  "settings.shortcut.labelSecondary": "第二快捷键"
+  "settings.shortcut.labelSecondary": "第二快捷键",
+  "capture.pause": "暂停捕获",
+  "capture.resume": "恢复捕获",
+  "capture.paused": "捕获已暂停"
 }

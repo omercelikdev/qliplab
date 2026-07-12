@@ -383,5 +383,8 @@
   "preview.suggested": "Voorgesteld",
   "preview.recent": "Recent",
   "preview.transformResultPreview": "Resultaatvoorbeeld",
-  "settings.shortcut.labelSecondary": "Tweede sneltoets"
+  "settings.shortcut.labelSecondary": "Tweede sneltoets",
+  "capture.pause": "Vastleggen pauzeren",
+  "capture.resume": "Vastleggen hervatten",
+  "capture.paused": "Vastleggen gepauzeerd"
 }

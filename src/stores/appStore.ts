@@ -74,9 +74,15 @@ interface AppState {
   /** A clip is being dragged into another app, which by definition hands focus
    *  to that app. Dismissing on focus loss then would cancel the drop. */
   isDraggingOut: boolean;
+  /** While true the clipboard listener records nothing — a one-tap "don't
+   *  capture what I'm about to copy". Session-only: resumes on restart so
+   *  capture can never be silently off for long. */
+  isCapturePaused: boolean;
 
   setActiveTab: (tab: Tab) => void;
   setDraggingOut: (dragging: boolean) => void;
+  toggleCapturePaused: () => void;
+  setCapturePaused: (paused: boolean) => void;
   setPreviewOpen: (open: boolean) => void;
   setTheme: (theme: Theme) => void;
   setSearchQuery: (query: string) => void;
@@ -112,8 +118,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   windowOpenCount: 0,
   openMenuItemId: null,
   isDraggingOut: false,
+  isCapturePaused: false,
 
   setDraggingOut: (dragging) => set({ isDraggingOut: dragging }),
+  toggleCapturePaused: () => set((s) => ({ isCapturePaused: !s.isCapturePaused })),
+  setCapturePaused: (paused) => set({ isCapturePaused: paused }),
 
   setActiveTab: (tab) => {
     if (get().activeTab === tab) return;
