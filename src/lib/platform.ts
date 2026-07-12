@@ -2,6 +2,12 @@ export function isMac(): boolean {
   return navigator.platform.toUpperCase().includes('MAC');
 }
 
+/** Linux has no native OCR backend (Vision is macOS, Windows.Media.Ocr is
+ *  Windows), so OCR-dependent affordances hide themselves here. */
+export function isLinux(): boolean {
+  return navigator.platform.toUpperCase().includes('LINUX');
+}
+
 export function getModifierKey(): string {
   return isMac() ? '⌘' : 'Ctrl';
 }

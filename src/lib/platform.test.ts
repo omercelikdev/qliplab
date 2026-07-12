@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { isMac, getModifierKey, getAltKey, barEndInset, CAPTION_BUTTON_WIDTH } from './platform';
+import { isMac, isLinux, getModifierKey, getAltKey, barEndInset, CAPTION_BUTTON_WIDTH } from './platform';
 
 const original = navigator.platform;
 
@@ -22,6 +22,19 @@ describe('isMac', () => {
     expect(isMac()).toBe(false);
     setPlatform('Linux x86_64');
     expect(isMac()).toBe(false);
+  });
+});
+
+describe('isLinux', () => {
+  it('recognises Linux regardless of case', () => {
+    setPlatform('Linux x86_64');
+    expect(isLinux()).toBe(true);
+  });
+  it('rejects macOS and Windows', () => {
+    setPlatform('MacIntel');
+    expect(isLinux()).toBe(false);
+    setPlatform('Win32');
+    expect(isLinux()).toBe(false);
   });
 });
 
