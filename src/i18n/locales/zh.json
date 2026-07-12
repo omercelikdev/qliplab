@@ -436,5 +436,8 @@
   "history.smartAction.openUrl": "打开链接",
   "history.smartAction.email": "发送邮件",
   "history.smartAction.call": "拨打",
-  "history.smartAction.map": "在地图中打开"
+  "history.smartAction.map": "在地图中打开",
+  "history.sort.label": "排序",
+  "history.sort.recent": "最近",
+  "history.sort.frequent": "最常用"
 }

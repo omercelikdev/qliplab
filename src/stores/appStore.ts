@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { DetectedFormat } from '@/types/clipboard';
+import type { HistorySortMode } from '@/lib/database';
 
 export type Tab = 'history' | 'snippets' | 'vault' | 'settings';
 export type Theme = 'light' | 'dark' | 'system';
@@ -64,6 +65,8 @@ interface AppState {
   sourceAppFilter: string | null;
   vaultTypeFilter: VaultTypeFilter;
   snippetSyntaxFilter: SnippetSyntaxFilter;
+  /** History list ordering: 'recent' (chronological) or 'frequent' (most used). */
+  historySortMode: HistorySortMode;
   isTransformMode: boolean;
   isDiffMode: boolean;
   diffSelectedIds: string[];
@@ -89,6 +92,7 @@ interface AppState {
   setFormatFilter: (filter: FormatFilterGroup) => void;
   setSourceAppFilter: (app: string | null) => void;
   setVaultTypeFilter: (filter: VaultTypeFilter) => void;
+  setHistorySortMode: (mode: HistorySortMode) => void;
   setSnippetSyntaxFilter: (filter: SnippetSyntaxFilter) => void;
   setTransformMode: (active: boolean) => void;
   setDiffMode: (active: boolean) => void;
@@ -110,6 +114,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   sourceAppFilter: localStorage.getItem('qlip_sourceAppFilter') || null,
   vaultTypeFilter: (localStorage.getItem('qlip_vaultTypeFilter') ?? 'all') as VaultTypeFilter,
   snippetSyntaxFilter: (localStorage.getItem('qlip_snippetSyntaxFilter') ?? 'all') as SnippetSyntaxFilter,
+  historySortMode: (localStorage.getItem('qlip_historySortMode') ?? 'recent') as HistorySortMode,
   isTransformMode: false,
   isDiffMode: false,
   diffSelectedIds: [],
@@ -157,6 +162,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   setSnippetSyntaxFilter: (filter) => {
     set({ snippetSyntaxFilter: filter });
     try { localStorage.setItem('qlip_snippetSyntaxFilter', filter); } catch { /* noop */ }
+  },
+  setHistorySortMode: (mode) => {
+    set({ historySortMode: mode });
+    try { localStorage.setItem('qlip_historySortMode', mode); } catch { /* noop */ }
   },
   setTransformMode: (active) => set({ isTransformMode: active }),
   setDiffMode: (active) => set({ isDiffMode: active, diffSelectedIds: active ? [] : [] }),

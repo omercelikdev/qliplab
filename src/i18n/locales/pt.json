@@ -436,5 +436,8 @@
   "history.smartAction.openUrl": "Abrir link",
   "history.smartAction.email": "Enviar e-mail",
   "history.smartAction.call": "Ligar",
-  "history.smartAction.map": "Abrir no Mapas"
+  "history.smartAction.map": "Abrir no Mapas",
+  "history.sort.label": "Ordenação",
+  "history.sort.recent": "Recentes",
+  "history.sort.frequent": "Mais usados"
 }

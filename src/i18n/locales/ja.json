@@ -436,5 +436,8 @@
   "history.smartAction.openUrl": "リンクを開く",
   "history.smartAction.email": "メールを送信",
   "history.smartAction.call": "発信",
-  "history.smartAction.map": "マップで開く"
+  "history.smartAction.map": "マップで開く",
+  "history.sort.label": "並び替え",
+  "history.sort.recent": "最近",
+  "history.sort.frequent": "よく使う"
 }

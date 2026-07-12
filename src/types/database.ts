@@ -12,6 +12,8 @@ export interface ClipboardHistoryRow {
   is_sensitive: number;
   created_at: string;
   updated_at: string;
+  /** Times this clip has been pasted — drives the "Most used" sort. */
+  paste_count?: number;
 }
 
 export interface SnippetRow {

@@ -195,6 +195,9 @@ export const HistoryItem = memo(function HistoryItem({
     // Shift+click pastes plain text even for a rich clip (mirrors Shift+Enter).
     const plain = e?.shiftKey ?? false;
 
+    // Count real pastes (not diff selections) for the "Most used" sort.
+    if (!isDiffMode) useHistoryStore.getState().recordPaste(item.id);
+
     if (isDiffMode) {
       onDiffSelect(item.id);
     } else if (item.contentType === 'image' && imageData) {

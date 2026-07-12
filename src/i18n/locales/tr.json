@@ -436,5 +436,8 @@
   "history.smartAction.openUrl": "Bağlantıyı aç",
   "history.smartAction.email": "E-posta gönder",
   "history.smartAction.call": "Ara",
-  "history.smartAction.map": "Haritada aç"
+  "history.smartAction.map": "Haritada aç",
+  "history.sort.label": "Sıralama",
+  "history.sort.recent": "En yeni",
+  "history.sort.frequent": "En çok kullanılan"
 }
