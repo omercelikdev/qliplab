@@ -383,5 +383,8 @@
   "preview.suggested": "Suggeriti",
   "preview.recent": "Recenti",
   "preview.transformResultPreview": "Anteprima risultato",
-  "settings.shortcut.labelSecondary": "Scorciatoia secondaria"
+  "settings.shortcut.labelSecondary": "Scorciatoia secondaria",
+  "capture.pause": "Sospendi cattura",
+  "capture.resume": "Riprendi cattura",
+  "capture.paused": "Cattura in pausa"
 }

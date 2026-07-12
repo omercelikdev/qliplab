@@ -9,6 +9,7 @@ import {
 } from 'tauri-plugin-clipboard-api';
 import { invoke } from '@tauri-apps/api/core';
 import { useHistoryStore } from '@/stores/historyStore';
+import { useAppStore } from '@/stores/appStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { detectFormat, isSensitive } from '@/lib/formatDetector';
 import { isQueuePasting } from '@/lib/window';
@@ -44,6 +45,7 @@ export function useClipboardListener() {
         unlistenText = await onTextUpdate(async (text) => {
           try {
           if (isQueuePasting()) return;
+          if (useAppStore.getState().isCapturePaused) return;
           if (consumeSkip()) {
             lastTextRef.current = text;
             return;
@@ -144,6 +146,7 @@ export function useClipboardListener() {
         unlistenImage = await onImageUpdate(async (base64Image) => {
           try {
           if (isQueuePasting()) return;
+          if (useAppStore.getState().isCapturePaused) return;
           if (base64Image.length > MAX_CONTENT_SIZE) return;
           const settings = useSettingsStore.getState().settings;
 

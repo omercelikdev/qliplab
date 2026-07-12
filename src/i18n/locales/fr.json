@@ -383,5 +383,8 @@
   "preview.suggested": "Suggéré",
   "preview.recent": "Récents",
   "preview.transformResultPreview": "Aperçu du résultat",
-  "settings.shortcut.labelSecondary": "Raccourci secondaire"
+  "settings.shortcut.labelSecondary": "Raccourci secondaire",
+  "capture.pause": "Suspendre la capture",
+  "capture.resume": "Reprendre la capture",
+  "capture.paused": "Capture suspendue"
 }

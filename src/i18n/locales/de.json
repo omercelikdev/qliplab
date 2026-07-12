@@ -383,5 +383,8 @@
   "preview.suggested": "Vorgeschlagen",
   "preview.recent": "Zuletzt verwendet",
   "preview.transformResultPreview": "Ergebnisvorschau",
-  "settings.shortcut.labelSecondary": "Zweiter Kurzbefehl"
+  "settings.shortcut.labelSecondary": "Zweiter Kurzbefehl",
+  "capture.pause": "Erfassung pausieren",
+  "capture.resume": "Erfassung fortsetzen",
+  "capture.paused": "Erfassung pausiert"
 }

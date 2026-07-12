@@ -383,5 +383,8 @@
   "preview.suggested": "सुझाए गए",
   "preview.recent": "हाल के",
   "preview.transformResultPreview": "परिणाम पूर्वावलोकन",
-  "settings.shortcut.labelSecondary": "द्वितीयक शॉर्टकट"
+  "settings.shortcut.labelSecondary": "द्वितीयक शॉर्टकट",
+  "capture.pause": "कैप्चर रोकें",
+  "capture.resume": "कैप्चर फिर से शुरू करें",
+  "capture.paused": "कैप्चर रुका हुआ"
 }

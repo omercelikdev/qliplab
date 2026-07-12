@@ -383,5 +383,8 @@
   "preview.suggested": "추천",
   "preview.recent": "최근",
   "preview.transformResultPreview": "결과 미리보기",
-  "settings.shortcut.labelSecondary": "보조 단축키"
+  "settings.shortcut.labelSecondary": "보조 단축키",
+  "capture.pause": "캡처 일시중지",
+  "capture.resume": "캡처 재개",
+  "capture.paused": "캡처 일시중지됨"
 }

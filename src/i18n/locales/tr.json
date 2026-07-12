@@ -383,5 +383,8 @@
   "preview.suggested": "Önerilen",
   "preview.recent": "Son kullanılan",
   "preview.transformResultPreview": "Sonuç önizlemesi",
-  "settings.shortcut.labelSecondary": "İkinci kısayol"
+  "settings.shortcut.labelSecondary": "İkinci kısayol",
+  "capture.pause": "Yakalamayı duraklat",
+  "capture.resume": "Yakalamayı sürdür",
+  "capture.paused": "Yakalama duraklatıldı"
 }

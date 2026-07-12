@@ -383,5 +383,8 @@
   "preview.suggested": "مقترح",
   "preview.recent": "الأخيرة",
   "preview.transformResultPreview": "معاينة النتيجة",
-  "settings.shortcut.labelSecondary": "اختصار ثانوي"
+  "settings.shortcut.labelSecondary": "اختصار ثانوي",
+  "capture.pause": "إيقاف الالتقاط مؤقتًا",
+  "capture.resume": "استئناف الالتقاط",
+  "capture.paused": "الالتقاط متوقف مؤقتًا"
 }
