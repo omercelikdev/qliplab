@@ -447,5 +447,7 @@
   "vault.dialog.bank.swift": "SWIFT (선택)",
   "vault.dialog.personal.countryPlaceholder": "국가",
   "vault.dialog.personal.popular": "인기",
-  "vault.dialog.personal.allCountries": "모든 국가"
+  "vault.dialog.personal.allCountries": "모든 국가",
+  "tray.show": "QlipLab 표시",
+  "tray.quit": "종료"
 }

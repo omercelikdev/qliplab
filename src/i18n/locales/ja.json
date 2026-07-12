@@ -447,5 +447,7 @@
   "vault.dialog.bank.swift": "SWIFT（任意）",
   "vault.dialog.personal.countryPlaceholder": "国",
   "vault.dialog.personal.popular": "人気",
-  "vault.dialog.personal.allCountries": "すべての国"
+  "vault.dialog.personal.allCountries": "すべての国",
+  "tray.show": "QlipLab を表示",
+  "tray.quit": "終了"
 }

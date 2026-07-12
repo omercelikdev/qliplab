@@ -599,6 +599,26 @@ fn simulate_paste_in_place() -> Result<(), String> {
 
 // --- Trigger Engine: Keystroke monitoring ---
 
+/// Tray menu item handles, kept so the frontend can relabel them once i18n has
+/// loaded (the tray is built in Rust before the webview, so it starts English).
+struct TrayMenuState {
+    show: tauri::menu::MenuItem<tauri::Wry>,
+    quit: tauri::menu::MenuItem<tauri::Wry>,
+}
+
+/// Relabel the tray menu in the user's language. Called by the frontend after
+/// i18n initialises and whenever the language changes.
+#[tauri::command]
+fn set_tray_labels(
+    state: tauri::State<'_, TrayMenuState>,
+    show: String,
+    quit: String,
+) -> Result<(), String> {
+    state.show.set_text(show).map_err(|e| e.to_string())?;
+    state.quit.set_text(quit).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 /// Shared state for the trigger engine (source-agnostic: snippets, vault, etc.)
 struct TriggerEngineState {
     /// Map of trigger_text → source_id (e.g. "snippet:uuid" or "vault:uuid:field")
@@ -1630,6 +1650,7 @@ pub fn run() {
             get_frontmost_app,
             show_panel,
             hide_panel,
+            set_tray_labels,
             ocr_image,
             simulate_backspace,
             update_triggers,
@@ -1661,6 +1682,12 @@ pub fn run() {
                     .separator()
                     .item(&quit_item)
                     .build()?;
+
+                // Keep handles so the frontend can localise the labels post-i18n.
+                app.manage(TrayMenuState {
+                    show: show_item.clone(),
+                    quit: quit_item.clone(),
+                });
 
                 let mut tray_builder = TrayIconBuilder::new();
 

@@ -447,5 +447,7 @@
   "vault.dialog.bank.swift": "SWIFT (isteğe bağlı)",
   "vault.dialog.personal.countryPlaceholder": "Ülke",
   "vault.dialog.personal.popular": "Popüler",
-  "vault.dialog.personal.allCountries": "Tüm Ülkeler"
+  "vault.dialog.personal.allCountries": "Tüm Ülkeler",
+  "tray.show": "QlipLab'ı Göster",
+  "tray.quit": "Çıkış"
 }

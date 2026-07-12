@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { getCurrentWindow, PhysicalPosition, type CloseRequestedEvent } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/core';
 import { Sidebar } from './components/layout/Sidebar';
 import { SearchBar } from './components/layout/DragBar';
 import { HintBar } from './components/layout/HintBar';
@@ -57,6 +58,17 @@ function App() {
   const handleSplitterResize = useCallback((width: number) => {
     setListWidth(width);
     saveListWidth(width);
+  }, []);
+
+  // Localise the native tray menu, which Rust builds in English before the
+  // webview (and thus i18n) exists. Re-sync whenever the language changes.
+  useEffect(() => {
+    const syncTray = () => {
+      invoke('set_tray_labels', { show: i18n.t('tray.show'), quit: i18n.t('tray.quit') }).catch(() => {});
+    };
+    syncTray();
+    i18n.on('languageChanged', syncTray);
+    return () => { i18n.off('languageChanged', syncTray); };
   }, []);
 
   useEffect(() => {

@@ -447,5 +447,7 @@
   "vault.dialog.bank.swift": "SWIFT (opcional)",
   "vault.dialog.personal.countryPlaceholder": "País",
   "vault.dialog.personal.popular": "Populares",
-  "vault.dialog.personal.allCountries": "Todos los países"
+  "vault.dialog.personal.allCountries": "Todos los países",
+  "tray.show": "Mostrar QlipLab",
+  "tray.quit": "Salir"
 }
