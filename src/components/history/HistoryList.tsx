@@ -145,6 +145,14 @@ export function HistoryList() {
     if (item) useHistoryStore.getState().deleteItem(item.id);
   }, [orderedItems]);
 
+  // Auto-load the next page as the user nears the bottom, so the list feels
+  // endless; the "Load more" button stays as a visible affordance/fallback.
+  const handleScroll = useCallback(() => {
+    const el = listRef.current;
+    if (!el || isLoadingMore || remainingCount <= 0) return;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 240) loadMore();
+  }, [isLoadingMore, remainingCount, loadMore]);
+
   const hasActiveFilter = !!searchQuery || formatFilter !== 'all' || !!sourceAppFilter || !!activeTagFilter;
   const clearFilters = useCallback(() => {
     setSearchQuery('');
@@ -300,6 +308,7 @@ export function HistoryList() {
 
       <div
         ref={listRef}
+        onScroll={handleScroll}
         role="listbox"
         tabIndex={0}
         aria-label={t('history.ariaLabel')}
