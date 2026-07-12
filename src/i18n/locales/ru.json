@@ -436,5 +436,8 @@
   "history.smartAction.openUrl": "Открыть ссылку",
   "history.smartAction.email": "Написать письмо",
   "history.smartAction.call": "Позвонить",
-  "history.smartAction.map": "Открыть на карте"
+  "history.smartAction.map": "Открыть на карте",
+  "history.sort.label": "Сортировка",
+  "history.sort.recent": "Недавние",
+  "history.sort.frequent": "Частые"
 }

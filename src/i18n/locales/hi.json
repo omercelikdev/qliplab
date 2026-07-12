@@ -436,5 +436,8 @@
   "history.smartAction.openUrl": "लिंक खोलें",
   "history.smartAction.email": "ईमेल भेजें",
   "history.smartAction.call": "कॉल करें",
-  "history.smartAction.map": "मानचित्र में खोलें"
+  "history.smartAction.map": "मानचित्र में खोलें",
+  "history.sort.label": "क्रम",
+  "history.sort.recent": "हाल के",
+  "history.sort.frequent": "सर्वाधिक उपयोग"
 }

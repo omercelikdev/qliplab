@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getDatabase, queryHistoryItems, countHistoryItems } from '@/lib/database';
+import { getDatabase, queryHistoryItems, countHistoryItems, type HistorySortMode } from '@/lib/database';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useAppStore } from '@/stores/appStore';
@@ -35,13 +35,16 @@ interface HistoryState {
   currentSearchQuery: string;
   currentSourceApp: string | null;
   currentTagId: string | null;
+  currentSortMode: HistorySortMode;
 
-  loadItems: (formatFilter?: FormatFilterGroup, searchQuery?: string, sourceApp?: string | null, tagId?: string | null) => Promise<void>;
+  loadItems: (formatFilter?: FormatFilterGroup, searchQuery?: string, sourceApp?: string | null, tagId?: string | null, sortMode?: HistorySortMode) => Promise<void>;
   refreshItems: () => Promise<void>;
   loadMore: () => Promise<void>;
   addItem: (item: Omit<ClipboardItem, 'id' | 'isPinned' | 'createdAt' | 'updatedAt'>) => Promise<string | undefined>;
   deleteItem: (id: string) => Promise<void>;
   togglePin: (id: string) => Promise<void>;
+  /** Bump a clip's paste count so the "Most used" sort can rank it. */
+  recordPaste: (id: string) => Promise<void>;
   updateItemContent: (id: string, content: string) => Promise<void>;
   clearAll: () => Promise<void>;
   clearUnpinned: () => Promise<void>;
@@ -58,10 +61,11 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   currentSearchQuery: '',
   currentSourceApp: null,
   currentTagId: null,
+  currentSortMode: 'recent',
 
-  loadItems: async (formatFilter = 'all', searchQuery = '', sourceApp = null, tagId = null) => {
+  loadItems: async (formatFilter = 'all', searchQuery = '', sourceApp = null, tagId = null, sortMode = 'recent') => {
     try {
-      const params = { formatFilter, searchQuery, sourceApp, tagId, limit: PAGE_SIZE, offset: 0 };
+      const params = { formatFilter, searchQuery, sourceApp, tagId, sortMode, limit: PAGE_SIZE, offset: 0 };
       const [rows, total] = await Promise.all([
         queryHistoryItems(params),
         countHistoryItems({ formatFilter, searchQuery, sourceApp, tagId }),
@@ -74,6 +78,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         currentSearchQuery: searchQuery,
         currentSourceApp: sourceApp,
         currentTagId: tagId,
+        currentSortMode: sortMode,
         isLoading: false,
       });
     } catch {
@@ -87,13 +92,14 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
    * a list they expanded with "Load more".
    */
   refreshItems: async () => {
-    const { currentFormatFilter, currentSearchQuery, currentSourceApp, currentTagId, items } = get();
+    const { currentFormatFilter, currentSearchQuery, currentSourceApp, currentTagId, currentSortMode, items } = get();
     try {
       const params = {
         formatFilter: currentFormatFilter,
         searchQuery: currentSearchQuery,
         sourceApp: currentSourceApp,
         tagId: currentTagId,
+        sortMode: currentSortMode,
         limit: refreshWindowLimit(items.length),
         offset: 0,
       };
@@ -113,7 +119,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   },
 
   loadMore: async () => {
-    const { currentOffset, currentFormatFilter, currentSearchQuery, currentSourceApp, currentTagId, totalCount, items, isLoadingMore } = get();
+    const { currentOffset, currentFormatFilter, currentSearchQuery, currentSourceApp, currentTagId, currentSortMode, totalCount, items, isLoadingMore } = get();
     if (currentOffset >= totalCount || isLoadingMore) return;
     set({ isLoadingMore: true });
     try {
@@ -122,6 +128,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         searchQuery: currentSearchQuery,
         sourceApp: currentSourceApp,
         tagId: currentTagId,
+        sortMode: currentSortMode,
         limit: PAGE_SIZE,
         offset: currentOffset,
       });
@@ -221,6 +228,19 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
       set(state => ({ items: state.items.map(i => i.id === id ? { ...i, isPinned: newPinned } : i) }));
     } catch {
       // Toggle pin failed
+    }
+  },
+
+  recordPaste: async (id) => {
+    try {
+      // Fire-and-forget: the count only matters for a future "Most used" sort,
+      // and the window is usually hiding as this runs — no reorder needed now.
+      await getDatabase().execute(
+        'UPDATE clipboard_history SET paste_count = paste_count + 1 WHERE id = ?',
+        [id]
+      );
+    } catch {
+      // A missed count is harmless
     }
   },
 

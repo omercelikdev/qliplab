@@ -2,9 +2,23 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@tauri-apps/plugin-sql', () => ({ default: { load: vi.fn() } }));
 
-import { buildWhereClause } from './database';
+import { buildWhereClause, buildOrderBy } from './database';
 
 const base = { formatFilter: 'all' as const, searchQuery: '' };
+
+describe('buildOrderBy', () => {
+  it('defaults to reverse-chronological', () => {
+    expect(buildOrderBy()).toBe('ORDER BY is_pinned DESC, created_at DESC');
+    expect(buildOrderBy('recent')).toBe('ORDER BY is_pinned DESC, created_at DESC');
+  });
+  it('ranks by paste_count with recency tiebreak when frequent', () => {
+    expect(buildOrderBy('frequent')).toBe('ORDER BY is_pinned DESC, paste_count DESC, created_at DESC');
+  });
+  it('always keeps pinned clips first', () => {
+    expect(buildOrderBy('frequent').startsWith('ORDER BY is_pinned DESC')).toBe(true);
+    expect(buildOrderBy('recent').startsWith('ORDER BY is_pinned DESC')).toBe(true);
+  });
+});
 
 describe('buildWhereClause', () => {
   it('produces no WHERE clause when nothing is filtered', () => {

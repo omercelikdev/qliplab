@@ -436,5 +436,8 @@
   "history.smartAction.openUrl": "فتح الرابط",
   "history.smartAction.email": "إرسال بريد",
   "history.smartAction.call": "اتصال",
-  "history.smartAction.map": "فتح في الخرائط"
+  "history.smartAction.map": "فتح في الخرائط",
+  "history.sort.label": "الترتيب",
+  "history.sort.recent": "الأحدث",
+  "history.sort.frequent": "الأكثر استخداماً"
 }

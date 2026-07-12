@@ -44,6 +44,14 @@ export async function initDatabase() {
     // Column already exists
   }
 
+  // Migration: paste_count powers the "Most used" (frecency) sort.
+  try {
+    await db.execute(`ALTER TABLE clipboard_history ADD COLUMN paste_count INTEGER DEFAULT 0`);
+  } catch {
+    // Column already exists
+  }
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_paste_count ON clipboard_history(is_pinned DESC, paste_count DESC, created_at DESC)`);
+
   await db.execute(`
     CREATE TABLE IF NOT EXISTS snippets (
       id TEXT PRIMARY KEY,
@@ -155,6 +163,8 @@ import { FORMAT_FILTER_GROUPS, CATEGORIZED_FORMATS } from '@/stores/appStore';
 import type { FormatFilterGroup } from '@/stores/appStore';
 import { tokenizeSearchQuery, escapeLikePattern } from '@/lib/searchQuery';
 
+export type HistorySortMode = 'recent' | 'frequent';
+
 export interface HistoryQueryParams {
   formatFilter: FormatFilterGroup;
   searchQuery: string;
@@ -162,8 +172,21 @@ export interface HistoryQueryParams {
   sourceApp?: string | null;
   /** Restrict to clips carrying this tag. null = every tag. */
   tagId?: string | null;
+  /** 'recent' (default, chronological) or 'frequent' (most-pasted first). */
+  sortMode?: HistorySortMode;
   limit: number;
   offset: number;
+}
+
+/**
+ * ORDER BY clause for the history list. Pinned clips always lead. 'frequent'
+ * ranks by paste count with recency as the tiebreaker (a simple, predictable
+ * frecency); 'recent' is pure reverse-chronological. Exported for tests.
+ */
+export function buildOrderBy(sortMode: HistorySortMode = 'recent'): string {
+  return sortMode === 'frequent'
+    ? 'ORDER BY is_pinned DESC, paste_count DESC, created_at DESC'
+    : 'ORDER BY is_pinned DESC, created_at DESC';
 }
 
 /** Exported for tests: the SQL must stay parameterized and the filters must compose. */
@@ -239,7 +262,7 @@ export async function getSourceApps(): Promise<string[]> {
 export async function queryHistoryItems(params: HistoryQueryParams): Promise<ClipboardHistoryRow[]> {
   const db = getDatabase();
   const { where, args } = buildWhereClause(params);
-  const sql = `SELECT * FROM clipboard_history ${where} ORDER BY is_pinned DESC, created_at DESC LIMIT ? OFFSET ?`;
+  const sql = `SELECT * FROM clipboard_history ${where} ${buildOrderBy(params.sortMode)} LIMIT ? OFFSET ?`;
   args.push(params.limit, params.offset);
   return db.select<ClipboardHistoryRow[]>(sql, args);
 }

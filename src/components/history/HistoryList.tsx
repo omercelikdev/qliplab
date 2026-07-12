@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clipboard, Search, Tag, X } from 'lucide-react';
+import { Clipboard, Search, Tag, X, Clock, Flame } from 'lucide-react';
 import { HistoryItem } from './HistoryItem';
 import { useHistoryStore } from '@/stores/historyStore';
 import { getSourceApps } from '@/lib/database';
@@ -35,6 +35,8 @@ export function HistoryList() {
   const isDiffMode = useAppStore((state) => state.isDiffMode);
   const formatFilter = useAppStore((state) => state.formatFilter);
   const sourceAppFilter = useAppStore((state) => state.sourceAppFilter);
+  const historySortMode = useAppStore((state) => state.historySortMode);
+  const setHistorySortMode = useAppStore((state) => state.setHistorySortMode);
   const diffSelectedIds = useAppStore((state) => state.diffSelectedIds);
   const isQueueMode = useAppStore((state) => state.isQueueMode);
   const pasteQueue = useAppStore((state) => state.pasteQueue);
@@ -59,8 +61,8 @@ export function HistoryList() {
   // Reload from SQL when any filter/search changes — tag filter included, so it
   // matches across the whole table and the "Load more" count stays correct.
   useEffect(() => {
-    loadItems(formatFilter, searchQuery, sourceAppFilter, activeTagFilter);
-  }, [formatFilter, searchQuery, sourceAppFilter, activeTagFilter, loadItems]);
+    loadItems(formatFilter, searchQuery, sourceAppFilter, activeTagFilter, historySortMode);
+  }, [formatFilter, searchQuery, sourceAppFilter, activeTagFilter, historySortMode, loadItems]);
 
   // The set of apps grows as the user copies from new places; refresh it when
   // the window reopens rather than on every keystroke.
@@ -118,6 +120,7 @@ export function HistoryList() {
     if (isDiffMode || isQueueMode || pastingItemId) return;
     const item = orderedItems[index];
     if (item) {
+      useHistoryStore.getState().recordPaste(item.id);
       if (item.contentType === 'image') {
         const base64 = getImageBase64ForClipboard(item.content);
         if (base64) {
@@ -267,6 +270,20 @@ export function HistoryList() {
           </button>
         ))}
 
+        {/* Sort toggle — chronological vs "most used" (frecency). */}
+        <button
+          onClick={() => setHistorySortMode(historySortMode === 'frequent' ? 'recent' : 'frequent')}
+          aria-label={t('history.sort.label')}
+          title={historySortMode === 'frequent' ? t('history.sort.frequent') : t('history.sort.recent')}
+          className={cn(
+            'ms-auto shrink-0 flex items-center gap-1 ps-1.5 pe-2 py-0.5 text-[10px] rounded-md whitespace-nowrap transition-colors cursor-pointer no-drag focus-visible:ring-2 focus-visible:ring-accent',
+            historySortMode === 'frequent' ? 'text-accent bg-accent/10' : 'text-muted-foreground hover:bg-surface-hover'
+          )}
+        >
+          {historySortMode === 'frequent' ? <Flame className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
+          {historySortMode === 'frequent' ? t('history.sort.frequent') : t('history.sort.recent')}
+        </button>
+
         {/* Source app filter — custom dropdown so the selection is the app's
             accent, not the macOS system blue a native <select> popup paints. */}
         {sourceApps.length > 0 && (
@@ -279,7 +296,7 @@ export function HistoryList() {
               ...sourceApps.map((app) => ({ value: app, label: app })),
             ]}
             triggerClassName={cn(
-              'ms-auto shrink-0 max-w-[120px] flex items-center gap-1 ps-1.5 pe-1 py-0.5 text-[11px] rounded-md bg-transparent',
+              'shrink-0 max-w-[120px] flex items-center gap-1 ps-1.5 pe-1 py-0.5 text-[11px] rounded-md bg-transparent',
               'cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
               sourceAppFilter ? 'text-accent font-medium' : 'text-muted-foreground'
             )}
