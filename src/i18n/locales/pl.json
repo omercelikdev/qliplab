@@ -163,7 +163,7 @@
   "settings.theme.dark": "Ciemny",
   "settings.theme.system": "Systemowy",
   "settings.historyLimit.label": "Limit historii",
-  "settings.autoLock.label": "Automatyczna blokada sejfu",
+  "settings.autoLock.label": "Autoblokada sejfu",
   "settings.autoLock.1min": "1 minuta",
   "settings.autoLock.5min": "5 minut",
   "settings.autoLock.15min": "15 minut",

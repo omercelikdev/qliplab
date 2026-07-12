@@ -163,7 +163,7 @@
   "settings.theme.dark": "Dunkel",
   "settings.theme.system": "System",
   "settings.historyLimit.label": "Verlaufslimit",
-  "settings.autoLock.label": "Tresor-Autosperre",
+  "settings.autoLock.label": "Tresor automatisch sperren",
   "settings.autoLock.1min": "1 Minute",
   "settings.autoLock.5min": "5 Minuten",
   "settings.autoLock.15min": "15 Minuten",

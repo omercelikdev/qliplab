@@ -163,7 +163,7 @@
   "settings.theme.dark": "ダーク",
   "settings.theme.system": "システム",
   "settings.historyLimit.label": "履歴の上限",
-  "settings.autoLock.label": "ボールト自動ロック",
+  "settings.autoLock.label": "保管庫の自動ロック",
   "settings.autoLock.1min": "1分",
   "settings.autoLock.5min": "5分",
   "settings.autoLock.15min": "15分",

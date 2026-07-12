@@ -163,7 +163,7 @@
   "settings.theme.dark": "Dark",
   "settings.theme.system": "System",
   "settings.historyLimit.label": "History Limit",
-  "settings.autoLock.label": "Vault Auto-lock",
+  "settings.autoLock.label": "Vault auto-lock",
   "settings.autoLock.1min": "1 minute",
   "settings.autoLock.5min": "5 minutes",
   "settings.autoLock.15min": "15 minutes",

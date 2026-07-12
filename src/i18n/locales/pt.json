@@ -163,7 +163,7 @@
   "settings.theme.dark": "Escuro",
   "settings.theme.system": "Sistema",
   "settings.historyLimit.label": "Limite do Histórico",
-  "settings.autoLock.label": "Bloqueio Automático do Cofre",
+  "settings.autoLock.label": "Bloqueio automático do cofre",
   "settings.autoLock.1min": "1 minuto",
   "settings.autoLock.5min": "5 minutos",
   "settings.autoLock.15min": "15 minutos",

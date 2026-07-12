@@ -163,7 +163,7 @@
   "settings.theme.dark": "Oscuro",
   "settings.theme.system": "Sistema",
   "settings.historyLimit.label": "Límite del historial",
-  "settings.autoLock.label": "Bloqueo automático de bóveda",
+  "settings.autoLock.label": "Bloqueo automático de la bóveda",
   "settings.autoLock.1min": "1 minuto",
   "settings.autoLock.5min": "5 minutos",
   "settings.autoLock.15min": "15 minutos",
