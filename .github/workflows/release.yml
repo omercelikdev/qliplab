@@ -38,14 +38,10 @@ jobs:
           NODE_OPTIONS: "--max-old-space-size=4096"
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          # Developer ID code signing + notarization (Gatekeeper).
-          # If these secrets are unset, the build is simply left unsigned.
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Developer ID signing + notarization is intentionally OFF: the Apple
+          # cert secrets were misconfigured and failed the whole release. The
+          # .dmg ships unsigned (Gatekeeper: right-click → Open) until the
+          # APPLE_* secrets are set up. Re-add them here to turn signing back on.
         with:
           args: --target universal-apple-darwin
 
