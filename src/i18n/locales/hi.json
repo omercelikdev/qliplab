@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "द्वितीयक शॉर्टकट",
   "capture.pause": "कैप्चर रोकें",
   "capture.resume": "कैप्चर फिर से शुरू करें",
-  "capture.paused": "कैप्चर रुका हुआ"
+  "capture.paused": "कैप्चर रुका हुआ",
+  "preview.saveEdit": "इस क्लिप में बदलाव सहेजें",
+  "preview.saved": "सहेजा गया",
+  "preview.discardTitle": "बदलाव छोड़ें?",
+  "preview.discardMessage": "इस क्लिप में असहेजे बदलाव हैं। बिना सहेजे बंद करें?"
 }

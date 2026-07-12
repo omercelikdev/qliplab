@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Второй ярлык",
   "capture.pause": "Пауза захвата",
   "capture.resume": "Возобновить захват",
-  "capture.paused": "Захват приостановлен"
+  "capture.paused": "Захват приостановлен",
+  "preview.saveEdit": "Сохранить изменения в этом фрагменте",
+  "preview.saved": "Сохранено",
+  "preview.discardTitle": "Отменить изменения?",
+  "preview.discardMessage": "В этом фрагменте есть несохранённые изменения. Закрыть без сохранения?"
 }

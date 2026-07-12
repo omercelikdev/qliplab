@@ -45,7 +45,8 @@ export function useDiffMode() {
       // Escape to close preview, exit queue mode, or exit diff mode
       if (e.key === 'Escape') {
         const previewOpen = usePreviewStore.getState().isOpen;
-        const closePreview = usePreviewStore.getState().close;
+        // requestClose (not close) so an unsaved edit prompts before discarding.
+        const closePreview = usePreviewStore.getState().requestClose;
 
         if (previewOpen) {
           closePreview();

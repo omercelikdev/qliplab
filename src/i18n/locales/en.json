@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Secondary shortcut",
   "capture.pause": "Pause capture",
   "capture.resume": "Resume capture",
-  "capture.paused": "Capture paused"
+  "capture.paused": "Capture paused",
+  "preview.saveEdit": "Save changes to this clip",
+  "preview.saved": "Saved",
+  "preview.discardTitle": "Discard changes?",
+  "preview.discardMessage": "You have unsaved edits to this clip. Close without saving?"
 }

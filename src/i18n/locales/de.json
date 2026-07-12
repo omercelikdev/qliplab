@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "Zweiter Kurzbefehl",
   "capture.pause": "Erfassung pausieren",
   "capture.resume": "Erfassung fortsetzen",
-  "capture.paused": "Erfassung pausiert"
+  "capture.paused": "Erfassung pausiert",
+  "preview.saveEdit": "Änderungen an diesem Clip speichern",
+  "preview.saved": "Gespeichert",
+  "preview.discardTitle": "Änderungen verwerfen?",
+  "preview.discardMessage": "Es gibt ungespeicherte Änderungen an diesem Clip. Ohne Speichern schließen?"
 }

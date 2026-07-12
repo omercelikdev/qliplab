@@ -386,5 +386,9 @@
   "settings.shortcut.labelSecondary": "İkinci kısayol",
   "capture.pause": "Yakalamayı duraklat",
   "capture.resume": "Yakalamayı sürdür",
-  "capture.paused": "Yakalama duraklatıldı"
+  "capture.paused": "Yakalama duraklatıldı",
+  "preview.saveEdit": "Bu klipteki değişiklikleri kaydet",
+  "preview.saved": "Kaydedildi",
+  "preview.discardTitle": "Değişiklikler atılsın mı?",
+  "preview.discardMessage": "Bu klipte kaydedilmemiş düzenlemeler var. Kaydetmeden kapatılsın mı?"
 }

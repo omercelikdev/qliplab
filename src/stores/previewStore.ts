@@ -22,6 +22,8 @@ interface PreviewState {
   diffItems: [ClipboardItem | null, ClipboardItem | null];
   diffViewMode: DiffViewMode;
   pipelineSteps: PipelineStep[];
+  /** True while a close is being confirmed because the edit is unsaved. */
+  pendingClose: boolean;
 
   openTransform: (item: ClipboardItem, type: string, content: string) => void;
   openDiff: (items: [ClipboardItem, ClipboardItem]) => void;
@@ -31,6 +33,14 @@ interface PreviewState {
   addPipelineStep: (transformId: string, label: string, output: string) => void;
   removePipelineStep: (index: number) => void;
   clearPipeline: () => void;
+  /** Whether the view is a dirty edit (content changed from the source). */
+  isViewDirty: () => boolean;
+  /** After saving, mark the current content as the clean baseline. */
+  markSaved: (content: string) => void;
+  /** Close, but confirm first if there's an unsaved edit. */
+  requestClose: () => void;
+  confirmClose: () => void;
+  cancelClose: () => void;
   close: () => void;
 }
 
@@ -65,6 +75,7 @@ export const usePreviewStore = create<PreviewState>((set, get) => ({
   diffItems: [null, null],
   diffViewMode: 'side-by-side',
   pipelineSteps: [],
+  pendingClose: false,
 
   openTransform: (item, type, content) => {
     const wasOpen = get().isOpen;
@@ -156,8 +167,31 @@ export const usePreviewStore = create<PreviewState>((set, get) => ({
     });
   },
 
+  isViewDirty: () => {
+    const { mode, sourceItem, editedContent } = get();
+    return mode === 'view' && !!sourceItem && sourceItem.contentType !== 'image'
+      && editedContent !== sourceItem.content;
+  },
+
+  markSaved: (content) => {
+    const { sourceItem } = get();
+    if (sourceItem) set({ sourceItem: { ...sourceItem, content }, editedContent: content });
+  },
+
+  requestClose: () => {
+    if (get().isViewDirty()) set({ pendingClose: true });
+    else get().close();
+  },
+
+  confirmClose: () => {
+    set({ pendingClose: false });
+    get().close();
+  },
+
+  cancelClose: () => set({ pendingClose: false }),
+
   close: () => {
-    set({ isOpen: false, pipelineSteps: [] });
+    set({ isOpen: false, pendingClose: false, pipelineSteps: [] });
     shrinkWindowFromPreview();
   },
 }));
