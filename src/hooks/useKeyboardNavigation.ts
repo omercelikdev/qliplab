@@ -16,6 +16,8 @@ interface UseKeyboardNavigationOptions {
   onSelect: (index: number, opts?: SelectOptions) => void;
   /** Optional: remove the highlighted row (Cmd/Ctrl+Backspace). */
   onDelete?: (index: number) => void;
+  /** Optional: edit/preview the highlighted row (Cmd/Ctrl+E). */
+  onEdit?: (index: number) => void;
   isActive: boolean;
 }
 
@@ -23,6 +25,7 @@ export function useKeyboardNavigation({
   itemCount,
   onSelect,
   onDelete,
+  onEdit,
   isActive,
 }: UseKeyboardNavigationOptions) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -75,6 +78,15 @@ export function useKeyboardNavigation({
         return;
       }
 
+      // Edit the highlighted row with Cmd/Ctrl+E — the row's actions aren't in
+      // the tab order (roving aria-activedescendant), so give keyboard users a
+      // direct path to the editor. Checked before the input guard like delete.
+      if (onEdit && (e.key === 'e' || e.key === 'E') && (isMac ? e.metaKey : e.ctrlKey)) {
+        e.preventDefault();
+        onEdit(selectedIndex);
+        return;
+      }
+
       // The search box keeps focus so the user can type straight away; arrows
       // and Enter still drive the list. Any other field keeps its own keys.
       if (blocksListNavigation(toNavigationTarget(e.target as HTMLElement))) return;
@@ -95,7 +107,7 @@ export function useKeyboardNavigation({
           break;
       }
     },
-    [isActive, itemCount, selectedIndex, onSelect, onDelete, isPreviewOpen]
+    [isActive, itemCount, selectedIndex, onSelect, onDelete, onEdit, isPreviewOpen]
   );
 
   useEffect(() => {
