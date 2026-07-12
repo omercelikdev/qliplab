@@ -390,5 +390,12 @@
   "preview.saveEdit": "Guardar cambios en este clip",
   "preview.saved": "Guardado",
   "preview.discardTitle": "¿Descartar cambios?",
-  "preview.discardMessage": "Tienes ediciones sin guardar en este clip. ¿Cerrar sin guardar?"
+  "preview.discardMessage": "Tienes ediciones sin guardar en este clip. ¿Cerrar sin guardar?",
+  "snippets.folders.all": "Todos",
+  "snippets.folders.new": "Nueva carpeta",
+  "snippets.folders.namePlaceholder": "Nombre de carpeta",
+  "snippets.folders.label": "Carpeta",
+  "snippets.folders.none": "Sin carpeta",
+  "snippets.folders.deleteTitle": "¿Eliminar carpeta?",
+  "snippets.folders.deleteMessage": "¿Eliminar \"{{name}}\"? Sus snippets se conservan y salen de la carpeta."
 }

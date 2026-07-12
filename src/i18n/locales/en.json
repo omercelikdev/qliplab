@@ -390,5 +390,12 @@
   "preview.saveEdit": "Save changes to this clip",
   "preview.saved": "Saved",
   "preview.discardTitle": "Discard changes?",
-  "preview.discardMessage": "You have unsaved edits to this clip. Close without saving?"
+  "preview.discardMessage": "You have unsaved edits to this clip. Close without saving?",
+  "snippets.folders.all": "All",
+  "snippets.folders.new": "New folder",
+  "snippets.folders.namePlaceholder": "Folder name",
+  "snippets.folders.label": "Folder",
+  "snippets.folders.none": "No folder",
+  "snippets.folders.deleteTitle": "Delete folder?",
+  "snippets.folders.deleteMessage": "Delete \"{{name}}\"? Its snippets are kept and moved out of the folder."
 }

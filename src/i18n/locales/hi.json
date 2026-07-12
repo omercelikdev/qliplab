@@ -390,5 +390,12 @@
   "preview.saveEdit": "इस क्लिप में बदलाव सहेजें",
   "preview.saved": "सहेजा गया",
   "preview.discardTitle": "बदलाव छोड़ें?",
-  "preview.discardMessage": "इस क्लिप में असहेजे बदलाव हैं। बिना सहेजे बंद करें?"
+  "preview.discardMessage": "इस क्लिप में असहेजे बदलाव हैं। बिना सहेजे बंद करें?",
+  "snippets.folders.all": "सभी",
+  "snippets.folders.new": "नया फ़ोल्डर",
+  "snippets.folders.namePlaceholder": "फ़ोल्डर नाम",
+  "snippets.folders.label": "फ़ोल्डर",
+  "snippets.folders.none": "कोई फ़ोल्डर नहीं",
+  "snippets.folders.deleteTitle": "फ़ोल्डर हटाएं?",
+  "snippets.folders.deleteMessage": "\"{{name}}\" हटाएं? इसके स्निपेट रखे जाएंगे और फ़ोल्डर से बाहर कर दिए जाएंगे।"
 }

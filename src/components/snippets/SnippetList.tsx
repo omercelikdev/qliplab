@@ -1,7 +1,8 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Search, Clipboard } from 'lucide-react';
+import { Plus, Search, Clipboard, Folder, FolderPlus, X } from 'lucide-react';
 import { useSnippetStore } from '@/stores/snippetStore';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAppStore, SNIPPET_SYNTAX_FILTERS } from '@/stores/appStore';
 import type { SnippetSyntaxFilter } from '@/stores/appStore';
 import { SnippetItem } from './SnippetItem';
@@ -21,15 +22,33 @@ export function SnippetList() {
   const searchQuery = useAppStore((state) => state.searchQuery);
   const snippetSyntaxFilter = useAppStore((state) => state.snippetSyntaxFilter);
   const setSnippetSyntaxFilter = useAppStore((state) => state.setSnippetSyntaxFilter);
+  const categories = useSnippetStore((state) => state.categories);
+  const selectedCategoryId = useSnippetStore((state) => state.selectedCategoryId);
+  const setSelectedCategory = useSnippetStore((state) => state.setSelectedCategory);
+  const createCategory = useSnippetStore((state) => state.createCategory);
+  const deleteCategory = useSnippetStore((state) => state.deleteCategory);
+  const loadCategories = useSnippetStore((state) => state.loadCategories);
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const [isAddingFolder, setIsAddingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [folderToDelete, setFolderToDelete] = useState<{ id: string; name: string } | null>(null);
 
-  // Reload from SQL when search/filter changes
+  useEffect(() => { loadCategories(); }, [loadCategories]);
+
+  // Reload from SQL when search/filter/folder changes
   useEffect(() => {
     const group = SNIPPET_SYNTAX_FILTERS[snippetSyntaxFilter];
     const favoritesOnly = snippetSyntaxFilter === 'favorites';
-    loadSnippets(searchQuery, group.syntaxes ?? undefined, favoritesOnly);
-  }, [searchQuery, snippetSyntaxFilter, loadSnippets]);
+    loadSnippets(searchQuery, group.syntaxes ?? undefined, favoritesOnly, selectedCategoryId);
+  }, [searchQuery, snippetSyntaxFilter, selectedCategoryId, loadSnippets]);
+
+  const handleCreateFolder = useCallback(async () => {
+    const name = newFolderName.trim();
+    if (name) await createCategory(name);
+    setNewFolderName('');
+    setIsAddingFolder(false);
+  }, [newFolderName, createCategory]);
 
   const pinnedCount = useMemo(() => snippets.filter(s => s.isPinned).length, [snippets]);
 
@@ -98,6 +117,70 @@ export function SnippetList() {
         ))}
       </div>
 
+      {/* Folder bar — organize snippets into collections */}
+      <div className="flex items-center gap-1 px-3 py-1 shrink-0 overflow-x-auto">
+        <button
+          onClick={() => setSelectedCategory(null)}
+          className={cn(
+            'flex items-center gap-1 ps-1.5 pe-2 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer border',
+            selectedCategoryId === null
+              ? 'border-accent bg-accent/10 text-accent'
+              : 'border-border text-muted-foreground hover:bg-surface-hover'
+          )}
+        >
+          <Folder className="w-2.5 h-2.5" />
+          {t('snippets.folders.all')}
+        </button>
+        {categories.map((cat) => (
+          <div key={cat.id} className="group/folder relative flex items-center">
+            <button
+              onClick={() => setSelectedCategory(selectedCategoryId === cat.id ? null : cat.id)}
+              className={cn(
+                'flex items-center gap-1 ps-2 pe-1.5 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer border',
+                selectedCategoryId === cat.id
+                  ? 'border-accent bg-accent/10 text-accent'
+                  : 'border-border text-muted-foreground hover:bg-surface-hover'
+              )}
+            >
+              {cat.name}
+              <span
+                role="button"
+                tabIndex={0}
+                aria-label={t('common.delete')}
+                onClick={(e) => { e.stopPropagation(); setFolderToDelete({ id: cat.id, name: cat.name }); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setFolderToDelete({ id: cat.id, name: cat.name }); } }}
+                className="opacity-0 group-hover/folder:opacity-100 focus-visible:opacity-100 transition-opacity hover:text-destructive cursor-pointer"
+              >
+                <X className="w-2.5 h-2.5" />
+              </span>
+            </button>
+          </div>
+        ))}
+        {isAddingFolder ? (
+          <input
+            autoFocus
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            onBlur={handleCreateFolder}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleCreateFolder();
+              if (e.key === 'Escape') { setIsAddingFolder(false); setNewFolderName(''); }
+            }}
+            placeholder={t('snippets.folders.namePlaceholder')}
+            className="w-24 px-1.5 py-0.5 text-[10px] bg-surface border border-accent rounded-full outline-none no-drag"
+          />
+        ) : (
+          <button
+            onClick={() => setIsAddingFolder(true)}
+            aria-label={t('snippets.folders.new')}
+            title={t('snippets.folders.new')}
+            className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded-full text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer no-drag"
+          >
+            <FolderPlus className="w-3 h-3" />
+          </button>
+        )}
+      </div>
+
       <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden">
         {snippets.length === 0 ? (
           <div className="flex-1 flex items-center justify-center p-6">
@@ -161,6 +244,14 @@ export function SnippetList() {
           <Plus className="w-3.5 h-3.5" /> {t('snippets.newSnippet')}
         </button>
       </div>
+
+      <ConfirmDialog
+        isOpen={folderToDelete !== null}
+        title={t('snippets.folders.deleteTitle')}
+        message={t('snippets.folders.deleteMessage', { name: folderToDelete?.name ?? '' })}
+        onConfirm={() => { if (folderToDelete) deleteCategory(folderToDelete.id); setFolderToDelete(null); }}
+        onCancel={() => setFolderToDelete(null)}
+      />
     </div>
   );
 }

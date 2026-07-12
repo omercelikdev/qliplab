@@ -390,5 +390,12 @@
   "preview.saveEdit": "이 클립의 변경사항 저장",
   "preview.saved": "저장됨",
   "preview.discardTitle": "변경사항을 취소할까요?",
-  "preview.discardMessage": "이 클립에 저장하지 않은 편집이 있습니다. 저장하지 않고 닫을까요?"
+  "preview.discardMessage": "이 클립에 저장하지 않은 편집이 있습니다. 저장하지 않고 닫을까요?",
+  "snippets.folders.all": "전체",
+  "snippets.folders.new": "새 폴더",
+  "snippets.folders.namePlaceholder": "폴더 이름",
+  "snippets.folders.label": "폴더",
+  "snippets.folders.none": "폴더 없음",
+  "snippets.folders.deleteTitle": "폴더를 삭제할까요?",
+  "snippets.folders.deleteMessage": "\"{{name}}\"을(를) 삭제할까요? 스니펫은 유지되고 폴더에서 빠집니다."
 }

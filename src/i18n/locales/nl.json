@@ -390,5 +390,12 @@
   "preview.saveEdit": "Wijzigingen in dit clip opslaan",
   "preview.saved": "Opgeslagen",
   "preview.discardTitle": "Wijzigingen negeren?",
-  "preview.discardMessage": "Je hebt niet-opgeslagen bewerkingen. Sluiten zonder opslaan?"
+  "preview.discardMessage": "Je hebt niet-opgeslagen bewerkingen. Sluiten zonder opslaan?",
+  "snippets.folders.all": "Alle",
+  "snippets.folders.new": "Nieuwe map",
+  "snippets.folders.namePlaceholder": "Mapnaam",
+  "snippets.folders.label": "Map",
+  "snippets.folders.none": "Geen map",
+  "snippets.folders.deleteTitle": "Map verwijderen?",
+  "snippets.folders.deleteMessage": "\"{{name}}\" verwijderen? De snippets blijven behouden en gaan uit de map."
 }
