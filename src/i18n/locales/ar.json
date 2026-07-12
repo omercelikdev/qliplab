@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "كلمة المرور الحالية غير صحيحة.",
   "vault.changePassword.decryptError": "تعذر فك تشفير الخزنة بهذه الكلمة. لم يتم تغيير أي شيء.",
   "vault.changePassword.genericError": "حدث خطأ ما. لم يتم تغيير كلمة المرور.",
-  "common.clearFilters": "مسح عوامل التصفية"
+  "common.clearFilters": "مسح عوامل التصفية",
+  "history.tags.deleteTitle": "حذف الوسم",
+  "history.tags.deleteMessage": "إزالة \"{{name}}\" من كل نسخة؟ لا يمكن التراجع عن هذا."
 }

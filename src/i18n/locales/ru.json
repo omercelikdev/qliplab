@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "Текущий пароль неверен.",
   "vault.changePassword.decryptError": "Не удалось расшифровать хранилище этим паролем. Ничего не изменено.",
   "vault.changePassword.genericError": "Что-то пошло не так. Пароль не изменён.",
-  "common.clearFilters": "Сбросить фильтры"
+  "common.clearFilters": "Сбросить фильтры",
+  "history.tags.deleteTitle": "Удалить тег",
+  "history.tags.deleteMessage": "Удалить «{{name}}» из всех записей? Это нельзя отменить."
 }

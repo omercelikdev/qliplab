@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Lock, Search, KeyRound } from 'lucide-react';
+import { Plus, Lock, Search, KeyRound, ShieldCheck } from 'lucide-react';
 import { useVaultStore } from '@/stores/vaultStore';
 import { useAppStore, VAULT_TYPE_FILTERS } from '@/stores/appStore';
 import type { VaultTypeFilter } from '@/stores/appStore';
@@ -163,7 +163,11 @@ export function VaultList() {
           <div className="flex-1 flex items-center justify-center p-6">
             <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
               <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center">
-                <Search className="w-6 h-6 text-muted-foreground" />
+                {items.length === 0 ? (
+                  <ShieldCheck className="w-6 h-6 text-muted-foreground" />
+                ) : (
+                  <Search className="w-6 h-6 text-muted-foreground" />
+                )}
               </div>
               <div>
                 <h3 className="text-sm font-medium text-foreground mb-1">

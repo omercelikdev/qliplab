@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "Current password is incorrect.",
   "vault.changePassword.decryptError": "Couldn't decrypt the vault with this password. Nothing was changed.",
   "vault.changePassword.genericError": "Something went wrong. Your password was not changed.",
-  "common.clearFilters": "Clear filters"
+  "common.clearFilters": "Clear filters",
+  "history.tags.deleteTitle": "Delete tag",
+  "history.tags.deleteMessage": "Remove \"{{name}}\" from every clip? This can't be undone."
 }

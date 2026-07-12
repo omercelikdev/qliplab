@@ -16,6 +16,7 @@ import { useTagStore } from '@/stores/tagStore';
 import { barEndInset } from '@/lib/platform';
 import { SelectMenu } from '@/components/ui/SelectMenu';
 import { useModifierHeld } from '@/hooks/useModifierHeld';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -49,6 +50,7 @@ export function HistoryList() {
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [pastingItemId, setPastingItemId] = useState<string | null>(null);
   const [sourceApps, setSourceApps] = useState<string[]>([]);
+  const [tagToDelete, setTagToDelete] = useState<{ id: string; name: string } | null>(null);
   // Reveals the ⌘1…⌘9 quick-paste hints on the rows while the modifier is held.
   const modifierHeld = useModifierHeld();
 
@@ -254,29 +256,33 @@ export function HistoryList() {
         <div className="flex items-center gap-1 px-3 py-1 shrink-0 overflow-x-auto">
           <Tag className="w-3 h-3 text-muted-foreground shrink-0" />
           {tags.map(tag => (
-            <div key={tag.id} className="group/tag relative flex items-center">
+            <div
+              key={tag.id}
+              className={cn(
+                'group/tag flex items-center ps-2 pe-1 py-0.5 rounded-full whitespace-nowrap border transition-colors',
+                activeTagFilter === tag.id
+                  ? 'border-accent bg-accent/10 text-accent'
+                  : 'border-transparent text-muted-foreground hover:bg-surface-hover'
+              )}
+            >
               <button
                 onClick={() => setActiveTagFilter(activeTagFilter === tag.id ? null : tag.id)}
-                className={cn(
-                  'flex items-center gap-1 ps-2 pe-1.5 py-0.5 text-[10px] rounded-full whitespace-nowrap transition-colors cursor-pointer border',
-                  activeTagFilter === tag.id
-                    ? 'border-accent bg-accent/10 text-accent'
-                    : 'border-transparent text-muted-foreground hover:bg-surface-hover'
-                )}
+                className="flex items-center gap-1 text-[10px] cursor-pointer"
               >
                 <span
                   className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: tag.color || '#888' }}
                 />
                 {tag.name}
-                <span
-                  role="button"
-                  className="ms-0.5 p-0.5 rounded-full opacity-0 group-hover/tag:opacity-100 hover:bg-destructive/20 hover:text-destructive transition-all cursor-pointer"
-                  onClick={(e) => { e.stopPropagation(); deleteTag(tag.id); }}
-                  title={t('history.deleteTag')}
-                >
-                  <X className="w-2.5 h-2.5" />
-                </span>
+              </button>
+              <button
+                type="button"
+                aria-label={t('history.deleteTag')}
+                title={t('history.deleteTag')}
+                className="ms-0.5 p-0.5 rounded-full opacity-0 group-hover/tag:opacity-100 focus-visible:opacity-100 hover:bg-destructive/20 hover:text-destructive transition-all cursor-pointer"
+                onClick={() => setTagToDelete({ id: tag.id, name: tag.name })}
+              >
+                <X className="w-2.5 h-2.5" />
               </button>
             </div>
           ))}
@@ -381,6 +387,20 @@ export function HistoryList() {
       </div>
       )}
       </div>
+
+      <ConfirmDialog
+        isOpen={tagToDelete !== null}
+        title={t('history.tags.deleteTitle')}
+        message={t('history.tags.deleteMessage', { name: tagToDelete?.name ?? '' })}
+        onConfirm={() => {
+          if (tagToDelete) {
+            deleteTag(tagToDelete.id);
+            if (activeTagFilter === tagToDelete.id) setActiveTagFilter(null);
+          }
+          setTagToDelete(null);
+        }}
+        onCancel={() => setTagToDelete(null)}
+      />
     </div>
   );
 }

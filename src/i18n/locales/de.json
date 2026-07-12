@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "Aktuelles Passwort ist falsch.",
   "vault.changePassword.decryptError": "Der Tresor konnte mit diesem Passwort nicht entschlüsselt werden. Es wurde nichts geändert.",
   "vault.changePassword.genericError": "Etwas ist schiefgelaufen. Dein Passwort wurde nicht geändert.",
-  "common.clearFilters": "Filter zurücksetzen"
+  "common.clearFilters": "Filter zurücksetzen",
+  "history.tags.deleteTitle": "Tag löschen",
+  "history.tags.deleteMessage": "\"{{name}}\" von allen Clips entfernen? Das kann nicht rückgängig gemacht werden."
 }

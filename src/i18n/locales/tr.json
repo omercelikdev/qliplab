@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "Mevcut parola yanlış.",
   "vault.changePassword.decryptError": "Kasa bu parolayla çözülemedi. Hiçbir şey değiştirilmedi.",
   "vault.changePassword.genericError": "Bir hata oluştu. Parolanız değiştirilmedi.",
-  "common.clearFilters": "Filtreleri temizle"
+  "common.clearFilters": "Filtreleri temizle",
+  "history.tags.deleteTitle": "Etiketi sil",
+  "history.tags.deleteMessage": "\"{{name}}\" tüm kopyalardan kaldırılsın mı? Bu geri alınamaz."
 }

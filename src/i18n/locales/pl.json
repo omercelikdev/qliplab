@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "Obecne hasło jest nieprawidłowe.",
   "vault.changePassword.decryptError": "Nie udało się odszyfrować sejfu tym hasłem. Nic nie zmieniono.",
   "vault.changePassword.genericError": "Coś poszło nie tak. Hasło nie zostało zmienione.",
-  "common.clearFilters": "Wyczyść filtry"
+  "common.clearFilters": "Wyczyść filtry",
+  "history.tags.deleteTitle": "Usuń tag",
+  "history.tags.deleteMessage": "Usunąć „{{name}}\" ze wszystkich wpisów? Tej operacji nie można cofnąć."
 }

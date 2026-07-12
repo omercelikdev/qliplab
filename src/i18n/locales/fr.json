@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "Le mot de passe actuel est incorrect.",
   "vault.changePassword.decryptError": "Impossible de déchiffrer le coffre avec ce mot de passe. Rien n'a été modifié.",
   "vault.changePassword.genericError": "Une erreur s'est produite. Votre mot de passe n'a pas été changé.",
-  "common.clearFilters": "Effacer les filtres"
+  "common.clearFilters": "Effacer les filtres",
+  "history.tags.deleteTitle": "Supprimer l'étiquette",
+  "history.tags.deleteMessage": "Retirer « {{name}} » de tous les extraits ? Action irréversible."
 }
