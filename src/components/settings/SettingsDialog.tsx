@@ -14,7 +14,12 @@ import { CONFIG } from '@/lib/config';
 import { isFrontmostAppSupported } from '@/lib/capabilities';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSnippetStore } from '@/stores/snippetStore';
+import { SelectMenu } from '@/components/ui/SelectMenu';
 import { cn } from '@/lib/utils';
+
+// Full-width trigger so SelectMenu matches the old native <select> footprint.
+const SETTINGS_SELECT_TRIGGER =
+  'w-full flex items-center justify-between gap-2 px-3 py-1.5 bg-surface border border-border rounded-md text-xs cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
 const THEME_LABELS: Record<string, string> = {
   light: 'settings.theme.light',
@@ -113,37 +118,33 @@ export function SettingsPanel() {
             {/* History Limit */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.historyLimit.label')}</label>
-              <select
-                value={settings.historyLimit}
-                onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('historyLimit', v); }}
-                className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
-              >
-                <option value={100}>100 items</option>
-                <option value={200}>200 items</option>
-                <option value={500}>500 items</option>
-                <option value={1000}>1,000 items</option>
-                <option value={5000}>5,000 items</option>
-                <option value={10000}>10,000 items</option>
-                <option value={50000}>50,000 items</option>
-                <option value={100000}>100,000 items</option>
-                <option value={500000}>500,000 items</option>
-                <option value={1000000}>1,000,000 items</option>
-              </select>
+              <SelectMenu
+                ariaLabel={t('settings.historyLimit.label')}
+                triggerClassName={SETTINGS_SELECT_TRIGGER}
+                value={String(settings.historyLimit)}
+                onChange={(v) => { const n = parseInt(v); if (!isNaN(n)) updateSetting('historyLimit', n); }}
+                options={[100, 200, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000].map((n) => ({
+                  value: String(n),
+                  label: t('settings.historyLimit.items', { num: n.toLocaleString() }),
+                }))}
+              />
             </div>
 
             {/* Auto Lock */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.autoLock.label')}</label>
-              <select
-                value={settings.autoLockMinutes}
-                onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('autoLockMinutes', v); }}
-                className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
-              >
-                <option value={1}>{t('settings.autoLock.1min')}</option>
-                <option value={5}>{t('settings.autoLock.5min')}</option>
-                <option value={15}>{t('settings.autoLock.15min')}</option>
-                <option value={0}>{t('settings.autoLock.never')}</option>
-              </select>
+              <SelectMenu
+                ariaLabel={t('settings.autoLock.label')}
+                triggerClassName={SETTINGS_SELECT_TRIGGER}
+                value={String(settings.autoLockMinutes)}
+                onChange={(v) => { const n = parseInt(v); if (!isNaN(n)) updateSetting('autoLockMinutes', n); }}
+                options={[
+                  { value: '1', label: t('settings.autoLock.1min') },
+                  { value: '5', label: t('settings.autoLock.5min') },
+                  { value: '15', label: t('settings.autoLock.15min') },
+                  { value: '0', label: t('settings.autoLock.never') },
+                ]}
+              />
             </div>
 
             {/* Toggles */}
@@ -190,17 +191,19 @@ export function SettingsPanel() {
             {/* Clip Expiration */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.expiration.label')}</label>
-              <select
-                value={settings.expirationDays}
-                onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateSetting('expirationDays', v); }}
-                className="w-full px-3 py-1.5 bg-surface border border-border rounded-md text-xs outline-none focus:ring-2 focus:ring-accent"
-              >
-                <option value={0}>{t('settings.expiration.never')}</option>
-                <option value={7}>{t('settings.expiration.after7')}</option>
-                <option value={14}>{t('settings.expiration.after14')}</option>
-                <option value={30}>{t('settings.expiration.after30')}</option>
-                <option value={90}>{t('settings.expiration.after90')}</option>
-              </select>
+              <SelectMenu
+                ariaLabel={t('settings.expiration.label')}
+                triggerClassName={SETTINGS_SELECT_TRIGGER}
+                value={String(settings.expirationDays)}
+                onChange={(v) => { const n = parseInt(v); if (!isNaN(n)) updateSetting('expirationDays', n); }}
+                options={[
+                  { value: '0', label: t('settings.expiration.never') },
+                  { value: '7', label: t('settings.expiration.after7') },
+                  { value: '14', label: t('settings.expiration.after14') },
+                  { value: '30', label: t('settings.expiration.after30') },
+                  { value: '90', label: t('settings.expiration.after90') },
+                ]}
+              />
             </div>
 
             {/* Global Shortcut — two slots so a short primary and a familiar

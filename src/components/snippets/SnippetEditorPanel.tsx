@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X, FileText } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { SelectMenu } from '@/components/ui/SelectMenu';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { AVAILABLE_VARIABLES } from '@/lib/snippetVariables';
@@ -251,34 +252,33 @@ export function SnippetEditorPanel() {
             }}
           />
         </div>
-        <select
-          value={syntax}
-          onChange={(e) => setSyntax(e.target.value)}
-          className={cn(
-            'px-2 py-1.5 bg-surface border border-border rounded-md text-[11px]',
-            'outline-none focus:ring-1 focus:ring-accent cursor-pointer'
+        <SelectMenu
+          ariaLabel={t('snippets.editor.syntaxPlainText')}
+          triggerClassName={cn(
+            'flex items-center justify-between gap-1 px-2 py-1.5 bg-surface border border-border rounded-md text-[11px]',
+            'cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-accent'
           )}
-        >
-          {SYNTAX_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.value === 'plain' ? t('snippets.editor.syntaxPlainText') : opt.label}</option>
-          ))}
-        </select>
+          value={syntax}
+          onChange={(v) => setSyntax(v)}
+          options={SYNTAX_OPTIONS.map((opt) => ({
+            value: opt.value,
+            label: opt.value === 'plain' ? t('snippets.editor.syntaxPlainText') : opt.label,
+          }))}
+        />
         {categories.length > 0 && (
-          <select
-            value={categoryId ?? ''}
-            onChange={(e) => setCategoryId(e.target.value || null)}
-            aria-label={t('snippets.folders.label')}
-            title={t('snippets.folders.label')}
-            className={cn(
-              'px-2 py-1.5 bg-surface border border-border rounded-md text-[11px] max-w-[120px]',
-              'outline-none focus:ring-1 focus:ring-accent cursor-pointer'
+          <SelectMenu
+            ariaLabel={t('snippets.folders.label')}
+            triggerClassName={cn(
+              'flex items-center justify-between gap-1 px-2 py-1.5 bg-surface border border-border rounded-md text-[11px] max-w-[120px]',
+              'cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-accent'
             )}
-          >
-            <option value="">{t('snippets.folders.none')}</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
+            value={categoryId ?? ''}
+            onChange={(v) => setCategoryId(v || null)}
+            options={[
+              { value: '', label: t('snippets.folders.none') },
+              ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+            ]}
+          />
         )}
       </div>
 

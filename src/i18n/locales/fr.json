@@ -410,5 +410,6 @@
   "vault.changePassword.genericError": "Une erreur s'est produite. Votre mot de passe n'a pas été changé.",
   "common.clearFilters": "Effacer les filtres",
   "history.tags.deleteTitle": "Supprimer l'étiquette",
-  "history.tags.deleteMessage": "Retirer « {{name}} » de tous les extraits ? Action irréversible."
+  "history.tags.deleteMessage": "Retirer « {{name}} » de tous les extraits ? Action irréversible.",
+  "settings.historyLimit.items": "{{num}} éléments"
 }

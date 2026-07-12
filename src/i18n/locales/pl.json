@@ -410,5 +410,6 @@
   "vault.changePassword.genericError": "Coś poszło nie tak. Hasło nie zostało zmienione.",
   "common.clearFilters": "Wyczyść filtry",
   "history.tags.deleteTitle": "Usuń tag",
-  "history.tags.deleteMessage": "Usunąć „{{name}}\" ze wszystkich wpisów? Tej operacji nie można cofnąć."
+  "history.tags.deleteMessage": "Usunąć „{{name}}\" ze wszystkich wpisów? Tej operacji nie można cofnąć.",
+  "settings.historyLimit.items": "{{num}} elem."
 }

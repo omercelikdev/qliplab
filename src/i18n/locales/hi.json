@@ -410,5 +410,6 @@
   "vault.changePassword.genericError": "कुछ गड़बड़ हो गई। आपका पासवर्ड नहीं बदला गया।",
   "common.clearFilters": "फ़िल्टर साफ़ करें",
   "history.tags.deleteTitle": "टैग हटाएं",
-  "history.tags.deleteMessage": "हर क्लिप से \"{{name}}\" हटाएं? इसे पूर्ववत नहीं किया जा सकता।"
+  "history.tags.deleteMessage": "हर क्लिप से \"{{name}}\" हटाएं? इसे पूर्ववत नहीं किया जा सकता।",
+  "settings.historyLimit.items": "{{num}} आइटम"
 }
