@@ -410,5 +410,6 @@
   "vault.changePassword.genericError": "Algo salió mal. Tu contraseña no se cambió.",
   "common.clearFilters": "Borrar filtros",
   "history.tags.deleteTitle": "Eliminar etiqueta",
-  "history.tags.deleteMessage": "¿Quitar \"{{name}}\" de todos los elementos? Esto no se puede deshacer."
+  "history.tags.deleteMessage": "¿Quitar \"{{name}}\" de todos los elementos? Esto no se puede deshacer.",
+  "settings.historyLimit.items": "{{num}} elementos"
 }

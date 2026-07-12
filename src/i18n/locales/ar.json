@@ -410,5 +410,6 @@
   "vault.changePassword.genericError": "حدث خطأ ما. لم يتم تغيير كلمة المرور.",
   "common.clearFilters": "مسح عوامل التصفية",
   "history.tags.deleteTitle": "حذف الوسم",
-  "history.tags.deleteMessage": "إزالة \"{{name}}\" من كل نسخة؟ لا يمكن التراجع عن هذا."
+  "history.tags.deleteMessage": "إزالة \"{{name}}\" من كل نسخة؟ لا يمكن التراجع عن هذا.",
+  "settings.historyLimit.items": "{{num}} عنصر"
 }

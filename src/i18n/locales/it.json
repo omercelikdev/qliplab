@@ -410,5 +410,6 @@
   "vault.changePassword.genericError": "Qualcosa è andato storto. La password non è stata cambiata.",
   "common.clearFilters": "Cancella filtri",
   "history.tags.deleteTitle": "Elimina tag",
-  "history.tags.deleteMessage": "Rimuovere \"{{name}}\" da tutti gli elementi? Operazione irreversibile."
+  "history.tags.deleteMessage": "Rimuovere \"{{name}}\" da tutti gli elementi? Operazione irreversibile.",
+  "settings.historyLimit.items": "{{num}} elementi"
 }

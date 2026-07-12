@@ -410,5 +410,6 @@
   "vault.changePassword.genericError": "Er ging iets mis. Je wachtwoord is niet gewijzigd.",
   "common.clearFilters": "Filters wissen",
   "history.tags.deleteTitle": "Tag verwijderen",
-  "history.tags.deleteMessage": "\"{{name}}\" uit alle clips verwijderen? Dit kan niet ongedaan worden gemaakt."
+  "history.tags.deleteMessage": "\"{{name}}\" uit alle clips verwijderen? Dit kan niet ongedaan worden gemaakt.",
+  "settings.historyLimit.items": "{{num}} items"
 }

@@ -410,5 +410,6 @@
   "vault.changePassword.genericError": "Etwas ist schiefgelaufen. Dein Passwort wurde nicht geändert.",
   "common.clearFilters": "Filter zurücksetzen",
   "history.tags.deleteTitle": "Tag löschen",
-  "history.tags.deleteMessage": "\"{{name}}\" von allen Clips entfernen? Das kann nicht rückgängig gemacht werden."
+  "history.tags.deleteMessage": "\"{{name}}\" von allen Clips entfernen? Das kann nicht rückgängig gemacht werden.",
+  "settings.historyLimit.items": "{{num}} Einträge"
 }
