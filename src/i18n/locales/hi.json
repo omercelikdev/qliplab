@@ -432,5 +432,9 @@
   "history.transform.colorInfo": "रंग जानकारी",
   "history.transform.csvInfo": "CSV जानकारी",
   "history.transform.regexInfo": "Regex जानकारी",
-  "commandBar.paste": "चिपकाएं"
+  "commandBar.paste": "चिपकाएं",
+  "history.smartAction.openUrl": "लिंक खोलें",
+  "history.smartAction.email": "ईमेल भेजें",
+  "history.smartAction.call": "कॉल करें",
+  "history.smartAction.map": "मानचित्र में खोलें"
 }

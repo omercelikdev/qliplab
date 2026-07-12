@@ -432,5 +432,9 @@
   "history.transform.colorInfo": "معلومات اللون",
   "history.transform.csvInfo": "معلومات CSV",
   "history.transform.regexInfo": "معلومات Regex",
-  "commandBar.paste": "لصق"
+  "commandBar.paste": "لصق",
+  "history.smartAction.openUrl": "فتح الرابط",
+  "history.smartAction.email": "إرسال بريد",
+  "history.smartAction.call": "اتصال",
+  "history.smartAction.map": "فتح في الخرائط"
 }

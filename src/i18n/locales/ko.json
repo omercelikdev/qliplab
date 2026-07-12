@@ -432,5 +432,9 @@
   "history.transform.colorInfo": "색상 정보",
   "history.transform.csvInfo": "CSV 정보",
   "history.transform.regexInfo": "정규식 정보",
-  "commandBar.paste": "붙여넣기"
+  "commandBar.paste": "붙여넣기",
+  "history.smartAction.openUrl": "링크 열기",
+  "history.smartAction.email": "이메일 보내기",
+  "history.smartAction.call": "전화 걸기",
+  "history.smartAction.map": "지도에서 열기"
 }

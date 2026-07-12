@@ -2,19 +2,28 @@ import { useState, useLayoutEffect, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Tag, Plus, X } from 'lucide-react';
+import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Tag, Plus, X, ExternalLink, Mail, Phone, MapPin } from 'lucide-react';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import * as transforms from '@/lib/transforms';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { writeHtmlAndText } from 'tauri-plugin-clipboard-api';
 import { invoke } from '@tauri-apps/api/core';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { hideWriteAndPaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useTagStore } from '@/stores/tagStore';
 import { isLinux } from '@/lib/platform';
+import { getSmartActions, type SmartActionKind } from '@/lib/smartActions';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
+
+const SMART_ACTION_META: Record<SmartActionKind, { icon: React.ElementType; labelKey: string }> = {
+  openUrl: { icon: ExternalLink, labelKey: 'history.smartAction.openUrl' },
+  email: { icon: Mail, labelKey: 'history.smartAction.email' },
+  call: { icon: Phone, labelKey: 'history.smartAction.call' },
+  map: { icon: MapPin, labelKey: 'history.smartAction.map' },
+};
 
 interface ItemMenuProps {
   item: ClipboardItem;
@@ -202,6 +211,9 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
 
   const transformItems = getTransformItems();
 
+  // Contextual actions (open link, email, call, map) — images never qualify.
+  const smartActions = item.contentType === 'image' ? [] : getSmartActions(item.content, item.detectedFormat);
+
 
   if (!isOpen) return null;
 
@@ -228,6 +240,18 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
           >
+            {smartActions.map((a, i) => {
+              const meta = SMART_ACTION_META[a.kind];
+              return (
+                <MenuButton
+                  key={`smart-${i}`}
+                  icon={meta.icon}
+                  label={t(meta.labelKey)}
+                  onClick={async () => { try { await openUrl(a.href); } catch { /* opener unavailable */ } onClose(); }}
+                />
+              );
+            })}
+            {smartActions.length > 0 && <div className="h-px bg-popover-border/70 my-1" />}
             <MenuButton icon={Copy} label={t('history.menu.copy')} onClick={handleCopy} />
             {item.htmlContent && htmlPasteAvailable && (
               <>

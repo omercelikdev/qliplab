@@ -432,5 +432,9 @@
   "history.transform.colorInfo": "色情報",
   "history.transform.csvInfo": "CSV 情報",
   "history.transform.regexInfo": "正規表現情報",
-  "commandBar.paste": "貼り付け"
+  "commandBar.paste": "貼り付け",
+  "history.smartAction.openUrl": "リンクを開く",
+  "history.smartAction.email": "メールを送信",
+  "history.smartAction.call": "発信",
+  "history.smartAction.map": "マップで開く"
 }
