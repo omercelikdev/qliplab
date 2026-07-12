@@ -227,16 +227,13 @@ export function collectTriggers(
 
 /** Expand a matched trigger — dispatches to snippet or vault based on sourceId prefix */
 export async function expandTrigger(sourceId: string, triggerLen: number): Promise<void> {
+  // Resolve the replacement text BEFORE touching the keyboard. If the lookup
+  // fails — a stale trigger map after a snippet delete, the vault re-locking
+  // between match and expansion, an unknown sourceId — bail with the user's
+  // typed trigger intact. Backspacing first would destroy their text in the
+  // active app and insert nothing.
+  let content: string;
   try {
-    // Pause keystroke capture
-    await invoke('set_trigger_expanding', { expanding: true });
-
-    // Delete trigger text with backspaces
-    await invoke('simulate_backspace', { count: triggerLen });
-    await new Promise((resolve) => setTimeout(resolve, 50 + triggerLen * 15));
-
-    let content: string;
-
     if (sourceId.startsWith('snippet:')) {
       const snippetId = sourceId.slice('snippet:'.length);
       const snippet = useSnippetStore.getState().snippets.find((s) => s.id === snippetId);
@@ -253,8 +250,15 @@ export async function expandTrigger(sourceId: string, triggerLen: number): Promi
     } else {
       return;
     }
+  } catch {
+    return; // resolution failed — leave the typed trigger untouched
+  }
 
-    // Write to clipboard and paste in place
+  try {
+    // Pause keystroke capture, then delete the trigger and paste the content.
+    await invoke('set_trigger_expanding', { expanding: true });
+    await invoke('simulate_backspace', { count: triggerLen });
+    await new Promise((resolve) => setTimeout(resolve, 50 + triggerLen * 15));
     await writeText(content);
     await invoke('simulate_paste_in_place');
     await new Promise((resolve) => setTimeout(resolve, 100));

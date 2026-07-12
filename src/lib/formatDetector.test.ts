@@ -31,6 +31,15 @@ describe('detectFormat', () => {
 
   it('detects URL-encoded string', () => {
     expect(detectFormat('hello%20world%21')).toBe('url_encoded');
+    expect(detectFormat('a%2Fb%2Fc')).toBe('url_encoded');
+  });
+
+  // Regression: without a $ anchor the regex matched a prefix, so prose with a
+  // stray percent was flagged url_encoded and an auto-command could decode it.
+  it('does not flag prose containing a percent as url_encoded', () => {
+    expect(detectFormat('100% growth across all regions')).not.toBe('url_encoded');
+    expect(detectFormat('50%25 off, this weekend only')).not.toBe('url_encoded');
+    expect(detectFormat('a%2Fb and then some words')).not.toBe('url_encoded');
   });
 
   it('detects Base64', () => {

@@ -54,6 +54,10 @@ export function highlightRanges(text: string, tokens: string[]): HighlightRange[
   if (tokens.length === 0) return [];
 
   const haystack = text.toLowerCase();
+  // toLowerCase can change length (Turkish 'İ' → 'i̇', German 'ß' unchanged but
+  // 'İ' adds a combining mark), which desyncs indices from the original text and
+  // highlights the wrong spans. A missed highlight beats a wrong one — bail.
+  if (haystack.length !== text.length) return [];
   const found: HighlightRange[] = [];
 
   for (const token of tokens) {

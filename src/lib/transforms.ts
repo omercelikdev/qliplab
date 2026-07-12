@@ -33,11 +33,27 @@ export function encodeUrl(content: string): string { return encodeURIComponent(c
 export function decodeUrl(content: string): string { try { return decodeURIComponent(content); } catch { return content; } }
 
 // JWT
+/**
+ * Decode one JWT segment. Segments are base64**url** (`-`/`_`, no padding), not
+ * plain base64, and hold UTF-8 bytes — `atob` alone rejects real tokens (any
+ * byte hitting index 62/63) and mangles non-ASCII claims into Latin-1.
+ */
+function decodeJwtSegment(segment: string): string {
+  const b64 = segment.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = b64.padEnd(Math.ceil(b64.length / 4) * 4, '=');
+  const binary = atob(padded);
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
 export function decodeJwt(content: string): { header: Record<string, unknown>; payload: Record<string, unknown> } | null {
   const parts = content.split('.');
   if (parts.length !== 3) return null;
   try {
-    return { header: JSON.parse(atob(parts[0])), payload: JSON.parse(atob(parts[1])) };
+    return {
+      header: JSON.parse(decodeJwtSegment(parts[0])),
+      payload: JSON.parse(decodeJwtSegment(parts[1])),
+    };
   } catch { return null; }
 }
 
@@ -67,9 +83,13 @@ export async function hashSha256(content: string): Promise<string> {
 
 // Timestamp
 export function timestampToDate(content: string): string {
-  const ts = parseInt(content);
+  // Trim first: a terminal copy of a 13-digit ms timestamp arrives as
+  // "1700000000000\n" (length 14), which the raw-length check would treat as
+  // seconds and multiply into the year 55000.
+  const trimmed = content.trim();
+  const ts = parseInt(trimmed);
   if (isNaN(ts)) return content;
-  const date = new Date(content.length === 13 ? ts : ts * 1000);
+  const date = new Date(trimmed.length === 13 ? ts : ts * 1000);
   if (isNaN(date.getTime())) return content;
   return date.toISOString();
 }
@@ -321,22 +341,23 @@ export function regexInfo(content: string): string {
 // Hex
 export function hexToText(content: string): string {
   const hex = content.replace(/^0x/i, '').replace(/\s/g, '');
-  if (!/^[0-9A-Fa-f]+$/.test(hex)) return content;
+  if (!/^[0-9A-Fa-f]+$/.test(hex) || hex.length % 2 !== 0) return content;
 
   try {
-    let text = '';
-    for (let i = 0; i < hex.length; i += 2) {
-      text += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
     }
-    return text;
+    // Decode as UTF-8 so the round trip holds for emoji and non-Latin text.
+    return new TextDecoder('utf-8').decode(bytes);
   } catch { return content; }
 }
 
 export function textToHex(content: string): string {
-  return Array.from(content)
-    .map(c => c.charCodeAt(0).toString(16).padStart(2, '0'))
-    .join('')
-    .toUpperCase();
+  // Encode UTF-8 bytes: charCodeAt(0) drops astral chars to a lone surrogate and
+  // emits >2 hex digits per code point, so textToHex('😀') round-trips wrong.
+  const bytes = new TextEncoder().encode(content);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
 export function hexToDecimal(content: string): string {

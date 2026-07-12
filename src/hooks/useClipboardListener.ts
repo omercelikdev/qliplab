@@ -14,17 +14,12 @@ import { detectFormat, isSensitive } from '@/lib/formatDetector';
 import { isQueuePasting } from '@/lib/window';
 import { TRANSFORM_REGISTRY } from '@/lib/transformRegistry';
 import { getDatabase } from '@/lib/database';
-
-// Flag to prevent clipboard listener from recording the next change
-// Used by: auto-commands (re-trigger prevention) and vault paste (security)
-let skipNextClipboardChange = false;
+import { armSkip, consumeSkip } from '@/lib/clipboardSkip';
 
 /** Skip the next clipboard change from being recorded in history.
  *  Used by vault paste to prevent sensitive data from leaking into history. */
 export function skipNextClipboard() {
-  skipNextClipboardChange = true;
-  // Safety timeout: reset after 2s in case the clipboard event never fires
-  setTimeout(() => { skipNextClipboardChange = false; }, 2000);
+  armSkip();
 }
 
 // Max content size to store (5MB) — prevents app freeze on huge clipboard data
@@ -49,8 +44,7 @@ export function useClipboardListener() {
         unlistenText = await onTextUpdate(async (text) => {
           try {
           if (isQueuePasting()) return;
-          if (skipNextClipboardChange) {
-            skipNextClipboardChange = false;
+          if (consumeSkip()) {
             lastTextRef.current = text;
             return;
           }
@@ -113,9 +107,8 @@ export function useClipboardListener() {
             try {
               const result = await transform.apply(text);
               if (result && result !== text) {
-                // Update clipboard with safety timeout for skip flag
-                skipNextClipboardChange = true;
-                setTimeout(() => { skipNextClipboardChange = false; }, 2000);
+                // Skip recording our own rewrite (re-arm cancels any prior timer)
+                armSkip();
                 lastTextRef.current = result;
                 await writeTextClipboard(result);
 
