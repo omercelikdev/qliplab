@@ -2,7 +2,7 @@ import { useState, useLayoutEffect, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Tag, Plus, X, ExternalLink, Mail, Phone, MapPin } from 'lucide-react';
+import { Copy, Trash2, Pin, PinOff, Sparkles, Minimize2, Unlock, Lock, ArrowRightLeft, Info, Palette, Hash, Binary, Pencil, FileText, ClipboardPaste, ScanText, Tag, Plus, X, ExternalLink, Mail, Phone, MapPin, Check } from 'lucide-react';
 import { usePreviewStore } from '@/stores/previewStore';
 import { useHistoryStore } from '@/stores/historyStore';
 import * as transforms from '@/lib/transforms';
@@ -87,12 +87,19 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const handleCopy = async () => { await writeText(item.content); onClose(); };
+  // Briefly confirm the copy in place (like the preview panel's Copy button)
+  // before the menu closes, so a copy-without-paste isn't silent.
+  const [copied, setCopied] = useState<'text' | 'html' | null>(null);
+  const confirmCopyThenClose = (which: 'text' | 'html') => {
+    setCopied(which);
+    setTimeout(() => { setCopied(null); onClose(); }, 650);
+  };
+  const handleCopy = async () => { await writeText(item.content); confirmCopyThenClose('text'); };
   const handleCopyHtml = async () => {
     if (item.htmlContent) {
       await writeHtmlAndText(item.htmlContent, item.content);
     }
-    onClose();
+    confirmCopyThenClose('html');
   };
   const handlePastePlainText = async () => {
     onClose();
@@ -252,10 +259,18 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
               );
             })}
             {smartActions.length > 0 && <div className="h-px bg-popover-border/70 my-1" />}
-            <MenuButton icon={Copy} label={t('history.menu.copy')} onClick={handleCopy} />
+            <MenuButton
+              icon={copied === 'text' ? Check : Copy}
+              label={copied === 'text' ? t('common.copied') : t('history.menu.copy')}
+              onClick={handleCopy}
+            />
             {item.htmlContent && htmlPasteAvailable && (
               <>
-                <MenuButton icon={FileText} label={t('history.menu.copyHtml')} onClick={handleCopyHtml} />
+                <MenuButton
+                  icon={copied === 'html' ? Check : FileText}
+                  label={copied === 'html' ? t('common.copied') : t('history.menu.copyHtml')}
+                  onClick={handleCopyHtml}
+                />
                 <MenuButton icon={ClipboardPaste} label={t('history.menu.pastePlain')} onClick={handlePastePlainText} />
               </>
             )}
