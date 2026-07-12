@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "현재 비밀번호가 올바르지 않습니다.",
   "vault.changePassword.decryptError": "이 비밀번호로 보관함을 복호화할 수 없습니다. 아무것도 변경되지 않았습니다.",
   "vault.changePassword.genericError": "문제가 발생했습니다. 비밀번호가 변경되지 않았습니다.",
-  "common.clearFilters": "필터 지우기"
+  "common.clearFilters": "필터 지우기",
+  "history.tags.deleteTitle": "태그 삭제",
+  "history.tags.deleteMessage": "모든 클립에서 \"{{name}}\"을(를) 제거하시겠습니까? 되돌릴 수 없습니다."
 }

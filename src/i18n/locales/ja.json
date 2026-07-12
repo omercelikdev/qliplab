@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "現在のパスワードが正しくありません。",
   "vault.changePassword.decryptError": "このパスワードでは保管庫を復号できませんでした。変更はありません。",
   "vault.changePassword.genericError": "問題が発生しました。パスワードは変更されていません。",
-  "common.clearFilters": "フィルターをクリア"
+  "common.clearFilters": "フィルターをクリア",
+  "history.tags.deleteTitle": "タグを削除",
+  "history.tags.deleteMessage": "すべてのクリップから「{{name}}」を削除しますか？元に戻せません。"
 }

@@ -408,5 +408,7 @@
   "vault.changePassword.wrongCurrent": "La contraseña actual es incorrecta.",
   "vault.changePassword.decryptError": "No se pudo descifrar la bóveda con esta contraseña. No se cambió nada.",
   "vault.changePassword.genericError": "Algo salió mal. Tu contraseña no se cambió.",
-  "common.clearFilters": "Borrar filtros"
+  "common.clearFilters": "Borrar filtros",
+  "history.tags.deleteTitle": "Eliminar etiqueta",
+  "history.tags.deleteMessage": "¿Quitar \"{{name}}\" de todos los elementos? Esto no se puede deshacer."
 }
