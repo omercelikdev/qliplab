@@ -411,5 +411,6 @@
   "common.clearFilters": "清除筛选",
   "history.tags.deleteTitle": "删除标签",
   "history.tags.deleteMessage": "从所有剪贴项中移除“{{name}}”？此操作无法撤销。",
-  "settings.historyLimit.items": "{{num}} 条"
+  "settings.historyLimit.items": "{{num}} 条",
+  "onboarding.hint.summon": "随处打开："
 }

@@ -411,5 +411,6 @@
   "common.clearFilters": "फ़िल्टर साफ़ करें",
   "history.tags.deleteTitle": "टैग हटाएं",
   "history.tags.deleteMessage": "हर क्लिप से \"{{name}}\" हटाएं? इसे पूर्ववत नहीं किया जा सकता।",
-  "settings.historyLimit.items": "{{num}} आइटम"
+  "settings.historyLimit.items": "{{num}} आइटम",
+  "onboarding.hint.summon": "कहीं से भी खोलें:"
 }

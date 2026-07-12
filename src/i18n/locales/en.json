@@ -411,5 +411,6 @@
   "common.clearFilters": "Clear filters",
   "history.tags.deleteTitle": "Delete tag",
   "history.tags.deleteMessage": "Remove \"{{name}}\" from every clip? This can't be undone.",
-  "settings.historyLimit.items": "{{num}} items"
+  "settings.historyLimit.items": "{{num}} items",
+  "onboarding.hint.summon": "Open from anywhere with"
 }

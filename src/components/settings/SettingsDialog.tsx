@@ -15,6 +15,7 @@ import { isFrontmostAppSupported } from '@/lib/capabilities';
 import { useHistoryStore } from '@/stores/historyStore';
 import { useSnippetStore } from '@/stores/snippetStore';
 import { SelectMenu } from '@/components/ui/SelectMenu';
+import { formatShortcut } from '@/lib/formatShortcut';
 import { cn } from '@/lib/utils';
 
 // Full-width trigger so SelectMenu matches the old native <select> footprint.
@@ -379,18 +380,6 @@ function ShortcutSetting({
   const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [display, setDisplay] = useState('');
-
-  const isMacPlatform = navigator.platform.includes('Mac');
-  const formatShortcut = (s: string) => {
-    if (!s) return '';
-    return s
-      .replace('CommandOrControl', isMacPlatform ? 'Cmd' : 'Ctrl')
-      .replace('Command', 'Cmd')
-      .replace('Control', isMacPlatform ? 'Control' : 'Ctrl')
-      .replace('Alt', isMacPlatform ? 'Option' : 'Alt')
-      .replace('Backquote', '`')
-      .replace(/\+/g, ' + ');
-  };
 
   // Use global keydown listener so modifier keys (Cmd, Ctrl) don't steal focus
   useEffect(() => {

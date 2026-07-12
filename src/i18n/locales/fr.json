@@ -411,5 +411,6 @@
   "common.clearFilters": "Effacer les filtres",
   "history.tags.deleteTitle": "Supprimer l'étiquette",
   "history.tags.deleteMessage": "Retirer « {{name}} » de tous les extraits ? Action irréversible.",
-  "settings.historyLimit.items": "{{num}} éléments"
+  "settings.historyLimit.items": "{{num}} éléments",
+  "onboarding.hint.summon": "Ouvrir depuis partout avec"
 }

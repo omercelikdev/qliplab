@@ -411,5 +411,6 @@
   "common.clearFilters": "フィルターをクリア",
   "history.tags.deleteTitle": "タグを削除",
   "history.tags.deleteMessage": "すべてのクリップから「{{name}}」を削除しますか？元に戻せません。",
-  "settings.historyLimit.items": "{{num}} 件"
+  "settings.historyLimit.items": "{{num}} 件",
+  "onboarding.hint.summon": "どこからでも開く："
 }

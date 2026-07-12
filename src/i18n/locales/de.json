@@ -411,5 +411,6 @@
   "common.clearFilters": "Filter zurücksetzen",
   "history.tags.deleteTitle": "Tag löschen",
   "history.tags.deleteMessage": "\"{{name}}\" von allen Clips entfernen? Das kann nicht rückgängig gemacht werden.",
-  "settings.historyLimit.items": "{{num}} Einträge"
+  "settings.historyLimit.items": "{{num}} Einträge",
+  "onboarding.hint.summon": "Von überall öffnen mit"
 }

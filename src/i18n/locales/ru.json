@@ -411,5 +411,6 @@
   "common.clearFilters": "Сбросить фильтры",
   "history.tags.deleteTitle": "Удалить тег",
   "history.tags.deleteMessage": "Удалить «{{name}}» из всех записей? Это нельзя отменить.",
-  "settings.historyLimit.items": "{{num}} эл."
+  "settings.historyLimit.items": "{{num}} эл.",
+  "onboarding.hint.summon": "Открыть откуда угодно:"
 }

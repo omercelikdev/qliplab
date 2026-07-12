@@ -411,5 +411,6 @@
   "common.clearFilters": "Limpar filtros",
   "history.tags.deleteTitle": "Excluir etiqueta",
   "history.tags.deleteMessage": "Remover \"{{name}}\" de todos os itens? Isto não pode ser desfeito.",
-  "settings.historyLimit.items": "{{num}} itens"
+  "settings.historyLimit.items": "{{num}} itens",
+  "onboarding.hint.summon": "Abra de qualquer lugar com"
 }
