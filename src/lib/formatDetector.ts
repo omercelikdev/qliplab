@@ -37,7 +37,11 @@ export function getFormatDisplayName(format: DetectedFormat): string {
 const RE_JWT = /^eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 const RE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const RE_URL = /^https?:\/\/[^\s]+$/;
-const RE_URL_ENCODED = /^[a-zA-Z0-9-_.~]+(%[0-9A-Fa-f]{2})+/;
+// Whole string must be URL-encoded (charset + at least one %XX), anchored both
+// ends. Without the $ anchor, "100% growth" or "50%25 off …" matched as a
+// prefix, and an enabled "url_encoded → decode" auto-command would then corrupt
+// the clipboard.
+const RE_URL_ENCODED = /^(?:[a-zA-Z0-9\-_.~]*%[0-9A-Fa-f]{2})+[a-zA-Z0-9\-_.~]*$/;
 const RE_BASE64 = /^[A-Za-z0-9+/]+=*$/;
 const RE_BASE64_PADDING = /=+$/;
 const RE_SQL = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\s/i;

@@ -111,6 +111,53 @@ describe('JWT decode', () => {
     expect(decodeJwt('not.a.jwt')).toBeNull();
     expect(decodeJwt('only-one-part')).toBeNull();
   });
+
+  // Regression: real tokens are base64URL (with `-`/`_`) over UTF-8. Plain atob
+  // rejected the `_` here and mangled the unicode name; this token has both.
+  it('decodes base64url segments and utf-8 claims', () => {
+    const jwt =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiWm_DqyIsInN1YiI6IjEyMzQ1Njc4OTAiLCJzY29wZSI6InJlYWQ6YWxsIHdyaXRlOmFsbCJ9.sig';
+    const decoded = decodeJwt(jwt);
+    expect(decoded).not.toBeNull();
+    expect(decoded!.header.alg).toBe('HS256');
+    expect(decoded!.payload.name).toBe('Zoë');
+    expect(decoded!.payload.sub).toBe('1234567890');
+  });
+});
+
+describe('timestampToDate', () => {
+  it('converts a 13-digit ms timestamp', () => {
+    expect(timestampToDate('1700000000000')).toBe('2023-11-14T22:13:20.000Z');
+  });
+
+  it('converts a 10-digit seconds timestamp', () => {
+    expect(timestampToDate('1700000000')).toBe('2023-11-14T22:13:20.000Z');
+  });
+
+  // Regression: a terminal copy appends a newline, so a 13-digit ms timestamp
+  // arrives length-14 and was treated as seconds → year 55000 → Invalid Date.
+  it('trims surrounding whitespace before deciding s vs ms', () => {
+    expect(timestampToDate('1700000000000\n')).toBe('2023-11-14T22:13:20.000Z');
+    expect(timestampToDate('  1700000000  ')).toBe('2023-11-14T22:13:20.000Z');
+  });
+});
+
+describe('hex round trip', () => {
+  it('round-trips ASCII', () => {
+    expect(hexToText(textToHex('hello'))).toBe('hello');
+  });
+
+  // Regression: charCodeAt(0) dropped astral chars to a lone surrogate; encode
+  // UTF-8 bytes so emoji and non-Latin text survive the round trip.
+  it('round-trips emoji and non-Latin text', () => {
+    for (const s of ['😀', 'Ömer', '北京', 'naïve café']) {
+      expect(hexToText(textToHex(s))).toBe(s);
+    }
+  });
+
+  it('encodes an emoji as its UTF-8 bytes', () => {
+    expect(textToHex('😀')).toBe('F09F9880');
+  });
 });
 
 // ─── Test 7: SQL Format ──────────────────────────────────────

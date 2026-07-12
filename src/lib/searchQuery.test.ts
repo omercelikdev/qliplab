@@ -97,4 +97,17 @@ describe('highlightRanges', () => {
   it('returns nothing when no token appears', () => {
     expect(highlightRanges('SELECT id', ['zzz'])).toEqual([]);
   });
+
+  // Regression: 'İ'.toLowerCase() is two code units, so indices computed on the
+  // lowercased copy no longer line up with the original — bail rather than
+  // highlight the wrong span. (Turkish content is a shipped locale.)
+  it('does not return misaligned ranges for length-changing lowercasing', () => {
+    // 'İ' → 'i̇' (i + combining dot), so the lowercased string is longer.
+    const text = 'İSTANBUL kodu';
+    expect(highlightRanges(text, ['kodu'])).toEqual([]);
+  });
+
+  it('still highlights normally when lowercasing preserves length', () => {
+    expect(highlightRanges('Ömer KODU', ['kodu'])).toEqual([{ start: 5, end: 9 }]);
+  });
 });
