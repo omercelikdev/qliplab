@@ -17,6 +17,8 @@ import { barEndInset } from '@/lib/platform';
 import { SelectMenu } from '@/components/ui/SelectMenu';
 import { useModifierHeld } from '@/hooks/useModifierHeld';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { CommandResultRow } from './CommandResultRow';
+import { evaluateCommand } from '@/lib/commandBar';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -152,6 +154,32 @@ export function HistoryList() {
     if (!el || isLoadingMore || remainingCount <= 0) return;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 240) loadMore();
   }, [isLoadingMore, remainingCount, loadMore]);
+
+  // Turn the search box into a mini command bar: a math/base/unit expression
+  // gets an inline, pasteable answer instead of being treated as a query.
+  const commandResult = useMemo(() => evaluateCommand(searchQuery), [searchQuery]);
+  const pasteCommand = useCallback(async () => {
+    if (!commandResult) return;
+    await hideWriteAndPaste(async () => {
+      await writeText(commandResult.value);
+    });
+  }, [commandResult]);
+
+  // Enter pastes the command answer even when no clip matches (the nav hook
+  // bails on an empty list). Capture phase + stopImmediatePropagation so it
+  // wins over the list's own Enter handler.
+  useEffect(() => {
+    if (!commandResult || activeTab !== 'history') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        pasteCommand();
+      }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [commandResult, activeTab, pasteCommand]);
 
   const hasActiveFilter = !!searchQuery || formatFilter !== 'all' || !!sourceAppFilter || !!activeTagFilter;
   const clearFilters = useCallback(() => {
@@ -319,7 +347,9 @@ export function HistoryList() {
         }
         className="flex-1 overflow-y-auto overflow-x-hidden focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40"
       >
+      {commandResult && <CommandResultRow result={commandResult} onPaste={pasteCommand} />}
       {items.length === 0 ? (
+        commandResult ? null : (
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
             <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center">
@@ -341,6 +371,7 @@ export function HistoryList() {
             )}
           </div>
         </div>
+        )
       ) : (
       <div className="ps-3 pe-1.5 py-1 space-y-0.5">
         {orderedItems.map((item, index) => (

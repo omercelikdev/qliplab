@@ -431,5 +431,6 @@
   "history.transform.toBinary": "إلى ثنائي",
   "history.transform.colorInfo": "معلومات اللون",
   "history.transform.csvInfo": "معلومات CSV",
-  "history.transform.regexInfo": "معلومات Regex"
+  "history.transform.regexInfo": "معلومات Regex",
+  "commandBar.paste": "لصق"
 }

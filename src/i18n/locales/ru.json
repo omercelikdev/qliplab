@@ -431,5 +431,6 @@
   "history.transform.toBinary": "В двоичное",
   "history.transform.colorInfo": "О цвете",
   "history.transform.csvInfo": "О CSV",
-  "history.transform.regexInfo": "О регулярке"
+  "history.transform.regexInfo": "О регулярке",
+  "commandBar.paste": "вставить"
 }

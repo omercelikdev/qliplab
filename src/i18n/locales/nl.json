@@ -431,5 +431,6 @@
   "history.transform.toBinary": "Naar binair",
   "history.transform.colorInfo": "Kleurinfo",
   "history.transform.csvInfo": "CSV-info",
-  "history.transform.regexInfo": "Regex-info"
+  "history.transform.regexInfo": "Regex-info",
+  "commandBar.paste": "plakken"
 }
