@@ -12,6 +12,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { hideWriteAndPaste } from '@/lib/window';
 import { parseImageData } from '@/lib/imageUtils';
 import { useTagStore } from '@/stores/tagStore';
+import { isLinux } from '@/lib/platform';
 import { cn } from '@/lib/utils';
 import type { ClipboardItem } from '@/types/clipboard';
 
@@ -109,7 +110,7 @@ export function ItemMenu({ item, isOpen, onClose, onMouseEnter, onMouseLeave, an
   const handleDelete = () => { deleteItem(item.id); onClose(); };
   const handlePin = () => { togglePin(item.id); onClose(); };
 
-  const ocrAvailable = true;
+  const ocrAvailable = !isLinux();
   const htmlPasteAvailable = true;
 
   const getTransformItems = () => {
