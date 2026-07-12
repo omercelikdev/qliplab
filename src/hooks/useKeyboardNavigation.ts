@@ -6,15 +6,23 @@ import { blocksListNavigation, toNavigationTarget } from '@/lib/keyboardNav';
 
 const isMac = navigator.platform.toUpperCase().includes('MAC');
 
+interface SelectOptions {
+  /** Paste plain text even when the clip carries rich HTML (Shift+Enter). */
+  plain?: boolean;
+}
+
 interface UseKeyboardNavigationOptions {
   itemCount: number;
-  onSelect: (index: number) => void;
+  onSelect: (index: number, opts?: SelectOptions) => void;
+  /** Optional: remove the highlighted row (Cmd/Ctrl+Backspace). */
+  onDelete?: (index: number) => void;
   isActive: boolean;
 }
 
 export function useKeyboardNavigation({
   itemCount,
   onSelect,
+  onDelete,
   isActive,
 }: UseKeyboardNavigationOptions) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -57,6 +65,16 @@ export function useKeyboardNavigation({
         return;
       }
 
+      // Delete the highlighted row with Cmd/Ctrl+Backspace. Checked before the
+      // input guard (like quick-paste) so it works while the search box keeps
+      // focus — that combo isn't used to edit a short query. preventDefault
+      // stops the search box from also deleting to line-start.
+      if (onDelete && e.key === 'Backspace' && (isMac ? e.metaKey : e.ctrlKey)) {
+        e.preventDefault();
+        onDelete(selectedIndex);
+        return;
+      }
+
       // The search box keeps focus so the user can type straight away; arrows
       // and Enter still drive the list. Any other field keeps its own keys.
       if (blocksListNavigation(toNavigationTarget(e.target as HTMLElement))) return;
@@ -72,11 +90,12 @@ export function useKeyboardNavigation({
           break;
         case 'Enter':
           e.preventDefault();
-          Promise.resolve(onSelect(selectedIndex)).catch(() => {});
+          // Shift+Enter pastes plain text even for rich clips.
+          Promise.resolve(onSelect(selectedIndex, { plain: e.shiftKey })).catch(() => {});
           break;
       }
     },
-    [isActive, itemCount, selectedIndex, onSelect, isPreviewOpen]
+    [isActive, itemCount, selectedIndex, onSelect, onDelete, isPreviewOpen]
   );
 
   useEffect(() => {

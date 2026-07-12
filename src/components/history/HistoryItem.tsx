@@ -178,13 +178,16 @@ export const HistoryItem = memo(function HistoryItem({
   const sensitiveDetectionEnabled = useSettingsStore((s) => s.settings.sensitiveDetectionEnabled);
   const isMasked = shouldMaskContent(item.isSensitive, sensitiveDetectionEnabled, isHovered);
 
-  const handleClick = async () => {
+  const handleClick = async (e?: React.MouseEvent) => {
     if (isMenuOpen || isCurrentlyPasting) return;
 
     if (isQueueMode) {
       onQueueToggle(item);
       return;
     }
+
+    // Shift+click pastes plain text even for a rich clip (mirrors Shift+Enter).
+    const plain = e?.shiftKey ?? false;
 
     if (isDiffMode) {
       onDiffSelect(item.id);
@@ -196,7 +199,7 @@ export const HistoryItem = memo(function HistoryItem({
       } finally {
         setIsPasting(false);
       }
-    } else if (item.htmlContent) {
+    } else if (item.htmlContent && !plain) {
       setShowFlash(true);
       await hideWriteAndPaste(async () => {
         await writeHtmlAndText(item.htmlContent!, item.content);
