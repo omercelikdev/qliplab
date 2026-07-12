@@ -154,12 +154,12 @@ jobs:
             src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sig
           if-no-files-found: error
 
-  # ── Create Release on qliplab-site ──────────────────────────
+  # ── Publish GitHub Release (this repo) ──────────────────────
   publish-release:
     needs: [build-macos, build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # create the release on this repo with the default token
 
     steps:
       - uses: actions/checkout@v4
@@ -201,7 +201,7 @@ jobs:
           # artifact filenames / target keys may need a tweak.
           TAG="${{ steps.info.outputs.TAG }}"
           VERSION="${{ steps.info.outputs.VERSION }}"
-          BASE="https://github.com/omercelikdev/qliplab-releases/releases/download/${TAG}"
+          BASE="https://github.com/omercelikdev/qliplab/releases/download/${TAG}"
           mac_tar=$(find artifacts -name '*.app.tar.gz' | head -1)
           win_exe=$(find artifacts -name '*-setup.exe' | head -1)
           lin_app=$(find artifacts -name '*.AppImage' | head -1)
@@ -222,13 +222,15 @@ jobs:
           ls -la release-files/
           echo "--- latest.json ---"; cat release-files/latest.json
 
-      - name: Create release on qliplab-releases
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          repository: omercelikdev/qliplab-releases
+          # This repo, default token. Non-draft + make_latest so the updater's
+          # /releases/latest/download/latest.json resolves and the site's
+          # "download latest" links point at this release.
           tag_name: ${{ github.ref_name }}
           name: "QlipLab ${{ steps.info.outputs.VERSION }}"
           body_path: changelog.md
-          draft: true
+          draft: false
+          make_latest: true
           files: release-files/*
-          token: ${{ secrets.RELEASES_REPO_TOKEN }}
