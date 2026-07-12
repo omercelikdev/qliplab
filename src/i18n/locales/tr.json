@@ -440,5 +440,12 @@
   "history.sort.label": "Sıralama",
   "history.sort.recent": "En yeni",
   "history.sort.frequent": "En çok kullanılan",
-  "search.alsoIn": "Ayrıca:"
+  "search.alsoIn": "Ayrıca:",
+  "history.transform.invalidJwt": "Geçersiz JWT",
+  "history.transform.validYaml": "Geçerli YAML",
+  "history.transform.invalid": "Geçersiz",
+  "vault.dialog.bank.swift": "SWIFT (isteğe bağlı)",
+  "vault.dialog.personal.countryPlaceholder": "Ülke",
+  "vault.dialog.personal.popular": "Popüler",
+  "vault.dialog.personal.allCountries": "Tüm Ülkeler"
 }

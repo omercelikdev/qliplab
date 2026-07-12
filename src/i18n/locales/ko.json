@@ -440,5 +440,12 @@
   "history.sort.label": "정렬",
   "history.sort.recent": "최근",
   "history.sort.frequent": "자주 사용",
-  "search.alsoIn": "다른 위치:"
+  "search.alsoIn": "다른 위치:",
+  "history.transform.invalidJwt": "잘못된 JWT",
+  "history.transform.validYaml": "유효한 YAML",
+  "history.transform.invalid": "잘못됨",
+  "vault.dialog.bank.swift": "SWIFT (선택)",
+  "vault.dialog.personal.countryPlaceholder": "국가",
+  "vault.dialog.personal.popular": "인기",
+  "vault.dialog.personal.allCountries": "모든 국가"
 }

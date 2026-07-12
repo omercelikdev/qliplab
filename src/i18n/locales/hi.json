@@ -440,5 +440,12 @@
   "history.sort.label": "क्रम",
   "history.sort.recent": "हाल के",
   "history.sort.frequent": "सर्वाधिक उपयोग",
-  "search.alsoIn": "यहाँ भी:"
+  "search.alsoIn": "यहाँ भी:",
+  "history.transform.invalidJwt": "अमान्य JWT",
+  "history.transform.validYaml": "मान्य YAML",
+  "history.transform.invalid": "अमान्य",
+  "vault.dialog.bank.swift": "SWIFT (वैकल्पिक)",
+  "vault.dialog.personal.countryPlaceholder": "देश",
+  "vault.dialog.personal.popular": "लोकप्रिय",
+  "vault.dialog.personal.allCountries": "सभी देश"
 }

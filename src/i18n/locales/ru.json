@@ -440,5 +440,12 @@
   "history.sort.label": "Сортировка",
   "history.sort.recent": "Недавние",
   "history.sort.frequent": "Частые",
-  "search.alsoIn": "Также в:"
+  "search.alsoIn": "Также в:",
+  "history.transform.invalidJwt": "Неверный JWT",
+  "history.transform.validYaml": "Верный YAML",
+  "history.transform.invalid": "Неверно",
+  "vault.dialog.bank.swift": "SWIFT (необязательно)",
+  "vault.dialog.personal.countryPlaceholder": "Страна",
+  "vault.dialog.personal.popular": "Популярные",
+  "vault.dialog.personal.allCountries": "Все страны"
 }
