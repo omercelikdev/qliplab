@@ -159,7 +159,7 @@ export function ChangeVaultPasswordDialog({ isOpen, onClose }: ChangeVaultPasswo
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-3 py-1.5 text-xs rounded-md bg-surface-hover hover:bg-border transition-colors cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
+                  className="px-3 py-1.5 text-xs rounded-md bg-surface-hover hover:bg-border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                 >
                   {t('common.cancel')}
                 </button>
@@ -167,7 +167,7 @@ export function ChangeVaultPasswordDialog({ isOpen, onClose }: ChangeVaultPasswo
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    'px-3 py-1.5 text-xs rounded-md transition-colors cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none',
+                    'px-3 py-1.5 text-xs rounded-md transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none',
                     'bg-accent text-accent-foreground hover:bg-accent/90',
                     isSubmitting && 'opacity-60 cursor-not-allowed'
                   )}

@@ -58,6 +58,13 @@ button:focus, button:focus-visible,
   outline: none;
 }
 
+/* Never show the browser's square focus outline on mouse/touch interaction —
+   it escapes rounded corners and reads as a stray box. Keyboard focus
+   (:focus-visible) still gets an indicator so the app stays navigable. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* Platform-agnostic solid background */
 .glass { @apply bg-background; }
 .drag-region { -webkit-app-region: drag; }

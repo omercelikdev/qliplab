@@ -60,14 +60,14 @@ export function ConfirmDialog({ isOpen, title, message, confirmLabel, onConfirm,
               <button
                 ref={cancelRef}
                 onClick={onCancel}
-                className="px-3 py-1.5 text-xs rounded-md bg-surface-hover hover:bg-border transition-colors cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none"
+                className="px-3 py-1.5 text-xs rounded-md bg-surface-hover hover:bg-border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
               >
                 {t('common.cancel')}
               </button>
               <button
                 onClick={onConfirm}
                 className={cn(
-                  'px-3 py-1.5 text-xs rounded-md transition-colors cursor-pointer focus:ring-2 focus:ring-accent focus:outline-none',
+                  'px-3 py-1.5 text-xs rounded-md transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none',
                   destructive
                     ? 'bg-destructive text-white hover:bg-destructive/90'
                     : 'bg-accent text-accent-foreground hover:bg-accent/90'
