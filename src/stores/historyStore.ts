@@ -33,8 +33,9 @@ interface HistoryState {
   currentFormatFilter: FormatFilterGroup;
   currentSearchQuery: string;
   currentSourceApp: string | null;
+  currentTagId: string | null;
 
-  loadItems: (formatFilter?: FormatFilterGroup, searchQuery?: string, sourceApp?: string | null) => Promise<void>;
+  loadItems: (formatFilter?: FormatFilterGroup, searchQuery?: string, sourceApp?: string | null, tagId?: string | null) => Promise<void>;
   refreshItems: () => Promise<void>;
   loadMore: () => Promise<void>;
   addItem: (item: Omit<ClipboardItem, 'id' | 'isPinned' | 'createdAt' | 'updatedAt'>) => Promise<string | undefined>;
@@ -54,13 +55,14 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   currentFormatFilter: 'all',
   currentSearchQuery: '',
   currentSourceApp: null,
+  currentTagId: null,
 
-  loadItems: async (formatFilter = 'all', searchQuery = '', sourceApp = null) => {
+  loadItems: async (formatFilter = 'all', searchQuery = '', sourceApp = null, tagId = null) => {
     try {
-      const params = { formatFilter, searchQuery, sourceApp, limit: PAGE_SIZE, offset: 0 };
+      const params = { formatFilter, searchQuery, sourceApp, tagId, limit: PAGE_SIZE, offset: 0 };
       const [rows, total] = await Promise.all([
         queryHistoryItems(params),
-        countHistoryItems({ formatFilter, searchQuery, sourceApp }),
+        countHistoryItems({ formatFilter, searchQuery, sourceApp, tagId }),
       ]);
       set({
         items: rows.map(rowToItem),
@@ -69,6 +71,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         currentFormatFilter: formatFilter,
         currentSearchQuery: searchQuery,
         currentSourceApp: sourceApp,
+        currentTagId: tagId,
         isLoading: false,
       });
     } catch {
@@ -82,18 +85,19 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
    * a list they expanded with "Load more".
    */
   refreshItems: async () => {
-    const { currentFormatFilter, currentSearchQuery, currentSourceApp, items } = get();
+    const { currentFormatFilter, currentSearchQuery, currentSourceApp, currentTagId, items } = get();
     try {
       const params = {
         formatFilter: currentFormatFilter,
         searchQuery: currentSearchQuery,
         sourceApp: currentSourceApp,
+        tagId: currentTagId,
         limit: refreshWindowLimit(items.length),
         offset: 0,
       };
       const [rows, total] = await Promise.all([
         queryHistoryItems(params),
-        countHistoryItems({ formatFilter: currentFormatFilter, searchQuery: currentSearchQuery, sourceApp: currentSourceApp }),
+        countHistoryItems({ formatFilter: currentFormatFilter, searchQuery: currentSearchQuery, sourceApp: currentSourceApp, tagId: currentTagId }),
       ]);
       set({
         items: rows.map(rowToItem),
@@ -107,7 +111,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   },
 
   loadMore: async () => {
-    const { currentOffset, currentFormatFilter, currentSearchQuery, currentSourceApp, totalCount, items, isLoadingMore } = get();
+    const { currentOffset, currentFormatFilter, currentSearchQuery, currentSourceApp, currentTagId, totalCount, items, isLoadingMore } = get();
     if (currentOffset >= totalCount || isLoadingMore) return;
     set({ isLoadingMore: true });
     try {
@@ -115,6 +119,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
         formatFilter: currentFormatFilter,
         searchQuery: currentSearchQuery,
         sourceApp: currentSourceApp,
+        tagId: currentTagId,
         limit: PAGE_SIZE,
         offset: currentOffset,
       });

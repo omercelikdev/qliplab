@@ -160,6 +160,8 @@ export interface HistoryQueryParams {
   searchQuery: string;
   /** Restrict to clips copied from this app. null = every app. */
   sourceApp?: string | null;
+  /** Restrict to clips carrying this tag. null = every tag. */
+  tagId?: string | null;
   limit: number;
   offset: number;
 }
@@ -195,6 +197,13 @@ export function buildWhereClause(
   if (params.sourceApp) {
     conditions.push('source_app = ?');
     args.push(params.sourceApp);
+  }
+
+  // Tag filter — EXISTS over item_tags (idx_item_tags_tag) so it matches across
+  // the whole table, not just the page already loaded into memory.
+  if (params.tagId) {
+    conditions.push('EXISTS (SELECT 1 FROM item_tags WHERE item_id = clipboard_history.id AND tag_id = ?)');
+    args.push(params.tagId);
   }
 
   // Search — only text items, case-insensitive LIKE.

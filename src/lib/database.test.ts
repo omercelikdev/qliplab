@@ -42,6 +42,37 @@ describe('buildWhereClause', () => {
       expect(buildWhereClause({ ...base, sourceApp: null }).where).toBe('');
       expect(buildWhereClause({ ...base, sourceApp: '' }).where).toBe('');
     });
+  });
+
+  describe('tag filter', () => {
+    // Regression: the tag filter used to run client-side over the loaded page
+    // only. It's now an EXISTS so a tagged clip past page 1 still matches.
+    it('adds an EXISTS over item_tags', () => {
+      const { where, args } = buildWhereClause({ ...base, tagId: 'tag-1' });
+      expect(where).toBe(
+        'WHERE EXISTS (SELECT 1 FROM item_tags WHERE item_id = clipboard_history.id AND tag_id = ?)',
+      );
+      expect(args).toEqual(['tag-1']);
+    });
+
+    it('is ignored when null (means "every tag")', () => {
+      expect(buildWhereClause({ ...base, tagId: null }).where).toBe('');
+    });
+
+    it('composes with source app and format in argument order', () => {
+      const { where, args } = buildWhereClause({
+        ...base,
+        formatFilter: 'code',
+        sourceApp: 'Code',
+        tagId: 'tag-9',
+      });
+      expect(where).toContain('detected_format IN');
+      expect(where).toContain('source_app = ?');
+      expect(where).toContain('EXISTS (SELECT 1 FROM item_tags');
+      // format args, then source app, then tag — the order conditions were pushed.
+      expect(args[args.length - 2]).toBe('Code');
+      expect(args[args.length - 1]).toBe('tag-9');
+    });
 
     it('composes with the format filter and search, in argument order', () => {
       const { where, args } = buildWhereClause({
