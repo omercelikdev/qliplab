@@ -390,5 +390,12 @@
   "preview.saveEdit": "Änderungen an diesem Clip speichern",
   "preview.saved": "Gespeichert",
   "preview.discardTitle": "Änderungen verwerfen?",
-  "preview.discardMessage": "Es gibt ungespeicherte Änderungen an diesem Clip. Ohne Speichern schließen?"
+  "preview.discardMessage": "Es gibt ungespeicherte Änderungen an diesem Clip. Ohne Speichern schließen?",
+  "snippets.folders.all": "Alle",
+  "snippets.folders.new": "Neuer Ordner",
+  "snippets.folders.namePlaceholder": "Ordnername",
+  "snippets.folders.label": "Ordner",
+  "snippets.folders.none": "Kein Ordner",
+  "snippets.folders.deleteTitle": "Ordner löschen?",
+  "snippets.folders.deleteMessage": "„{{name}}\" löschen? Die Snippets bleiben erhalten und werden aus dem Ordner entfernt."
 }

@@ -390,5 +390,12 @@
   "preview.saveEdit": "حفظ التغييرات على هذه القصاصة",
   "preview.saved": "تم الحفظ",
   "preview.discardTitle": "تجاهل التغييرات؟",
-  "preview.discardMessage": "لديك تعديلات غير محفوظة على هذه القصاصة. الإغلاق دون حفظ؟"
+  "preview.discardMessage": "لديك تعديلات غير محفوظة على هذه القصاصة. الإغلاق دون حفظ؟",
+  "snippets.folders.all": "الكل",
+  "snippets.folders.new": "مجلد جديد",
+  "snippets.folders.namePlaceholder": "اسم المجلد",
+  "snippets.folders.label": "مجلد",
+  "snippets.folders.none": "بدون مجلد",
+  "snippets.folders.deleteTitle": "حذف المجلد؟",
+  "snippets.folders.deleteMessage": "حذف \"{{name}}\"؟ سيتم الاحتفاظ بالمقتطفات ونقلها خارج المجلد."
 }

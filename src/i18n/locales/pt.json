@@ -390,5 +390,12 @@
   "preview.saveEdit": "Salvar alterações neste clipe",
   "preview.saved": "Salvo",
   "preview.discardTitle": "Descartar alterações?",
-  "preview.discardMessage": "Há edições não salvas neste clipe. Fechar sem salvar?"
+  "preview.discardMessage": "Há edições não salvas neste clipe. Fechar sem salvar?",
+  "snippets.folders.all": "Todos",
+  "snippets.folders.new": "Nova pasta",
+  "snippets.folders.namePlaceholder": "Nome da pasta",
+  "snippets.folders.label": "Pasta",
+  "snippets.folders.none": "Sem pasta",
+  "snippets.folders.deleteTitle": "Excluir pasta?",
+  "snippets.folders.deleteMessage": "Excluir \"{{name}}\"? Os snippets são mantidos e retirados da pasta."
 }

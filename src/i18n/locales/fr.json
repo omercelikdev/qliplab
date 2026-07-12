@@ -390,5 +390,12 @@
   "preview.saveEdit": "Enregistrer les modifications de ce presse-papier",
   "preview.saved": "Enregistré",
   "preview.discardTitle": "Abandonner les modifications ?",
-  "preview.discardMessage": "Vous avez des modifications non enregistrées. Fermer sans enregistrer ?"
+  "preview.discardMessage": "Vous avez des modifications non enregistrées. Fermer sans enregistrer ?",
+  "snippets.folders.all": "Tous",
+  "snippets.folders.new": "Nouveau dossier",
+  "snippets.folders.namePlaceholder": "Nom du dossier",
+  "snippets.folders.label": "Dossier",
+  "snippets.folders.none": "Aucun dossier",
+  "snippets.folders.deleteTitle": "Supprimer le dossier ?",
+  "snippets.folders.deleteMessage": "Supprimer « {{name}} » ? Ses snippets sont conservés et sortis du dossier."
 }

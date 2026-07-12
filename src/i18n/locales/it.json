@@ -390,5 +390,12 @@
   "preview.saveEdit": "Salva le modifiche a questa clip",
   "preview.saved": "Salvato",
   "preview.discardTitle": "Ignorare le modifiche?",
-  "preview.discardMessage": "Hai modifiche non salvate in questa clip. Chiudere senza salvare?"
+  "preview.discardMessage": "Hai modifiche non salvate in questa clip. Chiudere senza salvare?",
+  "snippets.folders.all": "Tutti",
+  "snippets.folders.new": "Nuova cartella",
+  "snippets.folders.namePlaceholder": "Nome cartella",
+  "snippets.folders.label": "Cartella",
+  "snippets.folders.none": "Nessuna cartella",
+  "snippets.folders.deleteTitle": "Eliminare la cartella?",
+  "snippets.folders.deleteMessage": "Eliminare \"{{name}}\"? Gli snippet vengono mantenuti e tolti dalla cartella."
 }

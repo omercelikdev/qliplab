@@ -14,12 +14,13 @@ interface SnippetState {
   editorOpen: boolean;
   editingSnippet: Snippet | null;
 
-  loadSnippets: (searchQuery?: string, syntaxFilter?: string[], favoritesOnly?: boolean) => Promise<void>;
+  loadSnippets: (searchQuery?: string, syntaxFilter?: string[], favoritesOnly?: boolean, categoryId?: string | null) => Promise<void>;
   loadCategories: () => Promise<void>;
   createSnippet: (snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt' | 'sortOrder'>) => Promise<void>;
   updateSnippet: (id: string, updates: Partial<Snippet>) => Promise<void>;
   deleteSnippet: (id: string) => Promise<void>;
   createCategory: (name: string, icon?: string) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   setSelectedCategory: (id: string | null) => void;
   openEditor: (snippet?: Snippet) => void;
   closeEditor: () => void;
@@ -33,7 +34,7 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
   editorOpen: false,
   editingSnippet: null,
 
-  loadSnippets: async (searchQuery = '', syntaxFilter?: string[], favoritesOnly = false) => {
+  loadSnippets: async (searchQuery = '', syntaxFilter?: string[], favoritesOnly = false, categoryId?: string | null) => {
     try {
       const db = getDatabase();
       const args: (string | number)[] = [];
@@ -50,6 +51,10 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       if (syntaxFilter && syntaxFilter.length > 0) {
         conditions.push(`syntax IN (${syntaxFilter.map(() => '?').join(',')})`);
         args.push(...syntaxFilter);
+      }
+      if (categoryId) {
+        conditions.push('category_id = ?');
+        args.push(categoryId);
       }
       if (conditions.length > 0) {
         sql += ' WHERE ' + conditions.join(' AND ');
@@ -172,6 +177,22 @@ export const useSnippetStore = create<SnippetState>((set, get) => ({
       set((state) => ({ categories: [...state.categories, newCategory] }));
     } catch {
       // Category create failed
+    }
+  },
+
+  deleteCategory: async (id) => {
+    try {
+      const db = getDatabase();
+      // Orphan the snippets rather than delete them: a folder is organizational.
+      await db.execute('UPDATE snippets SET category_id = NULL WHERE category_id = ?', [id]);
+      await db.execute('DELETE FROM snippet_categories WHERE id = ?', [id]);
+      set((state) => ({
+        categories: state.categories.filter((c) => c.id !== id),
+        selectedCategoryId: state.selectedCategoryId === id ? null : state.selectedCategoryId,
+        snippets: state.snippets.map((s) => (s.categoryId === id ? { ...s, categoryId: undefined } : s)),
+      }));
+    } catch {
+      // Delete failed
     }
   },
 

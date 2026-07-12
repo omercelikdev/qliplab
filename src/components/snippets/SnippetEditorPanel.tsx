@@ -78,13 +78,14 @@ const SYNTAX_OPTIONS = [
 
 export function SnippetEditorPanel() {
   const { t } = useTranslation();
-  const { editorOpen, editingSnippet, snippets, closeEditor, createSnippet, updateSnippet } = useSnippetStore();
+  const { editorOpen, editingSnippet, snippets, categories, closeEditor, createSnippet, updateSnippet } = useSnippetStore();
   const { settings } = useSettingsStore();
 
   const [title, setTitle] = useState('');
   const [triggerSuffix, setTriggerSuffix] = useState('');
   const [content, setContent] = useState('');
   const [syntax, setSyntax] = useState('plain');
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const isEditMode = Boolean(editingSnippet);
@@ -98,7 +99,8 @@ export function SnippetEditorPanel() {
     ? title !== (editingSnippet?.title ?? '') ||
       triggerSuffix !== originalSuffix ||
       content !== (editingSnippet?.content ?? '') ||
-      syntax !== (editingSnippet?.syntax ?? 'plain')
+      syntax !== (editingSnippet?.syntax ?? 'plain') ||
+      categoryId !== (editingSnippet?.categoryId ?? null)
     : title.length > 0 || content.length > 0 || triggerSuffix.length > 0;
 
   // A styled dialog rather than window.confirm, which blocks the renderer and
@@ -120,11 +122,13 @@ export function SnippetEditorPanel() {
         ? extractSnippetTriggerSuffix(syn, editingSnippet.trigger)
         : '');
       setContent(editingSnippet.content);
+      setCategoryId(editingSnippet.categoryId ?? null);
     } else {
       setTitle('');
       setTriggerSuffix('');
       setContent('');
       setSyntax('plain');
+      setCategoryId(null);
     }
   }, [editingSnippet, editorOpen]);
 
@@ -144,9 +148,9 @@ export function SnippetEditorPanel() {
     const fullTrigger = triggerSuffix ? buildSnippetTrigger(syntax, triggerSuffix) : undefined;
 
     if (isEditMode && editingSnippet) {
-      await updateSnippet(editingSnippet.id, { title, trigger: fullTrigger, content, syntax });
+      await updateSnippet(editingSnippet.id, { title, trigger: fullTrigger, content, syntax, categoryId: categoryId ?? undefined });
     } else {
-      await createSnippet({ title, trigger: fullTrigger, content, syntax, isPinned: false });
+      await createSnippet({ title, trigger: fullTrigger, content, syntax, categoryId: categoryId ?? undefined, isPinned: false });
     }
     closeEditor();
   };
@@ -259,6 +263,23 @@ export function SnippetEditorPanel() {
             <option key={opt.value} value={opt.value}>{opt.value === 'plain' ? t('snippets.editor.syntaxPlainText') : opt.label}</option>
           ))}
         </select>
+        {categories.length > 0 && (
+          <select
+            value={categoryId ?? ''}
+            onChange={(e) => setCategoryId(e.target.value || null)}
+            aria-label={t('snippets.folders.label')}
+            title={t('snippets.folders.label')}
+            className={cn(
+              'px-2 py-1.5 bg-surface border border-border rounded-md text-[11px] max-w-[120px]',
+              'outline-none focus:ring-1 focus:ring-accent cursor-pointer'
+            )}
+          >
+            <option value="">{t('snippets.folders.none')}</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Editor — Monaco with textarea fallback */}

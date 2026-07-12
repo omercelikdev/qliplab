@@ -390,5 +390,12 @@
   "preview.saveEdit": "保存对此剪贴内容的更改",
   "preview.saved": "已保存",
   "preview.discardTitle": "放弃更改？",
-  "preview.discardMessage": "此剪贴内容有未保存的修改。不保存就关闭吗？"
+  "preview.discardMessage": "此剪贴内容有未保存的修改。不保存就关闭吗？",
+  "snippets.folders.all": "全部",
+  "snippets.folders.new": "新建文件夹",
+  "snippets.folders.namePlaceholder": "文件夹名称",
+  "snippets.folders.label": "文件夹",
+  "snippets.folders.none": "无文件夹",
+  "snippets.folders.deleteTitle": "删除文件夹？",
+  "snippets.folders.deleteMessage": "删除\"{{name}}\"？其代码片段将保留并移出文件夹。"
 }

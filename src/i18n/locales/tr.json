@@ -390,5 +390,12 @@
   "preview.saveEdit": "Bu klipteki değişiklikleri kaydet",
   "preview.saved": "Kaydedildi",
   "preview.discardTitle": "Değişiklikler atılsın mı?",
-  "preview.discardMessage": "Bu klipte kaydedilmemiş düzenlemeler var. Kaydetmeden kapatılsın mı?"
+  "preview.discardMessage": "Bu klipte kaydedilmemiş düzenlemeler var. Kaydetmeden kapatılsın mı?",
+  "snippets.folders.all": "Tümü",
+  "snippets.folders.new": "Yeni klasör",
+  "snippets.folders.namePlaceholder": "Klasör adı",
+  "snippets.folders.label": "Klasör",
+  "snippets.folders.none": "Klasörsüz",
+  "snippets.folders.deleteTitle": "Klasör silinsin mi?",
+  "snippets.folders.deleteMessage": "\"{{name}}\" silinsin mi? İçindeki snippet'ler korunur, klasörden çıkarılır."
 }
