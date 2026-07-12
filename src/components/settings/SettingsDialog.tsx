@@ -333,26 +333,32 @@ function ToggleSetting({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between">
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className="flex items-center justify-between w-full gap-3 text-start cursor-pointer rounded-md focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+    >
       <div>
         <div className="text-xs font-medium">{label}</div>
         <div className="text-[10px] text-muted-foreground">{description}</div>
       </div>
-      <button
-        onClick={() => onChange(!checked)}
+      <span
         className={cn(
-          'w-9 h-5 rounded-full transition-colors relative cursor-pointer shrink-0',
+          'w-9 h-5 rounded-full transition-colors relative shrink-0',
           checked ? 'bg-accent' : 'bg-border'
         )}
       >
-        <div
+        <span
           className={cn(
             'absolute top-0.5 w-4 h-4 rounded-full bg-background shadow-sm transition-all',
             checked ? 'ltr:left-[18px] rtl:right-[18px]' : 'ltr:left-0.5 rtl:right-0.5'
           )}
         />
-      </button>
-    </div>
+      </span>
+    </button>
   );
 }
 

@@ -163,7 +163,7 @@
   "settings.theme.dark": "Koyu",
   "settings.theme.system": "Sistem",
   "settings.historyLimit.label": "Geçmiş Limiti",
-  "settings.autoLock.label": "Kasa Otomatik Kilitleme",
+  "settings.autoLock.label": "Kasa otomatik kilit",
   "settings.autoLock.1min": "1 dakika",
   "settings.autoLock.5min": "5 dakika",
   "settings.autoLock.15min": "15 dakika",

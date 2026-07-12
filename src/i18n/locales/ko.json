@@ -163,7 +163,7 @@
   "settings.theme.dark": "다크",
   "settings.theme.system": "시스템",
   "settings.historyLimit.label": "기록 제한",
-  "settings.autoLock.label": "금고 자동 잠금",
+  "settings.autoLock.label": "보관함 자동 잠금",
   "settings.autoLock.1min": "1분",
   "settings.autoLock.5min": "5분",
   "settings.autoLock.15min": "15분",

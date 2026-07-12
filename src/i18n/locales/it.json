@@ -163,7 +163,7 @@
   "settings.theme.dark": "Scuro",
   "settings.theme.system": "Sistema",
   "settings.historyLimit.label": "Limite cronologia",
-  "settings.autoLock.label": "Blocco automatico vault",
+  "settings.autoLock.label": "Blocco automatico cassaforte",
   "settings.autoLock.1min": "1 minuto",
   "settings.autoLock.5min": "5 minuti",
   "settings.autoLock.15min": "15 minuti",

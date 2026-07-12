@@ -163,7 +163,7 @@
   "settings.theme.dark": "داكن",
   "settings.theme.system": "النظام",
   "settings.historyLimit.label": "حد السجل",
-  "settings.autoLock.label": "القفل التلقائي للخزنة",
+  "settings.autoLock.label": "قفل الخزنة التلقائي",
   "settings.autoLock.1min": "دقيقة واحدة",
   "settings.autoLock.5min": "5 دقائق",
   "settings.autoLock.15min": "15 دقيقة",
