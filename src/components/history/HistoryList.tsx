@@ -38,7 +38,6 @@ export function HistoryList() {
   const openMenuItemId = useAppStore((state) => state.openMenuItemId);
   const tags = useTagStore((state) => state.tags);
   const activeTagFilter = useTagStore((state) => state.activeTagFilter);
-  const itemTags = useTagStore((state) => state.itemTags);
 
   // Stable action references — never trigger re-render
   const { loadItems, loadMore } = useHistoryStore.getState();
@@ -53,10 +52,11 @@ export function HistoryList() {
   // Reveals the ⌘1…⌘9 quick-paste hints on the rows while the modifier is held.
   const modifierHeld = useModifierHeld();
 
-  // Reload from SQL when filter/search changes
+  // Reload from SQL when any filter/search changes — tag filter included, so it
+  // matches across the whole table and the "Load more" count stays correct.
   useEffect(() => {
-    loadItems(formatFilter, searchQuery, sourceAppFilter);
-  }, [formatFilter, searchQuery, sourceAppFilter, loadItems]);
+    loadItems(formatFilter, searchQuery, sourceAppFilter, activeTagFilter);
+  }, [formatFilter, searchQuery, sourceAppFilter, activeTagFilter, loadItems]);
 
   // The set of apps grows as the user copies from new places; refresh it when
   // the window reopens rather than on every keystroke.
@@ -97,22 +97,16 @@ export function HistoryList() {
   }, [openView]);
 
   // Reorder: pinned first, then unpinned — with optional tag filter
+  // Tag filtering now happens in SQL (see loadItems); here we only split
+  // pinned-first for the section header.
   const { orderedItems, pinnedCount } = useMemo(() => {
-    let filtered = items;
-    if (activeTagFilter) {
-      const taggedItemIds = new Set<string>();
-      for (const [itemId, tagIds] of itemTags) {
-        if (tagIds.includes(activeTagFilter)) taggedItemIds.add(itemId);
-      }
-      filtered = items.filter(item => taggedItemIds.has(item.id));
-    }
-    const pinned = filtered.filter((item) => item.isPinned);
-    const unpinned = filtered.filter((item) => !item.isPinned);
+    const pinned = items.filter((item) => item.isPinned);
+    const unpinned = items.filter((item) => !item.isPinned);
     return {
       orderedItems: [...pinned, ...unpinned],
       pinnedCount: pinned.length,
     };
-  }, [items, activeTagFilter, itemTags]);
+  }, [items]);
 
   const remainingCount = totalCount - items.length;
 
@@ -176,7 +170,7 @@ export function HistoryList() {
   }
 
   // "No clips yet" only when nothing is filtered — otherwise it reads as data loss.
-  if (totalCount === 0 && !searchQuery && formatFilter === 'all' && !sourceAppFilter) {
+  if (totalCount === 0 && !searchQuery && formatFilter === 'all' && !sourceAppFilter && !activeTagFilter) {
     return (
       <div className="h-full flex items-center justify-center p-6">
         <div className="flex flex-col items-center gap-4 text-center max-w-[200px]">
