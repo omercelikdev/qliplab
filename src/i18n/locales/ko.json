@@ -411,5 +411,6 @@
   "common.clearFilters": "필터 지우기",
   "history.tags.deleteTitle": "태그 삭제",
   "history.tags.deleteMessage": "모든 클립에서 \"{{name}}\"을(를) 제거하시겠습니까? 되돌릴 수 없습니다.",
-  "settings.historyLimit.items": "{{num}}개"
+  "settings.historyLimit.items": "{{num}}개",
+  "onboarding.hint.summon": "어디서나 열기:"
 }

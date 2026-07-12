@@ -411,5 +411,6 @@
   "common.clearFilters": "مسح عوامل التصفية",
   "history.tags.deleteTitle": "حذف الوسم",
   "history.tags.deleteMessage": "إزالة \"{{name}}\" من كل نسخة؟ لا يمكن التراجع عن هذا.",
-  "settings.historyLimit.items": "{{num}} عنصر"
+  "settings.historyLimit.items": "{{num}} عنصر",
+  "onboarding.hint.summon": "افتحه من أي مكان بـ"
 }

@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { X, Clipboard, ArrowUpDown, Keyboard, GitCompare } from 'lucide-react';
+import { X, Clipboard, ArrowUpDown, Keyboard, GitCompare, Command } from 'lucide-react';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { formatShortcut } from '@/lib/formatShortcut';
 
 const isMac = navigator.platform.toUpperCase().includes('MAC');
 
@@ -13,6 +14,7 @@ export function OnboardingBanner() {
 
   const dismiss = () => updateSetting('onboardingSeen', true);
   const diffKey = isMac ? t('onboarding.hint.optionD') : t('onboarding.hint.altD');
+  const summonKey = formatShortcut(settings.globalShortcut);
 
   return (
     <motion.div
@@ -24,6 +26,17 @@ export function OnboardingBanner() {
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-1.5 flex-1">
           <p className="text-xs font-medium">{t('onboarding.welcome')}</p>
+          {summonKey && (
+            <div className="flex items-center gap-1.5">
+              <Command className="w-3 h-3 text-accent shrink-0" />
+              <span className="text-[10px] text-muted-foreground">
+                {t('onboarding.hint.summon')}
+              </span>
+              <kbd className="inline-flex items-center px-1.5 py-px bg-surface border border-border/60 rounded text-[9px] font-mono font-medium text-foreground/70">
+                {summonKey}
+              </kbd>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-x-3 gap-y-1">
             <Hint icon={Clipboard} text={t('onboarding.hint.copyAnything')} />
             <Hint icon={Keyboard} text={t('onboarding.hint.enterToPaste')} />

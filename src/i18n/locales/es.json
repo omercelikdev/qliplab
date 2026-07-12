@@ -411,5 +411,6 @@
   "common.clearFilters": "Borrar filtros",
   "history.tags.deleteTitle": "Eliminar etiqueta",
   "history.tags.deleteMessage": "¿Quitar \"{{name}}\" de todos los elementos? Esto no se puede deshacer.",
-  "settings.historyLimit.items": "{{num}} elementos"
+  "settings.historyLimit.items": "{{num}} elementos",
+  "onboarding.hint.summon": "Ábrelo desde cualquier lugar con"
 }

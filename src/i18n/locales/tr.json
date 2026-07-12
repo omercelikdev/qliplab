@@ -411,5 +411,6 @@
   "common.clearFilters": "Filtreleri temizle",
   "history.tags.deleteTitle": "Etiketi sil",
   "history.tags.deleteMessage": "\"{{name}}\" tüm kopyalardan kaldırılsın mı? Bu geri alınamaz.",
-  "settings.historyLimit.items": "{{num}} öğe"
+  "settings.historyLimit.items": "{{num}} öğe",
+  "onboarding.hint.summon": "Her yerden aç:"
 }

@@ -411,5 +411,6 @@
   "common.clearFilters": "Wyczyść filtry",
   "history.tags.deleteTitle": "Usuń tag",
   "history.tags.deleteMessage": "Usunąć „{{name}}\" ze wszystkich wpisów? Tej operacji nie można cofnąć.",
-  "settings.historyLimit.items": "{{num}} elem."
+  "settings.historyLimit.items": "{{num}} elem.",
+  "onboarding.hint.summon": "Otwórz z dowolnego miejsca:"
 }

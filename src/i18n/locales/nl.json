@@ -411,5 +411,6 @@
   "common.clearFilters": "Filters wissen",
   "history.tags.deleteTitle": "Tag verwijderen",
   "history.tags.deleteMessage": "\"{{name}}\" uit alle clips verwijderen? Dit kan niet ongedaan worden gemaakt.",
-  "settings.historyLimit.items": "{{num}} items"
+  "settings.historyLimit.items": "{{num}} items",
+  "onboarding.hint.summon": "Overal openen met"
 }
