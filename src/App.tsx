@@ -38,11 +38,8 @@ import i18n from './i18n';
 import { showWindow, hideWindow } from './lib/window';
 import { PARK_X, PARK_Y } from './lib/windowGeometry';
 import { shouldHideOnFocusChange } from './lib/dismiss';
+import { loadListWidth, saveListWidth, LIST_WIDTH_MIN, LIST_WIDTH_MAX } from './lib/listWidth';
 import { cn } from './lib/utils';
-
-const DEFAULT_LIST_WIDTH = 300;
-const MIN_LIST_WIDTH = 200;
-const MAX_LIST_WIDTH = 500;
 
 function App() {
   const { activeTab } = useAppStore();
@@ -54,10 +51,12 @@ function App() {
   const { hasSeenOptIn, loadSettings: loadFeedbackSettings } = useFeedbackStore();
   const [isInitialized, setIsInitialized] = useState(false);
   const [showOptIn, setShowOptIn] = useState(false);
-  const [listWidth, setListWidth] = useState(DEFAULT_LIST_WIDTH);
+  // Restore the divider position the user dragged to last time.
+  const [listWidth, setListWidth] = useState(loadListWidth);
 
   const handleSplitterResize = useCallback((width: number) => {
     setListWidth(width);
+    saveListWidth(width);
   }, []);
 
   useEffect(() => {
@@ -275,8 +274,8 @@ function App() {
             {showSidePanel && (
               <Splitter
                 onResize={handleSplitterResize}
-                minListWidth={MIN_LIST_WIDTH}
-                maxListWidth={MAX_LIST_WIDTH}
+                minListWidth={LIST_WIDTH_MIN}
+                maxListWidth={LIST_WIDTH_MAX}
               />
             )}
             <AnimatePresence mode="wait">
