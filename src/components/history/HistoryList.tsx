@@ -193,10 +193,16 @@ export function HistoryList() {
     setActiveTagFilter(null);
   }, [setSearchQuery, setFormatFilter, setSourceAppFilter, setActiveTagFilter]);
 
+  const handleEditSelected = useCallback((index: number) => {
+    const item = orderedItems[index];
+    if (item) openView(item);
+  }, [orderedItems, openView]);
+
   const { selectedIndex } = useKeyboardNavigation({
     itemCount: orderedItems.length,
     onSelect: handleSelect,
     onDelete: handleDeleteSelected,
+    onEdit: handleEditSelected,
     isActive: activeTab === 'history' && !isDiffMode,
   });
 

@@ -25,15 +25,17 @@ function press(key: string, mods: Partial<KeyboardEventInit> = {}) {
 describe('useKeyboardNavigation', () => {
   let onSelect: Mock<(index: number, opts?: { plain?: boolean }) => void>;
   let onDelete: Mock<(index: number) => void>;
+  let onEdit: Mock<(index: number) => void>;
 
   beforeEach(() => {
     onSelect = vi.fn();
     onDelete = vi.fn();
+    onEdit = vi.fn();
   });
 
   const setup = () =>
     renderHook(() =>
-      useKeyboardNavigation({ itemCount: 5, onSelect, onDelete, isActive: true }),
+      useKeyboardNavigation({ itemCount: 5, onSelect, onDelete, onEdit, isActive: true }),
     );
 
   it('Enter selects the highlighted row with plain:false', () => {
@@ -62,6 +64,20 @@ describe('useKeyboardNavigation', () => {
     press('Backspace', { ctrlKey: true });
     expect(onDelete).toHaveBeenCalledWith(1);
     expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('Ctrl+E edits the highlighted row', () => {
+    setup();
+    press('ArrowDown');
+    press('e', { ctrlKey: true });
+    expect(onEdit).toHaveBeenCalledWith(1);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('a plain "e" does not edit (so typing in search is safe)', () => {
+    setup();
+    press('e');
+    expect(onEdit).not.toHaveBeenCalled();
   });
 
   it('a plain Backspace does not delete (so typing in search is safe)', () => {

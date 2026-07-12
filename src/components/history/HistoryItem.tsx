@@ -173,8 +173,10 @@ export const HistoryItem = memo(function HistoryItem({
   // Combined pasting state from click or keyboard
   const isCurrentlyPasting = isPasting || isPastingFromKeyboard;
 
-  // Hovering (or a pinned-open menu) swaps the metadata for the row actions.
-  const showActions = (isHovered || isMenuOpen) && !isDiffMode && !isQueueMode;
+  // Hovering, a pinned-open menu, or keyboard selection swaps the metadata for
+  // the row actions. Revealing on selection makes the actions discoverable to
+  // keyboard users, whose focus never leaves the list container.
+  const showActions = (isHovered || isMenuOpen || isSelected) && !isDiffMode && !isQueueMode;
   // Holding the modifier reveals this row's quick-paste hint (⌘1…⌘9), which
   // takes the trailing slot over both metadata and hover actions.
   const showQuickPaste = modifierHeld && quickPasteNumber !== null && !isDiffMode && !isQueueMode;
