@@ -44,9 +44,11 @@ export function Sidebar() {
         aria-label={label}
         onClick={() => handleTabChange(id)}
         className={cn(
-          // Keyboard users need a visible focus target: suppress the mouse-click
-          // outline, but keep the focus-visible ring.
-          'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
+          // No focus ring here: the window restores focus to the last-clicked
+          // sidebar button on every re-open, which browsers treat as
+          // focus-visible — a stray orange ring on launch. The active tab's
+          // accent fill already shows which view is selected.
+          'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag outline-none',
           isActive
             ? 'bg-accent/15 text-accent'
             : 'text-foreground/55 hover:text-foreground/80 hover:bg-surface-hover'
@@ -84,7 +86,7 @@ export function Sidebar() {
           aria-pressed={isCapturePaused}
           onClick={() => toggleCapturePaused()}
           className={cn(
-            'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
+            'group relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-100 ease-out cursor-pointer no-drag outline-none',
             isCapturePaused
               ? 'bg-amber-500/15 text-amber-500'
               : 'text-foreground/55 hover:text-foreground/80 hover:bg-surface-hover'
