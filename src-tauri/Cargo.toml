@@ -1,6 +1,6 @@
 [package]
 name = "qliplab"
-version = "0.1.22"
+version = "0.1.23"
 description = "Cross-platform clipboard manager"
 authors = ["Ömer Çelik"]
 license = "Apache-2.0"
