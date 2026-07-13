@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Monitor, Moon, Sun, MessageSquare, Shield, ShieldAlert, FileText, Plus, Download, Upload, Check, Keyboard, Zap, Trash2, Info } from 'lucide-react';
+import { X, Monitor, Moon, Sun, MessageSquare, Shield, ShieldAlert, FileText, Plus, Download, Upload, Check, Keyboard, Zap, Trash2, Info, Palette, Clipboard, Code, Lock } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useSettingsStore, type AutoCommand } from '@/stores/settingsStore';
 import { EulaViewerDialog } from '@/components/legal/EulaViewerDialog';
@@ -65,6 +65,8 @@ export function SettingsPanel() {
       <div className="h-full flex flex-col">
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
           <div className="px-4 py-3 space-y-5">
+            {/* ── Appearance ── */}
+            <SectionHeader icon={Palette} label={t('settings.section.appearance')} />
             {/* Theme */}
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.theme.label')}</label>
@@ -116,6 +118,10 @@ export function SettingsPanel() {
               </select>
             </div>
 
+            <div className="dotted-separator" />
+            {/* ── Clipboard ── */}
+            <SectionHeader icon={Clipboard} label={t('settings.section.clipboard')} />
+
             {/* History Limit */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.historyLimit.label')}</label>
@@ -130,64 +136,6 @@ export function SettingsPanel() {
                 }))}
               />
             </div>
-
-            {/* Auto Lock */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.autoLock.label')}</label>
-              <SelectMenu
-                ariaLabel={t('settings.autoLock.label')}
-                triggerClassName={SETTINGS_SELECT_TRIGGER}
-                value={String(settings.autoLockMinutes)}
-                onChange={(v) => { const n = parseInt(v); if (!isNaN(n)) updateSetting('autoLockMinutes', n); }}
-                options={[
-                  { value: '1', label: t('settings.autoLock.1min') },
-                  { value: '5', label: t('settings.autoLock.5min') },
-                  { value: '15', label: t('settings.autoLock.15min') },
-                  { value: '0', label: t('settings.autoLock.never') },
-                ]}
-              />
-            </div>
-
-            {/* Toggles */}
-            <div className="space-y-3">
-              <ToggleSetting
-                label={t('settings.toggle.launchOnLogin')}
-                description={t('settings.toggle.launchOnLoginDesc')}
-                checked={settings.launchOnLogin}
-                onChange={(v) => updateSetting('launchOnLogin', v)}
-              />
-              <ToggleSetting
-                label={t('settings.toggle.sensitiveDetection')}
-                description={t('settings.toggle.sensitiveDetectionDesc')}
-                checked={settings.sensitiveDetectionEnabled}
-                onChange={(v) => updateSetting('sensitiveDetectionEnabled', v)}
-              />
-              <ToggleSetting
-                label={t('settings.toggle.storeImages')}
-                description={t('settings.toggle.storeImagesDesc')}
-                checked={settings.storeImages}
-                onChange={(v) => updateSetting('storeImages', v)}
-              />
-              <ToggleSetting
-                label={t('settings.toggle.clearOnQuit')}
-                description={t('settings.toggle.clearOnQuitDesc')}
-                checked={settings.clearHistoryOnQuit}
-                onChange={(v) => updateSetting('clearHistoryOnQuit', v)}
-              />
-              <ToggleSetting
-                label={t('settings.toggle.snippetAutoExpand')}
-                description={t('settings.toggle.snippetAutoExpandDesc')}
-                checked={settings.snippetAutoExpand}
-                onChange={(v) => updateSetting('snippetAutoExpand', v)}
-              />
-            </div>
-
-            {/* Auto-Commands */}
-            <div className="dotted-separator" />
-            <AutoCommandsSection
-              commands={settings.autoCommands}
-              onChange={(cmds) => updateSetting('autoCommands', cmds)}
-            />
 
             {/* Clip Expiration */}
             <div className="space-y-1.5">
@@ -207,17 +155,32 @@ export function SettingsPanel() {
               />
             </div>
 
-            {/* Global Shortcut — two slots so a short primary and a familiar
-                second (Ditto's Ctrl+`) can coexist. */}
-            <ShortcutSetting
-              shortcut={settings.globalShortcut}
-              onChange={(s) => updateSetting('globalShortcut', s)}
-            />
-            <ShortcutSetting
-              label={t('settings.shortcut.labelSecondary')}
-              shortcut={settings.globalShortcut2}
-              onChange={(s) => updateSetting('globalShortcut2', s)}
-              onClear={() => updateSetting('globalShortcut2', '')}
+            {/* Clipboard behaviour toggles */}
+            <div className="space-y-3">
+              <ToggleSetting
+                label={t('settings.toggle.sensitiveDetection')}
+                description={t('settings.toggle.sensitiveDetectionDesc')}
+                checked={settings.sensitiveDetectionEnabled}
+                onChange={(v) => updateSetting('sensitiveDetectionEnabled', v)}
+              />
+              <ToggleSetting
+                label={t('settings.toggle.storeImages')}
+                description={t('settings.toggle.storeImagesDesc')}
+                checked={settings.storeImages}
+                onChange={(v) => updateSetting('storeImages', v)}
+              />
+              <ToggleSetting
+                label={t('settings.toggle.clearOnQuit')}
+                description={t('settings.toggle.clearOnQuitDesc')}
+                checked={settings.clearHistoryOnQuit}
+                onChange={(v) => updateSetting('clearHistoryOnQuit', v)}
+              />
+            </div>
+
+            {/* Auto-Commands */}
+            <AutoCommandsSection
+              commands={settings.autoCommands}
+              onChange={(cmds) => updateSetting('autoCommands', cmds)}
             />
 
             {/* Ignored Apps */}
@@ -237,6 +200,62 @@ export function SettingsPanel() {
               <IgnoredAppsList
                 apps={settings.ignoredApps}
                 onChange={(apps) => updateSetting('ignoredApps', apps)}
+              />
+            </div>
+
+            <div className="dotted-separator" />
+            {/* ── Snippets ── */}
+            <SectionHeader icon={Code} label={t('settings.section.snippets')} />
+            <div className="space-y-3">
+              <ToggleSetting
+                label={t('settings.toggle.snippetAutoExpand')}
+                description={t('settings.toggle.snippetAutoExpandDesc')}
+                checked={settings.snippetAutoExpand}
+                onChange={(v) => updateSetting('snippetAutoExpand', v)}
+              />
+            </div>
+
+            <div className="dotted-separator" />
+            {/* ── Vault ── */}
+            <SectionHeader icon={Lock} label={t('settings.section.vault')} />
+            {/* Auto Lock */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{t('settings.autoLock.label')}</label>
+              <SelectMenu
+                ariaLabel={t('settings.autoLock.label')}
+                triggerClassName={SETTINGS_SELECT_TRIGGER}
+                value={String(settings.autoLockMinutes)}
+                onChange={(v) => { const n = parseInt(v); if (!isNaN(n)) updateSetting('autoLockMinutes', n); }}
+                options={[
+                  { value: '1', label: t('settings.autoLock.1min') },
+                  { value: '5', label: t('settings.autoLock.5min') },
+                  { value: '15', label: t('settings.autoLock.15min') },
+                  { value: '0', label: t('settings.autoLock.never') },
+                ]}
+              />
+            </div>
+
+            <div className="dotted-separator" />
+            {/* ── Shortcuts & Startup ── */}
+            <SectionHeader icon={Keyboard} label={t('settings.section.shortcuts')} />
+            {/* Global Shortcut — two slots so a short primary and a familiar
+                second (Ditto's Ctrl+`) can coexist. */}
+            <ShortcutSetting
+              shortcut={settings.globalShortcut}
+              onChange={(s) => updateSetting('globalShortcut', s)}
+            />
+            <ShortcutSetting
+              label={t('settings.shortcut.labelSecondary')}
+              shortcut={settings.globalShortcut2}
+              onChange={(s) => updateSetting('globalShortcut2', s)}
+              onClear={() => updateSetting('globalShortcut2', '')}
+            />
+            <div className="space-y-3">
+              <ToggleSetting
+                label={t('settings.toggle.launchOnLogin')}
+                description={t('settings.toggle.launchOnLoginDesc')}
+                checked={settings.launchOnLogin}
+                onChange={(v) => updateSetting('launchOnLogin', v)}
               />
             </div>
 
@@ -322,6 +341,16 @@ export function SettingsPanel() {
       <PrivacyPolicyDialog isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
       <EulaViewerDialog isOpen={isEulaOpen} onClose={() => setIsEulaOpen(false)} />
     </>
+  );
+}
+
+/** Consistent section header (icon + uppercase label), matching Privacy/About. */
+function SectionHeader({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <Icon className="w-3.5 h-3.5 text-muted-foreground" />
+      <span className="text-xs font-semibold uppercase tracking-[0.05em] text-foreground/40">{label}</span>
+    </div>
   );
 }
 

@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "Popularne",
   "vault.dialog.personal.allCountries": "Wszystkie kraje",
   "tray.show": "Pokaż QlipLab",
-  "tray.quit": "Zakończ"
+  "tray.quit": "Zakończ",
+  "settings.section.appearance": "Wygląd",
+  "settings.section.clipboard": "Schowek",
+  "settings.section.snippets": "Fragmenty",
+  "settings.section.vault": "Sejf",
+  "settings.section.shortcuts": "Skróty i uruchamianie"
 }

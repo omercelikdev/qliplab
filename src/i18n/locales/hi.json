@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "लोकप्रिय",
   "vault.dialog.personal.allCountries": "सभी देश",
   "tray.show": "QlipLab दिखाएं",
-  "tray.quit": "बाहर निकलें"
+  "tray.quit": "बाहर निकलें",
+  "settings.section.appearance": "दिखावट",
+  "settings.section.clipboard": "क्लिपबोर्ड",
+  "settings.section.snippets": "स्निपेट",
+  "settings.section.vault": "तिजोरी",
+  "settings.section.shortcuts": "शॉर्टकट और स्टार्टअप"
 }

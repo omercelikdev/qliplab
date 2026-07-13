@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "Populair",
   "vault.dialog.personal.allCountries": "Alle landen",
   "tray.show": "QlipLab tonen",
-  "tray.quit": "Afsluiten"
+  "tray.quit": "Afsluiten",
+  "settings.section.appearance": "Weergave",
+  "settings.section.clipboard": "Klembord",
+  "settings.section.snippets": "Snippets",
+  "settings.section.vault": "Kluis",
+  "settings.section.shortcuts": "Sneltoetsen & opstarten"
 }

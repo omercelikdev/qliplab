@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "Popüler",
   "vault.dialog.personal.allCountries": "Tüm Ülkeler",
   "tray.show": "QlipLab'ı Göster",
-  "tray.quit": "Çıkış"
+  "tray.quit": "Çıkış",
+  "settings.section.appearance": "Görünüm",
+  "settings.section.clipboard": "Pano",
+  "settings.section.snippets": "Snippet'ler",
+  "settings.section.vault": "Kasa",
+  "settings.section.shortcuts": "Kısayollar ve Başlangıç"
 }

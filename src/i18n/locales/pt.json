@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "Populares",
   "vault.dialog.personal.allCountries": "Todos os países",
   "tray.show": "Mostrar QlipLab",
-  "tray.quit": "Sair"
+  "tray.quit": "Sair",
+  "settings.section.appearance": "Aparência",
+  "settings.section.clipboard": "Área de transferência",
+  "settings.section.snippets": "Snippets",
+  "settings.section.vault": "Cofre",
+  "settings.section.shortcuts": "Atalhos e inicialização"
 }
