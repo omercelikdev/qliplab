@@ -51,6 +51,25 @@ jobs:
         with:
           args: --target universal-apple-darwin
 
+      # tauri-action notarizes + staples the .app but not the .dmg wrapper, so
+      # `spctl -t install` on the .dmg reports "Unnotarized". Submit the .dmg
+      # itself (its contents are already notarized, so Apple clears it fast)
+      # and staple the ticket, so the disk image passes Gatekeeper too.
+      - name: Notarize & staple the DMG
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          DMG=$(find src-tauri/target/universal-apple-darwin/release/bundle/dmg -name '*.dmg' | head -1)
+          echo "Notarizing $DMG"
+          xcrun notarytool submit "$DMG" \
+            --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+          xcrun stapler staple "$DMG"
+          xcrun stapler validate "$DMG"
+          spctl -a -vvv -t install "$DMG" || true
+
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
