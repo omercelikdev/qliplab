@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "شائع",
   "vault.dialog.personal.allCountries": "كل الدول",
   "tray.show": "إظهار QlipLab",
-  "tray.quit": "إنهاء"
+  "tray.quit": "إنهاء",
+  "settings.section.appearance": "المظهر",
+  "settings.section.clipboard": "الحافظة",
+  "settings.section.snippets": "المقتطفات",
+  "settings.section.vault": "الخزنة",
+  "settings.section.shortcuts": "الاختصارات والبدء"
 }

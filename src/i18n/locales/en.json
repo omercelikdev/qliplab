@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "Popular",
   "vault.dialog.personal.allCountries": "All Countries",
   "tray.show": "Show QlipLab",
-  "tray.quit": "Quit"
+  "tray.quit": "Quit",
+  "settings.section.appearance": "Appearance",
+  "settings.section.clipboard": "Clipboard",
+  "settings.section.snippets": "Snippets",
+  "settings.section.vault": "Vault",
+  "settings.section.shortcuts": "Shortcuts & Startup"
 }

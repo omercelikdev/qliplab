@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "Популярные",
   "vault.dialog.personal.allCountries": "Все страны",
   "tray.show": "Показать QlipLab",
-  "tray.quit": "Выход"
+  "tray.quit": "Выход",
+  "settings.section.appearance": "Оформление",
+  "settings.section.clipboard": "Буфер обмена",
+  "settings.section.snippets": "Сниппеты",
+  "settings.section.vault": "Хранилище",
+  "settings.section.shortcuts": "Сочетания и запуск"
 }

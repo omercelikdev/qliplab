@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "常用",
   "vault.dialog.personal.allCountries": "所有国家/地区",
   "tray.show": "显示 QlipLab",
-  "tray.quit": "退出"
+  "tray.quit": "退出",
+  "settings.section.appearance": "外观",
+  "settings.section.clipboard": "剪贴板",
+  "settings.section.snippets": "代码片段",
+  "settings.section.vault": "保险库",
+  "settings.section.shortcuts": "快捷键与启动"
 }

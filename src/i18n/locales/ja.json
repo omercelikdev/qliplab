@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "人気",
   "vault.dialog.personal.allCountries": "すべての国",
   "tray.show": "QlipLab を表示",
-  "tray.quit": "終了"
+  "tray.quit": "終了",
+  "settings.section.appearance": "外観",
+  "settings.section.clipboard": "クリップボード",
+  "settings.section.snippets": "スニペット",
+  "settings.section.vault": "保管庫",
+  "settings.section.shortcuts": "ショートカットと起動"
 }

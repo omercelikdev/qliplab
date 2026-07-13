@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "인기",
   "vault.dialog.personal.allCountries": "모든 국가",
   "tray.show": "QlipLab 표시",
-  "tray.quit": "종료"
+  "tray.quit": "종료",
+  "settings.section.appearance": "모양",
+  "settings.section.clipboard": "클립보드",
+  "settings.section.snippets": "스니펫",
+  "settings.section.vault": "보관함",
+  "settings.section.shortcuts": "단축키 및 시작"
 }

@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "Populares",
   "vault.dialog.personal.allCountries": "Todos los países",
   "tray.show": "Mostrar QlipLab",
-  "tray.quit": "Salir"
+  "tray.quit": "Salir",
+  "settings.section.appearance": "Apariencia",
+  "settings.section.clipboard": "Portapapeles",
+  "settings.section.snippets": "Snippets",
+  "settings.section.vault": "Bóveda",
+  "settings.section.shortcuts": "Atajos e inicio"
 }

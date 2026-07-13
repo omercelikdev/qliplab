@@ -449,5 +449,10 @@
   "vault.dialog.personal.popular": "Popolari",
   "vault.dialog.personal.allCountries": "Tutti i paesi",
   "tray.show": "Mostra QlipLab",
-  "tray.quit": "Esci"
+  "tray.quit": "Esci",
+  "settings.section.appearance": "Aspetto",
+  "settings.section.clipboard": "Appunti",
+  "settings.section.snippets": "Snippet",
+  "settings.section.vault": "Cassaforte",
+  "settings.section.shortcuts": "Scorciatoie e avvio"
 }
