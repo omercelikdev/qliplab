@@ -1,6 +1,46 @@
 # QlipLab — Comprehensive Analysis & Finalization Report
 
 > Generated: 2026-02-16 | Codebase version: 0.1.0 | Branch: main
+> **Last implementation update: 2026-07-13** (see changelog below)
+
+---
+
+## 2026-07 Implementation Update
+
+A full-repo audit (Fable model) produced ~70 issues across four tiers. All
+were implemented as small, individually-tested PRs (#232–#260). Test count
+grew 345 → 606. Highlights:
+
+**Correctness (Tier 0)** — JWT base64url decode, timestamp trimming, hex
+round-trips, anchored URL-encoded detection, trigger-expand ordering,
+cancellable clipboard-skip.
+
+**Features (Tier 1)** — pause capture, tag filter at SQL level, delete +
+plain-paste keyboard shortcuts, in-place clip editing with save/discard,
+snippet folders, **vault master-password change** (decrypt-all → re-encrypt
+→ swap hash, manual rollback since tauri-plugin-sql pools connections).
+
+**UX polish (Tier 2)** — focus ring only on keyboard nav; more legible
+sidebar icons; "Clear filters" on empty results; confirm tag deletion;
+whole toggle-row clickable + `role="switch"`; persisted splitter width;
+diff mode scoped to History; keyboard-navigable `SelectMenu` (arrows /
+type-ahead) replacing native `<select>`s; pin from row hover; onboarding
+teaches the summon shortcut; infinite scroll; consistent copy feedback;
+labelled Settings sections.
+
+**a11y / i18n (Tier 3)** — transform labels + preview titles + vault dialog
++ **native tray menu** localized (15 locales throughout); keyboard access to
+row actions (Cmd/Ctrl+E, reveal on selection); OCR hidden on Linux; RTL
+logical-inset fixes; orphaned `SearchBar.tsx` removed.
+
+**"Wow" features** — search box doubles as an offline **calculator /
+converter** (`lib/commandBar`, no eval); **contextual smart actions** (URL /
+email / phone / coordinates → open); **frecency** "Most used" sort
+(`paste_count`); **cross-tab search** hints ("Also in: Snippets 3 · Vault 1").
+
+Every new `lib/` function is unit-tested; every user-visible string is in all
+15 locales. Release pipeline + `qliplab.omercelik.dev` download hub were also
+repaired earlier in the same session (v0.1.22 with working updater).
 
 ---
 
