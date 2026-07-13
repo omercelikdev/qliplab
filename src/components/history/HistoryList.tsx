@@ -303,9 +303,9 @@ export function HistoryList() {
               ...sourceApps.map((app) => ({ value: app, label: app })),
             ]}
             triggerClassName={cn(
-              'shrink-0 max-w-[120px] flex items-center gap-1 ps-1.5 pe-1 py-0.5 text-[11px] rounded-md bg-transparent',
+              'shrink-0 max-w-[120px] flex items-center gap-1 ps-1.5 pe-1.5 py-0.5 text-[11px] rounded-md transition-colors',
               'cursor-pointer no-drag outline-none focus-visible:ring-2 focus-visible:ring-accent',
-              sourceAppFilter ? 'text-accent font-medium' : 'text-muted-foreground'
+              sourceAppFilter ? 'text-accent bg-accent/10 font-medium' : 'text-muted-foreground hover:bg-surface-hover'
             )}
           />
         )}
