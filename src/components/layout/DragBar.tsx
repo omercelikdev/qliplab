@@ -8,7 +8,7 @@ const DEBOUNCE_MS = 120;
 
 export function SearchBar() {
   const { t } = useTranslation();
-  const { searchQuery, setSearchQuery, activeTab } = useAppStore();
+  const { searchQuery, setSearchQuery, activeTab, windowOpenCount } = useAppStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -41,6 +41,16 @@ export function SearchBar() {
     };
   }, []);
 
+  // Put the caret in the search box on every window open (settings tab hides
+  // the bar, so inputRef is simply null there). This lets the user type to
+  // filter straight away and takes focus off whichever sidebar button the OS
+  // restored it to — otherwise that restore reads as focus-visible and paints
+  // a stray ring on launch.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => inputRef.current?.focus());
+    return () => cancelAnimationFrame(id);
+  }, [windowOpenCount]);
+
   // Auto-focus search when user starts typing (like Spotlight)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -72,7 +82,7 @@ export function SearchBar() {
     >
       <div
         role="search"
-        className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag transition-shadow duration-150 ease-out focus-within:ring-2 focus-within:ring-accent/15 focus-within:border-accent/40"
+        className="flex-1 flex items-center gap-2 h-8 px-2.5 bg-surface rounded-md cursor-text no-drag"
         onClick={() => inputRef.current?.focus()}
       >
         <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
