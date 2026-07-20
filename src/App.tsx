@@ -10,6 +10,7 @@ import { Splitter } from './components/layout/Splitter';
 import { ResizeBorder } from './components/layout/ResizeBorder';
 import { WindowControls } from './components/layout/WindowControls';
 import { OnboardingBanner } from './components/layout/OnboardingBanner';
+import { WelcomeWizard } from './components/layout/WelcomeWizard';
 import { AccessibilityBanner } from './components/layout/AccessibilityBanner';
 import { CapturePausedBanner } from './components/layout/CapturePausedBanner';
 import { HistoryList } from './components/history/HistoryList';
@@ -50,6 +51,7 @@ function App() {
   const { editorOpen: snippetEditorOpen } = useSnippetStore();
   const showSidePanel = activeTab !== 'settings' && (previewOpen || snippetEditorOpen);
   const { hasSeenOptIn, loadSettings: loadFeedbackSettings } = useFeedbackStore();
+  const welcomeSeen = useSettingsStore((s) => s.settings.welcomeSeen);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showOptIn, setShowOptIn] = useState(false);
   // Restore the divider position the user dragged to last time.
@@ -120,14 +122,15 @@ function App() {
     return () => window.removeEventListener('focus', onFocus);
   }, []);
 
-  // Show opt-in dialog on first run
+  // Show opt-in dialog on first run — but only after the welcome wizard is done,
+  // so the two full-screen surfaces never stack on top of each other.
   useEffect(() => {
-    if (isInitialized && !hasSeenOptIn) {
+    if (isInitialized && welcomeSeen && !hasSeenOptIn) {
       // Small delay to let the UI settle on first launch
       const timer = setTimeout(() => setShowOptIn(true), 500);
       return () => clearTimeout(timer);
     }
-  }, [isInitialized, hasSeenOptIn]);
+  }, [isInitialized, welcomeSeen, hasSeenOptIn]);
 
   // Listen for tray icon "Show" event from Rust
   useEffect(() => {
@@ -308,6 +311,11 @@ function App() {
       </div>
 
       <ErrorReportingOptIn isOpen={showOptIn} onClose={() => setShowOptIn(false)} />
+
+      {/* First-run welcome. Sits above everything and gates the opt-in dialog. */}
+      <AnimatePresence>
+        {isInitialized && !welcomeSeen && <WelcomeWizard />}
+      </AnimatePresence>
     </ErrorBoundary>
   );
 }
