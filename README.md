@@ -56,7 +56,7 @@ npm run tauri:build:linux  # Linux x64
 ## Build Outputs
 
 - **macOS**: `src-tauri/target/release/bundle/dmg/`
-- **Windows**: `src-tauri/target/release/bundle/msi/`
+- **Windows**: `src-tauri/target/release/bundle/nsis/`
 - **Linux**: `src-tauri/target/release/bundle/appimage/`
 
 ## Tech Stack

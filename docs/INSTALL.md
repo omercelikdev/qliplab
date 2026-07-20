@@ -28,7 +28,10 @@ Without it, the global shortcut and auto-paste will not work.
 
 ## Windows
 
-**Download:** `QlipLab_<version>_x64-setup.exe` (recommended) or the `.msi`
+**Download:** `QlipLab_<version>_x64-setup.exe`
+
+The installer runs per-user — **no administrator prompt** — and installs in a
+couple of clicks.
 
 Windows will show a blue **"Windows protected your PC"** screen:
 

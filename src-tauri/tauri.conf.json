@@ -35,7 +35,7 @@
   "bundle": {
     "active": true,
     "createUpdaterArtifacts": true,
-    "targets": "all",
+    "targets": ["app", "dmg", "nsis", "deb", "appimage"],
     "resources": [
       "icons/32x32.png",
       "PrivacyInfo.xcprivacy"
@@ -53,10 +53,13 @@
       "infoPlist": "./Info.plist"
     },
     "windows": {
-      "wix": {
-        "language": [
-          "en-US"
-        ]
+      "nsis": {
+        "installMode": "currentUser",
+        "displayLanguageSelector": false,
+        "languages": ["English"]
+      },
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
       }
     },
     "linux": {
