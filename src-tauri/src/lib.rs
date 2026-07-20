@@ -261,6 +261,73 @@ fn save_frontmost_app() -> Result<(), String> {
     Ok(())
 }
 
+/// Bring a previously-focused window back to the foreground reliably.
+///
+/// A plain `SetForegroundWindow` from QlipLab fails here: by the time we paste,
+/// QlipLab has already hidden its own window and is no longer the foreground
+/// process, so Windows' foreground lock denies the call and merely flashes the
+/// taskbar button — the paste then lands nowhere. We work around it the way
+/// Ditto does: restore the target if it was minimized, then attach our input
+/// queue to both the outgoing foreground thread and the target's thread so the
+/// foreground-lock check treats the request as coming from the active app.
+/// Returns whether the target actually ended up in the foreground.
+#[cfg(target_os = "windows")]
+fn restore_foreground_window(hwnd_val: isize) -> bool {
+    use windows::Win32::Foundation::HWND;
+    use windows::Win32::System::Threading::{AttachThreadInput, GetCurrentThreadId};
+    use windows::Win32::UI::WindowsAndMessaging::{
+        AllowSetForegroundWindow, BringWindowToTop, GetForegroundWindow, GetWindowThreadProcessId,
+        IsIconic, IsWindow, SetForegroundWindow, ShowWindow, ASFW_ANY, SW_RESTORE,
+    };
+
+    let target = HWND(hwnd_val as *mut std::ffi::c_void);
+    unsafe {
+        if !IsWindow(Some(target)).as_bool() {
+            qlip_log(&format!("restore_foreground_window: stale/invalid hwnd={}", hwnd_val));
+            return false;
+        }
+
+        // Un-minimize so the paste target is actually able to receive input.
+        if IsIconic(target).as_bool() {
+            let _ = ShowWindow(target, SW_RESTORE);
+        }
+
+        // Opt out of the foreground lock for this attempt.
+        let _ = AllowSetForegroundWindow(ASFW_ANY);
+
+        let this_thread = GetCurrentThreadId();
+        let fg_thread = GetWindowThreadProcessId(GetForegroundWindow(), None);
+        let target_thread = GetWindowThreadProcessId(target, None);
+
+        // Attach to the outgoing foreground thread and the target thread so
+        // Windows sees a "cooperating" request rather than a background grab.
+        let att_fg = fg_thread != 0
+            && fg_thread != this_thread
+            && AttachThreadInput(this_thread, fg_thread, true).as_bool();
+        let att_tgt = target_thread != 0
+            && target_thread != this_thread
+            && target_thread != fg_thread
+            && AttachThreadInput(this_thread, target_thread, true).as_bool();
+
+        let _ = SetForegroundWindow(target);
+        let _ = BringWindowToTop(target);
+
+        if att_tgt {
+            let _ = AttachThreadInput(this_thread, target_thread, false);
+        }
+        if att_fg {
+            let _ = AttachThreadInput(this_thread, fg_thread, false);
+        }
+
+        let ok = GetForegroundWindow() == target;
+        qlip_log(&format!(
+            "restore_foreground_window: hwnd={} foreground={}",
+            hwnd_val, ok
+        ));
+        ok
+    }
+}
+
 /// Get current frontmost app name (for source tracking and ignore list)
 #[cfg(target_os = "macos")]
 #[tauri::command]
@@ -535,21 +602,25 @@ fn simulate_paste() -> Result<(), String> {
             qlip_log("simulate_paste [non-mac]: starting");
             #[cfg(target_os = "windows")]
             {
-                use windows::Win32::UI::WindowsAndMessaging::SetForegroundWindow;
-                use windows::Win32::Foundation::HWND;
-                if let Ok(guard) = PREVIOUS_HWND.lock() {
-                    if let Some(hwnd_val) = *guard {
-                        qlip_log(&format!("simulate_paste [win]: activating hwnd={}", hwnd_val));
-                        unsafe {
-                            let _ = SetForegroundWindow(HWND(hwnd_val as *mut std::ffi::c_void));
-                        }
-                    } else {
-                        qlip_log("simulate_paste [win]: no previous hwnd saved");
+                let hwnd_val = PREVIOUS_HWND.lock().ok().and_then(|guard| *guard);
+                if let Some(hwnd_val) = hwnd_val {
+                    qlip_log(&format!("simulate_paste [win]: activating hwnd={}", hwnd_val));
+                    // The foreground grab can lose a race with our own window
+                    // finishing its hide, so give it a second attempt.
+                    if !restore_foreground_window(hwnd_val) {
+                        thread::sleep(Duration::from_millis(60));
+                        restore_foreground_window(hwnd_val);
                     }
+                    // Let the newly-activated window settle before we type into it.
+                    thread::sleep(Duration::from_millis(60));
+                } else {
+                    qlip_log("simulate_paste [win]: no previous hwnd saved");
+                    thread::sleep(Duration::from_millis(100));
                 }
             }
-
+            #[cfg(not(target_os = "windows"))]
             thread::sleep(Duration::from_millis(100));
+
             if let Ok(mut enigo) = Enigo::new(&Settings::default()) {
                 qlip_log("simulate_paste [non-mac]: enigo created, pressing Ctrl+V");
                 let _ = enigo.key(Key::Control, Direction::Press);
