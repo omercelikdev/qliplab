@@ -120,7 +120,6 @@ jobs:
         with:
           name: windows-artifacts
           path: |
-            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.sig
           if-no-files-found: error
@@ -216,7 +215,7 @@ jobs:
       - name: Flatten artifacts and generate updater manifest
         run: |
           mkdir -p release-files
-          find artifacts -type f \( -name "*.dmg" -o -name "*.msi" -o -name "*-setup.exe" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.app.tar.gz" \) -exec cp {} release-files/ \;
+          find artifacts -type f \( -name "*.dmg" -o -name "*-setup.exe" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.app.tar.gz" \) -exec cp {} release-files/ \;
 
           # Updater manifest (latest.json). NOTE: validate on the FIRST real release —
           # artifact filenames / target keys may need a tweak.
