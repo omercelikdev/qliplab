@@ -20,6 +20,9 @@ export interface AppSettings {
   expirationDays: number; // 0 = never
   snippetAutoExpand: boolean;
   onboardingSeen: boolean;
+  /** First-run welcome wizard completed (or skipped). Distinct from
+   *  onboardingSeen (the inline hint banner) so each can retire independently. */
+  welcomeSeen: boolean;
   globalShortcut: string; // primary, e.g. 'CommandOrControl+Shift+V'
   /** Optional second toggle shortcut. Empty string = unset. Defaults to
    *  Ditto's Ctrl+` so migrants keep their muscle memory. */
@@ -47,6 +50,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   expirationDays: 0,
   snippetAutoExpand: true,
   onboardingSeen: false,
+  welcomeSeen: false,
   // Alt+Q collided with typing '@' on Turkish keyboards (AltGr+Q), so the
   // default is a safe combo; Ctrl+` mirrors Ditto as the secondary.
   globalShortcut: 'CommandOrControl+Shift+V',
